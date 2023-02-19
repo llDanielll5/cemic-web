@@ -1,0 +1,44 @@
+:root {
+  --blue: #09aae8;
+  --red: #e91d23;
+  --dark-blue: #1b083e;
+  --blue-mid: rgba(9, 170, 232, 0.1);
+}
+
+* {
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--dark-blue);
+  transition: all 0.7s;
+}
+
+ul li {
+  list-style: none;
+}
+ul li a {
+  text-decoration: none;
+}
+
+.scrollup {
+  position: fixed;
+  right: 1rem;
+  bottom: -30%;
+  box-shadow: 0 8px 12px hsla(228, 66%, 45%, 0.1);
+  display: inline-flex;
+  background-color: white;
+  padding: 0.7rem;
+  border-radius: 50%;
+  font-size: 3rem;
+  z-index: 10;
+  transition: 0.3s;
+}
+
+.scrollup:hover {
+  transform: translateY(-0.25rem);
+  color: hsl(228, 66%, 53%);
+}
+.show-scroll {
+  bottom: 7rem;
+}
