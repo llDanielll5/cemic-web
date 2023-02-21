@@ -86,14 +86,12 @@
 .about .about-container p {
   margin: 16px;
   font-size: 1.5rem;
+  width: 85%;
 }
 .about-icon {
-  font-size: 3rem;
-}
-
-.banner {
-  background-color: rgba(0, 0, 0, 0.001);
-  padding: 30px 60px;
+  font-size: 3.5rem;
+  width: 5%;
+  color: var(--dark-blue);
 }
 
 .informations h2 {
@@ -107,32 +105,6 @@
   color: var(--blue);
   font-size: 35px;
 }
-.double-column-banner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 24px 0;
-  padding: 36px 0;
-  transition: 0.7s;
-}
-.double-column-banner:hover {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
-}
-.img-founder {
-  height: 240px;
-  width: 240px;
-  border-radius: 50%;
-}
-.banner p {
-  margin-top: 16px;
-  width: 50%;
-  font-size: 1.4rem;
-  color: var(--dark-blue);
-  font-weight: 500;
-  text-align: center;
-  margin-right: 24px;
-}
 
 .contact {
   background: linear-gradient(300deg, var(--blue), var(--dark-blue));
@@ -145,6 +117,7 @@
 .contact h2 {
   color: white;
   font-size: 1.6rem;
+  text-align: center;
 }
 .contact h2 span {
   text-decoration-line: underline;
@@ -159,6 +132,7 @@
   font-size: 1.2rem;
   font-weight: 500;
   margin: 12px 0;
+  text-align: center;
 }
 .contact h4 span {
   color: var(--red);
@@ -186,9 +160,19 @@
   width: 70%;
   cursor: pointer;
 }
+.contact textarea {
+  width: 100%;
+  resize: none;
+  height: 150px;
+  border-radius: 20px;
+  outline: none;
+  padding: 16px;
+  font-weight: 500;
+  font-size: 16px;
+}
 
 .footer {
-  background-color: rgba(200, 200, 200, 0.2);
+  background-color: rgba(200, 200, 200, 0.6);
 }
 .container-footer {
   display: flex;
@@ -198,8 +182,8 @@
   padding: 24px 0;
 }
 .footer .logo-footer {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
 }
 .footer p {
   margin: 8px 0;
@@ -221,6 +205,8 @@
 .icon-menu {
   display: none;
 }
+
+/* RESPONSIBLE WEBSITE */
 
 @media screen and (max-width: 760px) {
   .header-container {
@@ -246,7 +232,6 @@
 
   .list-container {
     display: none;
-    opacity: 0;
     width: 100%;
     position: absolute;
     background-color: white;
@@ -301,7 +286,7 @@
   }
 
   .about {
-    padding: 20px 16px;
+    padding: 20px 22px;
   }
   .about h3 {
     font-size: 1.4rem;
@@ -317,15 +302,10 @@
   .about .about-container p {
     margin: 16px;
     font-size: 0.9rem;
-    width: 80%;
+    width: 85%;
   }
   .about .about-icon {
     font-size: 3rem;
-  }
-
-  .banner {
-    background-color: rgba(0, 0, 0, 0.001);
-    padding: 20px 16px;
   }
 
   .informations h2 {
@@ -338,32 +318,6 @@
   .informations h2 span {
     color: var(--blue);
     font-size: 35px;
-  }
-  .double-column-banner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 24px 0;
-    padding: 36px 0;
-    transition: 0.7s;
-  }
-  .double-column-banner:hover {
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
-  }
-  .img-founder {
-    height: 200px;
-    width: 200px;
-    border-radius: 50%;
-  }
-  .banner p {
-    margin-top: 16px;
-    width: 50%;
-    font-size: 1rem;
-    color: var(--dark-blue);
-    font-weight: 500;
-    text-align: center;
-    margin-right: 24px;
   }
 
   .contact {
@@ -418,6 +372,16 @@
     margin: 16px 0;
     width: 70%;
     cursor: pointer;
+  }
+  .contact textarea {
+    width: 100%;
+    resize: none;
+    height: 150px;
+    border-radius: 20px;
+    outline: none;
+    padding: 16px;
+    font-weight: 500;
+    font-size: 12px;
   }
 
   .footer {
