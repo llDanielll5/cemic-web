@@ -45,7 +45,7 @@ ${message}
     return value;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     if (treatment === "" || dayWeek === "") {
       alert("Preencha todos os campos com *!");
