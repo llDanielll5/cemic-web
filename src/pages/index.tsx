@@ -19,7 +19,7 @@ export default function LandingPage() {
   const refMenu = useRef<HTMLUListElement>(null);
   const currentScroll = useGetScrollPosition();
   const [menuMobile, setMenuMobile] = useState(false);
-  const [loginModal, setLoginModal] = useState(true);
+  const [loginModal, setLoginModal] = useState(false);
 
   const msg = `Olá!! 
 Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
