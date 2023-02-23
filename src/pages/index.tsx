@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
-import styles from "@/styles/Landing.module.css";
 import { headerData } from "data";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -10,6 +9,9 @@ import { useRouter } from "next/router";
 import About from "@/components/about";
 import ContactForm from "@/components/contact";
 import useWindowSize from "@/hooks/useWindowSize";
+import Modal from "@/components/modal";
+import styles from "@/styles/Landing.module.css";
+import modalStyle from "../styles/Modal.module.css";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function LandingPage() {
   const refMenu = useRef<HTMLUListElement>(null);
   const currentScroll = useGetScrollPosition();
   const [menuMobile, setMenuMobile] = useState(false);
+  const [loginModal, setLoginModal] = useState(true);
 
   const msg = `Olá!! 
 Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
@@ -46,18 +49,36 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
   }, [currentScroll]);
 
   const changeRouter = useCallback(() => {
-    const routerPath = router.pathname;
     const list = refMenu?.current?.style;
     if (size?.width! > 760) {
       setMenuMobile(false);
       list?.setProperty("display", "flex");
     }
-  }, [router.pathname, size?.width]);
+  }, [size?.width]);
 
   useEffect(() => {
     scrollUp();
     changeRouter();
   }, [changeRouter, scrollUp]);
+
+  const listItem = ({ item, index }: any) => (
+    <li key={index} className={styles["list-item"]}>
+      <a href={item.path}>{item.title}</a>
+    </li>
+  );
+  const modalLogin = ({ item, index }: any) => {
+    const handleClick = (e: any) => {
+      e.preventDefault();
+      setLoginModal(true);
+    };
+    return (
+      <li key={index} className={styles["list-item"]}>
+        <a style={{ cursor: "pointer" }} onClick={handleClick}>
+          {item.title}
+        </a>
+      </li>
+    );
+  };
   return (
     <>
       <Head>
@@ -78,34 +99,19 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
         />
 
         <ul className={styles["list-container"]} ref={refMenu}>
-          {headerData.map((item, index) => (
-            <li key={index} className={styles["list-item"]}>
-              <a href={item.path}>{item.title}</a>
-            </li>
-          ))}
+          {headerData.map((item, index) => {
+            if (index === headerData.length - 1) {
+              return modalLogin({ item, index });
+            } else return listItem({ item, index });
+          })}
         </ul>
 
         <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
       </div>
 
-      <section className={styles.informations}>
-        <div className={styles.sideTitle}>
-          <h2>
-            A Oportunidade perfeita para você realizar o sonho de novamente
-            sorrir está na <span>CEMIC</span>
-          </h2>
-          <h2>Que conta com uma história de:</h2>
-          <p>
-            <span>+5</span> mil pacientes restaurados
-          </p>
-          <p>
-            <span>+10</span> mil implantes instalados
-          </p>
-          <p>
-            <span>+50</span> atendimentos por dia
-          </p>
-        </div>
-        <div className={styles["icone-seta"]} />
+      <section className={styles.banner}>
+        <div className={styles["left-banner"]} />
+        <div className={styles["right-banner"]} />
       </section>
 
       <About />
@@ -134,6 +140,12 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       >
         <IoLogoWhatsapp className="whatsapp" color="#7f5" />
       </a>
+
+      <Modal visible={loginModal} closeModal={() => setLoginModal(false)}>
+        <form className={modalStyle["login-form"]}>
+          <h2>Entrar</h2>
+        </form>
+      </Modal>
     </>
   );
 }

@@ -38,36 +38,41 @@
   transition: 0.3s;
   transition: 0.7s;
 }
-
 .list-item a:hover {
-  background-color: var(--blue);
   color: white;
   font-weight: 600;
 }
+.list-item:hover {
+  background-color: var(--blue);
+}
 
-.informations {
-  background-image: url("/images/clients1.jpg");
-  background-size: cover;
+/* BANNER SECTION */
+.banner {
+  background-image: url("/images/clients1.png");
+  background-size: contain;
   background-repeat: no-repeat;
+  background-position-x: center;
+  height: 700px;
+  position: relative;
 }
-.informations .sideTitle {
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 90px 60px;
+.left-banner {
+  background-color: var(--blue);
+  width: 10%;
+  height: 100%;
+  box-shadow: inset -10px 10px 3px rgba(255, 255, 255, 1);
+  border-radius: 10px;
 }
-.informations h2 {
-  text-align: center;
-  font-size: 2rem;
+.right-banner {
+  background-color: var(--blue);
+  width: 10%;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  box-shadow: inset 10px 10px 3px rgba(255, 255, 255, 1);
+  border-radius: 10px;
 }
-.informations p {
-  padding: 0 30px;
-  margin: 16px 0;
-  font-size: 1.6rem;
-}
-.informations p span {
-  font-size: 1.9rem;
-  font-weight: 600;
-  color: var(--blue);
-}
+/*  */
 
 .about {
   padding: 30px 60px;
@@ -92,18 +97,6 @@
   font-size: 3.5rem;
   width: 5%;
   color: var(--dark-blue);
-}
-
-.informations h2 {
-  color: var(--dark-blue);
-  font-size: 30px;
-  text-align: center;
-  width: 100%;
-  margin: 12px 0;
-}
-.informations h2 span {
-  color: var(--blue);
-  font-size: 35px;
 }
 
 .contact {
@@ -257,34 +250,6 @@
     border: none;
   }
 
-  .informations {
-    background-image: url("/images/clients1.jpg");
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-  .informations .sideTitle {
-    background-color: rgba(255, 255, 255, 0.85);
-    padding: 30px 20px;
-  }
-  .informations .sideTitle h2 {
-    text-align: center;
-    font-size: 1.4rem;
-  }
-  .informations .sideTitle h2 span {
-    text-align: center;
-    font-size: 1.6rem;
-  }
-  .informations p {
-    padding: 0 30px;
-    margin: 16px 0;
-    font-size: 1rem;
-  }
-  .informations p span {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--blue);
-  }
-
   .about {
     padding: 20px 22px;
   }
@@ -306,18 +271,6 @@
   }
   .about .about-icon {
     font-size: 3rem;
-  }
-
-  .informations h2 {
-    color: var(--dark-blue);
-    font-size: 30px;
-    text-align: center;
-    width: 100%;
-    margin: 12px 0;
-  }
-  .informations h2 span {
-    color: var(--blue);
-    font-size: 35px;
   }
 
   .contact {
