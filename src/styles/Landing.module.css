@@ -250,6 +250,17 @@
     border: none;
   }
 
+  /* BANNER SECTION */
+  .banner {
+    background-image: url("/images/clients1.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    height: 400px;
+    position: relative;
+  }
+  /*  */
+
   .about {
     padding: 20px 22px;
   }
@@ -354,5 +365,15 @@
   .footer p {
     margin: 8px 0;
     font-size: 1.2rem;
+  }
+}
+@media screen and (max-width: 500px) {
+  .banner {
+    background-image: url("/images/clients1.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    height: 250px;
+    position: relative;
   }
 }
