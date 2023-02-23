@@ -3,9 +3,9 @@ import Head from "next/head";
 import { headerData } from "data";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { AiOutlineClose } from "react-icons/ai";
 import { useGetScrollPosition } from "@/hooks/useGetScrollPosition";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
 import About from "@/components/about";
 import ContactForm from "@/components/contact";
 import useWindowSize from "@/hooks/useWindowSize";
@@ -14,12 +14,11 @@ import styles from "@/styles/Landing.module.css";
 import modalStyle from "../styles/Modal.module.css";
 
 export default function LandingPage() {
-  const router = useRouter();
   const size = useWindowSize();
   const refMenu = useRef<HTMLUListElement>(null);
   const currentScroll = useGetScrollPosition();
-  const [menuMobile, setMenuMobile] = useState(false);
   const [loginModal, setLoginModal] = useState(false);
+  const [iconMenu, setIconMenu] = useState(false);
 
   const msg = `Olá!! 
 Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
@@ -27,19 +26,16 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
     msg
   )}`;
 
-  const openMenu = useCallback(
-    (e?: any) => {
-      const list = refMenu?.current?.style;
-      if (!menuMobile && size?.width! < 760) {
-        setMenuMobile(true);
-        list?.setProperty("display", "flex");
-      } else if (menuMobile && size?.width! < 760) {
-        setMenuMobile(false);
-        list?.setProperty("display", "none");
-      }
-    },
-    [menuMobile, size.width]
-  );
+  const openMenu = (e?: any) => {
+    const list = refMenu?.current?.style;
+    if (list?.display === "none" && size?.width! < 760) {
+      list?.setProperty("display", "flex");
+      setIconMenu(false);
+    } else if (list?.display === "flex" && size?.width! < 760) {
+      list?.setProperty("display", "none");
+      setIconMenu(true);
+    }
+  };
 
   const scrollUp = useCallback(() => {
     const scroll_up = document.getElementById("scroll_up");
@@ -48,18 +44,15 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
     } else scroll_up?.classList.remove("show-scroll");
   }, [currentScroll]);
 
-  const changeRouter = useCallback(() => {
-    const list = refMenu?.current?.style;
-    if (size?.width! > 760) {
-      setMenuMobile(false);
-      list?.setProperty("display", "flex");
-    }
-  }, [size?.width]);
-
   useEffect(() => {
+    const changeRouter = () => {
+      const list = refMenu?.current?.style;
+      if (size?.width! > 760) list?.setProperty("display", "flex");
+      else list?.setProperty("display", "none");
+    };
     scrollUp();
     changeRouter();
-  }, [changeRouter, scrollUp]);
+  }, [scrollUp, size?.width]);
 
   const listItem = ({ item, index }: any) => (
     <li key={index} className={styles["list-item"]}>
@@ -91,27 +84,34 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={styles["header-container"]}>
-        <img
-          src="/images/cemicLogo.png"
-          alt="cemic logo"
-          className={styles.logocemic}
-        />
-
-        <ul className={styles["list-container"]} ref={refMenu}>
-          {headerData.map((item, index) => {
-            if (index === headerData.length - 1) {
-              return modalLogin({ item, index });
-            } else return listItem({ item, index });
-          })}
-        </ul>
-
-        <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
-      </div>
-
       <section className={styles.banner}>
-        <div className={styles["left-banner"]} />
-        <div className={styles["right-banner"]} />
+        <div className={styles["header-container"]}>
+          <img
+            src="/images/cemicLogo.png"
+            alt="cemic logo"
+            className={styles.logocemic}
+          />
+
+          <ul className={styles["list-container"]} ref={refMenu}>
+            {headerData.map((item, index) => {
+              if (index === headerData.length - 1) {
+                return modalLogin({ item, index });
+              } else return listItem({ item, index });
+            })}
+          </ul>
+
+          {!iconMenu ? (
+            <AiOutlineClose
+              className={styles["icon-menu"]}
+              onClick={openMenu}
+            />
+          ) : (
+            <GiHamburgerMenu
+              className={styles["icon-menu"]}
+              onClick={openMenu}
+            />
+          )}
+        </div>
       </section>
 
       <About />

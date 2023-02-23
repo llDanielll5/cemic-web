@@ -2,9 +2,16 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   padding: 30px 60px;
+  background: linear-gradient(
+    300deg,
+    rgba(9, 170, 232, 0.5),
+    rgba(27, 8, 62, 0.6)
+  );
+  height: 100%;
+  min-height: 500px;
 }
 
 .logocemic {
@@ -25,14 +32,13 @@
 .list-item {
   transition: 0.7s;
   margin: 0 16px;
-  padding: 0 10px;
+  padding: 0 2px;
   border-radius: 10px;
-  box-shadow: 10px 10px 50px -12px rgba(0, 0, 0, 0.75);
 }
 
 .list-item a {
-  padding: 4px 10px;
-  color: var(--dark-blue);
+  padding: 4px 4px;
+  color: white;
   font-size: 20px;
   border-radius: 10px;
   transition: 0.3s;
@@ -44,33 +50,17 @@
 }
 .list-item:hover {
   background-color: var(--blue);
+  transform: translateY(-5px);
 }
 
 /* BANNER SECTION */
 .banner {
-  background-image: url("/images/clients1.png");
-  background-size: contain;
+  background-image: url("/images/clients7.jpg");
+  background-size: cover;
+  min-height: 500px;
   background-repeat: no-repeat;
   background-position-x: center;
-  height: 700px;
   position: relative;
-}
-.left-banner {
-  background-color: var(--blue);
-  width: 10%;
-  height: 100%;
-  box-shadow: inset -10px 10px 3px rgba(255, 255, 255, 1);
-  border-radius: 10px;
-}
-.right-banner {
-  background-color: var(--blue);
-  width: 10%;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
-  box-shadow: inset 10px 10px 3px rgba(255, 255, 255, 1);
-  border-radius: 10px;
 }
 /*  */
 
@@ -87,16 +77,27 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
+  margin: 12px 0;
+  transition: 0.4s;
+}
+.about .about-container:hover {
+  box-shadow: 0 3px 20px rgb(200, 200, 200);
+  transform: translateY(-5px);
 }
 .about .about-container p {
   margin: 16px;
-  font-size: 1.5rem;
-  width: 85%;
+  font-size: 1.1rem;
+  width: 50%;
+}
+@media screen and (min-width: 1300px) {
+  .about .about-container p {
+    font-size: 1.5rem;
+  }
 }
 .about-icon {
-  font-size: 3.5rem;
-  width: 5%;
-  color: var(--dark-blue);
+  background-repeat: no-repeat;
+  width: 40%;
+  height: 100%;
 }
 
 .contact {
@@ -206,7 +207,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
     padding: 20px 16px;
   }
@@ -216,6 +217,10 @@
     margin-right: 10px;
     cursor: pointer;
     font-size: 29px;
+    position: absolute;
+    color: white;
+    top: 24px;
+    right: 16px;
   }
 
   .logocemic {
@@ -242,6 +247,7 @@
     background-color: white;
     padding: 8px;
     width: 100%;
+    cursor: pointer;
   }
 
   .list-item a {
@@ -253,10 +259,6 @@
 
   /* BANNER SECTION */
   .banner {
-    background-image: url("/images/clients1.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position-x: center;
     height: 400px;
     position: relative;
   }
@@ -370,11 +372,10 @@
 }
 @media screen and (max-width: 500px) {
   .banner {
-    background-image: url("/images/clients1.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position-x: center;
     height: 250px;
     position: relative;
+  }
+  .about .about-container p {
+    font-size: 0.6rem;
   }
 }

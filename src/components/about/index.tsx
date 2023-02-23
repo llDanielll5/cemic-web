@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import styles from "../../styles/Landing.module.css";
-import { GoOrganization } from "react-icons/go";
-import { IoMdBusiness } from "react-icons/io";
-import { FaCoins } from "react-icons/fa";
+import Image1 from "../../../public/images/clients2.jpg";
+import Image2 from "../../../public/images/clients3.jpg";
+import Image3 from "../../../public/images/clients4.jpg";
+import Image from "next/image";
 
 const About = () => {
   return (
@@ -10,7 +12,7 @@ const About = () => {
       <h3>O que é a CEMIC?</h3>
 
       <div className={styles["about-container"]}>
-        <IoMdBusiness className={styles["about-icon"]} />
+        <Image className={styles["about-icon"]} src={Image1} alt="" />
         <p>
           {"  "}A CEMIC é uma ONG que atua na reabilitação oral a quase 10 anos,
           por meio de um dos maiores projetos sociais do Brasil com Implantes
@@ -20,8 +22,11 @@ const About = () => {
           desdentados.
         </p>
       </div>
-      <div className={styles["about-container"]}>
-        <GoOrganization className={styles["about-icon"]} />
+      <div
+        className={styles["about-container"]}
+        style={{ flexDirection: "row-reverse" }}
+      >
+        <Image className={styles["about-icon"]} src={Image2} alt="" />
         <p>
           A CEMIC por meio de dentistas parceiros e na sua clínica própria já
           realizou mais de 15 mil atendimentos, devolvendo o sorriso, alegria e
@@ -29,7 +34,7 @@ const About = () => {
         </p>
       </div>
       <div className={styles["about-container"]}>
-        <FaCoins className={styles["about-icon"]} />
+        <Image className={styles["about-icon"]} src={Image3} alt="" />
         <p>
           Devido o governo local ou federal não possuir projetos de reabilitação
           com implantes dentários e o alto custo do tratamento em clínicas
