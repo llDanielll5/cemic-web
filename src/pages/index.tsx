@@ -94,9 +94,7 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
 
           <ul className={styles["list-container"]} ref={refMenu}>
             {headerData.map((item, index) => {
-              if (index === headerData.length - 1) {
-                return modalLogin({ item, index });
-              } else return listItem({ item, index });
+              return listItem({ item, index });
             })}
           </ul>
 

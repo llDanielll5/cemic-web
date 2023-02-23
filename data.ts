@@ -2,5 +2,5 @@ export const headerData = [
   { path: "/", title: "Home" },
   { path: "#about", title: "Sobre" },
   { path: "#contact", title: "Contato" },
-  { path: "", title: "Login" },
+  // { path: "", title: "Login" },
 ];
