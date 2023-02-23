@@ -228,6 +228,7 @@
     width: 100%;
     position: absolute;
     background-color: white;
+    z-index: 100;
     border: 0;
     top: 85px;
     left: 0;
