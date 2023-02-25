@@ -141,7 +141,7 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
         target={"_blank"}
         rel="noreferrer"
       >
-        <IoLogoWhatsapp className="whatsapp" color="#7f5" />
+        <IoLogoWhatsapp className="whatsapp" color="#34af23" />
       </a>
 
       <Modal visible={loginModal} closeModal={() => setLoginModal(false)}>
