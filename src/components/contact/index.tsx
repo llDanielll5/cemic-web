@@ -8,15 +8,37 @@ const treatments = [
   "Aparelho Ortodôntico",
   "Clínico Geral",
 ];
-const daysRequired = ["Segunda-Feira", "Quarta-Feira"];
+const daysRequired = [
+  "Segunda-Feira",
+  "Terça-Feira",
+  "Quarta-Feira",
+  "Quinta-Feira",
+  "Sexta-Feira",
+];
+
+const daysClinic = ["Segunda-Feira", "Quarta-Feira"];
 
 const ContactForm = () => {
+  const router = useRouter();
   const [treatment, setTreatment] = useState<string>("");
   const [dayWeek, setDayWeek] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const router = useRouter();
+
+  const changeDaysSelect = () => {
+    if (treatment === "Clínico Geral") {
+      return daysClinic;
+    } else return daysRequired;
+  };
+
+  const formInvalidValues =
+    treatment === "" ||
+    dayWeek === "" ||
+    name === "" ||
+    phone === "" ||
+    email === "";
 
   const msg = `Olá!
 
@@ -24,7 +46,7 @@ Sou o(a) ${name}, e gostaria de concorrer a vaga de ${treatment} na CEMIC.
 
 O meu melhor dia da semana disponível seria ${dayWeek}.
 
-Meu telefone celular é o ${phone}.\n
+Meu telefone celular é o ${phone}.\n, meu email é o ${email}.
 
 ${message}
   `;
@@ -47,7 +69,7 @@ ${message}
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    if (treatment === "" || dayWeek === "") {
+    if (formInvalidValues) {
       alert("Preencha todos os campos com *!");
     } else router.push(zapHref);
   };
@@ -73,7 +95,7 @@ ${message}
             Qual desses dias da semana têm disponibilidade? <span>*</span>
           </h4>
           <ReactDropdown
-            options={daysRequired}
+            options={changeDaysSelect()}
             onChange={({ value }) => setDayWeek(value)}
             value={dayWeek}
             placeholder="Selecione um dia da semana."
@@ -97,6 +119,15 @@ ${message}
             maxLength={15}
             value={phone}
             onChange={(event) => handlePhone(event)}
+          />
+
+          <h4>
+            Informe seu e-mail <span>*</span>
+          </h4>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <h4>Digite a sua mensagem</h4>

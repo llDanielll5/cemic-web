@@ -12,21 +12,19 @@ const About = () => {
       <h3>O que é a CEMIC?</h3>
 
       <div className={styles["about-container"]}>
-        <Image className={styles["about-icon"]} src={Image1} alt="" />
         <p>
           {"  "}A CEMIC é uma ONG que atua na reabilitação oral a quase 10 anos,
           por meio de um dos maiores projetos sociais do Brasil com Implantes
-          Dentários ou Próteses dentárias. <br /> A CEMIC foi fundada em 2015
-          com o objetivo de diminuir o grande número de pessoas desdentadas no
-          país, que segundo o IBGE 2020 temos mais de 34 milhões de brasileiros
-          desdentados.
+          Dentários ou Próteses dentárias. <br />
+          <br /> A CEMIC foi fundada em 2015 com o objetivo de diminuir o grande
+          número de pessoas desdentadas no país, que segundo o IBGE 2020 temos
+          mais de 34 milhões de brasileiros desdentados.
         </p>
       </div>
       <div
         className={styles["about-container"]}
         style={{ flexDirection: "row-reverse" }}
       >
-        <Image className={styles["about-icon"]} src={Image2} alt="" />
         <p>
           A CEMIC por meio de dentistas parceiros e na sua clínica própria já
           realizou mais de 15 mil atendimentos, devolvendo o sorriso, alegria e
@@ -34,7 +32,6 @@ const About = () => {
         </p>
       </div>
       <div className={styles["about-container"]}>
-        <Image className={styles["about-icon"]} src={Image3} alt="" />
         <p>
           Devido o governo local ou federal não possuir projetos de reabilitação
           com implantes dentários e o alto custo do tratamento em clínicas

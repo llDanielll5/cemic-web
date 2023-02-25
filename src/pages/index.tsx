@@ -12,6 +12,8 @@ import useWindowSize from "@/hooks/useWindowSize";
 import Modal from "@/components/modal";
 import styles from "@/styles/Landing.module.css";
 import modalStyle from "../styles/Modal.module.css";
+import Image from "next/image";
+import Banner from "../../public/images/banner.png";
 
 export default function LandingPage() {
   const size = useWindowSize();
@@ -84,31 +86,34 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <div className={styles["header-container"]}>
+        <img
+          src="/images/cemicLogo.png"
+          alt="cemic logo"
+          className={styles.logocemic}
+        />
+
+        <ul className={styles["list-container"]} ref={refMenu}>
+          {headerData.map((item, index) => {
+            return listItem({ item, index });
+          })}
+        </ul>
+
+        {!iconMenu ? (
+          <AiOutlineClose className={styles["icon-menu"]} onClick={openMenu} />
+        ) : (
+          <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
+        )}
+      </div>
       <section className={styles.banner}>
-        <div className={styles["header-container"]}>
-          <img
-            src="/images/cemicLogo.png"
-            alt="cemic logo"
-            className={styles.logocemic}
+        <div className={styles.bannerback}>
+          <Image
+            src={Banner}
+            width={size?.width}
+            height={500}
+            alt=""
+            className={styles["image-banner"]}
           />
-
-          <ul className={styles["list-container"]} ref={refMenu}>
-            {headerData.map((item, index) => {
-              return listItem({ item, index });
-            })}
-          </ul>
-
-          {!iconMenu ? (
-            <AiOutlineClose
-              className={styles["icon-menu"]}
-              onClick={openMenu}
-            />
-          ) : (
-            <GiHamburgerMenu
-              className={styles["icon-menu"]}
-              onClick={openMenu}
-            />
-          )}
         </div>
       </section>
 
