@@ -105,7 +105,8 @@
   }
 }
 .contact {
-  background: linear-gradient(300deg, var(--blue), var(--dark-blue));
+  /* background: linear-gradient(700deg, white, var(--blue)); */
+  background-color: var(--blue);
   padding: 30px 60px;
   display: flex;
   flex-direction: column;
@@ -153,10 +154,16 @@
   padding: 0 12px;
   font-size: 18px;
 }
+.contact form input:focus {
+  border: 1px solid var(--dark-blue);
+}
 .contact form input[type="submit"] {
   margin: 16px 0;
   width: 70%;
   cursor: pointer;
+  background-color: var(--dark-blue);
+  color: white;
+  font-weight: 700;
 }
 .contact textarea {
   width: 100%;
@@ -164,13 +171,17 @@
   height: 150px;
   border-radius: 20px;
   outline: none;
+  border: none;
   padding: 16px;
   font-weight: 500;
   font-size: 16px;
 }
+.contact textarea:focus {
+  border: 1px solid var(--dark-blue);
+}
 
 .footer {
-  background-color: rgba(200, 200, 200, 0.6);
+  background-color: white;
 }
 .container-footer {
   display: flex;
@@ -300,7 +311,6 @@
   }
 
   .contact {
-    background: linear-gradient(300deg, var(--blue), var(--dark-blue));
     padding: 20px 16px;
     display: flex;
     flex-direction: column;
@@ -309,20 +319,20 @@
   }
   .contact h2 {
     color: white;
-    font-size: 1rem;
+    font-size: 1.5rem;
     text-align: center;
   }
   .contact h2 span {
     text-decoration-line: underline;
     color: white;
-    font-size: 1.3rem;
+    font-size: 1.6rem;
   }
   .contact p {
     color: white;
   }
   .contact h4 {
     color: white;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 500;
     margin: 12px 0;
   }
@@ -360,7 +370,7 @@
     outline: none;
     padding: 16px;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 18px;
   }
 
   .footer {
