@@ -43,7 +43,7 @@ const About = () => {
       </div>
       <div className={styles["help-container"]}>
         <p>
-          Se você acha nosso trabalho importante, Nos ajude a multiplicar nossos
+          Se você acha nosso trabalho importante, ajude-nos a multiplicar nossos
           atendimentos. <br />
           <br />
           Faça uma doação de R$30, R$50 ou R$100 reais, a sua doação pode mudar
