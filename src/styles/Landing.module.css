@@ -150,6 +150,9 @@
   .pix {
     font-size: 1.5rem;
   }
+  .qrcode-pix {
+    max-height: 200px;
+  }
 }
 .contact {
   /* background: linear-gradient(700deg, white, var(--blue)); */
