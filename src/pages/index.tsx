@@ -15,6 +15,8 @@ import styles from "@/styles/Landing.module.css";
 import modalStyle from "../styles/Modal.module.css";
 import Image from "next/image";
 import Banner from "../../public/images/banner.png";
+import Banner1 from "../../public/images/banner1.png";
+import Banner2 from "../../public/images/banner2.png";
 import Help from "@/components/help";
 
 export default function LandingPage() {
@@ -56,7 +58,7 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
     const help = document?.getElementById("help");
     const contact = document?.getElementById("contact");
 
-    if (currentScroll > 100) about?.style?.setProperty("opacity", "1");
+    if (currentScroll > 30) about?.style?.setProperty("opacity", "1");
     if (currentScroll > help?.offsetHeight)
       help?.style?.setProperty("opacity", "1");
     if (currentScroll > contact?.offsetHeight)
@@ -65,7 +67,7 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       contact?.style?.setProperty("opacity", "0");
     if (currentScroll < help?.offsetHeight)
       help?.style?.setProperty("opacity", "0");
-    if (currentScroll < 200) about?.style?.setProperty("opacity", "0");
+    if (currentScroll < 30) about?.style?.setProperty("opacity", "0");
   }, [currentScroll]);
   useEffect(() => {
     getActiveScroll();
@@ -131,15 +133,34 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
         )}
       </div>
       <section className={styles.banner}>
-        <div className={styles.bannerback}>
-          <Image
-            src={Banner}
-            width={size?.width}
-            height={500}
-            alt=""
-            className={styles["image-banner"]}
-          />
-        </div>
+        {size?.width > 760 ? (
+          <div className={styles.bannerback}>
+            <Image
+              src={Banner}
+              width={size?.width}
+              height={500}
+              alt=""
+              className={styles["image-banner"]}
+            />
+          </div>
+        ) : (
+          <div className={styles.bannerback}>
+            <Image
+              src={Banner2}
+              width={size?.width}
+              height={500}
+              alt=""
+              className={styles["image-banner"]}
+            />
+            <Image
+              src={Banner1}
+              width={size?.width}
+              height={500}
+              alt=""
+              className={styles["image-banner"]}
+            />
+          </div>
+        )}
       </section>
       <div className={styles["icone-seta"]} />
       <div style={{ marginBottom: "1rem" }}></div>
