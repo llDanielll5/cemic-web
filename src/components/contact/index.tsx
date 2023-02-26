@@ -18,7 +18,7 @@ const daysRequired = [
 
 const daysClinic = ["Segunda-Feira", "Quarta-Feira"];
 
-const ContactForm = () => {
+const ContactForm = (props: { ref: any }) => {
   const router = useRouter();
   const [treatment, setTreatment] = useState<string>("");
   const [dayWeek, setDayWeek] = useState<string>("");
@@ -74,7 +74,7 @@ ${message}
     } else router.push(zapHref);
   };
   return (
-    <section className={styles.contact} id={"contact"}>
+    <section className={styles.contact} id={"contact"} ref={props.ref}>
       <h2>
         Preencha o formulário abaixo para realizar uma pergunta específica para
         a <span>CEMIC!</span>

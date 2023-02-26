@@ -1,3 +1,4 @@
+//@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
 import { headerData } from "data";
@@ -19,6 +20,9 @@ import Help from "@/components/help";
 export default function LandingPage() {
   const size = useWindowSize();
   const refMenu = useRef<HTMLUListElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
+  const helpRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
   const currentScroll = useGetScrollPosition();
   const [loginModal, setLoginModal] = useState(false);
   const [iconMenu, setIconMenu] = useState(true);
@@ -46,6 +50,26 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       scroll_up?.classList.add("show-scroll");
     } else scroll_up?.classList.remove("show-scroll");
   }, [currentScroll]);
+
+  const getActiveScroll = useCallback(() => {
+    const about = document?.getElementById("about");
+    const help = document?.getElementById("help");
+    const contact = document?.getElementById("contact");
+
+    if (currentScroll > 100) about?.style?.setProperty("opacity", "1");
+    if (currentScroll > help?.offsetHeight)
+      help?.style?.setProperty("opacity", "1");
+    if (currentScroll > contact?.offsetHeight)
+      contact?.style?.setProperty("opacity", "1");
+    if (currentScroll < contact?.offsetHeight)
+      contact?.style?.setProperty("opacity", "0");
+    if (currentScroll < help?.offsetHeight)
+      help?.style?.setProperty("opacity", "0");
+    if (currentScroll < 200) about?.style?.setProperty("opacity", "0");
+  }, [currentScroll]);
+  useEffect(() => {
+    getActiveScroll();
+  }, [currentScroll, getActiveScroll]);
 
   useEffect(() => {
     const changeRouter = () => {
@@ -120,10 +144,10 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       <div className={styles["icone-seta"]} />
       <div style={{ marginBottom: "1rem" }}></div>
 
-      <About />
-      <Help />
+      <About ref={aboutRef} />
+      <Help ref={helpRef} />
 
-      <ContactForm />
+      <ContactForm ref={contactRef} />
 
       <footer className={styles.footer}>
         <div className={styles["container-footer"]}>

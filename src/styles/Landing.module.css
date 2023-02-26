@@ -74,8 +74,16 @@
 }
 /*  */
 
+.fade-in {
+  opacity: 1;
+}
+.fade-out {
+  opacity: 0;
+}
+
 .about {
   padding: 30px 60px;
+  opacity: 0;
 }
 
 .about .about-container {
@@ -132,6 +140,9 @@
 }
 .pix p {
   font-size: 0.9rem;
+}
+#contact {
+  opacity: 0;
 }
 
 @media screen and (min-width: 1300px) {
