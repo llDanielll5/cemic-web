@@ -206,6 +206,9 @@ section h1 img {
   section h1 img {
     height: 1.8rem;
   }
+  section h1 space {
+    margin: 0 4px;
+  }
 }
 @media screen and (max-width: 500px) {
   section h1 span {
@@ -213,5 +216,8 @@ section h1 img {
   }
   section h1 img {
     height: 1.1rem;
+  }
+  section h1 space {
+    margin: 0 2px;
   }
 }
