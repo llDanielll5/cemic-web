@@ -1,16 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import styles from "../../styles/Landing.module.css";
-import Image1 from "../../../public/images/clients2.jpg";
-import Image2 from "../../../public/images/clients3.jpg";
-import Image3 from "../../../public/images/clients4.jpg";
-import Image from "next/image";
 
 const About = () => {
   return (
     <section className={styles.about} id={"about"}>
-      <h3>O que é a CEMIC?</h3>
-
+      <h3>
+        Sobre a
+        <span>
+          <img src="/images/cemicText.png" alt="cemic" />
+        </span>
+      </h3>
       <div className={styles["about-container"]}>
         <p>
           {"  "}A CEMIC é uma ONG que atua na reabilitação oral a quase 10 anos,
@@ -39,6 +39,36 @@ const About = () => {
           desdentadas, principalmente as mais carentes, fazendo assim com que
           seja muito importante o trabalho das ONGs e escolas de pós-graduação
           no país.
+        </p>
+      </div>
+      <div className={styles["help-container"]}>
+        <p>
+          Se você acha nosso trabalho importante, Nos ajude a multiplicar nossos
+          atendimentos. <br />
+          <br />
+          Faça uma doação de R$30, R$50 ou R$100 reais, a sua doação pode mudar
+          a vida de alguém que sofre com problemas dentários.
+          <br />
+          <br />
+          <h4>Compartilhe essa ideia, juntos somos mais fortes.</h4>
+        </p>
+        <img
+          src="/images/maos.png"
+          alt="mãos que ajudam"
+          className={styles["help-image"]}
+        />
+      </div>
+      <div className={styles.pix}>
+        <img
+          src="/images/qrcodepix.png"
+          alt="qrcode pix"
+          className={styles["qrcode-pix"]}
+        />
+        Centro Médico e de Implantes Comunitário <br /> Pix CNPJ:
+        23.147.717/0001-66
+        <p>
+          <br />
+          Ao realizar a doação, favor entrar em contato no nosso whatsapp.
         </p>
       </div>
     </section>
