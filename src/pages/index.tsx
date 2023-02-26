@@ -14,6 +14,7 @@ import styles from "@/styles/Landing.module.css";
 import modalStyle from "../styles/Modal.module.css";
 import Image from "next/image";
 import Banner from "../../public/images/banner.png";
+import Help from "@/components/help";
 
 export default function LandingPage() {
   const size = useWindowSize();
@@ -116,8 +117,11 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
           />
         </div>
       </section>
+      <div className={styles["icone-seta"]} />
+      <div style={{ marginBottom: "1rem" }}></div>
 
       <About />
+      <Help />
 
       <ContactForm />
 

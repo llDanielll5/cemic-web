@@ -33,6 +33,44 @@ ul li a {
   text-decoration: none;
 }
 
+section h1 {
+  position: relative;
+  font-size: 2.5rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+section h1 span {
+  background-color: var(--blue);
+  margin: 0 2px;
+  border-radius: 4px;
+  padding: 0 8px;
+  color: white;
+  overflow: hidden;
+  text-align: center;
+  /* animation-name: fadeinout; */
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+}
+section h1 space {
+  margin: 0 8px;
+}
+section h1 img {
+  height: 3rem;
+}
+@keyframes fadeinout {
+  0% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .scrollup {
   position: fixed;
   right: 1rem;
@@ -151,4 +189,29 @@ ul li a {
   cursor: default;
   display: block;
   padding: 8px 10px;
+}
+
+@media screen and (max-width: 1200px) {
+  section h1 span {
+    font-size: 1.8rem;
+  }
+  section h1 img {
+    height: 2.4rem;
+  }
+}
+@media screen and (max-width: 760px) {
+  section h1 span {
+    font-size: 1.2rem;
+  }
+  section h1 img {
+    height: 1.8rem;
+  }
+}
+@media screen and (max-width: 500px) {
+  section h1 span {
+    font-size: 0.8rem;
+  }
+  section h1 img {
+    height: 1.1rem;
+  }
 }
