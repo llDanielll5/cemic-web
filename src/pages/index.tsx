@@ -170,10 +170,9 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       <div className={styles["icone-seta"]} />
       <div style={{ marginBottom: "1rem" }}></div>
 
-      <About ref={aboutRef} />
-      <Help ref={helpRef} />
-
-      <ContactForm ref={contactRef} />
+      <About />
+      <Help />
+      <ContactForm />
 
       <footer className={styles.footer}>
         <div className={styles["container-footer"]}>

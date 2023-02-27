@@ -2,9 +2,9 @@
 import React from "react";
 import styles from "../../styles/Landing.module.css";
 
-const Help = (props: { ref: any }) => {
+const Help = () => {
   return (
-    <section id={"help"} ref={props.ref}>
+    <section id={"help"}>
       <h1>
         <span>A</span>
         <span>J</span>

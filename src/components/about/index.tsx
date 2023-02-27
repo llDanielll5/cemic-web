@@ -3,9 +3,9 @@
 import React from "react";
 import styles from "../../styles/Landing.module.css";
 
-const About = (props: { ref: any }) => {
+const About = () => {
   return (
-    <section className={styles.about} id={"about"} ref={props.ref}>
+    <section className={styles.about} id={"about"}>
       <h1>
         <span>S</span>
         <span>O</span>
