@@ -18,8 +18,10 @@ import Banner from "../../public/images/banner.png";
 import Banner1 from "../../public/images/banner1.png";
 import Banner2 from "../../public/images/banner2.png";
 import Help from "@/components/help";
+import { useRouter } from "next/router";
 
 export default function LandingPage() {
+  const router = useRouter();
   const size = useWindowSize();
   const refMenu = useRef<HTMLUListElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
@@ -29,18 +31,17 @@ export default function LandingPage() {
   const [loginModal, setLoginModal] = useState(false);
   const [iconMenu, setIconMenu] = useState(true);
 
-  const msg = `Olá!! 
-Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
+  const msg = `Olá!! Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
   const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
     msg
   )}`;
 
   const openMenu = (e?: any) => {
     const list = refMenu?.current?.style;
-    if (list?.display === "none" && size?.width! < 760) {
+    if (list?.display === "none" && size?.width! < 900) {
       list?.setProperty("display", "flex");
       setIconMenu(false);
-    } else if (list?.display === "flex" && size?.width! < 760) {
+    } else if (list?.display === "flex" && size?.width! < 900) {
       list?.setProperty("display", "none");
       setIconMenu(true);
     }
@@ -69,6 +70,7 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       help?.style?.setProperty("opacity", "0");
     if (currentScroll < 30) about?.style?.setProperty("opacity", "0");
   }, [currentScroll]);
+
   useEffect(() => {
     getActiveScroll();
   }, [currentScroll, getActiveScroll]);
@@ -76,7 +78,7 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
   useEffect(() => {
     const changeRouter = () => {
       const list = refMenu?.current?.style;
-      if (size?.width! > 760) list?.setProperty("display", "flex");
+      if (size?.width! > 900) list?.setProperty("display", "flex");
       else list?.setProperty("display", "none");
     };
     scrollUp();
@@ -84,23 +86,17 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
   }, [scrollUp, size?.width]);
 
   const listItem = ({ item, index }: any) => (
-    <li key={index} className={styles["list-item"]}>
+    <li
+      key={index}
+      className={styles["list-item"]}
+      onClick={() => {
+        if (size?.width < 900) router.push(item.path);
+      }}
+    >
       <a href={item.path}>{item.title}</a>
     </li>
   );
-  const modalLogin = ({ item, index }: any) => {
-    const handleClick = (e: any) => {
-      e.preventDefault();
-      setLoginModal(true);
-    };
-    return (
-      <li key={index} className={styles["list-item"]}>
-        <a style={{ cursor: "pointer" }} onClick={handleClick}>
-          {item.title}
-        </a>
-      </li>
-    );
-  };
+
   return (
     <>
       <Head>
@@ -196,12 +192,6 @@ Gostaria de realizar o agendamento para conhecer melhor o projeto social que a C
       >
         <IoLogoWhatsapp className="whatsapp" color="#34af23" />
       </a>
-
-      <Modal visible={loginModal} closeModal={() => setLoginModal(false)}>
-        <form className={modalStyle["login-form"]}>
-          <h2>Entrar</h2>
-        </form>
-      </Modal>
     </>
   );
 }

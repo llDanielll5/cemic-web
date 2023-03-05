@@ -9,8 +9,7 @@
 }
 
 .logocemic {
-  width: 350px;
-  height: 100px;
+  width: 200px;
   max-width: 350px;
 }
 
@@ -25,7 +24,7 @@
 
 .list-item {
   transition: 0.7s;
-  margin: 0 16px;
+  margin: 0 8px;
   padding: 0 2px;
   border-radius: 10px;
 }
@@ -38,6 +37,7 @@
   border-radius: 10px;
   transition: 0.3s;
   transition: 0.7s;
+  white-space: nowrap;
 }
 .list-item a:hover {
   font-weight: 700;
@@ -306,7 +306,7 @@
   }
 }
 
-@media screen and (max-width: 760px) {
+@media screen and (max-width: 900px) {
   .header-container {
     display: flex;
     flex-direction: row;
