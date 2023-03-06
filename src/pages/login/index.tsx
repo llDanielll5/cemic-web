@@ -19,7 +19,6 @@ const LoginScreen = () => {
       } else if (res?.role === "client") {
         router.push({
           pathname: `/patient/${res?.id}`,
-          query: { userid: res?.id },
         });
       } else router.push("/");
     });
