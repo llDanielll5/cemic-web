@@ -21,6 +21,41 @@
   flex-direction: column;
   width: 50%;
 }
+.finish-register {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 16px;
+}
+.check-img {
+  width: 20%;
+  min-width: 100px;
+  height: 45%;
+  margin: 0 auto;
+  mix-blend-mode: multiply;
+}
+.finish-register h3 {
+  text-align: center;
+  margin: 10px 0;
+}
+.finish-register button {
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  outline: none;
+  border: none;
+  transition: 0.3s;
+  background-color: var(--dark-blue);
+  cursor: pointer;
+}
+.finish-register button:active {
+  color: var(--dark-blue);
+  background-color: white;
+}
 
 /* AUTHENTICATION STYLES */
 

@@ -1,15 +1,72 @@
-import React, { useState } from "react";
+/* eslint-disable @next/next/no-img-element */
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Modal.module.css";
-import ReactDropdown from "react-dropdown";
-
-const userTypes = ["Paciente", "Dentista", "Funcionário"];
+import { createUser } from "@/services/requests/auth";
+import { makeid } from "@/services/services";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/services/firebase";
+import Modal from "@/components/modal";
+import { deleteUser } from "firebase/auth";
 
 const RegisterScreen = () => {
   const router = useRouter();
-  const [usertype, setUsertype] = useState("Paciente");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userID, setUserID] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [finishRegister, setFinishRegister] = useState(false);
+
+  const handleSubmit = async () => {
+    if (name === "" || email === "" || password === "")
+      alert("Preencha os campos!");
+
+    setLoading(true);
+
+    const checkHasIdUsed = async () => {
+      var createAccount = false;
+      while (!createAccount) {
+        let userID = makeid(7);
+        const existRef = doc(db, "clients", userID);
+        const docSnap = await getDoc(existRef);
+        const hasSnap = docSnap.exists();
+        if (!hasSnap) {
+          createAccount = true;
+          await createUser({ email, password, name }, userID!)
+            .then(() => {
+              setLoading(false);
+              setName("");
+              setEmail("");
+            })
+            .finally(() => {
+              setFinishRegister(true);
+            });
+        }
+        return;
+      }
+    };
+    checkHasIdUsed();
+  };
+
+  const handleFinishRegister = () => {
+    setFinishRegister(false);
+    router.push("/login");
+  };
+
   return (
     <div className={styles.container}>
+      <Modal closeModal={handleFinishRegister} visible={finishRegister}>
+        <div className={styles["finish-register"]}>
+          <img
+            src="/images/checked.jpg"
+            alt="checked image"
+            className={styles["check-img"]}
+          />
+          <h3>Você criou sua conta na CEMIC com sucesso!</h3>
+          <button onClick={handleFinishRegister}>Fazer Login</button>
+        </div>
+      </Modal>
       <div className={styles["left-side"]}>
         <div className={styles["login-form"]}>
           <h2>Criar conta grátis</h2>
@@ -17,23 +74,27 @@ const RegisterScreen = () => {
           <div className={styles.row100}>
             <div className={styles.col}>
               <div className={styles["input-box"]}>
-                <input type="text" name="" required />
-                <span className={styles["text-input"]}>Nome</span>
+                <input
+                  type="text"
+                  name=""
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <span className={styles["text-input"]}>Nome Completo</span>
                 <span className={styles.line}></span>
               </div>
             </div>
 
-            <h5 className={styles["drop-title"]}>O que você é na CEMIC?</h5>
-            <ReactDropdown
-              options={userTypes}
-              onChange={({ value }) => setUsertype(value)}
-              value={usertype}
-              className={styles.drop}
-            />
-
             <div className={styles.col}>
               <div className={styles["input-box"]}>
-                <input type="text" name="" required />
+                <input
+                  type="text"
+                  name=""
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
                 <span className={styles["text-input"]}>E-mail</span>
                 <span className={styles.line}></span>
               </div>
@@ -41,7 +102,13 @@ const RegisterScreen = () => {
 
             <div className={styles.col}>
               <div className={styles["input-box"]}>
-                <input type="password" name="" required />
+                <input
+                  type="password"
+                  name=""
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
                 <span className={styles["text-input"]}>Senha</span>
                 <span className={styles.line}></span>
               </div>
@@ -53,7 +120,11 @@ const RegisterScreen = () => {
             </h6>
 
             <div className={styles["submit-container"]}>
-              <input type={"submit"} value={"Criar conta"} />
+              <input
+                type={"submit"}
+                value={"Criar conta"}
+                onClick={handleSubmit}
+              />
             </div>
 
             <p onClick={() => router.push("/login")}>Já possuo cadastro!</p>

@@ -1,15 +1,23 @@
 //@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import styles from "../../styles/Dashboard.module.css";
+import useWindowSize from "@/hooks/useWindowSize";
+import { useRecoilState } from "recoil";
 import { dashboardNav } from "data";
 import { useRouter } from "next/router";
 import { TiThMenuOutline } from "react-icons/ti";
-import styles from "../../styles/Dashboard.module.css";
-import useWindowSize from "@/hooks/useWindowSize";
+import UserData from "@/atoms/userData";
+import { handlePersistLogin } from "@/services/requests/auth";
+import { auth } from "@/services/firebase";
+import { signOut } from "firebase/auth";
+import { setCookie } from "cookies-next";
 
 const Dashboard = () => {
   const router = useRouter();
   const size = useWindowSize();
+  const [userData, setUserData] = useRecoilState(UserData);
   const toggleRef = useRef<HTMLDivElement>(null);
   const navigationRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -43,10 +51,34 @@ const Dashboard = () => {
     } else alert("Não é possível no celular");
   };
 
+  const signout = async () => {
+    try {
+      return signOut(auth).then(() => {
+        //delete all cookies and recoil values
+        setUserData({});
+        setCookie("useruid", undefined);
+      });
+    } finally {
+      router.push("/login");
+    }
+  };
+
   useEffect(() => {
     if (size?.width > 760) setDesktopNav();
     else setMobileNav();
   }, [setDesktopNav, setMobileNav, size?.width]);
+
+  useEffect(() => {
+    const Unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user)
+        handlePersistLogin(user).then((User) => {
+          if (User.role !== "admin") signout();
+          else setUserData(User);
+        });
+      else signout();
+    });
+    return () => Unsubscribe();
+  }, []);
 
   const cemicLogo = (props: any) => (
     <li>
@@ -56,7 +88,9 @@ const Dashboard = () => {
           alt="logo"
           className={styles["cemic-logo"]}
         />
-        <span className={styles.title}>{"Daniel Mota"}</span>
+        <span className={styles.title}>
+          {userData?.name ? `${userData?.name} ${userData?.surname}` : ""}
+        </span>
       </a>
     </li>
   );
@@ -64,7 +98,7 @@ const Dashboard = () => {
     const hasPage = index === page;
     const handleChangePage = () => {
       if (index !== dashboardNav.length - 1) setPage(index);
-      else router.push("/");
+      else signout();
     };
     return (
       <li
