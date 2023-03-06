@@ -1,28 +1,27 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Modal.module.css";
 import { createUser } from "@/services/requests/auth";
 import { makeid } from "@/services/services";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/services/firebase";
+import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
-import { deleteUser } from "firebase/auth";
+import Loading from "@/components/loading";
 
 const RegisterScreen = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userID, setUserID] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [finishRegister, setFinishRegister] = useState(false);
 
   const handleSubmit = async () => {
     if (name === "" || email === "" || password === "")
       alert("Preencha os campos!");
 
-    setLoading(true);
+    setIsLoading(true);
 
     const checkHasIdUsed = async () => {
       var createAccount = false;
@@ -35,7 +34,7 @@ const RegisterScreen = () => {
           createAccount = true;
           await createUser({ email, password, name }, userID!)
             .then(() => {
-              setLoading(false);
+              setIsLoading(false);
               setName("");
               setEmail("");
             })
@@ -56,6 +55,7 @@ const RegisterScreen = () => {
 
   return (
     <div className={styles.container}>
+      {isLoading && <Loading message="Estamos criando sua conta..." />}
       <Modal closeModal={handleFinishRegister} visible={finishRegister}>
         <div className={styles["finish-register"]}>
           <img

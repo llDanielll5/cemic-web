@@ -3,15 +3,19 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Modal.module.css";
 import { handleLogin } from "@/services/requests/auth";
+import Loading from "@/components/loading";
 
 const LoginScreen = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (email === "" && password === "") alert("Preencha os campos!");
+    setIsLoading(true);
     handleLogin({ email, password }).then((res) => {
+      setIsLoading(false);
       if (res === null || res === undefined) {
         return;
       } else if (res?.role === "admin") {
@@ -26,6 +30,7 @@ const LoginScreen = () => {
 
   return (
     <div className={styles.container}>
+      {isLoading && <Loading />}
       <div className={styles["left-side"]}>
         <div className={styles["login-form"]}>
           <img
