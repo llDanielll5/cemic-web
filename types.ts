@@ -28,6 +28,8 @@ export interface AddressType {
   complement: string;
 }
 
+export interface FinanceType {}
+
 export interface ClientType {
   uid: string;
   id: string;
@@ -44,5 +46,6 @@ export interface ClientType {
   anamnese: AnamneseType[];
   address: AddressType | {};
   xrays: XRaysType[];
+  finances: FinanceType[];
   role: UserRole;
 }

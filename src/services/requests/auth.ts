@@ -134,6 +134,7 @@ export const createUser = async (
         uid: res.user.uid,
         xrays: [],
         role: "client",
+        finances: [],
       };
       if (res) {
         const userRef = doc(db, "clients", userID);

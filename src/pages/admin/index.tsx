@@ -13,15 +13,16 @@ import { handlePersistLogin } from "@/services/requests/auth";
 import { auth } from "@/services/firebase";
 import { signOut } from "firebase/auth";
 import { setCookie } from "cookies-next";
+import DynamicAdminBody from "@/components/dynamicAdminBody";
 
 const Dashboard = () => {
   const router = useRouter();
   const size = useWindowSize();
-  const [userData, setUserData] = useRecoilState(UserData);
   const toggleRef = useRef<HTMLDivElement>(null);
   const navigationRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
+  const [userData, setUserData] = useRecoilState(UserData);
   const linearBack = "linear-gradient(300deg,#003147,#09aae8)";
   let navigation = navigationRef?.current?.style;
   let main = mainRef?.current?.style;
@@ -112,6 +113,21 @@ const Dashboard = () => {
       </li>
     );
   };
+
+  const renderTobBarMenu = (props: any) => {
+    return (
+      <div className={styles.topbar}>
+        <div className={styles.toggle} onClick={props.onClick} ref={toggleRef}>
+          <TiThMenuOutline className={styles.icon} />
+        </div>
+        <div className={styles.search}>
+          <h2 className={styles.title}>{renderPanelTitle[page]}</h2>
+        </div>
+        <div className={styles.user}></div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.navigation} ref={navigationRef}>
@@ -132,15 +148,8 @@ const Dashboard = () => {
         </ul>
       </div>
       <div className={styles.main} ref={mainRef}>
-        <div className={styles.topbar}>
-          <div className={styles.toggle} onClick={toggleMenu} ref={toggleRef}>
-            <TiThMenuOutline className={styles.icon} />
-          </div>
-          <div className={styles.search}>
-            <h2 className={styles.title}>{renderPanelTitle[page]}</h2>
-          </div>
-          <div className={styles.user}></div>
-        </div>
+        {renderTobBarMenu({ onClick: toggleMenu })}
+        <DynamicAdminBody page={page} />
       </div>
     </div>
   );

@@ -1,15 +1,61 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
-import { useRouter } from "next/router";
+import React, { useRef, useState } from "react";
+import ModalSuccess from "@/components/modalSuccess";
 import styles from "../../styles/Modal.module.css";
-import { handleLogin } from "@/services/requests/auth";
 import Loading from "@/components/loading";
+import Modal from "@/components/modal";
+import { auth } from "@/services/firebase";
+import { useRouter } from "next/router";
+import { handleLogin } from "@/services/requests/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginScreen = () => {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalSuccessReset, setModalSuccessReset] = useState(false);
+
+  const sendResetPassword = async () => {
+    setIsLoading(true);
+    sendPasswordResetEmail(auth, resetEmail)
+      .then(() => {
+        setIsLoading(false);
+        setModalVisible(false);
+        setModalSuccessReset(true);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorCode === "auth/invalid-email") {
+          alert("E-mail não cadastrado ou errado");
+        } else if (errorCode === "auth/missing-email") {
+          alert("Digite um e-mail");
+        } else alert(errorCode);
+      });
+  };
+
+  const handleModalSuccessToggle = () => {
+    setModalSuccessReset(false);
+    setResetEmail("");
+  };
+
+  const handleTogglePasswordVisible = (e: any) => {
+    inputRef?.current?.focus();
+    let inputType = inputRef?.current?.type;
+    if (inputType === "password")
+      inputRef?.current?.setAttribute("type", "text");
+    else inputRef?.current?.setAttribute("type", "password");
+
+    setPasswordVisible(!passwordVisible);
+    return;
+  };
 
   const handleSubmit = async () => {
     if (email === "" && password === "") alert("Preencha os campos!");
@@ -31,6 +77,37 @@ const LoginScreen = () => {
   return (
     <div className={styles.container}>
       {isLoading && <Loading />}
+      <ModalSuccess
+        actionButton={handleModalSuccessToggle}
+        message={"E-mail de recuperação enviado com sucesso!"}
+        closeModal={handleModalSuccessToggle}
+        visible={modalSuccessReset}
+      />
+      <Modal visible={modalVisible} closeModal={() => setModalVisible(false)}>
+        <div className={styles["reset-password"]}>
+          <h3>
+            Digite o seu email para enviarmos um código de recuperação de senha.
+          </h3>
+          <div className={styles["input-box"]}>
+            <input
+              type="text"
+              name=""
+              required
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+            />
+            <span className={styles["text-input"]}>E-mail</span>
+            <span className={styles.line}></span>
+          </div>
+          <div className={styles["submit-container"]}>
+            <input
+              type={"submit"}
+              value={"Requisitar E-mail"}
+              onClick={sendResetPassword}
+            />
+          </div>
+        </div>
+      </Modal>
       <div className={styles["left-side"]}>
         <div className={styles["login-form"]}>
           <img
@@ -58,6 +135,7 @@ const LoginScreen = () => {
             <div className={styles.col}>
               <div className={styles["input-box"]}>
                 <input
+                  ref={inputRef}
                   type="password"
                   name=""
                   required
@@ -65,13 +143,25 @@ const LoginScreen = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <span className={styles["text-input"]}>Senha</span>
-                <span className={styles.line}></span>
+                <span className={styles.line} />
+                {passwordVisible &&
+                  AiOutlineEye({
+                    onClick: handleTogglePasswordVisible,
+                    className: styles["icon-eye"],
+                  })}
+                {!passwordVisible &&
+                  AiOutlineEyeInvisible({
+                    onClick: handleTogglePasswordVisible,
+                    className: styles["icon-eye"],
+                  })}
               </div>
             </div>
 
             <div className={styles["submit-container"]}>
               <input type={"submit"} value={"Entrar"} onClick={handleSubmit} />
-              <span>Esqueci minha senha</span>
+              <span onClick={() => setModalVisible(true)}>
+                Esqueci minha senha
+              </span>
             </div>
 
             <h3>Não possui conta ainda?</h3>

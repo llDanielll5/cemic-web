@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Modal.module.css";
 import { createUser } from "@/services/requests/auth";
@@ -8,14 +8,29 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import ModalSuccess from "@/components/modalSuccess";
 
 const RegisterScreen = () => {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [finishRegister, setFinishRegister] = useState(false);
+
+  const handleTogglePasswordVisible = (e: any) => {
+    inputRef?.current?.focus();
+    let inputType = inputRef?.current?.type;
+    if (inputType === "password")
+      inputRef?.current?.setAttribute("type", "text");
+    else inputRef?.current?.setAttribute("type", "password");
+
+    setPasswordVisible(!passwordVisible);
+    return;
+  };
 
   const handleSubmit = async () => {
     if (name === "" || email === "" || password === "")
@@ -56,17 +71,12 @@ const RegisterScreen = () => {
   return (
     <div className={styles.container}>
       {isLoading && <Loading message="Estamos criando sua conta..." />}
-      <Modal closeModal={handleFinishRegister} visible={finishRegister}>
-        <div className={styles["finish-register"]}>
-          <img
-            src="/images/checked.jpg"
-            alt="checked image"
-            className={styles["check-img"]}
-          />
-          <h3>Você criou sua conta na CEMIC com sucesso!</h3>
-          <button onClick={handleFinishRegister}>Fazer Login</button>
-        </div>
-      </Modal>
+      <ModalSuccess
+        actionButton={handleFinishRegister}
+        message={"Você criou sua conta na CEMIC com sucesso!"}
+        closeModal={handleFinishRegister}
+        visible={finishRegister}
+      />
       <div className={styles["left-side"]}>
         <div className={styles["login-form"]}>
           <h2>Criar conta grátis</h2>
@@ -96,13 +106,14 @@ const RegisterScreen = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <span className={styles["text-input"]}>E-mail</span>
-                <span className={styles.line}></span>
+                <span className={styles.line} />
               </div>
             </div>
 
             <div className={styles.col}>
               <div className={styles["input-box"]}>
                 <input
+                  ref={inputRef}
                   type="password"
                   name=""
                   required
@@ -110,7 +121,18 @@ const RegisterScreen = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <span className={styles["text-input"]}>Senha</span>
-                <span className={styles.line}></span>
+                <span className={styles.line} />
+
+                {passwordVisible &&
+                  AiOutlineEye({
+                    onClick: handleTogglePasswordVisible,
+                    className: styles["icon-eye"],
+                  })}
+                {!passwordVisible &&
+                  AiOutlineEyeInvisible({
+                    onClick: handleTogglePasswordVisible,
+                    className: styles["icon-eye"],
+                  })}
               </div>
             </div>
 
