@@ -1,12 +1,12 @@
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { db } from "@/services/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
-import { ClientType } from "types";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import styles from "../../styles/Admin.module.css";
-import Filter from "../filter";
 import FilterLetter from "../filterLetter";
 import ListProfiles from "../listProfiles";
+import { db } from "@/services/firebase";
+import { ClientType } from "types";
+import Filter from "../filter";
 
 export interface AdminBodyProps {
   page: number;

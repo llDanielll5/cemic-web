@@ -257,6 +257,17 @@
   font-size: 1.2rem;
   text-align: center;
 }
+.footer a {
+  text-align: center;
+  text-decoration: none;
+  color: var(--dark-blue);
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 500;
+}
+.footer .sofx-logo {
+  height: 20px;
+}
 
 .icone-seta {
   position: absolute;

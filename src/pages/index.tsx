@@ -180,6 +180,15 @@ export default function LandingPage() {
           <h3>CEMIC© Compartilhe essa ideia!</h3>
           <p>Todos os direitos reservados.</p>
           <p>Contato: (61) 3083-3075 | (61) 98657-3056</p>
+
+          <a href="http://sofx.vercel.app" target={"_blank"} rel="noreferrer">
+            Site desenvolvido por{" "}
+            <img
+              src="/images/sofx.png"
+              alt="sofx - soluções digitais"
+              className={styles["sofx-logo"]}
+            />
+          </a>
         </div>
       </footer>
 
