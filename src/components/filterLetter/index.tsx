@@ -69,7 +69,7 @@ const FilterLetter = (props: FilterLetterProps) => {
           <ReactDropdown
             options={alfabeto}
             onChange={({ value }) => props.setLetter(value)}
-            value={props.letter}
+            value={props.letter!}
             placeholder="Filtrar por letra:"
             className={styles["dropdown-letter"]}
           />

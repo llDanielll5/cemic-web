@@ -128,23 +128,24 @@ const Dashboard = () => {
     );
   };
 
+  const renderDashboard = ({ item, index }: any) => {
+    if (index === 0) return cemicLogo({ href: item.path, title: item.title });
+    else
+      return navigationRender(
+        {
+          href: item.path,
+          title: item.title,
+          icon: item?.icon,
+        },
+        index
+      );
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.navigation} ref={navigationRef}>
         <ul>
-          {dashboardNav.map((item, index) => {
-            if (index === 0)
-              return cemicLogo({ href: item.path, title: item.title });
-            else
-              return navigationRender(
-                {
-                  href: item.path,
-                  title: item.title,
-                  icon: item?.icon,
-                },
-                index
-              );
-          })}
+          {dashboardNav.map((item, index) => renderDashboard({ item, index }))}
         </ul>
       </div>
       <div className={styles.main} ref={mainRef}>

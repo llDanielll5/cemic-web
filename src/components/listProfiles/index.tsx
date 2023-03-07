@@ -7,10 +7,11 @@ interface BasicProfiles {
   phone: string;
   cpf: string;
   type?: string;
+  id: string;
 }
 
 interface ListProfilesProps {
-  profiles: any[];
+  profiles: BasicProfiles[];
   notHaveMessage: string;
 }
 
