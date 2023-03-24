@@ -33,6 +33,8 @@ const RegisterScreen = () => {
   };
 
   const handleSubmit = async () => {
+    return alert("Página em construção");
+
     if (name === "" || email === "" || password === "")
       alert("Preencha os campos!");
 
@@ -47,15 +49,12 @@ const RegisterScreen = () => {
         const hasSnap = docSnap.exists();
         if (!hasSnap) {
           createAccount = true;
-          await createUser({ email, password, name }, userID!)
-            .then(() => {
-              setIsLoading(false);
-              setName("");
-              setEmail("");
-            })
-            .finally(() => {
-              setFinishRegister(true);
-            });
+          await createUser({ email, password, name }, userID!).then(() => {
+            setIsLoading(false);
+            setName("");
+            setEmail("");
+            setFinishRegister(true);
+          });
         }
         return;
       }

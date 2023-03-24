@@ -4,6 +4,7 @@ import ModalSuccess from "@/components/modalSuccess";
 import styles from "../../styles/Modal.module.css";
 import Loading from "@/components/loading";
 import Modal from "@/components/modal";
+import { TbArrowBackUp } from "react-icons/tb";
 import { auth } from "@/services/firebase";
 import { useRouter } from "next/router";
 import { handleLogin } from "@/services/requests/auth";
@@ -32,12 +33,13 @@ const LoginScreen = () => {
       .catch((error) => {
         setIsLoading(false);
         const errorCode = error.code;
-        const errorMessage = error.message;
         if (errorCode === "auth/invalid-email") {
-          alert("E-mail não cadastrado ou errado");
+          return alert("E-mail não cadastrado ou errado");
         } else if (errorCode === "auth/missing-email") {
-          alert("Digite um e-mail");
-        } else alert(errorCode);
+          return alert("Digite um e-mail");
+        } else if (errorCode === "auth/user-not-found") {
+          return alert("Usuário não cadastrado");
+        } else return alert(errorCode);
       });
   };
 
@@ -58,6 +60,9 @@ const LoginScreen = () => {
   };
 
   const handleSubmit = async () => {
+    return alert("Página em construção");
+
+    // ************************
     if (email === "" && password === "") alert("Preencha os campos!");
     setIsLoading(true);
     handleLogin({ email, password }).then((res) => {
@@ -66,9 +71,17 @@ const LoginScreen = () => {
         return;
       } else if (res?.role === "admin") {
         router.push("/admin");
-      } else if (res?.role === "client") {
+      } else if (res?.role === "patient") {
         router.push({
           pathname: `/patient/${res?.id}`,
+        });
+      } else if (res?.role === "pre-register") {
+        router.push({
+          pathname: `/pre-register/${res?.id}`,
+        });
+      } else if (res?.role === "selected") {
+        router.push({
+          pathname: `/selected/${res?.id}`,
         });
       } else router.push("/");
     });
@@ -83,6 +96,12 @@ const LoginScreen = () => {
         closeModal={handleModalSuccessToggle}
         visible={modalSuccessReset}
       />
+      <div className={styles["back-arrow"]}>
+        <TbArrowBackUp
+          className={styles["arrow-item"]}
+          onClick={() => router.push("/")}
+        />
+      </div>
       <Modal visible={modalVisible} closeModal={() => setModalVisible(false)}>
         <div className={styles["reset-password"]}>
           <h3>

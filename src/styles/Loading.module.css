@@ -7,11 +7,11 @@
   }
 }
 .spinner-container {
-  position: absolute;
+  position: fixed;
   z-index: 100;
   background-color: rgba(10, 10, 10, 0.7);
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,6 +19,7 @@
 .spinner-container h2 {
   color: white;
   margin-left: 8px;
+  text-align: center;
 }
 .loading-spinner {
   width: 65px;

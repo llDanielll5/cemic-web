@@ -1,63 +1,30 @@
-import { useRouter } from "next/router";
+//@ts-nocheck
 import React, { useState } from "react";
-import ReactDropdown from "react-dropdown";
+import { auth, db } from "@/services/firebase";
+import { createUserLanding } from "@/services/requests/auth";
+import { makeid } from "@/services/services";
+import { deleteUser } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useRouter } from "next/router";
 import styles from "../../styles/Landing.module.css";
-
-const treatments = [
-  "Implante dentário",
-  "Aparelho Ortodôntico",
-  "Clínico Geral",
-];
-const daysRequired = [
-  "Segunda-Feira",
-  "Terça-Feira",
-  "Quarta-Feira",
-  "Quinta-Feira",
-  "Sexta-Feira",
-];
-
-const daysClinic = ["Segunda-Feira", "Quarta-Feira"];
 
 const ContactForm = () => {
   const router = useRouter();
-  const [treatment, setTreatment] = useState<string>("");
-  const [dayWeek, setDayWeek] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-
-  const changeDaysSelect = () => {
-    if (treatment === "Clínico Geral") {
-      return daysClinic;
-    } else return daysRequired;
-  };
-
-  const formInvalidValues =
-    treatment === "" ||
-    dayWeek === "" ||
-    name === "" ||
-    phone === "" ||
-    email === "";
-
-  const msg = `Olá!
-
-Sou o(a) ${name}, e gostaria de concorrer a vaga de ${treatment} na CEMIC.
-
-O meu melhor dia da semana disponível seria ${dayWeek}.
-
-Meu telefone celular é o ${phone}.\n, meu email é o ${email}.
-
-${message}
-  `;
-  const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
-    msg
-  )}`;
+  const [password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handlePhone = (event: any) => {
     let input = event.target;
     setPhone(phoneMask(input.value));
   };
+  const phoneReplaced = phone
+    .replace("(", "")
+    .replace(")", "")
+    .replace("-", "")
+    .replace(" ", "");
 
   const phoneMask = (value: any) => {
     if (!value) return "";
@@ -67,40 +34,71 @@ ${message}
     return value;
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (formInvalidValues) {
-      alert("Preencha todos os campos com *!");
-    } else router.push(zapHref);
+
+    return alert(
+      "Ainda não é possivel se cadastrar no site! Tente novamente depois, ou ligue no 3083-3075. Agradecemos!"
+    );
+    if (name === "" || email === "" || password === "" || phone === "")
+      alert("Preencha os campos!");
+
+    setIsLoading(true);
+
+    const checkHasIdUsed = async () => {
+      var createAccount = false;
+      while (!createAccount) {
+        let userID = makeid(7);
+        const existRef = doc(db, "clients", userID);
+        const docSnap = await getDoc(existRef);
+        const hasSnap = docSnap.exists();
+        if (!hasSnap) {
+          createAccount = true;
+          await createUserLanding(
+            { email, password, name, phone: phoneReplaced },
+            userID!
+          )
+            .then(async (res) => {
+              if (res?.message === "Erro ao criar conta") {
+                setIsLoading(false);
+                if (res?.code === "auth/email-already-in-use") {
+                  alert("Este e-mail já está sendo utilizado!");
+                } else alert(res?.code);
+                return;
+              }
+              if (res?.message === "Erro ao criar o banco da conta") {
+                setIsLoading(false);
+                await deleteUser(auth.currentUser!).then(
+                  async () => await auth.signOut()
+                );
+                alert(
+                  "Ocorreu erro " + err?.code + " ao criar o banco do usuário"
+                );
+                return;
+              }
+              if (res?.message === "Sucesso ao cadastrar") {
+                setIsLoading(false);
+                setName("");
+                setEmail("");
+                router.push("/pre-register/" + userID);
+                return;
+              }
+            })
+            .catch((err) => {});
+        }
+        return;
+      }
+    };
+    checkHasIdUsed();
   };
+
   return (
     <section className={styles.contact} id={"contact"}>
       <h2>
-        Preencha o formulário abaixo para realizar uma pergunta específica para
-        a <span>CEMIC!</span>
+        Faça sua inscrição agora e concorra a sua vaga na <span>CEMIC!</span>
       </h2>
       <div className={styles["contact-container"]}>
         <form>
-          <h4>
-            Qual tratamento você necessita? <span>*</span>
-          </h4>
-          <ReactDropdown
-            options={treatments}
-            onChange={({ value }) => setTreatment(value)}
-            value={treatment}
-            placeholder="Selecione um atendimento."
-          />
-
-          <h4>
-            Qual desses dias da semana têm disponibilidade? <span>*</span>
-          </h4>
-          <ReactDropdown
-            options={changeDaysSelect()}
-            onChange={({ value }) => setDayWeek(value)}
-            value={dayWeek}
-            placeholder="Selecione um dia da semana."
-          />
-
           <h4>
             Informe seu nome completo <span>*</span>
           </h4>
@@ -130,13 +128,16 @@ ${message}
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <h4>Digite a sua mensagem</h4>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+          <h4>
+            Digite uma senha <span>*</span>
+          </h4>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
-          <input type="submit" value={"Perguntar"} onClick={handleSubmit} />
+          <input type="submit" value={"Cadastrar-se"} onClick={handleSubmit} />
         </form>
       </div>
 

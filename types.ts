@@ -1,4 +1,7 @@
+import { Timestamp } from "firebase/firestore";
+
 export type UserRole = "admin" | "client" | "professional" | "employee";
+export type ClientRole = "pre-register" | "selected" | "patient";
 
 export interface AdminType {
   uid: string;
@@ -19,16 +22,19 @@ export type AnamneseType = "Sim" | "Não" | "Não Sei";
 
 //viacep types
 export interface AddressType {
-  cep: string;
-  address: string;
-  line1: string;
-  neighbor: string;
-  city: string;
-  uf: string;
-  complement: string;
+  cep?: string;
+  address?: string;
+  line1?: string;
+  neighbor?: string;
+  city?: string;
+  uf?: string;
+  complement?: string;
+  number?: string;
 }
 
 export interface FinanceType {}
+
+export type SexType = "MASCULINO" | "FEMININO" | "NENHUM";
 
 export interface ClientType {
   uid: string;
@@ -44,8 +50,20 @@ export interface ClientType {
   reports: string[];
   protocols: string[];
   anamnese: AnamneseType[];
-  address: AddressType | {};
+  address?: AddressType;
   xrays: XRaysType[];
   finances: FinanceType[];
-  role: UserRole;
+  role: ClientRole;
+  dateBorn: string;
+  sexo: SexType;
+  lectureDays: string[];
+}
+
+export interface ClientLectureDay {
+  client: string;
+  isMissed: boolean;
+}
+export interface LectureDay {
+  clients: ClientLectureDay[];
+  day: Timestamp;
 }

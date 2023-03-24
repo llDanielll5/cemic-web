@@ -10,25 +10,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import About from "@/components/about";
 import ContactForm from "@/components/contact";
 import useWindowSize from "@/hooks/useWindowSize";
-import Modal from "@/components/modal";
 import styles from "@/styles/Landing.module.css";
-import modalStyle from "../styles/Modal.module.css";
 import Image from "next/image";
 import Banner from "../../public/images/banner.png";
 import Banner1 from "../../public/images/banner1.png";
 import Banner2 from "../../public/images/banner2.png";
 import Help from "@/components/help";
 import { useRouter } from "next/router";
+import Footer from "@/components/footer";
 
 export default function LandingPage() {
   const router = useRouter();
   const size = useWindowSize();
   const refMenu = useRef<HTMLUListElement>(null);
-  const aboutRef = useRef<HTMLElement>(null);
-  const helpRef = useRef<HTMLElement>(null);
-  const contactRef = useRef<HTMLElement>(null);
   const currentScroll = useGetScrollPosition();
-  const [loginModal, setLoginModal] = useState(false);
   const [iconMenu, setIconMenu] = useState(true);
 
   const msg = `Olá!! Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
@@ -85,17 +80,53 @@ export default function LandingPage() {
     changeRouter();
   }, [scrollUp, size?.width]);
 
-  const listItem = ({ item, index }: any) => (
-    <li
-      key={index}
-      className={styles["list-item"]}
-      onClick={() => {
-        if (size?.width < 900) router.push(item.path);
-      }}
-    >
-      <a href={item.path}>{item.title}</a>
-    </li>
-  );
+  const listItem = ({ item, index }: any) => {
+    const handlePress = () => size?.width < 900 && router.push(item.path);
+    return (
+      <li key={index} className={styles["list-item"]} onClick={handlePress}>
+        <a href={item.path}>{item.title}</a>
+      </li>
+    );
+  };
+
+  const renderIconMenu = () => {
+    !iconMenu ? (
+      <AiOutlineClose className={styles["icon-menu"]} onClick={openMenu} />
+    ) : (
+      <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
+    );
+  };
+
+  const renderImageBanner = () => {
+    size?.width! > 760 ? (
+      <div className={styles.bannerback}>
+        <Image
+          src={Banner}
+          width={size?.width}
+          height={500}
+          alt=""
+          className={styles["image-banner"]}
+        />
+      </div>
+    ) : (
+      <div className={styles.bannerback}>
+        <Image
+          src={Banner2}
+          width={size?.width}
+          height={500}
+          alt=""
+          className={styles["image-banner"]}
+        />
+        <Image
+          src={Banner1}
+          width={size?.width}
+          height={500}
+          alt=""
+          className={styles["image-banner"]}
+        />
+      </div>
+    );
+  };
 
   return (
     <>
@@ -120,77 +151,21 @@ export default function LandingPage() {
           alt="cemic logo"
           className={styles.logocemic}
         />
-
         <ul className={styles["list-container"]} ref={refMenu}>
           {headerData.map((item, index) => {
             return listItem({ item, index });
           })}
         </ul>
-
-        {!iconMenu ? (
-          <AiOutlineClose className={styles["icon-menu"]} onClick={openMenu} />
-        ) : (
-          <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
-        )}
+        {renderIconMenu()}
       </div>
-      <section className={styles.banner}>
-        {size?.width > 760 ? (
-          <div className={styles.bannerback}>
-            <Image
-              src={Banner}
-              width={size?.width}
-              height={500}
-              alt=""
-              className={styles["image-banner"]}
-            />
-          </div>
-        ) : (
-          <div className={styles.bannerback}>
-            <Image
-              src={Banner2}
-              width={size?.width}
-              height={500}
-              alt=""
-              className={styles["image-banner"]}
-            />
-            <Image
-              src={Banner1}
-              width={size?.width}
-              height={500}
-              alt=""
-              className={styles["image-banner"]}
-            />
-          </div>
-        )}
-      </section>
+      <section className={styles.banner}>{renderImageBanner()}</section>
       <div className={styles["icone-seta"]} />
       <div style={{ marginBottom: "1rem" }}></div>
 
       <About />
       <Help />
       <ContactForm />
-
-      <footer className={styles.footer}>
-        <div className={styles["container-footer"]}>
-          <img
-            src="images/logo.png"
-            alt="sua logo"
-            className={styles["logo-footer"]}
-          />
-          <h3>CEMIC© Compartilhe essa ideia!</h3>
-          <p>Todos os direitos reservados.</p>
-          <p>Contato: (61) 3083-3075 | (61) 98657-3056</p>
-
-          <a href="http://sofx.vercel.app" target={"_blank"} rel="noreferrer">
-            Site desenvolvido por{" "}
-            <img
-              src="/images/sofx.png"
-              alt="sofx - soluções digitais"
-              className={styles["sofx-logo"]}
-            />
-          </a>
-        </div>
-      </footer>
+      <Footer />
 
       <a
         href={zapHref}

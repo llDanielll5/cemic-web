@@ -9,3 +9,9 @@ export function makeid(length: number) {
   }
   return result;
 }
+
+// export const parseDateString = (value: string) => {
+//   if(!value) return
+//   const [y, m, d] = value.split('-')
+//   return `${}`
+// }

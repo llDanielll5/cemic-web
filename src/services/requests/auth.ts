@@ -1,6 +1,7 @@
 import { setCookie } from "cookies-next";
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
@@ -133,8 +134,11 @@ export const createUser = async (
         treatments: [],
         uid: res.user.uid,
         xrays: [],
-        role: "client",
+        role: "pre-register",
         finances: [],
+        dateBorn: "",
+        sexo: "NENHUM",
+        lectureDays: [],
       };
       if (res) {
         const userRef = doc(db, "clients", userID);
@@ -142,4 +146,57 @@ export const createUser = async (
       }
     }
   );
+};
+
+export const createUserLanding = async (
+  { email, password, name, phone }: any,
+  userID: string
+) => {
+  return await createUserWithEmailAndPassword(auth, email, password)
+    .then(async (res) => {
+      const userData: ClientType = {
+        name,
+        email,
+        address: {},
+        anamnese: [],
+        cpf: "",
+        firstLetter: name.charAt(0).toUpperCase(),
+        id: userID,
+        phone,
+        profileImage: "",
+        protocols: [],
+        reports: [],
+        rg: "",
+        treatments: [],
+        uid: res.user.uid,
+        xrays: [],
+        role: "pre-register",
+        finances: [],
+        dateBorn: "",
+        sexo: "NENHUM",
+        lectureDays: [],
+      };
+      if (res) {
+        const userRef = doc(db, "clients", userID);
+        console.log(userData);
+        return await setDoc(userRef, userData)
+          .then(() => {
+            return {
+              message: "Sucesso ao cadastrar",
+            };
+          })
+          .catch((err) => {
+            return {
+              message: "Erro ao criar o banco da conta",
+              code: err.code,
+            };
+          });
+      }
+    })
+    .catch(async (err) => {
+      return {
+        message: "Erro ao criar conta",
+        code: err.code,
+      };
+    });
 };

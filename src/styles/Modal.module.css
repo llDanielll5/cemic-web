@@ -151,6 +151,17 @@
   height: 100vh;
   display: flex;
   flex-direction: row;
+  position: relative;
+}
+.container .back-arrow {
+  position: absolute;
+  left: 10%;
+  top: 32px;
+}
+.container .back-arrow .arrow-item {
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
 }
 
 .left-side {
