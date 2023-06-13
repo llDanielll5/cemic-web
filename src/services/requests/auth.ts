@@ -65,6 +65,8 @@ export const handleLogin = async ({ email, password }: any) => {
         alert("Usuário não cadastrado!");
       } else if (err.code === "auth/wrong-password") {
         alert("Senha incorreta!");
+      } else if (err.code === "auth/invalid-email") {
+        return alert("Digite um e-mail válido");
       } else alert(err.code + " " + err.message);
     });
 };

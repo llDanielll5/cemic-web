@@ -1,14 +1,16 @@
+/* eslint-disable react/jsx-key */
 import React, { useState } from "react";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { createUserLanding } from "@/services/requests/auth";
-import { Box, Typography, styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { nameCapitalized } from "@/services/services";
 import { AuthErrors } from "@/services/errors";
 import { useRouter } from "next/router";
-import Input from "@/components/input";
 import Loading from "@/components/loading";
 import ModalError from "@/components/modalError";
-import Link from "next/link";
+import CustomTab from "@/components/customTab";
+import RegisterLandingForm from "./register";
+import LoginFormLanding from "./login";
 
 const FormLanding = () => {
   const router = useRouter();
@@ -19,6 +21,8 @@ const FormLanding = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [modalError, setModalError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const tabs = ["Cadastrar", "Entrar"];
 
   const handleCPF = (event: any) => {
     let input = event;
@@ -90,10 +94,31 @@ const FormLanding = () => {
       });
   };
 
+  const renders = [
+    <RegisterLandingForm
+      cpf={cpf}
+      email={email}
+      handleCPF={handleCPF}
+      handleSubmit={handleSubmit}
+      name={name}
+      password={password}
+      setEmail={setEmail}
+      setName={setName}
+      setPassword={setPassword}
+    />,
+    <LoginFormLanding
+      email={email}
+      password={password}
+      setEmail={setEmail}
+      setPassword={setPassword}
+      setIsLoading={setIsLoading}
+    />,
+  ];
+
   if (isLoading)
     return (
       <Box position="fixed" top={0} left={0} zIndex={2000}>
-        <Loading message="Criando cadastro..." />
+        <Loading message="Aguarde um pouco..." />
       </Box>
     );
 
@@ -107,51 +132,8 @@ const FormLanding = () => {
         closeModal={handleCloseErrorModal}
         visible={modalError}
       />
-      <h3 style={{ margin: "0 0 8px 0", textAlign: "center" }}>
-        Cadastre-se no Projeto agora!
-      </h3>
-      <Input
-        label="Nome Completo*"
-        labelStyle={{ backgroundColor: "rgba(250,250,250,0)" }}
-        inputStyle={{ textTransform: "capitalize" }}
-        onChange={(e) => setName(e)}
-        value={name}
-      />
-      <Input
-        label="CPF*"
-        labelStyle={{ backgroundColor: "rgba(250,250,250,0)" }}
-        onChange={(e) => handleCPF(e)}
-        maxLenght={14}
-        value={cpf}
-      />
-      <Input
-        label="Email*"
-        type="email"
-        value={email}
-        labelStyle={{ backgroundColor: "rgba(250,250,250,0)" }}
-        onChange={(e) => setEmail(e)}
-      />
-      <Input
-        label="Senha*"
-        type="password"
-        value={password}
-        labelStyle={{ backgroundColor: "rgba(250,250,250,0)" }}
-        onChange={(e) => setPassword(e)}
-      />
-      <Box>
-        <StyledButton onClick={handleSubmit}>Cadastrar</StyledButton>
-      </Box>
-      <Typography mt={1} variant="small">
-        Campos com * são obrigatórios
-      </Typography>
 
-      <Typography mt={1} variant="body2">
-        Já é paciente?
-        <Link passHref href="/login">
-          {" "}
-          Clique aqui
-        </Link>
-      </Typography>
+      <CustomTab labels={tabs} values={tabs} renders={renders} />
     </Container>
   );
 };
@@ -165,9 +147,10 @@ const Container = styled(Box)`
   position: absolute;
   width: calc(100% / 3.5);
   max-width: 500px;
+  min-width: 350px;
+  min-height: 400px;
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
   z-index: 90;
   box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.14);
