@@ -146,8 +146,9 @@ const FormLanding = () => {
       </Typography>
 
       <Typography mt={1} variant="body2">
-        Já é paciente?{" "}
+        Já é paciente?
         <Link passHref href="/login">
+          {" "}
           Clique aqui
         </Link>
       </Typography>
