@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import Input from "@/components/input";
 import Loading from "@/components/loading";
 import ModalError from "@/components/modalError";
+import Link from "next/link";
 
 const FormLanding = () => {
   const router = useRouter();
@@ -143,12 +144,19 @@ const FormLanding = () => {
       <Typography mt={1} variant="small">
         Campos com * são obrigatórios
       </Typography>
+
+      <Typography mt={1} variant="body2">
+        Já é paciente?{" "}
+        <Link passHref href="/login">
+          Clique aqui
+        </Link>
+      </Typography>
     </Container>
   );
 };
 
 const Container = styled(Box)`
-  padding: 40px;
+  padding: 40px 40px 20px 40px;
   top: 20%;
   right: 15%;
   border-radius: 8px;
