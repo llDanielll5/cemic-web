@@ -4,6 +4,7 @@
   width: 100%;
   flex-direction: column;
   margin-bottom: 32px;
+  position: relative;
 }
 
 .container .button-logout {

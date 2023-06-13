@@ -1,25 +1,30 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
-import styles from "../../styles/Modal.module.css";
-import { createUser } from "@/services/requests/auth";
-import { makeid } from "@/services/services";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import Modal from "@/components/modal";
-import Loading from "@/components/loading";
+import React, { useRef, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { doc, getDoc } from "firebase/firestore";
+import { createUser } from "@/services/requests/auth";
+import { useRouter } from "next/router";
+import { makeid } from "@/services/services";
+import { db } from "@/services/firebase";
+import Loading from "@/components/loading";
+import styles from "../../styles/Modal.module.css";
 import ModalSuccess from "@/components/modalSuccess";
+import { AuthErrors } from "@/services/errors";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import ModalError from "@/components/modalError";
 
 const RegisterScreen = () => {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [cpf, setCPF] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [finishRegister, setFinishRegister] = useState(false);
+  const [modalError, setModalError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleTogglePasswordVisible = (e: any) => {
     inputRef?.current?.focus();
@@ -31,40 +36,79 @@ const RegisterScreen = () => {
     setPasswordVisible(!passwordVisible);
     return;
   };
+  const handleCloseErrorModal = () => {
+    setModalError(false);
+    setErrorMessage("");
+  };
+
+  const cpfReplaced = cpf.replace(".", "").replace("-", "").replace(".", "");
 
   const handleSubmit = async () => {
-    return alert("Página em construção");
-
     if (name === "" || email === "" || password === "")
-      alert("Preencha os campos!");
+      return alert("Preencha os campos!");
+
+    const arrStr = name.split(" ");
+    const capitalizeds = arrStr.map((v) => {
+      const char = v.charAt(0);
+      const rest = v.slice(1);
+
+      return `${char.toUpperCase()}${rest.toLowerCase()}`;
+    });
+
+    const completeName = capitalizeds.join(" ");
 
     setIsLoading(true);
-
     const checkHasIdUsed = async () => {
-      var createAccount = false;
-      while (!createAccount) {
-        let userID = makeid(7);
-        const existRef = doc(db, "clients", userID);
-        const docSnap = await getDoc(existRef);
-        const hasSnap = docSnap.exists();
-        if (!hasSnap) {
-          createAccount = true;
-          await createUser({ email, password, name }, userID!).then(() => {
+      await createUser({
+        email,
+        password,
+        name: completeName,
+        cpf: cpfReplaced,
+      })
+        .then((res) => {
+          if (res === "CPF existente") {
+            setIsLoading(false);
+            setModalError(true);
+            setErrorMessage(
+              "Esse CPF já está em uso! Favor entrar em contato com nosso Whatsapp"
+            );
+            return;
+          } else {
             setIsLoading(false);
             setName("");
             setEmail("");
             setFinishRegister(true);
-          });
-        }
-        return;
-      }
+          }
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          if (err.code === AuthErrors["01"]) {
+            setModalError(true);
+            setErrorMessage("Email já está em uso");
+            return;
+          } else if (err.code === "auth/invalid-email") {
+            setModalError(true);
+            setErrorMessage(
+              "Email inválido. Verifique corretamente o email adicionado!"
+            );
+          } else return alert(err.code);
+        });
     };
+
     checkHasIdUsed();
   };
 
-  const handleFinishRegister = () => {
-    setFinishRegister(false);
-    router.push("/login");
+  const handleFinishRegister = async () => {
+    const res = await router.push("/login");
+    if (res) return setFinishRegister(false);
+  };
+
+  const cpfMasked = (cpf: string) => {
+    cpf = cpf.replace(/\D/g, "");
+    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return cpf;
   };
 
   return (
@@ -76,6 +120,14 @@ const RegisterScreen = () => {
         closeModal={handleFinishRegister}
         visible={finishRegister}
       />
+      <ModalError
+        actionButton={
+          <StyledButton onClick={handleCloseErrorModal}>Ok</StyledButton>
+        }
+        message={errorMessage}
+        closeModal={handleCloseErrorModal}
+        visible={modalError}
+      />
       <div className={styles["left-side"]}>
         <div className={styles["login-form"]}>
           <h2>Criar conta grátis</h2>
@@ -85,9 +137,10 @@ const RegisterScreen = () => {
               <div className={styles["input-box"]}>
                 <input
                   type="text"
-                  name=""
                   required
                   value={name}
+                  autoCapitalize="words"
+                  style={{ textTransform: "capitalize" }}
                   onChange={(e) => setName(e.target.value)}
                 />
                 <span className={styles["text-input"]}>Nome Completo</span>
@@ -99,7 +152,20 @@ const RegisterScreen = () => {
               <div className={styles["input-box"]}>
                 <input
                   type="text"
-                  name=""
+                  required
+                  value={cpf}
+                  maxLength={14}
+                  onChange={(e) => setCPF(cpfMasked(e.target.value))}
+                />
+                <span className={styles["text-input"]}>CPF</span>
+                <span className={styles.line}></span>
+              </div>
+            </div>
+
+            <div className={styles.col}>
+              <div className={styles["input-box"]}>
+                <input
+                  type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -114,7 +180,6 @@ const RegisterScreen = () => {
                 <input
                   ref={inputRef}
                   type="password"
-                  name=""
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

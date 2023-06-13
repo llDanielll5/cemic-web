@@ -1,5 +1,5 @@
+import React from "react";
 import useWindowSize from "@/hooks/useWindowSize";
-import React, { useState } from "react";
 import ReactDropdown from "react-dropdown";
 import styles from "../../styles/Filter.module.css";
 

@@ -1,0 +1,17 @@
+export const colors = {
+  primaryLightBlue: "#09aae8",
+  primaryMediumBlue: "#09aae8",
+  primaryDarkBlue: "#1b083e",
+  complementaryLightBlue: "#4CAEFF",
+  complementaryMediumBlue: "#608BED",
+  complementaryDarkBlue: "#2F4479",
+  alertGreen: "#73BA28",
+  alertOrange: "#F16C32",
+  alertRed: "#e91d23",
+  basicLightGray: "#F9F9F9",
+  basicMediumGray: "#ECECEC",
+  basicDarkGray: "#828282",
+  basicWhite: "#FFFFFF",
+  basicBlack: "#030D28",
+  basicPink: "#FA67EB",
+};

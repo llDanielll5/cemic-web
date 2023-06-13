@@ -1,7 +1,8 @@
 import React from "react";
-import ReactDropdown from "react-dropdown";
+import { Box, styled } from "@mui/material";
+import { StyledTextField } from "../patient/profile";
 import styles from "../../styles/Selected.module.css";
-import Input from "../input";
+import { StyledButton } from "../dynamicAdminBody/receipts";
 
 interface UserFormProps {
   userData: any;
@@ -13,8 +14,6 @@ interface UserFormProps {
   handleGetCep: any;
   handleNextPage: any;
 }
-
-const sexOptions = ["FEMININO", "MASCULINO", "NENHUM"];
 
 const UserForm = (props: UserFormProps) => {
   const {
@@ -31,144 +30,133 @@ const UserForm = (props: UserFormProps) => {
     <>
       <h2>Dados do Paciente</h2>
 
-      <Input
+      <StyledTextField
         label="Nome Completo:"
         value={userData?.name!}
-        onChange={(e) => handleChange(e, "name", setUserData)}
+        onChange={(e) => handleChange(e.target.value, "name", setUserData)}
+        margin="dense"
       />
-      <div className={styles["double-inputs"]}>
-        <div className={styles.w60}>
-          <Input
-            label="CPF:"
-            value={userData?.cpf!}
-            onChange={(e) => handleMasked(e, "cpf", setUserData)}
-            maxLenght={14}
-          />
-        </div>
-        <div className={styles.w40}>
-          <Input
-            label="RG:"
-            value={userData?.rg!}
-            onChange={(e) => handleChange(e, "rg", setUserData)}
-            maxLenght={7}
-          />
-        </div>
-      </div>
-      <div className={styles["double-inputs"]}>
-        <div className={styles.w60}>
-          <Input
-            type="email"
-            label="E-mail:"
-            value={userData?.email!}
-            onChange={(e) => handleChange(e, "email", setUserData)}
-          />
-        </div>
-        <div className={styles.w40}>
-          <Input
-            label="Celular:"
-            value={userData?.phone!}
-            onChange={(e) => handleMasked(e, "phone", setUserData)}
-            maxLenght={14}
-          />
-        </div>
-      </div>
+      <InputsContainer>
+        <StyledTextField
+          label="CPF:"
+          value={userData?.cpf!}
+          disabled
+          sx={{ width: "70%" }}
+        />
+        <StyledTextField
+          label="RG:"
+          value={userData?.rg!}
+          sx={{ width: "30%" }}
+          inputProps={{ maxLength: 7 }}
+          onChange={(e) => handleChange(e.target.value, "rg", setUserData)}
+        />
+      </InputsContainer>
 
-      <div className={styles["double-inputs"]}>
-        <div className={styles.date}>
-          <div className={styles["input-box"]}>
-            <span className={styles["text-input"]}>Nascimento</span>
-            <input
-              className={styles.datepicker}
-              type={"date"}
-              value={userData?.bornDate!}
-              onChange={(e) =>
-                handleChange(e.target.value, "bornDate", setUserData)
-              }
-            />
-          </div>
-        </div>
-
-        <div className={styles["sex-container"]}>
-          <p>Sexo:</p>
-          <ReactDropdown
-            options={sexOptions}
-            onChange={({ value }: any) =>
-              handleChange(value, "sexo", setUserData)
-            }
-            value={userData?.sexo!}
-            placeholder="Sexo:"
-            className={styles.dropdown}
-          />
-        </div>
-      </div>
+      <InputsContainer>
+        <StyledTextField
+          label="Celular*:"
+          value={userData?.phone!}
+          onChange={(e) => handleMasked(e.target.value, "phone", setUserData)}
+          inputProps={{ maxLength: 15 }}
+          sx={{ width: "70%" }}
+        />
+        <StyledTextField
+          type={"date"}
+          sx={{ width: "30%" }}
+          label="Nascimento*:"
+          value={userData?.bornDate!}
+          InputLabelProps={{ shrink: true }}
+          onChange={(e) =>
+            handleChange(e.target.value, "bornDate", setUserData)
+          }
+        />
+      </InputsContainer>
 
       <h3 className={styles.local}>Dados de Localidade</h3>
 
-      <div className={styles["double-inputs"]}>
-        <div className={styles.w50}>
-          <Input
-            label="CEP*:"
-            value={locationData?.cep!}
-            onChange={handleGetCep}
-            maxLenght={8}
-          />
-        </div>
-        <div className={styles.w50}>
-          <Input
-            label="Logradouro:"
-            value={locationData?.line1!}
-            onChange={(e) => handleChange(e, "line1", setLocationData)}
-          />
-        </div>
-      </div>
+      <InputsContainer>
+        <StyledTextField
+          label="CEP*:"
+          value={locationData?.cep!}
+          onChange={handleGetCep}
+          inputProps={{ maxLength: 8 }}
+          sx={{ width: "100%" }}
+        />
+        <StyledTextField
+          label="Logradouro:"
+          value={locationData?.line1!}
+          InputLabelProps={{ shrink: true }}
+          sx={{ width: "100%" }}
+          onChange={(e) =>
+            handleChange(e.target.value, "line1", setLocationData)
+          }
+        />
+      </InputsContainer>
 
-      <div className={styles["double-inputs"]}>
-        <div className={styles.w70}>
-          <Input
-            label="Bairro:"
-            value={locationData?.neighbor!}
-            onChange={(e) => handleChange(e, "neighbor", setLocationData)}
-            maxLenght={8}
-          />
-        </div>
-        <div className={styles.w20}>
-          <Input
-            label="Número:"
-            value={locationData?.number!}
-            onChange={(e) => handleChange(e, "number", setLocationData)}
-          />
-        </div>
-      </div>
+      <InputsContainer>
+        <StyledTextField
+          label="Bairro:"
+          value={locationData?.neighbor!}
+          InputLabelProps={{ shrink: true }}
+          sx={{ width: "80%" }}
+          onChange={(e) =>
+            handleChange(e.target.value, "neighbor", setLocationData)
+          }
+        />
 
-      <div className={styles["double-inputs"]}>
-        <div className={styles.w70}>
-          <Input
-            label="Cidade:"
-            value={locationData?.city!}
-            onChange={(e) => handleChange(e, "city", setLocationData)}
-            maxLenght={8}
-          />
-        </div>
-        <div className={styles.w30}>
-          <Input
-            label="UF:"
-            value={locationData?.uf!}
-            onChange={(e) => handleChange(e, "uf", setLocationData)}
-          />
-        </div>
-      </div>
+        <StyledTextField
+          label="Número:"
+          value={locationData?.number!}
+          sx={{ width: "20%" }}
+          onChange={(e) =>
+            handleChange(e.target.value, "number", setLocationData)
+          }
+        />
+      </InputsContainer>
 
-      <Input
+      <InputsContainer>
+        <StyledTextField
+          label="Cidade:"
+          value={locationData?.city!}
+          InputLabelProps={{ shrink: true }}
+          onChange={(e) =>
+            handleChange(e.target.value, "city", setLocationData)
+          }
+          sx={{ width: "80%" }}
+        />
+
+        <StyledTextField
+          label="UF:"
+          value={locationData?.uf!}
+          InputLabelProps={{ shrink: true }}
+          sx={{ width: "20%" }}
+          onChange={(e) => handleChange(e.target.value, "uf", setLocationData)}
+        />
+      </InputsContainer>
+
+      <StyledTextField
         label="Complemento:"
         value={locationData?.complement!}
-        onChange={(e) => handleChange(e, "complement", setLocationData)}
+        InputLabelProps={{ shrink: true }}
+        sx={{ width: "100%", mt: "16px" }}
+        onChange={(e) =>
+          handleChange(e.target.value, "complement", setLocationData)
+        }
       />
 
-      <button onClick={handleNextPage} className={styles["button-next"]}>
-        Próximo
-      </button>
+      <Box display="flex" width="100%" justifyContent="flex-end" mt={1}>
+        <StyledButton onClick={handleNextPage}>Próximo</StyledButton>
+      </Box>
     </>
   );
 };
+
+const InputsContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 16px;
+  margin: 16px 0;
+`;
 
 export default UserForm;

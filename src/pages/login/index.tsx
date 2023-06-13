@@ -60,31 +60,37 @@ const LoginScreen = () => {
   };
 
   const handleSubmit = async () => {
-    return alert("Página em construção");
-
-    // ************************
-    if (email === "" && password === "") alert("Preencha os campos!");
+    if (email === "" && password === "") return alert("Preencha os campos!");
     setIsLoading(true);
-    handleLogin({ email, password }).then((res) => {
-      setIsLoading(false);
-      if (res === null || res === undefined) {
-        return;
-      } else if (res?.role === "admin") {
-        router.push("/admin");
-      } else if (res?.role === "patient") {
-        router.push({
-          pathname: `/patient/${res?.id}`,
-        });
-      } else if (res?.role === "pre-register") {
-        router.push({
-          pathname: `/pre-register/${res?.id}`,
-        });
-      } else if (res?.role === "selected") {
-        router.push({
-          pathname: `/selected/${res?.id}`,
-        });
-      } else router.push("/");
-    });
+    return await handleLogin({ email, password })
+      .then(async (res) => {
+        if (res === null || res === undefined) {
+          return;
+        } else if (res?.role === "admin") {
+          const rout = await router.push("/admin");
+          if (rout) setIsLoading(false);
+        } else if (res?.role === "patient") {
+          const rout = await router.push("/patient");
+          if (rout) setIsLoading(false);
+        } else if (res?.role === "pre-register") {
+          const rout = await router.push({
+            pathname: `/pre-register/${res?.id}`,
+          });
+          if (rout) setIsLoading(false);
+        } else if (res?.role === "selected") {
+          const rout = await router.push({
+            pathname: `/selected/${res?.id}`,
+          });
+          if (rout) setIsLoading(false);
+        } else if (res?.role === "professional") {
+          const rout = await router.push("/professional");
+          if (rout) setIsLoading(false);
+        } else if (res?.role === "employee") {
+          const rout = await router.push("/admin");
+          if (rout) setIsLoading(false);
+        } else router.push("/");
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -145,6 +151,9 @@ const LoginScreen = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={({ key }) => {
+                    if (key === "Enter") return handleSubmit();
+                  }}
                 />
                 <span className={styles["text-input"]}>E-mail</span>
                 <span className={styles.line}></span>
@@ -160,6 +169,9 @@ const LoginScreen = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={({ key }) => {
+                    if (key === "Enter") return handleSubmit();
+                  }}
                 />
                 <span className={styles["text-input"]}>Senha</span>
                 <span className={styles.line} />

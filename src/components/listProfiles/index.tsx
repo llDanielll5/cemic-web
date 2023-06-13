@@ -1,5 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import styles from "../../styles/Admin.module.css";
+import { useRouter } from "next/router";
+import { defaultImage, getImage } from "@/services/services";
 
 interface BasicProfiles {
   name: string;
@@ -7,15 +10,20 @@ interface BasicProfiles {
   phone: string;
   cpf: string;
   type?: string;
+  role?: string;
   id: string;
 }
 
 interface ListProfilesProps {
-  profiles: BasicProfiles[];
   notHaveMessage: string;
+  profiles: BasicProfiles[];
+  setClientID: (e: string) => void;
+  setClientDetailsVisible: (e: boolean) => void;
 }
 
 const ListProfiles = (props: ListProfilesProps) => {
+  const route = useRouter();
+
   return (
     <div className={styles["container-list"]}>
       {props.profiles.length === 0 ? (
@@ -24,8 +32,20 @@ const ListProfiles = (props: ListProfilesProps) => {
         </div>
       ) : (
         props.profiles.map((item, index) => (
-          <div key={index} className={styles["profile-item"]}>
-            <div className={styles["avatar-image"]}></div>
+          <div
+            key={index}
+            className={styles["profile-item"]}
+            onClick={() => {
+              props.setClientID(item?.id);
+              props.setClientDetailsVisible(true);
+              return;
+            }}
+          >
+            <img
+              className={styles["avatar-image"]}
+              src={getImage(item.profileImage)}
+              alt=""
+            ></img>
             <div className={styles["container-avatar"]}>
               <span className={styles.name}>Nome: {item.name}</span>
               <p className={styles.cpf}>
@@ -39,7 +59,13 @@ const ListProfiles = (props: ListProfilesProps) => {
             <div className={styles["container-avatar"]}>
               <span className={styles.name}>Código: {item.id}</span>
               <p className={styles.cpf}>
-                Telefone: {item.phone === "" ? "Nenhum" : item.phone}
+                {item?.role === "patient" ? (
+                  <p className={styles.patient}>Paciente</p>
+                ) : item?.role === "pre-register" ? (
+                  <p className={styles.notPatient}>Não-paciente</p>
+                ) : (
+                  <p className={styles.selected}>Selecionado</p>
+                )}
               </p>
             </div>
           </div>

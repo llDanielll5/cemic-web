@@ -1,42 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import styles from "../../styles/Admin.module.css";
-import FilterLetter from "../filterLetter";
-import ListProfiles from "../listProfiles";
 import { db } from "@/services/firebase";
 import { ClientType } from "types";
-import Filter from "../filter";
+import ClientsAdmin from "./clients";
+import ProfessionalsAdmin from "./professionals";
+import LecturesAdmin from "./lectures";
+import ScreeningAdmin from "./screening";
+import DashboardAdmin from "../admin/dashboard";
+import TreatmentsAdmin from "./treatments";
+import ReceiptPageAdmin from "./receipts";
+import ProfileAdmin from "./profile";
+import AdminBlog from "./blog";
 
 export interface AdminBodyProps {
   page: number;
+  setClientDetailsVisible: (e: boolean) => void;
+  setIsCreateTreatment: (e: boolean) => void;
+  setScreeningVisible: (e: boolean) => void;
+  setIsGeneratePayment: (e: boolean) => void;
+  setClientID: (e: string) => void;
+  setDate: (e: string) => void;
 }
+export type ClientTypes = "pre-register" | "patient" | "selected";
 
 const patientsRef = collection(db, "clients");
 
 const DynamicAdminBody = (props: AdminBodyProps) => {
-  const [patientFilterType, setPatientFilterType] = useState("");
   const [patientFilterValue, setPatientFilterValue] = useState("");
   const [professionalFilterType, setProfessionalFilterType] = useState("");
   const [professionalFilterValue, setProfessionalFilterValue] = useState("");
   const [filterLetter, setFilterLetter] = useState<string | null>("A");
-
   const [patientsData, setPatientsData] = useState<ClientType[] | []>([]);
+  const [filterByClientType, setFilterByClientType] =
+    useState<ClientTypes>("patient");
 
   /**  ONSNAPSHOT FOR LETTER FILTER   */
   const qPatientLetter = query(
     patientsRef,
-    where("firstLetter", "==", filterLetter)
+    where("firstLetter", "==", filterLetter),
+    where("role", "==", filterByClientType)
   );
   const filterPatientByLetter = useOnSnapshotQuery("clients", qPatientLetter, [
     filterLetter,
+    filterByClientType,
   ]);
   /** ********** */
 
-  const handleSetContentPatients = (e: string) => {
-    if (e === "Código") setPatientFilterType("id");
-    else setPatientFilterType("cpf");
-  };
   const handleSetContentProfessionals = (e: string) => {
     if (e === "CRO") setProfessionalFilterType("cro");
     else setProfessionalFilterType("cpf");
@@ -46,83 +56,85 @@ const DynamicAdminBody = (props: AdminBodyProps) => {
     const qPatientFilter = (type: "id" | "cpf") => {
       return query(patientsRef, where(type, "==", patientFilterValue));
     };
+    const queryFunction = async (type: "id" | "cpf") => {
+      const querySnapshot = await getDocs(qPatientFilter(type));
+      querySnapshot.forEach((doc) => {
+        documents.push(doc.data());
+      });
+      setPatientsData(documents);
+    };
     const documents: any[] = [];
-    if (patientFilterType === "id") {
-      const querySnapshot = await getDocs(qPatientFilter("id"));
-      querySnapshot.forEach((doc) => {
-        documents.push(doc.data());
-      });
-      setPatientsData(documents);
-    } else {
-      const querySnapshot = await getDocs(qPatientFilter("cpf"));
-      querySnapshot.forEach((doc) => {
-        documents.push(doc.data());
-      });
-      setPatientsData(documents);
-    }
+    return queryFunction("cpf");
   };
 
   useEffect(() => {
-    if (patientFilterValue === "") setPatientsData(filterPatientByLetter);
-  }, [filterPatientByLetter, patientFilterValue]);
+    setPatientsData(filterPatientByLetter);
+  }, [filterPatientByLetter, patientFilterValue, filterByClientType]);
 
   useEffect(() => {
     setFilterLetter("A");
     setPatientFilterValue("");
   }, [props.page]);
 
+  if (props.page === 1) {
+    return <DashboardAdmin />;
+  }
+
   if (props.page === 2) {
     return (
-      <div className={styles.patients}>
-        <Filter
-          title="Filtrar paciente por:"
-          options={["Código", "CPF"]}
-          content={patientFilterType === "id" ? "Código" : "CPF"}
-          setContent={(e) => handleSetContentPatients(e)}
-          filterValue={patientFilterValue}
-          setFilterValue={(e) => setPatientFilterValue(e)}
-          onClick={handleFilterPatient}
-          baseStyle={{
-            margin: "20px auto",
-            padding: "16px",
-          }}
-        />
-
-        <FilterLetter
-          letter={filterLetter}
-          setLetter={(l) => setFilterLetter(l)}
-        />
-
-        <ListProfiles
-          profiles={patientsData}
-          notHaveMessage={"Nenhum paciente encontrado."}
-        />
-      </div>
+      <ClientsAdmin
+        setClientID={props.setClientID}
+        patientsData={patientsData}
+        filterLetter={filterLetter}
+        setFilterLetter={setFilterLetter}
+        patientFilterValue={patientFilterValue}
+        filterByClientType={filterByClientType}
+        handleFilterPatient={handleFilterPatient}
+        setFilterByClientType={setFilterByClientType}
+        setPatientFilterValue={setPatientFilterValue}
+        setClientDetailsVisible={props.setClientDetailsVisible}
+      />
     );
   }
-  if (props.page === 3) {
-    return (
-      <div className={styles.patients}>
-        <Filter
-          title="Filtrar dentista por:"
-          options={["CRO", "CPF"]}
-          content={professionalFilterType === "cro" ? "CRO" : "CPF"}
-          setContent={(e) => handleSetContentProfessionals(e)}
-          filterValue={professionalFilterValue}
-          setFilterValue={(e) => setProfessionalFilterValue(e)}
-          onClick={() => {}}
-          baseStyle={{
-            margin: "20px auto",
-            padding: "16px",
-          }}
-        />
 
-        <FilterLetter
-          letter={filterLetter}
-          setLetter={(l) => setFilterLetter(l)}
-        />
-      </div>
+  if (props.page === 3) {
+    return <ReceiptPageAdmin />;
+  }
+  if (props.page === 4) {
+    return (
+      <ProfessionalsAdmin
+        professionalFilterType={professionalFilterType}
+        professionalFilterValue={professionalFilterValue}
+        setProfessionalFilterValue={setProfessionalFilterValue}
+        handleSetContentProfessionals={handleSetContentProfessionals}
+      />
     );
+  }
+
+  if (props.page === 5) {
+    return (
+      <ScreeningAdmin
+        setClientDetailsVisible={props.setClientDetailsVisible}
+        setIsGeneratePayment={props.setIsGeneratePayment}
+        screeningModal={props.setScreeningVisible}
+        setClientID={props.setClientID}
+        setDate={props.setDate}
+      />
+    );
+  }
+
+  if (props.page === 6) {
+    return <LecturesAdmin />;
+  }
+
+  if (props.page === 7) {
+    return (
+      <TreatmentsAdmin setIsCreateTreatment={props.setIsCreateTreatment} />
+    );
+  }
+  if (props.page === 8) return <AdminBlog />;
+  if (props.page === 9) {
+    return <ProfileAdmin />;
   }
 };
 

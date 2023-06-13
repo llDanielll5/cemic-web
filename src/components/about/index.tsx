@@ -1,11 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
-import React from "react";
+import React, { useState } from "react";
+import { Box, Typography, styled } from "@mui/material";
 import styles from "../../styles/Landing.module.css";
+import dynamic from "next/dynamic";
 
-const About = () => {
+const Map = dynamic(() => import("../../services/map"), { ssr: false });
+
+const About = (props: any) => {
   return (
-    <section className={styles.about} id={"about"}>
+    <section className={styles.about} id={"about"} ref={props.ref}>
       <h1>
         <span>S</span>
         <span>O</span>
@@ -47,8 +51,40 @@ const About = () => {
           no país.
         </p>
       </div>
+
+      <Box>
+        <h1>
+          <span>E</span>
+          <span>N</span>
+          <span>D</span>
+          <span>E</span>
+          <span>R</span>
+          <span>E</span>
+          <span>Ç</span>
+          <span>O</span>
+        </h1>
+
+        <Box mb={5} />
+
+        <AddressText variant="bold">
+          Conjunto Nacional, Torre Amarela, Sala 5092, 5º Andar, Brasília - DF
+        </AddressText>
+
+        <Box my={5}>
+          <Map />
+        </Box>
+      </Box>
     </section>
   );
 };
+
+export const AddressText = styled(Typography)`
+  font-size: 1.5rem;
+  text-align: center;
+  width: 100%;
+  @media screen and (max-width: 760px) {
+    font-size: 14px;
+  }
+`;
 
 export default About;

@@ -17,5 +17,5 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const storage = getStorage(app, "gs://cemic-c588c.appspot.com/");
 export const auth = getAuth(app);

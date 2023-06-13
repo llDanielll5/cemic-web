@@ -15,9 +15,23 @@
   width: 300px;
   height: 100vh;
   transition: 0.5s;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-color: #003147;
   border-right: 4px solid var(--dark-blue);
+}
+.navigation::-webkit-scrollbar {
+  width: 0.6rem;
+  border-radius: 0.5rem;
+  background-color: transparent;
+}
+.navigation::-webkit-scrollbar-thumb {
+  background-color: white;
+  border-radius: 0.5rem;
+  transition: 0.5s;
+}
+.navigation::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(228, 8%, 54%);
 }
 .navigation ul {
   position: absolute;
@@ -98,4 +112,24 @@
   width: 60px;
   height: 60px;
   padding: 10px;
+}
+
+/* DASHBOARD ADMIN */
+
+.dashboard-main {
+  width: 100%;
+}
+
+.dashboard-main h3 {
+  text-align: center;
+  margin: 12px 0;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.dashboard-main .cards {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }

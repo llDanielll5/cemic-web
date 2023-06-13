@@ -1,99 +1,112 @@
 //@ts-nocheck
 import React, { useState } from "react";
-import { auth, db } from "@/services/firebase";
-import { createUserLanding } from "@/services/requests/auth";
-import { makeid } from "@/services/services";
-import { deleteUser } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
+import { deleteUser } from "firebase/auth";
+import { makeid, nameCapitalized } from "@/services/services";
+import { auth, db } from "@/services/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { createUserLanding } from "@/services/requests/auth";
+import { Box } from "@mui/material";
 import styles from "../../styles/Landing.module.css";
+import Loading from "../loading";
+import { AuthErrors } from "@/services/errors";
+import ModalError from "../modalError";
+import { StyledButton } from "../dynamicAdminBody/receipts";
 
 const ContactForm = () => {
   const router = useRouter();
   const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
+  const [cpf, setCPF] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [modalError, setModalError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const handlePhone = (event: any) => {
+  const handleCPF = (event: any) => {
     let input = event.target;
-    setPhone(phoneMask(input.value));
+    setCPF(cpfMask(input.value));
   };
-  const phoneReplaced = phone
-    .replace("(", "")
-    .replace(")", "")
-    .replace("-", "")
-    .replace(" ", "");
+  const cpfReplaced = cpf?.replace(".", "").replace("-", "").replace(".", "");
 
-  const phoneMask = (value: any) => {
+  const cpfMask = (value: any) => {
     if (!value) return "";
     value = value.replace(/\D/g, "");
-    value = value.replace(/(\d{2})(\d)/, "($1) $2");
-    value = value.replace(/(\d)(\d{4})$/, "$1-$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     return value;
+  };
+
+  const handleCloseErrorModal = () => {
+    setModalError(false);
+    setErrorMessage("");
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
-    return alert(
-      "Ainda não é possivel se cadastrar no site! Tente novamente depois, ou ligue no 3083-3075. Agradecemos!"
-    );
-    if (name === "" || email === "" || password === "" || phone === "")
-      alert("Preencha os campos!");
+    if (name === "" || email === "" || password === "" || cpf === "")
+      return alert("Preencha os campos!");
 
     setIsLoading(true);
+    const completeName = nameCapitalized(name);
 
-    const checkHasIdUsed = async () => {
-      var createAccount = false;
-      while (!createAccount) {
-        let userID = makeid(7);
-        const existRef = doc(db, "clients", userID);
-        const docSnap = await getDoc(existRef);
-        const hasSnap = docSnap.exists();
-        if (!hasSnap) {
-          createAccount = true;
-          await createUserLanding(
-            { email, password, name, phone: phoneReplaced },
-            userID!
-          )
-            .then(async (res) => {
-              if (res?.message === "Erro ao criar conta") {
-                setIsLoading(false);
-                if (res?.code === "auth/email-already-in-use") {
-                  alert("Este e-mail já está sendo utilizado!");
-                } else alert(res?.code);
-                return;
-              }
-              if (res?.message === "Erro ao criar o banco da conta") {
-                setIsLoading(false);
-                await deleteUser(auth.currentUser!).then(
-                  async () => await auth.signOut()
-                );
-                alert(
-                  "Ocorreu erro " + err?.code + " ao criar o banco do usuário"
-                );
-                return;
-              }
-              if (res?.message === "Sucesso ao cadastrar") {
-                setIsLoading(false);
-                setName("");
-                setEmail("");
-                router.push("/pre-register/" + userID);
-                return;
-              }
-            })
-            .catch((err) => {});
-        }
-        return;
-      }
+    const data = {
+      email,
+      password,
+      name: completeName,
+      cpf: cpfReplaced,
     };
-    checkHasIdUsed();
+
+    return await createUserLanding(data)
+      .then(async (res) => {
+        if (res === "CPF existente") {
+          setIsLoading(false);
+          setModalError(true);
+          setErrorMessage(
+            "Esse CPF já está em uso! Favor entrar em contato com nosso Whatsapp"
+          );
+          return;
+        } else {
+          const finish = await router.push("/pre-register/" + cpfReplaced);
+          if (finish) {
+            setIsLoading(false);
+            setName("");
+            setEmail("");
+            return;
+          }
+        }
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        if (err.code === AuthErrors["01"]) {
+          setModalError(true);
+          setErrorMessage("Email já está em uso");
+          return;
+        } else if (err.code === "auth/invalid-email") {
+          setModalError(true);
+          setErrorMessage(
+            "Email inválido. Verifique corretamente o email adicionado!"
+          );
+        } else return alert(err);
+      });
   };
 
   return (
     <section className={styles.contact} id={"contact"}>
+      {isLoading && (
+        <Box position="fixed" top={0} left={0} zIndex={"2000"}>
+          <Loading message="Criando cadastro..." />
+        </Box>
+      )}
+      <ModalError
+        actionButton={
+          <StyledButton onClick={handleCloseErrorModal}>Ok</StyledButton>
+        }
+        message={errorMessage}
+        closeModal={handleCloseErrorModal}
+        visible={modalError}
+      />
       <h2>
         Faça sua inscrição agora e concorra a sua vaga na <span>CEMIC!</span>
       </h2>
@@ -110,13 +123,13 @@ const ContactForm = () => {
           />
 
           <h4>
-            Informe seu telefone <span>*</span>
+            Informe seu CPF <span>*</span>
           </h4>
           <input
-            type="tel"
-            maxLength={15}
-            value={phone}
-            onChange={(event) => handlePhone(event)}
+            type="text"
+            maxLength={14}
+            value={cpf}
+            onChange={(event) => handleCPF(event)}
           />
 
           <h4>
@@ -126,6 +139,7 @@ const ContactForm = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            style={{ textTransform: "none" }}
           />
 
           <h4>
@@ -135,6 +149,7 @@ const ContactForm = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={{ textTransform: "none" }}
           />
 
           <input type="submit" value={"Cadastrar-se"} onClick={handleSubmit} />

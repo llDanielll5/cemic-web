@@ -10,13 +10,15 @@
   position: absolute;
   color: var(--dark-blue);
   font-weight: 700;
-  line-height: 40px;
-  font-size: 18px;
+  line-height: 35px;
+  font-size: 16px;
   padding: 0 10px;
   display: block;
   transition: 0.3s;
   top: 0;
   left: 0;
+  background-color: white;
+  z-index: 10;
 }
 .input-box input {
   position: absolute;
@@ -36,6 +38,7 @@ input:focus + .text-input,
 input:valid + .text-input {
   top: -35px;
   left: -10px;
+  z-index: 10;
 }
 
 .input-box .line {
@@ -69,4 +72,22 @@ input:valid + .text-input {
   background-color: var(--dark-blue);
   cursor: pointer;
   margin: 0 auto;
+}
+
+.icon-eye {
+  position: absolute;
+  color: var(--dark-blue);
+  font-size: 25px;
+  z-index: 100;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: fit-content;
+}
+
+@media screen and (max-width: 760px) {
+  .input-box .text-input {
+    font-size: 12px;
+  }
 }

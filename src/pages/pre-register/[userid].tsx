@@ -1,91 +1,98 @@
+//@ts-nocheck
+/* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import Calendar from "react-calendar";
-import Loading from "@/components/loading";
-import styles from "../../styles/PreRegister.module.css";
-import "react-calendar/dist/Calendar.css";
-import { MdOutlineLogout } from "react-icons/md";
-import { TfiAgenda } from "react-icons/tfi";
-import { AiOutlineHistory } from "react-icons/ai";
-import { ClientType } from "types";
 import { useRouter } from "next/router";
+import { useRecoilState } from "recoil";
 import { auth, db } from "@/services/firebase";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { getCookie, setCookie } from "cookies-next";
+import { Box, Typography, SpeedDial } from "@mui/material";
+import { handlePersistLogin } from "@/services/requests/auth";
 import { scheduleLecture } from "@/services/requests/firestore";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import ScheduleModalPreRegister from "@/components/pre-register/scheduleModal";
+import ScheduleInformations from "@/components/pre-register/scheduleInformations";
+import PreRegisterProfile from "@/components/pre-register/profile";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
+import SpeedDialAction from "@mui/material/SpeedDialAction";
+import styles from "../../styles/PreRegister.module.css";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+import LogoutIcon from "@mui/icons-material/Logout";
+import CustomTab from "@/components/customTab";
+import Loading from "@/components/loading";
+import Button from "@/components/button";
+import UserData from "@/atoms/userData";
 import Modal from "@/components/modal";
+import "react-calendar/dist/Calendar.css";
+import LocationPreRegister from "@/components/pre-register/location";
 
 const defaultHours = [
-  {
-    hour: "11:00",
-    selected: false,
-  },
-  {
-    hour: "15:00",
-    selected: false,
-  },
-  {
-    hour: "17:00",
-    selected: false,
-  },
+  { hour: "11:00", selected: false },
+  { hour: "17:00", selected: false },
 ];
+const tabs = ["Agendamentos", "Cadastro", "Localização"];
 
 const FirstStep = () => {
   const router = useRouter();
   const userid = router.query.userid;
   const userRef = collection(db, "clients");
   const [dateSelected, setDateSelected] = useState(new Date());
-  const [userData, setUserData] = useState<ClientType | null>(null);
-  const [pagination, setPagination] = useState("Agendar");
+  const [userRecoil, setUserRecoil] = useRecoilState(UserData);
   const [daysScheduleds, setDaysScheduleds] = useState<any[]>([]);
   const [hoursSelected, setHoursSelected] = useState(defaultHours);
-  const [hour, setHour] = useState<string | null>(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [hour, setHour] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLogout, setIsLogout] = useState(false);
+  const getuid = getCookie("useruid");
+
+  const handleWhatsapp = async () => {
+    const msg = "Preciso de ajuda para agendar meu primeiro atendimento!";
+    const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
+      msg
+    )}`;
+    return window.open(zapHref, "_blank");
+  };
+
+  const actions = [
+    { icon: <WhatsAppIcon />, name: "Suporte", onClick: handleWhatsapp },
+  ];
 
   const handleLogout = async () => {
     setIsLogout(true);
-    await auth
+    return await auth
       .signOut()
-      .then(() => {
-        setIsLogout(false);
+      .then(async () => {
+        const logout = await router.push("/login");
+
+        if (logout) {
+          setUserRecoil({});
+          setCookie("useruid", undefined);
+          setIsLogout(false);
+        }
       })
-      .finally(() => {
-        router.push("/");
+      .catch((err) => {
+        setIsLogout(false);
+        return alert("Erro ao deslogar");
       });
   };
 
   const handleOpenScheduleModal = () => {
     const today = new Date();
-    if (hour === null) {
-      return alert("Você tem que selecionar um horário!");
-    }
-    if (dateSelected <= today) {
-      return alert("Não é possível agendar para hoje ou dias anteriores");
-    }
-    if (dateSelected.getDay() === 0 || dateSelected.getDay() === 6) {
-      return alert("Não é possivel agendar para Finais de Semana");
-    }
-    return setScheduleModal(true);
-  };
+    if (hour === null) return alert("Você tem que selecionar um horário!");
 
-  const handleSchedule = async () => {
-    setScheduleModal(false);
-    const dateSelect = dateSelected.toISOString().substring(0, 10);
-    setIsScheduling(true);
-    await scheduleLecture(dateSelect, userData?.id!, hour!).then(
-      async (res) => {
-        if (res === "Sucesso") {
-          await getUserData();
-          setIsScheduling(false);
-          return alert("Sucesso ao agendar sua palestra");
-        } else {
-          setIsScheduling(false);
-        }
-      }
-    );
+    if (dateSelected < today)
+      return alert("Não é possível agendar para dias anteriores");
+
+    if (dateSelected.getDay() === 0 || dateSelected.getDay() === 6)
+      return alert("Não é possivel agendar para Finais de Semana");
+
+    return setScheduleModal(true);
   };
 
   const handleSelectHour = ({ item, index }: any) => {
@@ -106,69 +113,114 @@ const FirstStep = () => {
     }
   };
 
-  const getUserData = async () => {
-    setIsLoading(true);
-    const q = query(userRef, where("id", "==", userid));
-    const getUserData = async () => {
-      onSnapshot(q, (querySnapshot) => {
-        if (querySnapshot.docs.length > 0) {
-          const result: any = querySnapshot.docs[0].data();
-          setUserData(result);
-          setIsLoading(false);
-        } else {
-          setIsLoading(false);
-          alert("Usuário não encontrado");
-          router.push("/");
-        }
-      });
-    };
-    getUserData();
+  const handleSchedule = async () => {
+    if (daysScheduleds.length > 0) {
+      return alert(
+        "Você já possui dia agendado, ou faltou. Favor entrar em contato com nosso suporte no canto inferior direito do seu painel do cliente!"
+      );
+    }
+
+    const dateSelect = dateSelected.toISOString().substring(0, 10);
+    setIsScheduling(true);
+    await scheduleLecture(dateSelect, userRecoil!, hour!).then(async (res) => {
+      if (res === "Sucesso") {
+        setIsScheduling(false);
+        setScheduleModal(false);
+        setCalendarVisible(false);
+        setHoursSelected(defaultHours);
+        setHour(null);
+        return alert("Sucesso ao agendar sua palestra");
+      } else {
+        setIsScheduling(false);
+      }
+    });
   };
 
   const getUserSchedules = async () => {
-    if (userData?.lectureDays?.length! > 0) {
-      const lecturesRef = collection(db, "lectures");
-      const q = query(
-        lecturesRef,
-        where("id", "in", [...userData?.lectureDays!])
-      );
-      onSnapshot(q, (querySnap) => {
-        if (querySnap.docs.length > 0) {
-          const schedules: any[] = [];
-          querySnap.forEach((querySnapshot) => {
-            schedules.push(querySnapshot.data());
-          });
-          setDaysScheduleds(schedules);
-        }
-      });
-    }
+    const lecturesRef = collection(db, "lectures");
+    const q = query(lecturesRef, where("client", "==", userRecoil?.id ?? ""));
+    onSnapshot(q, (querySnap) => {
+      if (querySnap.docs.length > 0) {
+        const schedules: any[] = [];
+        querySnap.forEach((querySnapshot) => {
+          schedules.push(querySnapshot.data());
+        });
+        setDaysScheduleds(schedules);
+      }
+    });
   };
 
-  const parseDate = (v: string) => {
-    if (!v) return;
-    const [y, m, d] = v?.split("-");
-    return `${d}/${m}/${y}`;
+  const handleCloseCalendar = () => {
+    setCalendarVisible(false);
+    setDateSelected(new Date());
+    setHoursSelected(defaultHours);
+    setHour(null);
+    return;
   };
+
+  const renders = [
+    <ScheduleInformations
+      setCalendarVisible={setCalendarVisible}
+      daysScheduleds={daysScheduleds}
+    />,
+    <PreRegisterProfile userData={userRecoil} />,
+    <LocationPreRegister />,
+  ];
 
   useEffect(() => {
-    if (userid) getUserData();
+    if (!userid) return;
+    const Unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const User: any = await handlePersistLogin(user);
+
+        // const finalUser = { ...user, ...User };
+        if (User!.role !== "pre-register") handleLogout();
+        else setUserRecoil(User);
+      } else handleLogout();
+    });
+
+    return () => Unsubscribe();
   }, [userid]);
 
   useEffect(() => {
-    if (userData !== null) getUserSchedules();
-  }, [userData]);
+    if (
+      userRecoil === {} ||
+      !userRecoil ||
+      userRecoil === undefined ||
+      userRecoil === null
+    )
+      return;
+    getUserSchedules();
+  }, [userRecoil]);
+
+  if (getuid === "" || getuid === undefined) return null;
+  if (!userRecoil) return null;
 
   return (
     <>
       {isLoading && <Loading message="Verificando usuário..." />}
       {isLogout && <Loading message="Estamos deslogando sua conta..." />}
       {isScheduling && <Loading message="Estamos agendando sua palestra..." />}
+
+      <Modal closeModal={handleCloseCalendar} visible={calendarVisible}>
+        <ScheduleModalPreRegister
+          dateSelected={dateSelected}
+          hoursSelected={hoursSelected}
+          setDateSelected={setDateSelected}
+          handleSelectHour={handleSelectHour}
+          handleOpenScheduleModal={handleOpenScheduleModal}
+        />
+      </Modal>
       <Modal closeModal={() => setScheduleModal(false)} visible={scheduleModal}>
         <div className={styles["modal-container"]}>
           <h2>Tem certeza que deseja fazer o agendamento nesse dia?</h2>
+          <Typography variant="semibold" my={1} textAlign="center">
+            ATENÇÃO! APÓS AGENDADO, VOCÊ NÃO PODERÁ REALIZAR NOVO AGENDAMENTO!
+            DESEJA CONTINUAR?
+          </Typography>
           <div className={styles["buttons-container"]}>
-            <button onClick={handleSchedule}>Sim</button>
-            <button onClick={() => setScheduleModal(false)}>Não</button>
+            <Button onClick={handleSchedule}>Sim</Button>
+            <Button onClick={() => setScheduleModal(false)}>Não</Button>
           </div>
         </div>
       </Modal>
@@ -181,90 +233,50 @@ const FirstStep = () => {
         />
       </div>
       <div className={styles.container}>
-        {daysScheduleds?.length > 0 && (
-          <div className={styles["important-container"]}>
-            <div className={styles["inner-important"]}>
-              <h3>IMPORTANTE!</h3>
-              <p>Você possui horário(s) agendado(s)!</p>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          columnGap={4}
+        >
+          <Box display="flex" columnGap={1}>
+            <Typography variant="bold" fontSize="24px" alignSelf="center">
+              Painel do Cliente
+            </Typography>
+            <StyledButton onClick={handleLogout} endIcon={<LogoutIcon />}>
+              Sair
+            </StyledButton>
+          </Box>
+        </Box>
 
-              {daysScheduleds.map((item, index) => (
-                <p key={index}>
-                  {parseDate(item.day)} às {item.hour}
-                </p>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className={styles.navigation}>
-          <button
-            className={styles["button-nav"]}
-            onClick={() => setPagination("Agendar")}
-          >
-            Agendar <TfiAgenda className={styles["icon-nav"]} />
-          </button>
-          <button
-            className={styles["button-nav"]}
-            onClick={() => setPagination("Histórico")}
-          >
-            Histórico <AiOutlineHistory className={styles["icon-nav"]} />
-          </button>
-          <button onClick={handleLogout} className={styles["button-nav"]}>
-            Sair <MdOutlineLogout className={styles["icon-nav"]} />
-          </button>
-        </div>
+        <Typography variant="bold" my={1} textAlign="center">
+          Esse é o seu painel do cliente.
+        </Typography>
+        <Typography variant="semibold" px={2} py={2} lineHeight="25px">
+          Aqui você pode agendar seu primeiro atendimento para conhecer mais
+          sobre o projeto e também concorrer a uma vaga como paciente da CEMIC.
+        </Typography>
+        <Typography variant="semibold" px={2} pb={2} lineHeight="25px">
+          Você também pode alterar suas informações de usuário na aba de
+          Cadastro abaixo.
+        </Typography>
 
-        <br />
+        <CustomTab labels={tabs} values={tabs} renders={renders} />
 
-        {pagination === "Agendar" && (
-          <div>
-            <h1>
-              Obrigado por fazer o registro na CEMIC {userData?.name ?? ""}
-            </h1>
-            <p>Seu código do cliente é o {userData?.id ?? ""}</p>
-            <br />
-            <h2>
-              Para que você possa concorrer a sua vaga, é necessário comparecer
-              para uma Palestra Informativa, da qual nós estaremos te falando
-              tudo sobre o procedimento na CEMIC, e o passo a passo de como
-              concorrer a vaga!
-            </h2>
-            <br />
-            <br />
-            <p>
-              Você pode agendar para as palestras informativas aqui no seu
-              painel do Cliente
-            </p>
-            <p>SELECIONE UM DIA DA SEMANA ENTRE SEGUNDA E SEXTA</p>
-            <br />
-            <div className={styles["calendar-container"]}>
-              <Calendar onChange={setDateSelected} value={dateSelected} />
-            </div>
-
-            <div className={styles["hours-container"]}>
-              <p>Qual desses horários deseja agendar?</p>
-              <div className={styles["inner-hours"]}>
-                {hoursSelected.map((item, index) => (
-                  <button
-                    key={index}
-                    className={styles["buttton-hours"]}
-                    onClick={() => handleSelectHour({ item, index })}
-                    style={
-                      item.selected
-                        ? { backgroundColor: "#1b083e", color: "white" }
-                        : undefined
-                    }
-                  >
-                    {item.hour}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles["button-schedule"]}>
-              <button onClick={handleOpenScheduleModal}>Agendar</button>
-            </div>
-          </div>
-        )}
+        <SpeedDial
+          ariaLabel="SpeedDial basic example"
+          sx={{ position: "fixed", bottom: 32, right: 32, zIndex: "1000" }}
+          icon={<SpeedDialIcon openIcon={<QuestionMarkIcon />} />}
+        >
+          {actions.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              onClick={action.onClick}
+            />
+          ))}
+        </SpeedDial>
       </div>
     </>
   );

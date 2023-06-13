@@ -6,12 +6,15 @@ interface ModalProps {
   visible: boolean;
   closeModal: () => void;
   children: React.ReactNode;
+  style?: ReactModal.Styles;
+  el?: HTMLElement | HTMLElement[] | HTMLCollection | NodeList;
 }
 
 const Modal = (props: ModalProps) => {
   return (
     <ReactModal
       isOpen={props.visible}
+      ariaHideApp={false}
       shouldCloseOnOverlayClick
       shouldCloseOnEsc
       onRequestClose={props.closeModal}
@@ -19,6 +22,8 @@ const Modal = (props: ModalProps) => {
       className={styles["modal"]}
       portalClassName={styles["modal-portal"]}
       contentLabel="Example Modal"
+      appElement={props.el}
+      style={props.style}
     >
       {props.children}
     </ReactModal>

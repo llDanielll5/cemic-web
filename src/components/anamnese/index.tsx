@@ -6,11 +6,12 @@ import UserForm from "../userForm";
 import AnamneseForm from "../anamneseForm";
 import ImplanteTerm from "../terms/implante";
 import CrownTerm from "../terms/crown";
+import { updateUserData } from "@/services/requests/firestore";
+import { nameCapitalized } from "@/services/services";
 
 const defaultValues: userDataEdited = {
   bornDate: "",
   cpf: "",
-  email: "",
   name: "",
   phone: "",
   rg: "",
@@ -20,6 +21,7 @@ const defaultValues: userDataEdited = {
 interface AnamneseProps {
   userContext?: ClientType;
   setAddressLoading: any;
+  setUserUpdating: any;
 }
 type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
 interface AnamneseQuestions {
@@ -62,31 +64,23 @@ const Anamnese = (props: AnamneseProps) => {
 
   const handleMasked = (value: string, type: string, setState: any) => {
     const masked = type === "cpf" ? cpfMask : phoneMask;
-    setState((prev: any) => ({
-      ...prev,
-      [type]: masked(value),
-    }));
+    setState((prev: any) => ({ ...prev, [type]: masked(value) }));
   };
 
   const handleChange = (e: any, value: string, setState: any) => {
-    setState((prev: any) => ({
-      ...prev,
-      [value]: e,
-    }));
+    setState((prev: any) => ({ ...prev, [value]: e }));
   };
 
   const handleAnswer = (value: AnswerType, question: string) => {
-    return setAnamneseData((prev) => ({
-      ...prev,
-      [question]: value,
-    }));
+    return setAnamneseData((prev) => ({ ...prev, [question]: value }));
   };
 
   const handleGetCep = async (e: any) => {
-    if (e.length === 8) {
+    let val = e.target.value;
+    if (val.length === 8) {
       props.setAddressLoading(true);
       try {
-        const res = await fetch(`https://viacep.com.br/ws/${e}/json/`);
+        const res = await fetch(`https://viacep.com.br/ws/${val}/json/`);
         const json = await res.json();
         if (json) {
           setLocationData((prev: any) => ({
@@ -95,6 +89,7 @@ const Anamnese = (props: AnamneseProps) => {
             complement: json.complemento,
             line1: json.logradouro,
             uf: json.uf,
+            cep: val,
             address: `${json.logradouro}, ${json.bairro} ${json.complemento}, ${json.localidade} - ${json.uf}`,
           }));
           props.setAddressLoading(false);
@@ -127,11 +122,9 @@ const Anamnese = (props: AnamneseProps) => {
     const notUserCompleted =
       userData.bornDate === "" ||
       userData.cpf?.length! < 14 ||
-      userData.email === "" ||
       userData?.name === "" ||
       userData?.phone?.length! < 14 ||
-      userData?.rg?.length! < 7 ||
-      userData?.sexo === "NENHUM";
+      userData?.rg?.length! < 6;
     const notLocationCompleted =
       locationData?.city === undefined ||
       locationData?.line1 === undefined ||
@@ -152,40 +145,83 @@ const Anamnese = (props: AnamneseProps) => {
       anamneseData["Já teve algum problema com anestésicos?"] !== "";
 
     if (page === 0) {
-      if (notUserCompleted) {
+      if (notUserCompleted)
         return alert("Conclua todos os campos de dados pessoais!");
-      }
-      if (notLocationCompleted) {
+
+      if (notLocationCompleted)
         return alert("Você deve preencher um endereço completo válido!");
-      }
+
       return nextPage();
     }
 
     if (page === 1) {
-      if (!hasFinishAnamnese) {
-        return alert("Preencha a Anamnese completa!");
-      }
+      if (!hasFinishAnamnese) return alert("Preencha a Anamnese completa!");
       return nextPage();
     }
 
     if (page === 2) {
-      if (!implantTermRead) {
+      if (!implantTermRead)
         return alert("Você deve ler o termo e concordar para continuar.");
-      }
       return nextPage();
     }
     if (page === 3) {
-      if (!crownTermRead) {
+      if (!crownTermRead)
         return alert("Você deve ler o termo e concordar para continuar.");
-      }
-      return alert("Finalizou");
+      return handleFinish();
     }
   };
 
   const handleBackPage = () => setPage((prev) => prev - 1);
 
   const handleFinish = async () => {
-    return;
+    props.setUserUpdating(true);
+
+    const phoneReplaced = userData
+      ?.phone!.replace("(", "")
+      .replace(")", "")
+      .replace("-", "")
+      .replace(" ", "");
+    const cpfReplaced = userData
+      ?.cpf!.replace(".", "")
+      .replace("-", "")
+      .replace(".", "");
+
+    const completeName = nameCapitalized(userData!.name!);
+
+    const updatesUser = {
+      "address.neighbor": locationData?.neighbor ?? "",
+      "address.address": locationData?.address ?? "",
+      "address.city": locationData?.city ?? "",
+      "address.line1": locationData?.line1 ?? "",
+      "address.uf": locationData?.uf ?? "",
+      "address.cep": locationData?.cep ?? "",
+      "address.number": locationData?.number ?? "",
+      "address.complement": locationData?.complement ?? "",
+      name: completeName,
+      cpf: cpfReplaced,
+      rg: userData?.rg,
+      phone: phoneReplaced,
+      sexo: userData?.sexo,
+      dateBorn: userData?.bornDate,
+      anamnese: {
+        ...anamneseData,
+      },
+      observations,
+      terms: {
+        implant: implantTermRead,
+        crown: crownTermRead,
+      },
+      anamneseFilled: true,
+    };
+    const updated = await updateUserData(userContext?.id!, updatesUser);
+
+    if (updated === "Sucesso") {
+      props.setUserUpdating(false);
+      return alert("Usuário Atualizado com sucesso!");
+    } else {
+      props.setUserUpdating(false);
+      return alert("Não foi possível atualizar seu cadastro!");
+    }
   };
 
   useEffect(() => {
@@ -195,7 +231,6 @@ const Anamnese = (props: AnamneseProps) => {
       bornDate: userContext?.dateBorn,
       cpf: cpfMask(userContext?.cpf),
       rg: userContext?.rg,
-      email: userContext?.email,
       name: userContext?.name,
       phone: phoneMask(userContext?.phone),
       sexo: "NENHUM",

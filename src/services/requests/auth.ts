@@ -3,20 +3,19 @@ import {
   createUserWithEmailAndPassword,
   deleteUser,
   signInWithEmailAndPassword,
-  signOut,
 } from "firebase/auth";
 import {
-  collection,
-  doc,
   getCountFromServer,
-  getDoc,
+  collection,
   getDocs,
-  query,
   setDoc,
   where,
+  query,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { ClientType } from "types";
+import { AdminType, ClientType, ProfessionalData } from "types";
 
 const adminsRef = collection(db, "admins");
 const clientsRef = collection(db, "clients");
@@ -33,7 +32,6 @@ export const handleLogin = async ({ email, password }: any) => {
           professionalsRef,
           where("uid", "==", user.uid)
         );
-        const employeeQuery = query(employeesRef, where("uid", "==", user.uid));
         const setUidCookie = setCookie("useruid", user.uid, { maxAge: 8600 });
 
         const selectedQuery = async () => {
@@ -43,12 +41,10 @@ export const handleLogin = async ({ email, password }: any) => {
           const hasProfessional = (
             await getCountFromServer(professionalQuery)
           ).data().count;
-          const hasEmployee = (await getCountFromServer(employeeQuery)).data()
-            .count;
+
           if (hasAdmin > 0) return "admins";
           else if (hasClient > 0) return "clients";
           else if (hasProfessional > 0) return "professionals";
-          else if (hasEmployee > 0) return "employees";
         };
 
         const docString = await selectedQuery();
@@ -69,7 +65,7 @@ export const handleLogin = async ({ email, password }: any) => {
         alert("Usuário não cadastrado!");
       } else if (err.code === "auth/wrong-password") {
         alert("Senha incorreta!");
-      } else alert(err.code);
+      } else alert(err.code + " " + err.message);
     });
 };
 
@@ -80,7 +76,6 @@ export const handlePersistLogin = async (user: any) => {
     professionalsRef,
     where("uid", "==", user.uid)
   );
-  const employeeQuery = query(employeesRef, where("uid", "==", user.uid));
   const setUidCookie = setCookie("useruid", user.uid, { maxAge: 8600 });
 
   const selectedQuery = async () => {
@@ -88,11 +83,9 @@ export const handlePersistLogin = async (user: any) => {
     const hasClient = (await getCountFromServer(clientQuery)).data().count;
     const hasProfessional = (await getCountFromServer(professionalQuery)).data()
       .count;
-    const hasEmployee = (await getCountFromServer(employeeQuery)).data().count;
     if (hasAdmin > 0) return "admins";
     else if (hasClient > 0) return "clients";
     else if (hasProfessional > 0) return "professionals";
-    else if (hasEmployee > 0) return "employees";
   };
 
   const docString = await selectedQuery();
@@ -112,91 +105,167 @@ export const handlePersistLogin = async (user: any) => {
   }
 };
 
-export const createUser = async (
-  { email, password, name }: any,
-  userID: string
-) => {
+export const createUser = async ({ email, password, name, cpf }: any) => {
   return createUserWithEmailAndPassword(auth, email, password).then(
     async (res) => {
       const userData: ClientType = {
         name,
+        cpf,
         email,
         address: {},
-        anamnese: [],
-        cpf: "",
+        anamnese: {},
         firstLetter: name.charAt(0).toUpperCase(),
-        id: userID,
+        id: cpf,
         phone: "",
         profileImage: "",
-        protocols: [],
-        reports: [],
         rg: "",
-        treatments: [],
         uid: res.user.uid,
-        xrays: [],
         role: "pre-register",
-        finances: [],
         dateBorn: "",
         sexo: "NENHUM",
-        lectureDays: [],
+        anamneseFilled: false,
       };
       if (res) {
-        const userRef = doc(db, "clients", userID);
-        return await setDoc(userRef, userData);
+        const userRef = doc(db, "clients", cpf);
+        const verify = await getDoc(userRef);
+        if (verify.exists()) {
+          return await deleteUser(res.user).then(() => {
+            return "CPF existente";
+          });
+        } else return await setDoc(userRef, userData);
       }
     }
   );
 };
 
-export const createUserLanding = async (
-  { email, password, name, phone }: any,
-  userID: string
-) => {
-  return await createUserWithEmailAndPassword(auth, email, password)
-    .then(async (res) => {
+export const createUserLanding = async ({
+  email,
+  password,
+  name,
+  cpf,
+}: any) => {
+  return await createUserWithEmailAndPassword(auth, email, password).then(
+    async (res) => {
       const userData: ClientType = {
         name,
         email,
         address: {},
-        anamnese: [],
-        cpf: "",
+        anamnese: {},
+        cpf,
         firstLetter: name.charAt(0).toUpperCase(),
-        id: userID,
-        phone,
+        id: cpf,
+        phone: "",
         profileImage: "",
-        protocols: [],
-        reports: [],
         rg: "",
-        treatments: [],
         uid: res.user.uid,
-        xrays: [],
         role: "pre-register",
-        finances: [],
         dateBorn: "",
         sexo: "NENHUM",
-        lectureDays: [],
+        anamneseFilled: false,
       };
       if (res) {
-        const userRef = doc(db, "clients", userID);
-        console.log(userData);
-        return await setDoc(userRef, userData)
-          .then(() => {
-            return {
-              message: "Sucesso ao cadastrar",
-            };
-          })
-          .catch((err) => {
-            return {
-              message: "Erro ao criar o banco da conta",
-              code: err.code,
-            };
+        const userRef = doc(db, "clients", cpf);
+        const verify = await getDoc(userRef);
+        if (verify.exists()) {
+          return await deleteUser(res.user).then(() => {
+            return "CPF existente";
           });
+        } else return await setDoc(userRef, userData);
       }
-    })
-    .catch(async (err) => {
-      return {
-        message: "Erro ao criar conta",
-        code: err.code,
+    }
+  );
+};
+
+export const createProfessional = async (
+  data: ProfessionalData,
+  password: string,
+  cpf: string,
+  phone: string
+) => {
+  const { name, cro, email, rg } = data;
+  return createUserWithEmailAndPassword(auth, email, password).then(
+    async (res) => {
+      const professionalData: ProfessionalData = {
+        cpf,
+        cro,
+        name,
+        rg,
+        email,
+        phone,
+        id: cpf,
+        payments: [],
+        protocols: [],
+        treatments: [],
+        profileImage: "",
+        uid: res.user.uid,
+        role: "professional",
+        specialty: "implant",
+        firstLetter: name.charAt(0).toUpperCase(),
       };
-    });
+      if (res) {
+        const profRef = doc(db, "professionals", cpf);
+        return await setDoc(profRef, professionalData);
+      }
+    }
+  );
+};
+
+export const createAdmin = async (
+  data: any,
+  password: string,
+  cpf: string,
+  phone: string
+) => {
+  const { name, email, rg } = data;
+  return createUserWithEmailAndPassword(auth, email, password).then(
+    async (res) => {
+      const adminData = {
+        cpf,
+        name,
+        rg,
+        email,
+        phone,
+        id: cpf,
+        profileImage: "",
+        uid: res.user.uid,
+        role: "admin",
+        firstLetter: name.charAt(0).toUpperCase(),
+        dateBorn: "",
+      };
+      if (res) {
+        const profRef = doc(db, "admins", cpf);
+        return await setDoc(profRef, adminData);
+      }
+    }
+  );
+};
+
+export const createEmployee = async (
+  data: any,
+  password: string,
+  cpf: string,
+  phone: string
+) => {
+  const { name, email, rg } = data;
+  return createUserWithEmailAndPassword(auth, email, password).then(
+    async (res) => {
+      const adminData = {
+        cpf,
+        name,
+        rg,
+        email,
+        phone,
+        id: cpf,
+        profileImage: "",
+        uid: res.user.uid,
+        role: "employee",
+        firstLetter: name.charAt(0).toUpperCase(),
+        dateBorn: "",
+      };
+      if (res) {
+        const profRef = doc(db, "employees", cpf);
+        return await setDoc(profRef, adminData);
+      }
+    }
+  );
 };

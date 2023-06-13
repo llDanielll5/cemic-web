@@ -2,7 +2,28 @@
 
 
 */
-
+.find-modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex-direction: column;
+}
+.find-modal-container h4 {
+  text-align: center;
+  margin: 8px 0;
+}
+.find-modal-container .border {
+  border: 1.5px solid var(--dark-blue);
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+.find-modal-container .border p {
+  text-align: center;
+}
+.find-modal-container .border p span {
+  font-weight: 600;
+}
 /* LIST PROFILES COMPONENTS STYLES */
 
 .container-list {
@@ -25,6 +46,7 @@
   width: 100%;
   padding: 8px;
   column-gap: 30px;
+  cursor: pointer;
 }
 .profile-item:last-child {
   border-bottom: none;
@@ -50,6 +72,25 @@
 .container-avatar p {
   font-size: 16px;
 }
+.container-avatar .patient,
+.container-avatar .notPatient,
+.container-avatar .selected {
+  padding: 2px 4px;
+  font-size: 12px;
+  color: var(--dark-blue);
+  width: fit-content;
+  color: white;
+  border-radius: 4px;
+}
+.container-avatar .patient {
+  background-color: green;
+}
+.container-avatar .notPatient {
+  background-color: var(--red);
+}
+.container-avatar .selected {
+  background-color: goldenrod;
+}
 
 .notHaveProfiles {
   display: flex;
@@ -62,12 +103,398 @@
   text-align: center;
 }
 
+/* LECTURES ADMIN STYLES */
+
+.lectures {
+  width: 100%;
+}
+.lectures .day {
+  background-color: white;
+  padding: 4px 8px;
+  width: fit-content;
+  margin: 12px auto 0 auto;
+  border-radius: 8px;
+  text-align: center;
+}
+.lectures h3 {
+  text-align: center;
+}
+.lectures .calendar-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+}
+.lectures .hour-schedule {
+  background-color: white;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-bottom: 44px;
+}
+.lectures .hour-schedule .hour-item {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 12px 0;
+  width: calc(100% / 2 - 8px);
+  border-radius: 4px;
+}
+.lectures .hour-schedule .hour-item h4 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+}
+.lectures .hour-schedule .hour-item p {
+  text-align: center;
+  font-size: 14px;
+}
+
+.lectures .hour-schedule .hour-item .name-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+}
+
+.lectures .hour-schedule .hour-item .name-container span {
+  font-size: 12px;
+  cursor: pointer;
+}
+.lectures .hour-schedule .hour-item .name-container h5 {
+  font-size: 12px;
+  color: var(--red);
+}
+
+.patients .filter-type {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  margin: 24px auto 8px auto;
+}
+.patients .filter-type button {
+  margin: 0 8px;
+  outline: none;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.screening button {
+  background-color: white;
+  border-radius: 24px;
+  border: 1.5px solid #d3d3d3;
+  font-size: 14px;
+  padding: 4px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 6px;
+  font-weight: 600;
+  color: var(--dark-blue);
+  margin: 12px auto;
+  cursor: pointer;
+}
+.screening button .icon {
+  font-size: 18px;
+}
+
+.screening {
+  width: 100%;
+}
+
+.datepicker {
+  width: 100%;
+  height: 30px;
+  outline: none;
+  border: none;
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark-blue);
+}
+
+.date-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 12px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  column-gap: 12px;
+  padding: 6px 8px;
+  background-color: white;
+  margin: 0 auto;
+}
+
+.date-container .arrow {
+  color: var(--dark-blue);
+  font-size: 20px;
+  cursor: pointer;
+}
+.date-container .calendar span {
+  font-weight: 600;
+  color: var(--dark-blue);
+}
+
+.screening h5 {
+  text-align: center;
+  margin: 12px auto;
+  background-color: white;
+}
+
+.screening-container {
+  background-color: white;
+  margin: 0 16px;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+.screening-container p {
+  font-weight: 600;
+  font-style: italic;
+  font-size: 14px;
+}
+.screening-container h2 {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+  padding: 4px;
+}
+
+.screening-container .table {
+  border: 1px solid var(--dark-blue);
+  border-radius: 6px;
+  padding: 6px;
+  width: 100%;
+}
+.screening-container .table .table-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #bbb;
+  width: 100%;
+}
+.screening-container .table .table-item p:first-child {
+  width: 50px;
+  font-size: 12px;
+}
+.screening-container .table .table-item p {
+  width: calc(100% / 3);
+}
+.screening-container .table .table-item p span {
+  font-weight: 400;
+}
+.screening-container .table .table-item button {
+  margin: 4px 0;
+  padding: 2px 8px;
+  font-size: 12px;
+  width: fit-content;
+  border-radius: 4px;
+}
+.not-schedules {
+  padding: 8px;
+  width: 100%;
+}
+.not-schedules h3 {
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.screening-modal-container {
+  width: 100%;
+}
+.screening-modal-container button {
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #a1a1a1;
+  padding: 2px 4px;
+  transition: 0.3s;
+  font-weight: 500;
+}
+.screening-modal-container button:hover {
+  background-color: var(--dark-blue);
+  color: white;
+}
+
+.screening-modal-container h4 {
+  text-align: center;
+  margin: 8px 0;
+}
+.screening-modal-container p {
+  font-weight: 600;
+}
+.screening-modal-container p span {
+  font-weight: 400;
+}
+.screening-modal-container .list {
+  border: 1px solid var(--dark-blue);
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.screening-modal-container .list button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  column-gap: 4px;
+}
+
+.screening-modal-container .list .list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+  padding: 6px 0;
+}
+.screening-modal-container .list .list-item .hour {
+  width: 80px;
+  max-width: 80px;
+  border: none;
+  background-color: #f2f2f2;
+  margin: 0 2px;
+  padding: 2px;
+}
+.screening-modal-container .list .list-item .hour:focus {
+  border: none;
+  outline: none;
+}
+.screening-modal-container .list .list-item button {
+  width: fit-content;
+  font-size: 12px;
+}
+.screening-modal-container .list .list-item .less {
+  width: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--red);
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--red);
+  cursor: pointer;
+}
+.have-schedule-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  background-color: white;
+  margin: 12px 0 24px 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+.have-schedule-item h5 {
+  border: 1.5px solid #d5d5d5;
+  border-radius: 6px;
+  background-color: #eee;
+  color: var(--dark-blue);
+  padding: 2px 4px;
+}
+.find-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 4px;
+}
+.find-container .icon {
+  font-size: 22px;
+  color: var(--dark-blue);
+  cursor: pointer;
+}
+.find-container input {
+  border-radius: 4px;
+  outline: none;
+  border: 1px solid #ddd;
+  height: 30px;
+  font-size: 14px;
+  padding: 0 4px;
+}
+.have-schedule-item .icon {
+  font-size: 34px;
+  color: var(--dark-blue);
+  cursor: pointer;
+  border-radius: 4px;
+  border: 2px solid #bbb;
+  padding: 2px;
+  transition: 0.3s;
+}
+.have-schedule-item .icon:hover {
+  opacity: 0.5;
+}
+.date-select-container {
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.date-select-container h4 {
+  text-align: center;
+  margin: 0 auto 16px auto;
+}
+.screening-modal-container .list .list-item p {
+  font-size: 12px;
+  width: calc(100% / 4);
+}
+.screening-modal-container .buttons-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 8px;
+  margin: 12px 0 0 0;
+}
+.modal-center {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.modal-center button {
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #a1a1a1;
+  padding: 2px 4px;
+  transition: 0.3s;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-center button .icon {
+  margin-left: 4px;
+}
+.modal-center button:hover {
+  background-color: var(--dark-blue);
+  color: white;
+}
+
+/* ************ */
+
 @media screen and (max-width: 1200px) {
   .profile-item {
     column-gap: 20px;
   }
   .profile-item:last-child {
     column-gap: 20px;
+  }
+  .lectures .hour-schedule {
+    flex-direction: column;
+  }
+  .lectures .hour-schedule .hour-item {
+    width: 100%;
+    margin: 6px 0;
   }
 }
 
@@ -83,5 +510,31 @@
   }
   .container-avatar p {
     font-size: 14px;
+  }
+  .modal-center p,
+  .modal-center button {
+    font-size: 12px;
+  }
+  .screening-modal-container .list .list-item button {
+    width: fit-content;
+    font-size: 10px;
+  }
+  .screening-modal-container .list .list-item p {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .have-schedule-item:first-child {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .screening-container .table .table-item p:nth-child(3) {
+    display: none;
+  }
+  .screening-container .table .table-item p {
+    width: calc(100% / 2);
   }
 }

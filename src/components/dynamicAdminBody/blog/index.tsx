@@ -1,0 +1,61 @@
+import React, { useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { StyledButton } from "../receipts";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import Modal from "@/components/modal";
+import Input from "@/components/input";
+import { Timestamp } from "firebase/firestore";
+
+interface PostInterface {
+  title: string;
+  text: PostText[];
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  tags?: any[];
+}
+
+interface PostText {
+  picture: string;
+  subtitle: string;
+  text: string;
+}
+
+const baseData: PostInterface = {
+  text: [],
+  title: "",
+};
+
+const AdminBlog = () => {
+  const [newPostVisible, setNewPostVisible] = useState(false);
+  const [postValues, setPostValues] = useState<PostInterface>(baseData);
+
+  const handleCloseNewPost = () => {
+    setNewPostVisible(false);
+  };
+  const handleChange = (field: string, value: any) => {
+    return setPostValues((prev) => ({ ...prev, [field]: value }));
+  };
+  return (
+    <Box
+      width={"100%"}
+      display="flex"
+      alignItems="center"
+      justifyContent={"center"}
+      flexDirection={"column"}
+    >
+      <Modal visible={newPostVisible} closeModal={handleCloseNewPost}>
+        <Typography variant="semibold">Título da postagem</Typography>
+        <Input label="Título" type="text" />
+      </Modal>
+      <StyledButton
+        onClick={() => setNewPostVisible(true)}
+        sx={{ margin: "16px auto" }}
+        endIcon={<EditNoteIcon />}
+      >
+        Adicionar Informativo
+      </StyledButton>
+    </Box>
+  );
+};
+
+export default AdminBlog;

@@ -3,17 +3,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import styles from "../../styles/Dashboard.module.css";
-import useWindowSize from "@/hooks/useWindowSize";
 import { useRecoilState } from "recoil";
 import { dashboardNav } from "data";
 import { useRouter } from "next/router";
-import { TiThMenuOutline } from "react-icons/ti";
-import UserData from "@/atoms/userData";
-import { handlePersistLogin } from "@/services/requests/auth";
-import { auth } from "@/services/firebase";
 import { signOut } from "firebase/auth";
-import { setCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
+import { auth, db } from "@/services/firebase";
+import { handlePersistLogin } from "@/services/requests/auth";
+import RenderDashboard from "@/components/admin/renderDashboard";
+import ScreeningModal from "@/components/admin/screeningModal";
 import DynamicAdminBody from "@/components/dynamicAdminBody";
+import TopBarMenu from "@/components/admin/topBarMenu";
+import useWindowSize from "@/hooks/useWindowSize";
+import Loading from "@/components/loading";
+import UserData from "@/atoms/userData";
+import Modal from "@/components/modal";
+import { doc, getDoc } from "firebase/firestore";
+import { ClientType } from "types";
+import ClientInfos from "@/components/admin/clientInfos";
+
+const renderPanelTitle = {
+  1: "Início",
+  2: "Clientes",
+  3: "Recibos",
+  4: "Dentistas",
+  5: "Triagens",
+  6: "Palestras",
+  7: "Tratamentos",
+  8: "Blog",
+  9: "Perfil",
+};
 
 const Dashboard = () => {
   const router = useRouter();
@@ -22,18 +41,19 @@ const Dashboard = () => {
   const navigationRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
+  const [date, setDate] = useState<string>("");
   const [userData, setUserData] = useRecoilState(UserData);
-  const linearBack = "linear-gradient(300deg,#003147,#09aae8)";
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [screeningVisible, setScreeningVisible] = useState(false);
+  const [isCreateTreatment, setIsCreateTreatment] = useState(false);
+  const [clientDetailsVisible, setClientDetailsVisible] = useState(false);
+  const [isGeneratePayment, setIsGeneratePayment] = useState(false);
+  const [clientID, setClientID] = useState<string | null>(null);
+  const [clientInfos, setClientInfos] = useState<ClientType | null>({});
+  const getuid = getCookie("useruid");
+
   let navigation = navigationRef?.current?.style;
   let main = mainRef?.current?.style;
-
-  const renderPanelTitle = {
-    1: "Dashboard",
-    2: "Pacientes",
-    3: "Dentistas",
-    4: "Perfil",
-  };
-
   const setMobileNav = useCallback(() => {
     navigation?.setProperty("width", "60px");
     main?.setProperty("width", "calc(100% - 60px)");
@@ -52,16 +72,21 @@ const Dashboard = () => {
     } else alert("Não é possível no celular");
   };
 
+  const closeClientModal = () => {
+    setClientDetailsVisible(false);
+    setClientInfos(null);
+    setClientID(null);
+    return;
+  };
+
   const signout = async () => {
-    try {
-      return signOut(auth).then(() => {
-        //delete all cookies and recoil values
+    return await signOut(auth).then(async () => {
+      return await router.push("/login").then(() => {
         setUserData({});
         setCookie("useruid", undefined);
+        return;
       });
-    } finally {
-      router.push("/login");
-    }
+    });
   };
 
   useEffect(() => {
@@ -71,86 +96,99 @@ const Dashboard = () => {
 
   useEffect(() => {
     const Unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user)
-        handlePersistLogin(user).then((User) => {
-          if (User.role !== "admin") signout();
-          else setUserData(User);
-        });
-      else signout();
+      if (user) {
+        const User = await handlePersistLogin(user);
+
+        if (User!.role === "admin") return setUserData(User);
+        if (User!.role === "employee") return setUserData(User);
+
+        return signout();
+      } else signout();
     });
     return () => Unsubscribe();
   }, []);
 
-  const cemicLogo = (props: any) => (
-    <li>
-      <a href={props.href}>
-        <img
-          src="/images/logo.png"
-          alt="logo"
-          className={styles["cemic-logo"]}
-        />
-        <span className={styles.title}>
-          {userData?.name ? `${userData?.name} ${userData?.surname}` : ""}
-        </span>
-      </a>
-    </li>
-  );
-  const navigationRender = (props: any, index: number) => {
-    const hasPage = index === page;
-    const handleChangePage = () => {
-      if (index !== dashboardNav.length - 1) setPage(index);
-      else signout();
+  useEffect(() => {
+    const getClientInfo = async () => {
+      const document = doc(db, "clients", clientID);
+      await getDoc(document)
+        .then((res) => {
+          return setClientInfos(res.data());
+        })
+        .catch(() => {
+          return alert("deu ruim");
+        });
     };
-    return (
-      <li
-        onClick={handleChangePage}
-        style={hasPage ? { background: linearBack } : undefined}
-      >
-        <a style={hasPage ? { color: "white" } : undefined}>
-          <span className={styles.icon}>{props.icon}</span>
-          <span className={styles.title}>{props.title}</span>
-        </a>
-      </li>
-    );
-  };
+    if (clientID !== null) getClientInfo();
+  }, [clientID]);
 
-  const renderTobBarMenu = (props: any) => {
-    return (
-      <div className={styles.topbar}>
-        <div className={styles.toggle} onClick={props.onClick} ref={toggleRef}>
-          <TiThMenuOutline className={styles.icon} />
-        </div>
-        <div className={styles.search}>
-          <h2 className={styles.title}>{renderPanelTitle[page]}</h2>
-        </div>
-        <div className={styles.user}></div>
-      </div>
-    );
-  };
-
-  const renderDashboard = ({ item, index }: any) => {
-    if (index === 0) return cemicLogo({ href: item.path, title: item.title });
-    else
-      return navigationRender(
-        {
-          href: item.path,
-          title: item.title,
-          icon: item?.icon,
-        },
-        index
-      );
-  };
+  if (getuid === "" || getuid === undefined) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.navigation} ref={navigationRef}>
         <ul>
-          {dashboardNav.map((item, index) => renderDashboard({ item, index }))}
+          {dashboardNav.map((item, index) => (
+            <RenderDashboard
+              key={index}
+              item={item}
+              index={index}
+              page={page}
+              setPage={setPage}
+              signout={signout}
+              userData={userData}
+              dataNav={dashboardNav}
+            />
+          ))}
         </ul>
       </div>
+
+      {/* MODALS FOR ADMIN BODY */}
+
+      <Modal
+        visible={screeningVisible}
+        closeModal={() => setScreeningVisible(false)}
+      >
+        <ScreeningModal
+          date={date}
+          setVisible={setScreeningVisible}
+          setIsScheduling={setIsScheduling}
+          clientDetailsVisible={setClientDetailsVisible}
+          setClientID={setClientID}
+        />
+      </Modal>
+
+      <Modal visible={clientDetailsVisible} closeModal={closeClientModal}>
+        <ClientInfos client={clientInfos} />
+      </Modal>
+      {/*  */}
+
+      {/* LOADINGS MODAL FOR COMPONENTS */}
+      {isScheduling && (
+        <Loading message="Estamos realizando o agendamento... Aguarde." />
+      )}
+      {isCreateTreatment && <Loading message="Adicionando tratamento..." />}
+      {isGeneratePayment && <Loading message="Criando pagamento..." />}
+      {/*  */}
+
       <div className={styles.main} ref={mainRef}>
-        {renderTobBarMenu({ onClick: toggleMenu })}
-        <DynamicAdminBody page={page} />
+        <TopBarMenu
+          onClick={toggleMenu}
+          page={page}
+          toggleRef={toggleRef}
+          panelTitle={renderPanelTitle}
+        />
+        <DynamicAdminBody
+          page={page}
+          setClientDetailsVisible={setClientDetailsVisible}
+          setIsCreateTreatment={setIsCreateTreatment}
+          setScreeningVisible={setScreeningVisible}
+          setIsGeneratePayment={setIsGeneratePayment}
+          setClientID={setClientID}
+          setDate={setDate}
+        />
       </div>
     </div>
   );

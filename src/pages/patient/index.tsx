@@ -8,17 +8,17 @@ import { auth } from "@/services/firebase";
 import { setCookie } from "cookies-next";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/router";
-import { TiThMenuOutline } from "react-icons/ti";
-import { handlePersistLogin } from "@/services/requests/auth";
-import { useRecoilState, useResetRecoilState } from "recoil";
 import { dashboardUser } from "data";
+import { useRecoilState, useResetRecoilState } from "recoil";
+import { handlePersistLogin } from "@/services/requests/auth";
 import DynamicUserBody from "@/components/dynamicUserBody";
+import RenderDashboard from "@/components/admin/renderDashboard";
+import TopBarMenu from "@/components/admin/topBarMenu";
 import Loading from "@/components/loading";
 
 const PatientScreen = () => {
   const router = useRouter();
   const size = useWindowSize();
-  const userid = router.query.userid;
   const mainRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLDivElement>(null);
   const navigationRef = useRef<HTMLDivElement>(null);
@@ -26,7 +26,6 @@ const PatientScreen = () => {
   const [page, setPage] = useState(1);
   const resetUser = useResetRecoilState(UserData);
   const [userData, setUserData] = useRecoilState(UserData);
-  const linearBack = "linear-gradient(300deg,#003147,#09aae8)";
   let navigation = navigationRef?.current?.style;
   let main = mainRef?.current?.style;
 
@@ -35,7 +34,7 @@ const PatientScreen = () => {
     2: "Meus Atendimentos",
     3: "Meus Pagamentos",
     4: "Meus Exames",
-    5: "Meus Implantes",
+    5: "Minha Triagem",
   };
 
   const setMobileNav = useCallback(() => {
@@ -56,6 +55,16 @@ const PatientScreen = () => {
     } else alert("Não é possível no celular");
   };
 
+  const signout = async () => {
+    return signOut(auth).then(async () => {
+      const final = await router.push("/login");
+      if (final) {
+        resetUser();
+        setCookie("useruid", undefined);
+      }
+    });
+  };
+
   useEffect(() => {
     if (size?.width! > 760) setDesktopNav();
     else setMobileNav();
@@ -65,7 +74,7 @@ const PatientScreen = () => {
     const Unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user)
         handlePersistLogin(user).then((User) => {
-          if (User!.role !== "client") signout();
+          if (User!.role !== "patient") signout();
           else setUserData(User!);
         });
       else signout();
@@ -73,87 +82,32 @@ const PatientScreen = () => {
     return () => Unsubscribe();
   }, []);
 
-  const signout = async () => {
-    try {
-      return signOut(auth).then(() => {
-        resetUser();
-        setCookie("useruid", undefined);
-      });
-    } finally {
-      router.push("/login");
-    }
-  };
-
-  const cemicLogo = (props: any) => (
-    <li>
-      <a href={props.href}>
-        <img
-          src="/images/logo.png"
-          alt="logo"
-          className={styles["cemic-logo"]}
-        />
-        <span className={styles.title}>
-          {userData?.name ? `${userData?.name} ${userData?.surname}` : ""}
-        </span>
-      </a>
-    </li>
-  );
-  const navigationRender = (props: any, index: number) => {
-    const hasPage = index === page;
-    const handleChangePage = () => {
-      if (index !== dashboardUser.length - 1) setPage(index);
-      else signout();
-    };
-    return (
-      <li
-        onClick={handleChangePage}
-        style={hasPage ? { background: linearBack } : undefined}
-      >
-        <a style={hasPage ? { color: "white" } : undefined}>
-          <span className={styles.icon}>{props.icon}</span>
-          <span className={styles.title}>{props.title}</span>
-        </a>
-      </li>
-    );
-  };
-
-  const renderTobBarMenu = (props: any) => {
-    return (
-      <div className={styles.topbar}>
-        <div className={styles.toggle} onClick={props.onClick} ref={toggleRef}>
-          {size?.width! > 760 && <TiThMenuOutline className={styles.icon} />}
-        </div>
-        <div className={styles.search}>
-          <h2 className={styles.title}>{renderPanelTitle[page]}</h2>
-        </div>
-        <div className={styles.user}></div>
-      </div>
-    );
-  };
-
-  const renderDashboard = ({ item, index }: any) => {
-    if (index === 0) return cemicLogo({ href: item.path, title: item.title });
-    else
-      return navigationRender(
-        {
-          href: item.path,
-          title: item.title,
-          icon: item?.icon,
-        },
-        index
-      );
-  };
-
   return (
     <div className={styles.container}>
       {isLoading && <Loading message="Atualizando informações de usuário!" />}
       <div className={styles.navigation} ref={navigationRef}>
         <ul>
-          {dashboardUser.map((item, index) => renderDashboard({ item, index }))}
+          {dashboardUser.map((item, index) => (
+            <RenderDashboard
+              key={index}
+              item={item}
+              index={index}
+              page={page}
+              setPage={setPage}
+              signout={signout}
+              userData={userData}
+              dataNav={dashboardUser}
+            />
+          ))}
         </ul>
       </div>
       <div className={styles.main} ref={mainRef}>
-        {renderTobBarMenu({ onClick: toggleMenu })}
+        <TopBarMenu
+          onClick={toggleMenu}
+          page={page}
+          toggleRef={toggleRef}
+          panelTitle={renderPanelTitle}
+        />
         <DynamicUserBody
           page={page}
           userData={userData}

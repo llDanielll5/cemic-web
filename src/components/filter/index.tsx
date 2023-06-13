@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import ReactDropdown from "react-dropdown";
 import styles from "../../styles/Filter.module.css";
 
@@ -32,9 +33,10 @@ const Filter = (props: FilterProps) => {
             type="text"
             value={props.filterValue}
             onChange={(e) => props.setFilterValue(e.target.value)}
+            maxLength={11}
           />
         </div>
-        <button onClick={props.onClick}>Filtrar</button>
+        <FaSearch onClick={props.onClick} className={styles.search} />
       </div>
     </div>
   );
