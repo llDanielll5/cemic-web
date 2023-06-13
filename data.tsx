@@ -19,6 +19,7 @@ export const headerData = [
   { path: "/", title: "Home" },
   { path: "#about", title: "Sobre" },
   { path: "#help", title: "Ajude-nos" },
+  { path: "/login", title: "Entrar" },
 ];
 
 export const dashboardNav = [

@@ -31,6 +31,7 @@ const HeaderLanding = (props: HeaderLandingProps) => {
 
   const listItem = ({ item, index }: any) => {
     const handlePress = () => {
+      if (index === headerData.length - 1) return router.push("/login");
       props.setTabIndex(index);
       if (size?.width! < 900) {
         list?.setProperty("display", "none");

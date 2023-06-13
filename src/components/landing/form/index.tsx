@@ -40,6 +40,7 @@ const FormLanding = () => {
   };
 
   const handleSubmit = async (e: any) => {
+    return alert("Em andamento.");
     e.preventDefault();
     if (name === "" || email === "" || password === "" || cpf === "")
       return alert("Preencha os campos!");
@@ -109,7 +110,7 @@ const FormLanding = () => {
         Cadastre-se no Projeto agora!
       </h3>
       <Input
-        label="Nome*"
+        label="Nome Completo*"
         labelStyle={{ backgroundColor: "rgba(250,250,250,0)" }}
         inputStyle={{ textTransform: "capitalize" }}
         onChange={(e) => setName(e)}
