@@ -1,8 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState } from "react";
-import useWindowSize from "@/hooks/useWindowSize";
 import styles from "@/styles/Landing.module.css";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Button, Typography, styled } from "@mui/material";
 import Left from "@mui/icons-material/ChevronLeft";
 import Right from "@mui/icons-material/ChevronRight";
 import FormLanding from "../form";
@@ -11,13 +10,13 @@ const imagesBanner = [
   //   "/images/banner.png",
   "/images/banner1.png",
   "/images/banner2.png",
+  "/images/clients7.jpg",
 ];
-const imgStyle: React.CSSProperties = {
-  width: "100%",
-  height: "100vh",
-  maxHeight: "100vh",
-  transition: "0.3s",
+
+const textStyle = {
+  margin: "16px 0",
 };
+
 const iconStyle = {
   transform: { translateY: "-50%" },
   backgroundColor: "white",
@@ -25,7 +24,7 @@ const iconStyle = {
   top: "50%",
 };
 
-const BannerLanding = () => {
+const BannerLanding = (props: { setTabIndex: any }) => {
   const [imgIndex, setImgIndex] = useState(0);
 
   const handleNextImg = () => {
@@ -39,17 +38,36 @@ const BannerLanding = () => {
 
   const renderImageBanner = () => (
     <Box position="relative">
-      <Box
-        top={0}
-        left={0}
-        width={"100%"}
-        height={"100vh"}
-        position="absolute"
-        sx={{ backgroundColor: "black", opacity: "0.3" }}
-      />
-      <img src={imagesBanner[imgIndex]} alt="" style={{ ...imgStyle }} />;
-      <FormLanding />
-      <IconButton
+      <BannerContainer>
+        <Informations>
+          <Box display="flex" flexDirection="column">
+            <h2 style={textStyle}>
+              O maior projeto social de Implantes do Brasil
+            </h2>
+            <h3 style={textStyle}>
+              Já são mais de 15 mil implantes instalados
+            </h3>
+            <h4 style={textStyle}>Venha fazer parte desse grande projeto!</h4>
+            <Typography variant="semibold">
+              CEMIC. Compartilhe essa ideia
+            </Typography>
+
+            <Button
+              variant="outlined"
+              onClick={() => props.setTabIndex(1)}
+              sx={{ borderRadius: "20px", width: "50%", marginTop: "16px" }}
+            >
+              Saber Mais
+            </Button>
+          </Box>
+          <img src={imagesBanner[0]} alt="" className={styles.imgLanding} />;
+        </Informations>
+      </BannerContainer>
+
+      <FormContainer>
+        <FormLanding />
+      </FormContainer>
+      {/* <IconButton
         sx={{ ...iconStyle, left: "16px" }}
         onClick={handlePreviousImg}
       >
@@ -57,8 +75,8 @@ const BannerLanding = () => {
       </IconButton>
       <IconButton sx={{ ...iconStyle, right: "16px" }} onClick={handleNextImg}>
         <Right fontSize="large" />
-      </IconButton>
-      <Box>
+      </IconButton> */}
+      <Box mt={2}>
         <h1>
           <span>I</span>
           <span>N</span>
@@ -86,5 +104,32 @@ const BannerLanding = () => {
     </Box>
   );
 };
+
+const FormContainer = styled(Box)`
+  width: 100%;
+  padding: 16px 0;
+  background-color: var(--blue);
+`;
+
+const BannerContainer = styled(Box)`
+  width: 100%;
+  height: 100vh;
+  background-color: white;
+  @media screen and (max-width: 760px) {
+    height: auto;
+  }
+`;
+
+const Informations = styled(Box)`
+  display: flex;
+  padding: 32px;
+  align-items: center;
+  justify-content: space-between;
+
+  @media screen and (max-width: 760px) {
+    justify-content: center;
+    flex-direction: column;
+  }
+`;
 
 export default BannerLanding;

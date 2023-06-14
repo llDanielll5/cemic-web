@@ -140,30 +140,26 @@ const FormLanding = () => {
 
 const Container = styled(Box)`
   padding: 40px 40px 20px 40px;
-  top: 20%;
-  right: 15%;
   border-radius: 8px;
-  min-width: 350px;
-  position: absolute;
-  width: calc(100% / 3.5);
+  min-width: 200px;
+  width: 60%;
   max-width: 500px;
-  min-width: 350px;
   min-height: 400px;
   display: flex;
   align-items: center;
   flex-direction: column;
   z-index: 90;
+  margin: 0 auto;
   box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.14);
-  transform: translateX(-15%);
-  transform: translateY(-20%);
   background-color: rgba(250, 250, 250, 0.95);
+
+  @media screen and (max-width: 760px) {
+    width: 80%;
+  }
 
   @media screen and (max-width: 550px) {
     position: relative;
     display: flex;
-    top: 0;
-    left: 0;
-    transform: none;
     margin: 0 auto 32px auto;
     width: 100%;
     box-shadow: none;

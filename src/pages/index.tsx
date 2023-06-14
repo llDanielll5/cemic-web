@@ -79,7 +79,7 @@ export default function LandingPage() {
     <>
       <HeadLanding />
       <HeaderLanding refMenu={refMenu} setTabIndex={setActiveTab} />
-      {activeTab === 0 && <BannerLanding />}
+      {activeTab === 0 && <BannerLanding setTabIndex={setActiveTab} />}
       {activeTab === 1 && <About ref={aboutRef} />}
       {activeTab === 2 && <Help />}
       <Footer />

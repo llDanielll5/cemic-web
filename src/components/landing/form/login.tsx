@@ -58,7 +58,7 @@ const LoginFormLanding = (props: LoginFormLandingProps) => {
   return (
     <Box display="flex" flexDirection={"column"} rowGap={2}>
       <h3 style={{ margin: "0 0 8px 0", textAlign: "center" }}>
-        Cadastre-se no Projeto agora!
+        Entrar com sua conta!
       </h3>
 
       <StyledTextField
