@@ -179,7 +179,7 @@ export const createUserLanding = async ({
 };
 
 export const createProfessional = async (
-  data: ProfessionalData,
+  data: any,
   password: string,
   cpf: string,
   phone: string
@@ -206,7 +206,12 @@ export const createProfessional = async (
       };
       if (res) {
         const profRef = doc(db, "professionals", cpf);
-        return await setDoc(profRef, professionalData);
+        const verify = await getDoc(profRef);
+        if (verify.exists()) {
+          return await deleteUser(res.user).then(() => {
+            return "CPF existente";
+          });
+        } else return await setDoc(profRef, professionalData);
       }
     }
   );
@@ -236,7 +241,13 @@ export const createAdmin = async (
       };
       if (res) {
         const profRef = doc(db, "admins", cpf);
-        return await setDoc(profRef, adminData);
+
+        const verify = await getDoc(profRef);
+        if (verify.exists()) {
+          return await deleteUser(res.user).then(() => {
+            return "CPF existente";
+          });
+        } else return await setDoc(profRef, adminData);
       }
     }
   );
@@ -266,7 +277,13 @@ export const createEmployee = async (
       };
       if (res) {
         const profRef = doc(db, "employees", cpf);
-        return await setDoc(profRef, adminData);
+
+        const verify = await getDoc(profRef);
+        if (verify.exists()) {
+          return await deleteUser(res.user).then(() => {
+            return "CPF existente";
+          });
+        } else return await setDoc(profRef, adminData);
       }
     }
   );

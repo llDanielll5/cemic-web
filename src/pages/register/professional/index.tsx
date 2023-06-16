@@ -1,22 +1,21 @@
-//@ts-nocheck
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "../../../styles/ProfessionalRegister.module.css";
-import Input from "@/components/input";
-import { ProfessionalData } from "types";
-import { baseCode, makeid } from "@/services/services";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import { useRouter } from "next/router";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
 import ModalSuccess from "@/components/modalSuccess";
-import Loading from "@/components/loading";
-import { createProfessional } from "@/services/requests/auth";
-import Modal from "@/components/modal";
-import { Typography } from "@mui/material";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { AuthErrors } from "@/services/errors";
 import ModalError from "@/components/modalError";
+import Loading from "@/components/loading";
+import Input from "@/components/input";
+import Modal from "@/components/modal";
+import { useRouter } from "next/router";
+import { AuthErrors } from "@/services/errors";
+import { nameCapitalized } from "@/services/services";
+import { createProfessional } from "@/services/requests/auth";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { Typography, Box, IconButton, InputAdornment } from "@mui/material";
+import { StyledTextField } from "@/components/patient/profile";
 
-const baseData: ProfessionalData = {
+const baseData = {
   cpf: "",
   cro: "",
   name: "",
@@ -33,15 +32,18 @@ const baseData: ProfessionalData = {
 
 const ProfessionalRegister = () => {
   const router = useRouter();
-  const [data, setData] = useState<ProfessionalData>(baseData);
+  const [code, setCode] = useState("");
+  const [chances, setChances] = useState(3);
+  const [data, setData] = useState<any>(baseData);
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [finishRegister, setFinishRegister] = useState(false);
   const [modalConfirm, setModalConfirm] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [modalError, setModalError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [code, setCode] = useState("");
-  const [chances, setChances] = useState(3);
+
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const handleChange = (e: any, field: string) => {
     return setData((prev: any) => ({ ...prev, [field]: e }));
@@ -158,7 +160,7 @@ const ProfessionalRegister = () => {
     <div className={styles.container}>
       {isLoading && <Loading message="Estamos criando sua conta..." />}
 
-      <Modal visible={modalConfirm}>
+      <Modal visible={modalConfirm} closeModal={() => {}}>
         <Typography variant="semibold">
           Digite o código de administrador:
         </Typography>
@@ -187,53 +189,66 @@ const ProfessionalRegister = () => {
       />
       <div className={styles.register}>
         <h3>Registro de Profissional</h3>
-        <div className={styles.inputs}>
-          <Input
+        <Box display="flex" flexDirection="column" rowGap={2} px={2} mt={2}>
+          <StyledTextField
             label="Nome Completo *"
-            onChange={(e) => handleChange(e, "name")}
+            onChange={(e) => handleChange(e.target.value, "name")}
+            inputProps={{ style: { textTransform: "capitalize" } }}
             value={data.name}
           />
 
-          <Input
+          <StyledTextField
             label="Telefone *"
-            onChange={(e) => handleMasked(e, "phone")}
+            onChange={(e) => handleMasked(e.target.value, "phone")}
             value={data.phone}
-            maxLenght={15}
+            inputProps={{ maxLength: 15 }}
           />
-          <Input
+          <StyledTextField
             label="CPF *"
-            onChange={(e) => handleMasked(e, "cpf")}
+            onChange={(e) => handleMasked(e.target.value, "cpf")}
             value={data.cpf}
-            maxLenght={14}
+            inputProps={{ maxLength: 14 }}
           />
-          <Input
+          <StyledTextField
             label="RG *"
-            onChange={(e) => handleChange(e, "rg")}
+            onChange={(e) => handleChange(e.target.value, "rg")}
             value={data.rg}
           />
-          <Input
+          <StyledTextField
             label="CRO *"
-            onChange={(e) => handleChange(e, "cro")}
+            onChange={(e) => handleChange(e.target.value, "cro")}
             value={data.cro}
           />
 
-          <Input
+          <StyledTextField
             label="Email *"
-            onChange={(e) => handleChange(e, "email")}
+            onChange={(e) => handleChange(e.target.value, "email")}
             value={data.email}
           />
 
-          <Input
-            label="Senha para acesso *"
-            onChange={(e) => setPassword(e)}
+          <StyledTextField
             value={password}
-            type={"password"}
+            label="Senha para acesso *"
+            onChange={(e) => setPassword(e.target.value)}
+            type={showPassword ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <StyledButton onClick={handleSubmit}>
             Registrar Profissional
           </StyledButton>
-        </div>
+        </Box>
       </div>
     </div>
   );

@@ -1,15 +1,19 @@
-//@ts-nocheck
 import React, { useState } from "react";
 import styles from "../../../styles/ProfessionalRegister.module.css";
 import Input from "@/components/input";
-import { ProfessionalData } from "types";
-import { useRouter } from "next/router";
-import ModalSuccess from "@/components/modalSuccess";
-import Loading from "@/components/loading";
-import { createAdmin } from "@/services/requests/auth";
 import Modal from "@/components/modal";
-import { Typography } from "@mui/material";
+import Loading from "@/components/loading";
+import ModalError from "@/components/modalError";
+import ModalSuccess from "@/components/modalSuccess";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { Typography, InputAdornment, IconButton, Box } from "@mui/material";
+import { StyledTextField } from "@/components/patient/profile";
+import { createAdmin } from "@/services/requests/auth";
+import { nameCapitalized } from "@/services/services";
+import { AuthErrors } from "@/services/errors";
+import { useRouter } from "next/router";
 
 const baseData = {
   cpf: "",
@@ -27,13 +31,16 @@ const baseData = {
 
 const ProfessionalRegister = () => {
   const router = useRouter();
-  const [data, setData] = useState<ProfessionalData>(baseData);
+  const [data, setData] = useState<any>(baseData);
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [finishRegister, setFinishRegister] = useState(false);
   const [modalConfirm, setModalConfirm] = useState(true);
   const [code, setCode] = useState("");
   const [chances, setChances] = useState(3);
+  const [modalError, setModalError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: any, field: string) => {
     return setData((prev: any) => ({ ...prev, [field]: e }));
@@ -58,6 +65,12 @@ const ProfessionalRegister = () => {
     value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     return value;
   };
+  const handleCloseErrorModal = () => {
+    setModalError(false);
+    setErrorMessage("");
+  };
+
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const handleSubmit = async () => {
     const { cpf, email, name, phone, rg } = data;
@@ -87,7 +100,6 @@ const ProfessionalRegister = () => {
 
     const dataChange = {
       cpf,
-      cro,
       email,
       name: completeName,
       phone,
@@ -103,7 +115,16 @@ const ProfessionalRegister = () => {
       })
       .catch((err) => {
         setIsLoading(false);
-        return alert(err);
+        if (err.code === AuthErrors["01"]) {
+          setModalError(true);
+          setErrorMessage("Email já está em uso");
+          return;
+        } else if (err.code === "auth/invalid-email") {
+          setModalError(true);
+          setErrorMessage(
+            "Email inválido. Verifique corretamente o email adicionado!"
+          );
+        } else return alert(err.code);
       });
   };
 
@@ -131,7 +152,7 @@ const ProfessionalRegister = () => {
     <div className={styles.container}>
       {isLoading && <Loading message="Estamos criando sua conta..." />}
 
-      <Modal visible={modalConfirm}>
+      <Modal visible={modalConfirm} closeModal={() => {}}>
         <Typography variant="semibold">
           Digite o código de administrador:
         </Typography>
@@ -150,50 +171,71 @@ const ProfessionalRegister = () => {
         closeModal={handleFinishRegister}
         visible={finishRegister}
       />
+      <ModalError
+        actionButton={
+          <StyledButton onClick={handleCloseErrorModal}>Ok</StyledButton>
+        }
+        message={errorMessage}
+        closeModal={handleCloseErrorModal}
+        visible={modalError}
+      />
       <div className={styles.register}>
         <h3>Registro de Administrador</h3>
-        <div className={styles.inputs}>
-          <Input
+        <Box display="flex" flexDirection="column" rowGap={2} px={2} mt={2}>
+          <StyledTextField
             label="Nome Completo *"
-            onChange={(e) => handleChange(e, "name")}
+            onChange={(e) => handleChange(e.target.value, "name")}
+            inputProps={{ style: { textTransform: "capitalize" } }}
             value={data.name}
           />
 
-          <Input
+          <StyledTextField
             label="Telefone *"
-            onChange={(e) => handleMasked(e, "phone")}
+            onChange={(e) => handleMasked(e.target.value, "phone")}
             value={data.phone}
-            maxLenght={15}
+            inputProps={{ maxLength: 15 }}
           />
-          <Input
+          <StyledTextField
             label="CPF *"
-            onChange={(e) => handleMasked(e, "cpf")}
+            onChange={(e) => handleMasked(e.target.value, "cpf")}
             value={data.cpf}
-            maxLenght={14}
+            inputProps={{ maxLength: 14 }}
           />
-          <Input
+          <StyledTextField
             label="RG *"
-            onChange={(e) => handleChange(e, "rg")}
+            onChange={(e) => handleChange(e.target.value, "rg")}
             value={data.rg}
           />
 
-          <Input
+          <StyledTextField
             label="Email *"
-            onChange={(e) => handleChange(e, "email")}
+            onChange={(e) => handleChange(e.target.value, "email")}
             value={data.email}
           />
 
-          <Input
+          <StyledTextField
             label="Senha para acesso *"
-            onChange={(e) => setPassword(e)}
+            onChange={(e) => setPassword(e.target.value)}
             value={password}
-            type={"password"}
+            type={showPassword ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <StyledButton onClick={handleSubmit}>
             Registrar Administrador
           </StyledButton>
-        </div>
+        </Box>
       </div>
     </div>
   );

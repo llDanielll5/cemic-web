@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import { Typography } from "@mui/material";
 import { AuthErrors } from "@/services/errors";
 import { nameCapitalized } from "@/services/services";
 import { createEmployee } from "@/services/requests/auth";
+import { StyledTextField } from "@/components/patient/profile";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { Typography, Box, IconButton, InputAdornment } from "@mui/material";
 import styles from "../../../styles/ProfessionalRegister.module.css";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
 import ModalSuccess from "@/components/modalSuccess";
 import ModalError from "@/components/modalError";
 import Loading from "@/components/loading";
@@ -37,6 +40,9 @@ const ProfessionalRegister = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [code, setCode] = useState("");
   const [chances, setChances] = useState(3);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const handleChange = (e: any, field: string) => {
     return setData((prev: any) => ({ ...prev, [field]: e }));
@@ -181,48 +187,61 @@ const ProfessionalRegister = () => {
       />
       <div className={styles.register}>
         <h3>Registro de Funcionário</h3>
-        <div className={styles.inputs}>
-          <Input
+        <Box display="flex" flexDirection="column" rowGap={2} px={2} mt={2}>
+          <StyledTextField
             label="Nome Completo *"
-            onChange={(e) => handleChange(e, "name")}
+            onChange={(e) => handleChange(e.target.value, "name")}
+            inputProps={{ style: { textTransform: "capitalize" } }}
             value={data.name}
           />
 
-          <Input
+          <StyledTextField
             label="Telefone *"
-            onChange={(e) => handleMasked(e, "phone")}
+            onChange={(e) => handleMasked(e.target.value, "phone")}
             value={data.phone}
-            maxLenght={15}
+            inputProps={{ maxLength: 15 }}
           />
-          <Input
+          <StyledTextField
             label="CPF *"
-            onChange={(e) => handleMasked(e, "cpf")}
+            onChange={(e) => handleMasked(e.target.value, "cpf")}
             value={data.cpf}
-            maxLenght={14}
+            inputProps={{ maxLength: 14 }}
           />
-          <Input
+          <StyledTextField
             label="RG *"
-            onChange={(e) => handleChange(e, "rg")}
+            onChange={(e) => handleChange(e.target.value, "rg")}
             value={data.rg}
           />
 
-          <Input
+          <StyledTextField
             label="Email *"
-            onChange={(e) => handleChange(e, "email")}
+            onChange={(e) => handleChange(e.target.value, "email")}
             value={data.email}
           />
 
-          <Input
+          <StyledTextField
             label="Senha para acesso *"
-            onChange={(e) => setPassword(e)}
+            onChange={(e) => setPassword(e.target.value)}
             value={password}
-            type={"password"}
+            type={showPassword ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <StyledButton onClick={handleSubmit}>
             Registrar Administrador
           </StyledButton>
-        </div>
+        </Box>
       </div>
     </div>
   );
