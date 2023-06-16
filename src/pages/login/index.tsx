@@ -66,7 +66,7 @@ const LoginScreen = () => {
       .then(async (res) => {
         if (res === null || res === undefined) {
           return;
-        } else if (res?.role === "admin") {
+        } else if (res?.role === "admin" || res?.role === "employee") {
           const rout = await router.push("/admin");
           if (rout) setIsLoading(false);
         } else if (res?.role === "patient") {
@@ -84,9 +84,6 @@ const LoginScreen = () => {
           if (rout) setIsLoading(false);
         } else if (res?.role === "professional") {
           const rout = await router.push("/professional");
-          if (rout) setIsLoading(false);
-        } else if (res?.role === "employee") {
-          const rout = await router.push("/admin");
           if (rout) setIsLoading(false);
         } else router.push("/");
       })

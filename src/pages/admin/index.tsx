@@ -97,12 +97,11 @@ const Dashboard = () => {
   useEffect(() => {
     const Unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const User = await handlePersistLogin(user);
-
-        if (User!.role === "admin") return setUserData(User);
-        if (User!.role === "employee") return setUserData(User);
-
-        return signout();
+        return await handlePersistLogin(user).then((User) => {
+          if (User.role === "admin" || User.role === "employee")
+            return setUserData(User);
+          else return signout();
+        });
       } else signout();
     });
     return () => Unsubscribe();

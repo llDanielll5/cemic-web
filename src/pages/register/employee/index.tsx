@@ -239,7 +239,7 @@ const ProfessionalRegister = () => {
           />
 
           <StyledButton onClick={handleSubmit}>
-            Registrar Administrador
+            Registrar Funcionário
           </StyledButton>
         </Box>
       </div>

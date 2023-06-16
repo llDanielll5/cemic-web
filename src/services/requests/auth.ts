@@ -32,6 +32,7 @@ export const handleLogin = async ({ email, password }: any) => {
           professionalsRef,
           where("uid", "==", user.uid)
         );
+        const employeeQuery = query(employeesRef, where("uid", "==", user.uid));
         const setUidCookie = setCookie("useruid", user.uid, { maxAge: 8600 });
 
         const selectedQuery = async () => {
@@ -41,10 +42,13 @@ export const handleLogin = async ({ email, password }: any) => {
           const hasProfessional = (
             await getCountFromServer(professionalQuery)
           ).data().count;
+          const hasEmployees = (await getCountFromServer(employeeQuery)).data()
+            .count;
 
           if (hasAdmin > 0) return "admins";
           else if (hasClient > 0) return "clients";
           else if (hasProfessional > 0) return "professionals";
+          else if (hasEmployees > 0) return "employees";
         };
 
         const docString = await selectedQuery();
@@ -78,6 +82,7 @@ export const handlePersistLogin = async (user: any) => {
     professionalsRef,
     where("uid", "==", user.uid)
   );
+  const employeeQuery = query(employeesRef, where("uid", "==", user.uid));
   const setUidCookie = setCookie("useruid", user.uid, { maxAge: 8600 });
 
   const selectedQuery = async () => {
@@ -85,9 +90,11 @@ export const handlePersistLogin = async (user: any) => {
     const hasClient = (await getCountFromServer(clientQuery)).data().count;
     const hasProfessional = (await getCountFromServer(professionalQuery)).data()
       .count;
+    const hasEmployees = (await getCountFromServer(employeeQuery)).data().count;
     if (hasAdmin > 0) return "admins";
     else if (hasClient > 0) return "clients";
     else if (hasProfessional > 0) return "professionals";
+    else if (hasEmployees > 0) return "employees";
   };
 
   const docString = await selectedQuery();
