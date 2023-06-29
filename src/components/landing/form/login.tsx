@@ -22,6 +22,7 @@ const LoginFormLanding = (props: LoginFormLandingProps) => {
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleSubmit = async () => {
+    return alert("Em andamento");
     if (email === "" && password === "") return alert("Preencha os campos!");
     setIsLoading(true);
     return await handleLogin({ email, password })

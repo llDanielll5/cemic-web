@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState } from "react";
 import styles from "@/styles/Landing.module.css";
-import { Box, IconButton, Button, Typography, styled } from "@mui/material";
+import { Box, Button, Typography, styled } from "@mui/material";
 import Left from "@mui/icons-material/ChevronLeft";
 import Right from "@mui/icons-material/ChevronRight";
 import FormLanding from "../form";
@@ -64,9 +64,9 @@ const BannerLanding = (props: { setTabIndex: any }) => {
         </Informations>
       </BannerContainer>
 
-      <FormContainer>
+      {/* <FormContainer>
         <FormLanding />
-      </FormContainer>
+      </FormContainer> */}
       {/* <IconButton
         sx={{ ...iconStyle, left: "16px" }}
         onClick={handlePreviousImg}

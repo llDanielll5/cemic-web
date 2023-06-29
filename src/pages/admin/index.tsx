@@ -74,7 +74,7 @@ const Dashboard = () => {
 
   const closeClientModal = () => {
     setClientDetailsVisible(false);
-    setClientInfos(null);
+    setClientInfos({});
     setClientID(null);
     return;
   };
@@ -159,7 +159,11 @@ const Dashboard = () => {
         />
       </Modal>
 
-      <Modal visible={clientDetailsVisible} closeModal={closeClientModal}>
+      <Modal
+        visible={clientDetailsVisible}
+        closeModal={closeClientModal}
+        style={{ content: { width: "85%" } }}
+      >
         <ClientInfos client={clientInfos} />
       </Modal>
       {/*  */}

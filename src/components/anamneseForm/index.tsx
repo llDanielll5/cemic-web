@@ -2,6 +2,7 @@ import React from "react";
 import { Radio, RadioGroup } from "react-radio-group";
 import styles from "../../styles/Selected.module.css";
 import Input from "../input";
+import { StyledButton } from "../dynamicAdminBody/receipts";
 
 interface AnamneseFormProps {
   handleAnswer: any;
@@ -137,12 +138,8 @@ const AnamneseForm = (props: AnamneseFormProps) => {
       <div style={{ marginBottom: "12px" }} />
 
       <div className={styles["buttons-finish"]}>
-        <button onClick={handleBackPage} className={styles["button-back"]}>
-          Voltar
-        </button>
-        <button onClick={handleNextPage} className={styles["button-next"]}>
-          Próximo
-        </button>
+        <StyledButton onClick={handleBackPage}>Voltar</StyledButton>
+        <StyledButton onClick={handleNextPage}>Finalizar</StyledButton>
       </div>
     </>
   );
