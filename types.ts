@@ -69,7 +69,6 @@ export interface ClientTreatmentsProps {
   negotiateds: TreatmentPlanInterface[] | [];
 }
 export interface ClientType {
-  uid: string;
   id: string;
   name: string;
   email: string;

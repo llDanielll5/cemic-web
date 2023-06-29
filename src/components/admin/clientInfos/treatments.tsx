@@ -16,12 +16,11 @@ import Link from "next/link";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import HistoryIcon from "@mui/icons-material/History";
-import PostAddIcon from "@mui/icons-material/PostAdd";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
 import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
 import { maskValue } from "@/services/services";
+import AddTreatment from "./addTreatment";
 
 interface ClientTreatmentsInterface {
   client: ClientType;
@@ -155,7 +154,28 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     getActualProfessional();
   }, [getActualProfessional, treatments?.actualProfessional]);
 
-  if (treatments === null) return <Box></Box>;
+  const handleGeneratePayment = () => {
+    const treats = treatments?.treatments?.treatment_plan;
+    const neg = treatments?.negotiateds;
+
+    let reduced = [];
+    treats.forEach((item) => {
+      var duplicated =
+        neg.findIndex((val) => {
+          return (
+            item.region === val.region &&
+            item.treatments.cod === val.treatments.cod
+          );
+        }) > -1;
+
+      if (!duplicated) {
+        reduced.push(item);
+      }
+    });
+
+    setTreatmentsToPay(reduced);
+    setPaymentModal(true);
+  };
 
   const hasTreatmentPlan = treatments?.treatments?.treatment_plan?.length > 0;
   const hasRealizeds = treatments?.treatments?.realizeds?.length > 0;
@@ -181,29 +201,6 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
   const money = totalValueString.replace(".", "");
   const masked = maskValue(money);
-
-  const handleGeneratePayment = () => {
-    const treats = treatments?.treatments?.treatment_plan;
-    const neg = treatments?.negotiateds;
-
-    let reduced = [];
-    treats.forEach((item) => {
-      var duplicated =
-        neg.findIndex((val) => {
-          return (
-            item.region === val.region &&
-            item.treatments.cod === val.treatments.cod
-          );
-        }) > -1;
-
-      if (!duplicated) {
-        reduced.push(item);
-      }
-    });
-
-    setTreatmentsToPay(reduced);
-    setPaymentModal(true);
-  };
 
   const handleViewPayment = async () => {
     if (discount > 8) return alert("Desconto não liberado no sistema");
@@ -358,94 +355,100 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         />
       </Modal>
 
-      <Box>
-        {actualProfessional !== null ? (
-          <Typography variant="bold">
-            Atual Dentista: {actualProfessional?.name ?? ""}
-          </Typography>
-        ) : (
-          <Typography variant="bold">Sem dentista atualmente</Typography>
-        )}
-      </Box>
-      <Typography variant="bold">Plano de Tratamento do paciente:</Typography>
-      <Box border="1.3px solid var(--dark-blue)" p={1} borderRadius={2} my={1}>
-        {hasTreatmentPlan &&
-          treatments?.treatments?.treatment_plan?.map((v, i) => (
-            <Box
-              key={i}
-              display={"flex"}
-              alignItems={"center"}
-              columnGap={"4px"}
-              width={"100%"}
-              my={"4px"}
-            >
-              <Typography variant="semibold">{v?.region} - </Typography>
-              <Typography variant="semibold">{v?.treatments?.name}</Typography>
-            </Box>
-          ))}
-        {!hasTreatmentPlan && (
-          <Typography variant="semibold">Sem plano de Tratamento</Typography>
-        )}
-      </Box>
-
-      <Typography variant="bold">Tratamentos já realizados:</Typography>
-      <Box border="1.3px solid var(--dark-blue)" p={1} borderRadius={2} mt={1}>
-        {hasRealizeds &&
-          treatments?.treatments?.realizeds?.map((v, i) => (
-            <Box
-              key={i}
-              display={"flex"}
-              alignItems={"center"}
-              columnGap={"4px"}
-              width={"100%"}
-              my={"4px"}
-            >
-              <Typography variant="semibold">{v?.region} - </Typography>
-              <Typography variant="semibold">{v?.treatments?.name}</Typography>
-            </Box>
-          ))}
-        {!hasRealizeds && (
-          <Typography variant="semibold">Sem Tratamentos concluídos</Typography>
-        )}
-      </Box>
-
-      <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-        <Typography variant="semibold">
-          Verificar histórico de encaminhamentos
-        </Typography>
-        <Link
-          passHref
-          target="_blank"
-          href={`/admin/treatment-history/${treatments?.client}`}
-        >
-          <StyledButton endIcon={<HistoryIcon />}>Histórico</StyledButton>
-        </Link>
-      </Box>
-
-      {userData?.role === "admin" && (
+      {treatments !== null && (
         <>
-          <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-            <Typography variant="semibold">Adicionar tratamentos</Typography>
+          <Box>
+            {actualProfessional !== null ? (
+              <Typography variant="bold">
+                Atual Dentista: {actualProfessional?.name ?? ""}
+              </Typography>
+            ) : (
+              <Typography variant="bold">Sem dentista atualmente</Typography>
+            )}
+          </Box>
+          <Typography variant="bold">
+            Plano de Tratamento do paciente:
+          </Typography>
+          <Box
+            border="1.3px solid var(--dark-blue)"
+            p={1}
+            borderRadius={2}
+            my={1}
+          >
+            {hasTreatmentPlan &&
+              treatments?.treatments?.treatment_plan?.map((v, i) => (
+                <Box
+                  key={i}
+                  display={"flex"}
+                  alignItems={"center"}
+                  columnGap={"4px"}
+                  width={"100%"}
+                  my={"4px"}
+                >
+                  <Typography variant="semibold">{v?.region} - </Typography>
+                  <Typography variant="semibold">
+                    {v?.treatments?.name}
+                  </Typography>
+                </Box>
+              ))}
+            {!hasTreatmentPlan && (
+              <Typography variant="semibold">
+                Sem plano de Tratamento
+              </Typography>
+            )}
+          </Box>
 
-            <StyledButton
-              onClick={() => setAddTreatmentVisible(true)}
-              endIcon={<PostAddIcon />}
-            >
-              Adicionar Tratamento
-            </StyledButton>
+          <Typography variant="bold">Tratamentos já realizados:</Typography>
+          <Box
+            border="1.3px solid var(--dark-blue)"
+            p={1}
+            borderRadius={2}
+            mt={1}
+          >
+            {hasRealizeds &&
+              treatments?.treatments?.realizeds?.map((v, i) => (
+                <Box
+                  key={i}
+                  display={"flex"}
+                  alignItems={"center"}
+                  columnGap={"4px"}
+                  width={"100%"}
+                  my={"4px"}
+                >
+                  <Typography variant="semibold">{v?.region} - </Typography>
+                  <Typography variant="semibold">
+                    {v?.treatments?.name}
+                  </Typography>
+                </Box>
+              ))}
+            {!hasRealizeds && (
+              <Typography variant="semibold">
+                Sem Tratamentos concluídos
+              </Typography>
+            )}
           </Box>
 
           <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-            <Typography variant="semibold">Adicionar Pagamento</Typography>
-
-            <StyledButton
-              onClick={handleGeneratePayment}
-              endIcon={<AttachMoneyIcon />}
+            <Typography variant="semibold">
+              Verificar histórico de encaminhamentos
+            </Typography>
+            <Link
+              passHref
+              target="_blank"
+              href={`/admin/treatment-history/${treatments?.client}`}
             >
-              Adicionar Pagamento
-            </StyledButton>
+              <StyledButton endIcon={<HistoryIcon />}>Histórico</StyledButton>
+            </Link>
           </Box>
         </>
+      )}
+
+      {userData?.role === "admin" && (
+        <AddTreatment
+          handleGeneratePayment={handleGeneratePayment}
+          openModal={() => setAddTreatmentVisible(true)}
+          treatments={treatments}
+        />
       )}
     </Box>
   );

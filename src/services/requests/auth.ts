@@ -295,3 +295,20 @@ export const createEmployee = async (
     }
   );
 };
+
+export const createClient = async (data: any) => {
+  const { cpf } = data;
+
+  const userRef = doc(db, "clients", cpf);
+  const verify = await getDoc(userRef);
+  if (verify.exists()) {
+    return "CPF existente";
+  } else
+    return await setDoc(userRef, data)
+      .then((res) => {
+        return "Sucesso";
+      })
+      .catch((err) => {
+        return "Erro " + err.code;
+      });
+};

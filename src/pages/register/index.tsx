@@ -44,6 +44,7 @@ const RegisterScreen = () => {
   const cpfReplaced = cpf.replace(".", "").replace("-", "").replace(".", "");
 
   const handleSubmit = async () => {
+    return alert("Ainda não é possível se registrar");
     if (name === "" || email === "" || password === "")
       return alert("Preencha os campos!");
 

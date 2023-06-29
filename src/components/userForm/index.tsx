@@ -1,8 +1,8 @@
 import React from "react";
-import { Box, styled } from "@mui/material";
+import { Box, IconButton, styled } from "@mui/material";
 import { StyledTextField } from "../patient/profile";
-import styles from "../../styles/Selected.module.css";
 import { StyledButton } from "../dynamicAdminBody/receipts";
+import styles from "../../styles/Selected.module.css";
 
 interface UserFormProps {
   userData: any;
@@ -26,21 +26,40 @@ const UserForm = (props: UserFormProps) => {
     handleGetCep,
     handleNextPage,
   } = props;
+
+  const cpfMask = (value: any) => {
+    if (!value) return "";
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return value;
+  };
+
   return (
-    <>
+    <Box position="relative" pt={1}>
       <h2>Dados do Paciente</h2>
 
       <StyledTextField
         label="Nome Completo:"
         value={userData?.name!}
+        sx={{ width: "100%" }}
         onChange={(e) => handleChange(e.target.value, "name", setUserData)}
+        margin="dense"
+      />
+      <StyledTextField
+        label="Email:"
+        value={userData?.email!}
+        sx={{ width: "100%" }}
+        onChange={(e) => handleChange(e.target.value, "email", setUserData)}
         margin="dense"
       />
       <InputsContainer>
         <StyledTextField
           label="CPF:"
-          value={userData?.cpf!}
-          disabled
+          value={cpfMask(userData?.cpf!)}
+          onChange={(e) => handleChange(e.target.value, "cpf", setUserData)}
+          inputProps={{ maxLength: 14 }}
           sx={{ width: "70%" }}
         />
         <StyledTextField
@@ -147,7 +166,7 @@ const UserForm = (props: UserFormProps) => {
       <Box display="flex" width="100%" justifyContent="flex-end" mt={1}>
         <StyledButton onClick={handleNextPage}>Próximo</StyledButton>
       </Box>
-    </>
+    </Box>
   );
 };
 

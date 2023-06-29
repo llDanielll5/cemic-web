@@ -45,7 +45,7 @@ const FormLanding = () => {
   };
 
   const handleSubmit = async (e: any) => {
-    return alert("Em andamento.");
+    return alert("Em andamento");
     e.preventDefault();
     if (name === "" || email === "" || password === "" || cpf === "")
       return alert("Preencha os campos!");

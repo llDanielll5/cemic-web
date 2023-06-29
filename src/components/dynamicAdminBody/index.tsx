@@ -1,8 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import { ClientType } from "types";
+import React, { useState } from "react";
 import ClientsAdmin from "./clients";
 import ProfessionalsAdmin from "./professionals";
 import LecturesAdmin from "./lectures";
@@ -22,59 +18,16 @@ export interface AdminBodyProps {
   setClientID: (e: string) => void;
   setDate: (e: string) => void;
 }
-export type ClientTypes = "pre-register" | "patient" | "selected";
-
-const patientsRef = collection(db, "clients");
+export type ClientTypes = "pre-register" | "patient" | "selected" | "";
 
 const DynamicAdminBody = (props: AdminBodyProps) => {
-  const [patientFilterValue, setPatientFilterValue] = useState("");
   const [professionalFilterType, setProfessionalFilterType] = useState("");
   const [professionalFilterValue, setProfessionalFilterValue] = useState("");
-  const [filterLetter, setFilterLetter] = useState<string | null>("A");
-  const [patientsData, setPatientsData] = useState<ClientType[] | []>([]);
-  const [filterByClientType, setFilterByClientType] =
-    useState<ClientTypes>("patient");
-
-  /**  ONSNAPSHOT FOR LETTER FILTER   */
-  const qPatientLetter = query(
-    patientsRef,
-    where("firstLetter", "==", filterLetter),
-    where("role", "==", filterByClientType)
-  );
-  const filterPatientByLetter = useOnSnapshotQuery("clients", qPatientLetter, [
-    filterLetter,
-    filterByClientType,
-  ]);
-  /** ********** */
 
   const handleSetContentProfessionals = (e: string) => {
     if (e === "CRO") setProfessionalFilterType("cro");
     else setProfessionalFilterType("cpf");
   };
-
-  const handleFilterPatient = async () => {
-    const qPatientFilter = (type: "id" | "cpf") => {
-      return query(patientsRef, where(type, "==", patientFilterValue));
-    };
-    const queryFunction = async (type: "id" | "cpf") => {
-      const querySnapshot = await getDocs(qPatientFilter(type));
-      querySnapshot.forEach((doc) => {
-        documents.push(doc.data());
-      });
-      setPatientsData(documents);
-    };
-    const documents: any[] = [];
-    return queryFunction("cpf");
-  };
-
-  useEffect(() => {
-    setPatientsData(filterPatientByLetter);
-  }, [filterPatientByLetter, patientFilterValue, filterByClientType]);
-
-  useEffect(() => {
-    setFilterLetter("A");
-    setPatientFilterValue("");
-  }, [props.page]);
 
   if (props.page === 1) {
     return <DashboardAdmin />;
@@ -84,14 +37,6 @@ const DynamicAdminBody = (props: AdminBodyProps) => {
     return (
       <ClientsAdmin
         setClientID={props.setClientID}
-        patientsData={patientsData}
-        filterLetter={filterLetter}
-        setFilterLetter={setFilterLetter}
-        patientFilterValue={patientFilterValue}
-        filterByClientType={filterByClientType}
-        handleFilterPatient={handleFilterPatient}
-        setFilterByClientType={setFilterByClientType}
-        setPatientFilterValue={setPatientFilterValue}
         setClientDetailsVisible={props.setClientDetailsVisible}
       />
     );
