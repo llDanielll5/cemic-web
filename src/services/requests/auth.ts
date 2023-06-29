@@ -15,7 +15,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { AdminType, ClientType, ProfessionalData } from "types";
+import { ClientType, ProfessionalData } from "types";
 
 const adminsRef = collection(db, "admins");
 const clientsRef = collection(db, "clients");
@@ -128,7 +128,6 @@ export const createUser = async ({ email, password, name, cpf }: any) => {
         phone: "",
         profileImage: "",
         rg: "",
-        uid: res.user.uid,
         role: "pre-register",
         dateBorn: "",
         sexo: "NENHUM",
@@ -166,7 +165,6 @@ export const createUserLanding = async ({
         phone: "",
         profileImage: "",
         rg: "",
-        uid: res.user.uid,
         role: "pre-register",
         dateBorn: "",
         sexo: "NENHUM",
