@@ -20,6 +20,7 @@ import Input from "@/components/input";
 import { RadioGroup } from "react-radio-group";
 import RenderPaymentTypes from "./paymentTypes";
 import { maskValue } from "@/services/services";
+import { StyledTextField } from "@/components/patient/profile";
 
 interface ModalPaymentProps {
   vezes: string;
@@ -363,12 +364,17 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
                     display="flex"
                     alignItems="center"
                     columnGap={1}
+                    m={1}
                   >
-                    <Input
+                    <StyledTextField
                       label="Valor"
-                      value={v.valueStr}
-                      onChange={(e) => handleChangeValueShapes(e, i)}
                       type="text"
+                      margin="dense"
+                      sx={{ width: "100%" }}
+                      value={v.valueStr}
+                      onChange={(e) =>
+                        handleChangeValueShapes(e.target.value, i)
+                      }
                     />
                     {v.paymentType === "credit" && (
                       <ButtonCredit
@@ -423,15 +429,16 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
           columnGap="4px"
         >
           <Box width={"40%"}>
-            <Input
-              label="Desconto"
-              value={discount.toString()}
-              onChange={(e) => setDiscount(parseFloat(e))}
+            <StyledTextField
               type="number"
-              maxLenght={2}
+              label="Desconto"
+              margin="dense"
+              value={discount.toString()}
+              onChange={(e) => setDiscount(parseFloat(e.target.value))}
+              inputProps={{ maxLength: 2 }}
             />
           </Box>
-          <Typography variant="bold" fontSize="30px" mt={2}>
+          <Typography variant="bold" fontSize="30px">
             %
           </Typography>
         </Box>
@@ -480,7 +487,6 @@ const Former = styled(FormControl)`
 `;
 
 const ButtonCredit = styled(IconButton)`
-  margin-top: 16px;
   background-color: var(--dark-blue);
   color: white;
   font-weight: bold;

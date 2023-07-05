@@ -30,9 +30,9 @@ const ref = collection(db, "schedules");
 const ref2 = collection(db, "clients_treatments");
 
 const SchedulesPatient = (props: SchedulesPatientProps) => {
-  const q = query(ref, where("client", "==", props.client.id));
+  const q = query(ref, where("client", "==", props.client?.id ?? ""));
   const snapSchedules = useOnSnapshotQuery("schedules", q);
-  const qtreat = query(ref2, where("client", "==", props.client.id));
+  const qtreat = query(ref2, where("client", "==", props.client?.id ?? ""));
   const snapTreatments = useOnSnapshotQuery("clients_treatments", qtreat);
   const snapProfessionals = useOnSnapshotQuery("professionals");
   const [isLoading, setIsLoading] = useState(false);
@@ -186,7 +186,7 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
           </Box>
         ))}
 
-      {userData?.role === "admin" && (
+      {userData?.role === "admin" && props.client?.role === "patient" ? (
         <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
           <StyledButton
             onClick={() => setForwardModalVisible(true)}
@@ -195,7 +195,7 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
             Encaminhar Paciente
           </StyledButton>
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 };

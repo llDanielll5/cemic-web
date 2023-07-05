@@ -61,8 +61,11 @@ export const OptionsSpecialties = styled(TextField)`
 export const DoubleInputs = styled(Box)`
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   column-gap: 16px;
   row-gap: 8px;
+  margin: 16px 0;
   @media screen and (max-width: 550px) {
     flex-direction: column;
   }

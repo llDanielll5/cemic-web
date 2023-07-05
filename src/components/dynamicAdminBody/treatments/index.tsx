@@ -27,6 +27,8 @@ import {
   startAfter,
   updateDoc,
 } from "firebase/firestore";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 interface TreatmentValues {
   cod?: string;
@@ -55,6 +57,7 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
   const [treatments, setTreatments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
+  const userData: any = useRecoilValue(UserData);
 
   const getTreatments = async () => {
     setIsLoading(true);
@@ -288,18 +291,20 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
           {registerType === "Register" ? "Adicionar" : "Editar"}
         </AddButton>
       </Modal>
-      <AddButton
-        color="info"
-        variant="outlined"
-        title="Adicionar novo tratamento"
-        endIcon={<AddIcon />}
-        onClick={() => {
-          setRegisterType("Register");
-          setModalVisible(true);
-        }}
-      >
-        Adicionar Tratamento
-      </AddButton>
+      {userData.role === "admin" && (
+        <AddButton
+          color="info"
+          variant="outlined"
+          title="Adicionar novo tratamento"
+          endIcon={<AddIcon />}
+          onClick={() => {
+            setRegisterType("Register");
+            setModalVisible(true);
+          }}
+        >
+          Adicionar Tratamento
+        </AddButton>
+      )}
 
       <Typography variant="bold" my={2}>
         Tratamentos Cadastrados

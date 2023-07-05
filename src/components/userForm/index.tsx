@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, IconButton, styled } from "@mui/material";
+import { Box, styled, Autocomplete } from "@mui/material";
 import { StyledTextField } from "../patient/profile";
 import { StyledButton } from "../dynamicAdminBody/receipts";
 import styles from "../../styles/Selected.module.css";
+import { OptionsSpecialties } from "../dynamicProfBody/profile/styles";
 
 interface UserFormProps {
   userData: any;
@@ -14,6 +15,12 @@ interface UserFormProps {
   handleGetCep: any;
   handleNextPage: any;
 }
+
+const options = [
+  { label: "Paciente", option: "patient" },
+  { label: "Pré-registro", option: "pre-register" },
+  { label: "Selecionado", option: "selected" },
+];
 
 const UserForm = (props: UserFormProps) => {
   const {
@@ -35,6 +42,15 @@ const UserForm = (props: UserFormProps) => {
     value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     return value;
   };
+
+  const getRole =
+    userData?.role === "patient"
+      ? "Paciente"
+      : userData?.role === "pre-register"
+      ? "Pré-registro"
+      : userData?.role === "selected"
+      ? "Selecionado"
+      : "";
 
   return (
     <Box position="relative" pt={1}>
@@ -90,6 +106,24 @@ const UserForm = (props: UserFormProps) => {
           }
         />
       </InputsContainer>
+      <Autocomplete
+        disablePortal
+        options={options}
+        sx={{ width: "100%" }}
+        onChange={(e, v) => handleChange(v?.option, "role", setUserData)}
+        value={{
+          label: getRole,
+          option: userData?.role,
+        }}
+        isOptionEqualToValue={(option, value) => option.option === value.option}
+        renderInput={(params) => (
+          <OptionsSpecialties
+            {...params}
+            label="Tipo de cadastro"
+            color="primary"
+          />
+        )}
+      />
 
       <h3 className={styles.local}>Dados de Localidade</h3>
 

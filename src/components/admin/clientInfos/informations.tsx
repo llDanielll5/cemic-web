@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import styles from "../../../styles/ClientDetails.module.css";
-import { CgCloseR, CgCheckR } from "react-icons/cg";
+import { Box, Typography } from "@mui/material";
 import { ClientType } from "types";
 import Receipt from "./receipt";
-import ClientInfosTreatments from "./treatments";
 import ClientExams from "./exams";
 import SchedulesPatient from "./schedules";
+import ClientInfosTreatments from "./treatments";
+import styles from "../../../styles/ClientDetails.module.css";
 
 interface ClientInformationsProps {
   tabIndex: number;
@@ -59,11 +59,15 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
   if (tabIndex === 2) {
     return <ClientInfosTreatments client={client} />;
   }
-  if (tabIndex === 5) {
+  if (tabIndex === 3) {
     return <ClientExams client={client} />;
   }
-  if (tabIndex === 6) return <SchedulesPatient client={client} />;
-  return <h2>Sem informações</h2>;
+  if (tabIndex === 4) return <SchedulesPatient client={client} />;
+  return (
+    <Box p={2}>
+      <Typography variant="semibold">Função ainda não desenvolvida.</Typography>
+    </Box>
+  );
 };
 
 export default ClientInformationsAdmin;

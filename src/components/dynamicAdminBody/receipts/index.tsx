@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { maskValue, parseDateBr } from "@/services/services";
+import { useRouter } from "next/router";
+import { db } from "@/services/firebase";
 import PreviewIcon from "@mui/icons-material/Preview";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { maskValue, parseDateBr } from "@/services/services";
-import { db } from "@/services/firebase";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SearchIcon from "@mui/icons-material/Search";
-import { useRouter } from "next/router";
 import Link from "next/link";
 
 import {
@@ -19,6 +20,8 @@ import {
   Button,
   TextField,
 } from "@mui/material";
+import Modal from "@/components/modal";
+import Calendar from "react-calendar";
 
 interface ReceiptPageProps {}
 
@@ -26,9 +29,9 @@ const receiptRef = collection(db, "receipts");
 const arrowIconStyle = { fontSize: "24px" };
 
 const ReceiptPageAdmin = (props: ReceiptPageProps) => {
-  const router = useRouter();
   const [dataReceipts, setDataReceipts] = useState<any[]>([]);
   const [dateSelected, setDateSelected] = useState(new Date());
+  const [calendarVisible, setCalendarVisible] = useState(false);
   const [currentDay, setCurrentDay] = useState<number>(new Date().getDate());
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -74,14 +77,14 @@ const ReceiptPageAdmin = (props: ReceiptPageProps) => {
     return;
   };
 
-  //   const onChangeDate = (e: Date) => {
-  //     setDateSelected(e);
-  //     setCurrentYear(e.getFullYear());
-  //     setCurrentMonth(e.getMonth());
-  //     setCurrentDay(e.getDate());
-  //     setCalendarVisible(false);
-  //     return;
-  //   };
+  const handleChangeDate = (e: Date) => {
+    setDateSelected(e);
+    setCurrentYear(e.getFullYear());
+    setCurrentMonth(e.getMonth());
+    setCurrentDay(e.getDate());
+    setCalendarVisible(false);
+    return;
+  };
 
   const handleNextDay = () => {
     if (currentDay === lastDayOfMonth - 1) nextMonth();
@@ -114,8 +117,24 @@ const ReceiptPageAdmin = (props: ReceiptPageProps) => {
 
   return (
     <Box width={"100%"} display="flex" flexDirection="column">
-      <StyledButton endIcon={<RequestQuoteIcon />} sx={{ margin: "16px 0" }}>
-        Gerar Recibo
+      <Modal
+        visible={calendarVisible}
+        closeModal={() => setCalendarVisible(false)}
+      >
+        <Box display="flex" alignItems="center" flexDirection="column">
+          <Typography variant="bold" mb={1} textAlign="center">
+            Selecione a data desejada:
+          </Typography>
+          <Calendar onChange={handleChangeDate} value={dateSelected} />
+        </Box>
+      </Modal>
+
+      <StyledButton
+        endIcon={<CalendarMonthIcon />}
+        onClick={() => setCalendarVisible(true)}
+        sx={{ margin: "16px 0" }}
+      >
+        Selecionar Data
       </StyledButton>
 
       <BoxWhite>

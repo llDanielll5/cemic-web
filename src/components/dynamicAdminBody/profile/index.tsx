@@ -1,17 +1,17 @@
 //@ts-nocheck
 import React, { useState, useEffect } from "react";
+import * as S from "../../dynamicProfBody/profile/styles";
+import { db } from "@/services/firebase";
 import { Box, Typography } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
 import { chooseImgStyle } from "@/components/pre-register/profile";
-import { db } from "@/services/firebase";
-import Input from "@/components/input";
-import Loading from "@/components/loading";
-import uploadFile from "@/services/uploadFile";
-import SaveIcon from "@mui/icons-material/Save";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { cpfMask, phoneMask } from "@/services/services";
-import * as S from "../../dynamicProfBody/profile/styles";
+import { StyledTextField } from "@/components/patient/profile";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { cpfMask, phoneMask } from "@/services/services";
+import SaveIcon from "@mui/icons-material/Save";
+import uploadFile from "@/services/uploadFile";
+import Loading from "@/components/loading";
 import UserData from "@/atoms/userData";
 
 interface ProfileAdminProps {}
@@ -63,6 +63,10 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
 
   const handleUpdateUser = async () => {
     const adminRef = doc(db, "admins", userData!.id);
+    const employeeRef = doc(db, "employees", userData!.id);
+
+    const currRef = userData!.role === "admin" ? adminRef : employeeRef;
+
     if (
       userInformations?.name === "" ||
       userInformations!.cpf.length < 14 ||
@@ -90,7 +94,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
       phone: phoneReplaced,
       firstLetter: userInformations?.name.charAt(0).toUpperCase(),
     };
-    return await updateDoc(adminRef, data)
+    return await updateDoc(currRef, data)
       .then(() => {
         setIsLoading(false);
         setUserData((prev) => ({ ...prev, ...userInformations }));
@@ -163,36 +167,49 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
           </Typography>
 
           <Box px={2}>
-            <Input
+            <StyledTextField
+              disabled
               label="Nome Completo"
+              sx={{ width: "100%" }}
               value={userInformations?.name}
-              onChange={(e) => handleChangeInfos("name", e)}
+              onChange={(e) => handleChangeInfos("name", e.target.value)}
+              margin="dense"
             />
             <S.DoubleInputs>
-              <Input
+              <StyledTextField
+                disabled
                 label="CPF"
-                onChange={(e) => handleChangeInfos("cpf", cpfMask(e))}
-                maxLenght={14}
+                sx={{ width: "100%" }}
+                inputProps={{ maxLength: 14 }}
                 value={userInformations?.cpf}
+                onChange={(e) =>
+                  handleChangeInfos("cpf", cpfMask(e.target.value))
+                }
               />
-              <Input
+              <StyledTextField
                 label="RG"
+                sx={{ width: "100%" }}
                 value={userInformations?.rg}
-                onChange={(e) => handleChangeInfos("rg", e)}
+                onChange={(e) => handleChangeInfos("rg", e.target.value)}
               />
             </S.DoubleInputs>
             <S.DoubleInputs>
-              <Input
-                label="Data Nascimento"
-                value={userInformations?.dateBorn}
-                onChange={(e) => handleChangeInfos("dateBorn", e)}
+              <StyledTextField
                 type="date"
+                sx={{ width: "100%" }}
+                label="Data Nascimento"
+                InputLabelProps={{ shrink: true }}
+                value={userInformations?.dateBorn}
+                onChange={(e) => handleChangeInfos("dateBorn", e.target.value)}
               />
-              <Input
+              <StyledTextField
                 label="Telefone"
+                sx={{ width: "100%" }}
                 value={userInformations?.phone}
-                onChange={(e) => handleChangeInfos("phone", phoneMask(e))}
-                maxLenght={14}
+                onChange={(e) =>
+                  handleChangeInfos("phone", phoneMask(e.target.value))
+                }
+                inputProps={{ maxLength: 14 }}
               />
             </S.DoubleInputs>
           </Box>

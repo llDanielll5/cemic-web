@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
-import styles from "../../../styles/Dashboard.module.css";
-import VerticalChart from "@/components/verticalChart";
-import useWindowSize from "@/hooks/useWindowSize";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { Box, Typography } from "@mui/material";
+import { db } from "@/services/firebase";
+import { useRecoilValue } from "recoil";
+import Link from "next/link";
+import UserData from "@/atoms/userData";
 import Loading from "@/components/loading";
+import useWindowSize from "@/hooks/useWindowSize";
+import VerticalChart from "@/components/verticalChart";
+import styles from "../../../styles/Dashboard.module.css";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 interface DashboardProps {}
 
@@ -46,6 +51,7 @@ const DashboardAdmin = (props: DashboardProps) => {
   const [dataLectures, setDataLectures] = useState<any[]>([]);
   const [timePassed, setTimePassed] = useState<number | null>(null);
   const [passedTime, setPassedTime] = useState(false);
+  const userData: any = useRecoilValue(UserData);
 
   const getMonthData = async (ref: string, startQ: any, endQ: any) => {
     setIsLoadingLectures(true);
@@ -116,8 +122,8 @@ const DashboardAdmin = (props: DashboardProps) => {
   ];
 
   useEffect(() => {
-    getLecturesOfYear();
-  }, [getLecturesOfYear]);
+    if (userData!.role === "admin") getLecturesOfYear();
+  }, [getLecturesOfYear, userData]);
 
   useEffect(() => {
     setTimePassed(new Date().getMinutes());
@@ -130,7 +136,42 @@ const DashboardAdmin = (props: DashboardProps) => {
       </Box>
     );
 
-  // if(finishScreenings === false) return null
+  if (userData.role !== "admin")
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        mt={3}
+        px={4}
+        flexDirection="column"
+      >
+        <h3 style={{ textAlign: "center" }}>
+          Bem vindo ao Layout para Funcionários. <br /> <br /> Fique a vontade
+          para realizar seus trabalhos necessários e em caso de problemas, favor
+          contatar a central de TI com o print do problema e um breve relato de
+          como aconteceu.
+        </h3>
+
+        <Typography variant="semibold" m={2}>
+          Telefone TI: (61) 98445-5304
+        </Typography>
+
+        <Link
+          passHref
+          target="_blank"
+          href={
+            "https://api.whatsapp.com/send?phone=5561984455304&text=Gostaria de conversar com o responsável do sistema da CEMIC para uma dúvida!"
+          }
+        >
+          <StyledButton
+            sx={{ backgroundColor: "#34af23" }}
+            endIcon={<WhatsAppIcon />}
+          >
+            Whatsapp TI
+          </StyledButton>
+        </Link>
+      </Box>
+    );
 
   return (
     <div className={styles["dashboard-main"]}>
