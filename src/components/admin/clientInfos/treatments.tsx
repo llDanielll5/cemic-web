@@ -44,19 +44,11 @@ type PayShapeArr = PaymentShapesArray[];
 
 const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const { client } = props;
-  const [treatments, setTreatments] = useState<ClientTreatmentsProps | null>(
-    null
-  );
-  const [actualProfessional, setActualProfessional] = useState<any | null>(
-    null
-  );
-  const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const userData = useRecoilValue(UserData);
-
   const [vezes, setVezes] = useState("");
+  const userData = useRecoilValue(UserData);
   const [discount, setDiscount] = useState(5);
   const [totalValue, setTotalValue] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [negotiateds, setNegotiateds] = useState<any[]>([]);
   const [receiptVisible, setReceiptVisible] = useState(false);
   const [totalValueString, setTotalValueString] = useState("");
@@ -64,9 +56,16 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [paymentModal, setPaymentModal] = useState<boolean>(false);
   const [treatmentsToPay, setTreatmentsToPay] = useState<any[]>([]);
   const [paymentShapesValues, setPaymentShapesValues] = useState("");
+  const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
   const [paymentType, setPaymentType] = useState<PaymentTypes | null>(null);
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
+  const [treatments, setTreatments] = useState<ClientTreatmentsProps | null>(
+    null
+  );
+  const [actualProfessional, setActualProfessional] = useState<any | null>(
+    null
+  );
 
   const getUserTreatments = useCallback(async () => {
     const ref = F.collection(db, "clients_treatments");
@@ -97,46 +96,124 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   };
 
   const handleSubmitTreatment = async (field: string, values: any[]) => {
-    let newArr = [...treatments?.treatments?.treatment_plan, ...values];
-    let reduced = [];
-
+    let reduced: any[] = [];
     setIsLoading(true);
-    newArr.forEach((item) => {
-      var duplicated =
-        reduced.findIndex((val) => {
-          return (
-            item.region === val.region &&
-            item.treatments.cod === val.treatments.cod &&
-            item.treatments.cod !== "00002" &&
-            val.treatments.cod !== "00002"
-          );
-        }) > -1;
+    if (treatments?.treatments?.treatment_plan.length > 0) {
+      let newArr = [...treatments?.treatments?.treatment_plan, ...values];
+      newArr.forEach((item) => {
+        var duplicated =
+          reduced.findIndex((val) => {
+            return (
+              item.region === val.region &&
+              item.treatments.cod === val.treatments.cod &&
+              item.treatments.cod !== "00002" &&
+              val.treatments.cod !== "00002"
+            );
+          }) > -1;
 
-      if (!duplicated) {
-        reduced.push(item);
-      }
-    });
-
-    const ref = F.doc(db, "clients_treatments", treatments.id);
-
-    return await F.updateDoc(ref, {
-      "treatments.treatment_plan": F.arrayUnion(...reduced),
-    })
-      .then(async () => {
-        const ref = F.doc(db, "clients", treatments!.client);
-        return await F.updateDoc(ref, { role: "patient" })
-          .then(() => {
-            setIsLoading(false);
-            handleCloseAddTreatment();
-            return alert("Tratamento atualizado!");
-          })
-          .catch(() => setIsLoading(false));
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        return alert("Erro ao atualizar tratamento");
+        if (!duplicated) {
+          reduced.push(item);
+        }
       });
+
+      const ref = F.doc(db, "clients_treatments", treatments!.id);
+
+      return await F.updateDoc(ref, {
+        "treatments.treatment_plan": F.arrayUnion(...reduced),
+      })
+        .then(async () => {
+          const ref = F.doc(db, "clients", treatments!.client);
+          return await F.updateDoc(ref, { role: "patient" })
+            .then(() => {
+              setIsLoading(false);
+              handleCloseAddTreatment();
+              return alert("Tratamento atualizado!");
+            })
+            .catch(() => setIsLoading(false));
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          return alert("Erro ao atualizar tratamento");
+        });
+    } else {
+      reduced = [...values];
+
+      const ref = F.doc(
+        db,
+        "clients_treatments",
+        `${client!.id}-${F.Timestamp.now().seconds}`
+      );
+
+      return await F.setDoc(ref, {
+        treatments: { treatment_plan: values, realizeds: [], forwardeds: [] },
+        client: client!.id,
+        updatedAt: F.Timestamp.now(),
+        actualProfessional: "",
+        screeningId: "",
+        professionalScreening: "",
+        medias: [],
+        negotiateds: [],
+        id: `${client!.id}-${F.Timestamp.now().seconds}`,
+      })
+        .then(async () => {
+          const ref = F.doc(db, "clients", client!.id);
+          return await F.updateDoc(ref, { role: "patient" })
+            .then(() => {
+              setIsLoading(false);
+              handleCloseAddTreatment();
+              return alert("Tratamento atualizado!");
+            })
+            .catch(() => setIsLoading(false));
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          return alert("Erro ao atualizar tratamento");
+        });
+    }
   };
+
+  const getTotalValue = useCallback(
+    (arr: { region: string; treatments: any }[]) => {
+      const prices: number[] = [];
+
+      const arrMap = arr?.flatMap((v) =>
+        prices.push(parseFloat(v?.treatments?.price.replaceAll(".", "")))
+      );
+
+      if (arrMap.length > 0) {
+        let reduced = prices?.reduce(
+          (prev, curr) =>
+            parseFloat(prev.toFixed(2)) + parseFloat(curr.toFixed(2))
+        );
+
+        if (paymentType === "cash") {
+          let discounted = (reduced * discount) / 100;
+          if (!discount) {
+            reduced = reduced;
+          } else reduced -= discounted;
+
+          setTotalValue(parseFloat(reduced.toFixed(2)));
+          setTotalValueString(reduced.toFixed(2));
+          return;
+        } else if (paymentType === "credit") {
+          let percent = (reduced * 10) / 100;
+          reduced += percent;
+          setTotalValue(parseFloat(reduced.toFixed(2)));
+          setTotalValueString(reduced.toFixed(2));
+          return;
+        } else {
+          setTotalValue(parseFloat(reduced.toFixed(2)));
+          setTotalValueString(reduced.toFixed(2));
+          return;
+        }
+      } else return;
+    },
+    [paymentType, discount]
+  );
+
+  useEffect(() => {
+    getTotalValue(negotiateds);
+  }, [getTotalValue, negotiateds]);
 
   useEffect(() => {
     if (client?.id === "" || client?.id === null || client?.id === undefined)
@@ -203,7 +280,8 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const masked = maskValue(money);
 
   const handleViewPayment = async () => {
-    if (discount > 8) return alert("Desconto não liberado no sistema");
+    if (discount > 8 || discount < 5)
+      return alert("Desconto não liberado no sistema");
 
     const totalValue = masked;
     const patientName = client?.name;

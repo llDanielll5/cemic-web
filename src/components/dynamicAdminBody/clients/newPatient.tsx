@@ -216,7 +216,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       firstLetter: completeName?.charAt(0).toUpperCase(),
       id: cpfReplaced,
       profileImage: "",
-      role: "pre-register",
+      role: userData?.role,
       sexo: "NENHUM",
       anamnese: {
         ...anamneseData,
