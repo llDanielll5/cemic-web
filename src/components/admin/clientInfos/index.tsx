@@ -20,7 +20,6 @@ const tabs = [
   "Anamnese",
   "Financeiro",
   "Tratamentos",
-  "Protocolos",
   "Exames",
   "Agendamentos",
   "Problemas",
