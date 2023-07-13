@@ -8,6 +8,8 @@ import TableRow from "@mui/material/TableRow";
 import { IconButton, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 interface TableProps {
   titles: string[];
@@ -25,6 +27,7 @@ export interface TableDataProps {
 
 export default function CustomTable(props: TableProps) {
   const { titles, data, onDelete, onEdit, messageNothing } = props;
+  const userData: any = useRecoilValue(UserData);
   const rows: TableDataProps[] = [];
   return (
     <S.StyledTableContainer>
@@ -48,16 +51,20 @@ export default function CustomTable(props: TableProps) {
               </TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.price}</TableCell>
-              <TableCell>
-                <IconButton onClick={() => onEdit(row.cod)}>
-                  <EditIcon />
-                </IconButton>
-              </TableCell>
-              <TableCell>
-                <IconButton onClick={() => onDelete(row.cod)}>
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
+              {userData?.role === "admin" && (
+                <>
+                  <TableCell>
+                    <IconButton onClick={() => onEdit(row.cod)}>
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => onDelete(row.cod)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </>
+              )}
             </TableRow>
           ))}
         </TableBody>

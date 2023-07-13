@@ -106,10 +106,10 @@ const ClientInfos = (props: ClientInfoProps) => {
         })}
       </TabsContainer>
 
-      {userData?.role === "admin" ? (
-        <ClientInformationsAdmin tabIndex={tabIndex} client={client} />
-      ) : (
+      {userData?.role === "professional" ? (
         <ClientInformationsProfessional tabIndex={tabIndex} client={client} />
+      ) : (
+        <ClientInformationsAdmin tabIndex={tabIndex} client={client} />
       )}
     </div>
   );

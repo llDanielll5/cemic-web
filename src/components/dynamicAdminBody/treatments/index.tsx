@@ -316,7 +316,11 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
           onEdit={handleEditTreatment}
           onDelete={handleDeleteDoc}
           messageNothing="Não encontramos tratamentos cadastrados."
-          titles={["Código", "Tratamento", "Preço", "Editar", "Excluir"]}
+          titles={
+            userData?.role === "admin"
+              ? ["Código", "Tratamento", "Preço", "Editar", "Excluir"]
+              : ["Código", "Tratamento", "Preço"]
+          }
         />
       </Box>
 

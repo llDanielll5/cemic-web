@@ -153,14 +153,14 @@ const DashboardAdmin = (props: DashboardProps) => {
         </h3>
 
         <Typography variant="semibold" m={2}>
-          Telefone TI: (61) 98445-5304
+          Telefone TI: (61) 99171-1401
         </Typography>
 
         <Link
           passHref
           target="_blank"
           href={
-            "https://api.whatsapp.com/send?phone=5561984455304&text=Gostaria de conversar com o responsável do sistema da CEMIC para uma dúvida!"
+            "https://api.whatsapp.com/send?phone=5561991711401&text=Gostaria de conversar com o responsável do sistema da CEMIC para uma dúvida!"
           }
         >
           <StyledButton
