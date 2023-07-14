@@ -11,6 +11,7 @@ import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { cpfMask, phoneMask } from "@/services/services";
 import { specialties } from "data";
 import * as S from "./styles";
+import { StyledTextField } from "@/components/patient/profile";
 
 interface ProfileProfessionalProps {
   userData?: any;
@@ -175,35 +176,46 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
           </Typography>
 
           <Box px={2}>
-            <Input
+            <StyledTextField
               label="Nome Completo"
               value={userInformations?.name}
               onChange={(e) => handleChangeInfos("name", e)}
+              disabled
+              sx={{ width: "100%" }}
+              margin="dense"
             />
             <S.DoubleInputs>
-              <Input
+              <StyledTextField
                 label="CPF"
                 onChange={(e) => handleChangeInfos("cpf", cpfMask(e))}
-                maxLenght={14}
+                inputProps={{ maxLength: 14 }}
                 value={userInformations?.cpf}
+                sx={{ width: "100%" }}
+                margin="dense"
               />
-              <Input
+              <StyledTextField
                 label="RG"
                 value={userInformations?.rg}
                 onChange={(e) => handleChangeInfos("rg", e)}
+                sx={{ width: "100%" }}
+                margin="dense"
               />
             </S.DoubleInputs>
             <S.DoubleInputs>
-              <Input
+              <StyledTextField
                 label="CRO"
                 value={userInformations?.cro}
                 onChange={(e) => handleChangeInfos("cro", e)}
+                sx={{ width: "100%" }}
+                margin="dense"
               />
-              <Input
+              <StyledTextField
                 label="Telefone"
                 value={userInformations?.phone}
                 onChange={(e) => handleChangeInfos("phone", phoneMask(e))}
-                maxLenght={14}
+                inputProps={{ maxLength: 14 }}
+                sx={{ width: "100%" }}
+                margin="dense"
               />
             </S.DoubleInputs>
 

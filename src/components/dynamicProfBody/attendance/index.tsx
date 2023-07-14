@@ -1,9 +1,8 @@
 //@ts-nocheck
-import React, { useState, useEffect } from "react";
-import { Box, styled, Typography, Button, IconButton } from "@mui/material";
+import React, { useState, useEffect, useCallback } from "react";
+import { Box, styled, Typography, Button } from "@mui/material";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ScheduleIcon from "@mui/icons-material/PermContactCalendar";
-import AddIcon from "@mui/icons-material/Add";
 import UserData from "@/atoms/userData";
 import Modal from "@/components/modal";
 import Calendar from "react-calendar";
@@ -11,15 +10,7 @@ import { hoursToSelect } from "data";
 import { useRecoilValue } from "recoil";
 import { parseDateBr } from "@/services/services";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import {
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { collection, doc, getDoc, query, where } from "firebase/firestore";
 import { db } from "@/services/firebase";
 import "react-calendar/dist/Calendar.css";
 import ListToSchedule from "./listSchedule";
@@ -49,6 +40,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const [modalCalendar, setModalCalendar] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [patient, setPatient] = useState();
 
   const [client, setClient] = useState<string | null>(null);
   const [clientTreatment, setClientTreatment] = useState<string | null>(null);
@@ -70,15 +62,35 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
     return;
   };
 
+  const getClientInfos = useCallback(async () => {
+    const ref = doc(db, "clients", client);
+    const snapDocument = await getDoc(ref);
+    if (snapDocument.exists()) {
+      setPatient(snapDocument.data());
+    }
+  }, [client]);
+
   const getSchedule = (h: string) => {
     if (snapSchedules.length === 0) return "";
     const find = snapSchedules.filter((v) => v?.hour === h);
     return find[0]?.client_name;
   };
 
+  const getPatient = (h: string) => {
+    if (snapSchedules.length === 0) return "";
+    const find = snapSchedules.filter((v) => v?.hour === h);
+    return setClient(find[0].client);
+  };
+
+  const handleClosePatient = () => {
+    setClient(null);
+    setPatient(null);
+  };
+
   useEffect(() => {
     if (client === null && clientTreatment === null) return;
-  }, [client, clientTreatment]);
+    else getClientInfos();
+  }, [client, clientTreatment, getClientInfos]);
 
   if (isLoading)
     return (
@@ -100,6 +112,12 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
           setIsLoading={setIsLoading}
         />
       </Modal>
+
+      {patient !== null && (
+        <Modal visible={patient !== null} closeModal={handleClosePatient}>
+          <h2>{patient?.name}</h2>
+        </Modal>
+      )}
 
       <DoubleButtons>
         <Button
@@ -146,7 +164,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
             <Typography variant="semibold" width="45px">
               {v}
             </Typography>
-            <HourScheduleSpace onClick={() => console.log("teste")}>
+            <HourScheduleSpace onClick={() => getPatient(v)}>
               <Typography variant="body1" sx={ellipsisText}>
                 {getSchedule(v)}
               </Typography>

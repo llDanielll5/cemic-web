@@ -521,13 +521,11 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         </>
       )}
 
-      {userData?.role === "admin" && (
-        <AddTreatment
-          handleGeneratePayment={handleGeneratePayment}
-          openModal={() => setAddTreatmentVisible(true)}
-          treatments={treatments}
-        />
-      )}
+      <AddTreatment
+        handleGeneratePayment={handleGeneratePayment}
+        openModal={() => setAddTreatmentVisible(true)}
+        treatments={treatments}
+      />
     </Box>
   );
 };
