@@ -187,7 +187,9 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
             <S.DoubleInputs>
               <StyledTextField
                 label="CPF"
-                onChange={(e) => handleChangeInfos("cpf", cpfMask(e))}
+                onChange={(e) =>
+                  handleChangeInfos("cpf", cpfMask(e.target.value))
+                }
                 inputProps={{ maxLength: 14 }}
                 value={userInformations?.cpf}
                 sx={{ width: "100%" }}
@@ -196,7 +198,7 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
               <StyledTextField
                 label="RG"
                 value={userInformations?.rg}
-                onChange={(e) => handleChangeInfos("rg", e)}
+                onChange={(e) => handleChangeInfos("rg", e.target.value)}
                 sx={{ width: "100%" }}
                 margin="dense"
               />
@@ -205,14 +207,16 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
               <StyledTextField
                 label="CRO"
                 value={userInformations?.cro}
-                onChange={(e) => handleChangeInfos("cro", e)}
+                onChange={(e) => handleChangeInfos("cro", e.target.value)}
                 sx={{ width: "100%" }}
                 margin="dense"
               />
               <StyledTextField
                 label="Telefone"
                 value={userInformations?.phone}
-                onChange={(e) => handleChangeInfos("phone", phoneMask(e))}
+                onChange={(e) =>
+                  handleChangeInfos("phone", phoneMask(e.target.value))
+                }
                 inputProps={{ maxLength: 14 }}
                 sx={{ width: "100%" }}
                 margin="dense"
