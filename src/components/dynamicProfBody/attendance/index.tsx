@@ -40,7 +40,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const [modalCalendar, setModalCalendar] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [patient, setPatient] = useState();
+  const [patient, setPatient] = useState(null);
 
   const [client, setClient] = useState<string | null>(null);
   const [clientTreatment, setClientTreatment] = useState<string | null>(null);

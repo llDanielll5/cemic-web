@@ -75,7 +75,8 @@ const ListToSchedule = (props: ListToScheduleProps) => {
           .then(() => {
             alert("Paciente agendado com sucesso!");
             setIsLoading(false);
-            return handleCloseSchedule();
+            handleCloseSchedule();
+            return;
           })
           .catch(() => {
             setIsLoading(false);

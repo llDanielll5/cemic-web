@@ -227,14 +227,17 @@ const ClientExams = (props: ClientExamsProps) => {
             )}
           </Box>
         ))}
-      <Box display="flex" alignItems="center" justifyContent="center" mt={1}>
-        <StyledButton
-          onClick={() => setAddExamVisible(true)}
-          endIcon={<AssignmentIndIcon />}
-        >
-          Adicionar Exame
-        </StyledButton>
-      </Box>
+
+      {client?.role === "patient" && (
+        <Box display="flex" alignItems="center" justifyContent="center" mt={1}>
+          <StyledButton
+            onClick={() => setAddExamVisible(true)}
+            endIcon={<AssignmentIndIcon />}
+          >
+            Adicionar Exame
+          </StyledButton>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -16,7 +16,7 @@ const ClientInformationsProfessional = (props: ClientInformationsProps) => {
   const [anamneseValues, setAnamneseValues] = useState<any[] | null>(null);
 
   useEffect(() => {
-    if (client?.anamneseFilled === true) {
+    if (Object?.keys(client!).length !== 0) {
       const keys = Object.keys(client?.anamnese);
       const values = Object.values(client?.anamnese);
       setAnamneseKeys(keys);
@@ -32,48 +32,17 @@ const ClientInformationsProfessional = (props: ClientInformationsProps) => {
       </div>
     );
 
-  const { address, anamnese } = client;
-
-  const renderTermsIcon = (type: "implant" | "crown") => {
-    const check = <CgCheckR className={styles.check} />;
-    const close = <CgCloseR className={styles.close} />;
-    if (type === "implant") {
-      return client?.terms?.implant ? check : close;
-    }
-    if (type === "crown") {
-      return client?.terms?.crown ? check : close;
-    }
-  };
-
   if (tabIndex === 0)
     return (
       <div className={styles["client-infos"]}>
-        {client?.anamneseFilled ? (
-          <>
-            {anamneseKeys?.map((item, index) => (
-              <p className={styles["p-anamnese"]} key={index}>
-                {item} <span>{anamneseValues![index]}</span>
-              </p>
-            ))}
-            <p className={styles["p-anamnese"]}>
-              Observações: <span>{client?.observations}</span>
-            </p>
-
-            <div className={styles.terms}>
-              <h2>Termos aceitos</h2>
-              <div className={styles.flex}>
-                <div className={styles.content}>
-                  <p>Implantes {renderTermsIcon("implant")}</p>
-                </div>
-                <div className={styles.content}>
-                  <p>Coroas {renderTermsIcon("crown")}</p>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <h3>Paciente não preencheu a Anamnese</h3>
-        )}
+        {anamneseKeys?.map((item, index) => (
+          <p className={styles["p-anamnese"]} key={index}>
+            {item} <span>{anamneseValues![index]}</span>
+          </p>
+        ))}
+        <p className={styles["p-anamnese"]}>
+          Observações: <span>{client?.observations}</span>
+        </p>
       </div>
     );
 

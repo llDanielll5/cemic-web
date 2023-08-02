@@ -12,7 +12,7 @@ const ClientTreatmentHistory = () => {
   const router = useRouter();
   const id = router.query.id;
   const hasId = id ?? "";
-  const ref = collection(db, "clients_treatments");
+  const ref = collection(db, "forwards_history");
   const q = query(ref, where("client", "==", hasId));
   const [data, setData] = useState<ForwardingHistoryInterface[]>([]);
   const snapTreatment: ForwardingHistoryInterface[] = useOnSnapshotQuery(
@@ -93,11 +93,15 @@ const ClientTreatmentHistory = () => {
             </Typography>
 
             <Box>
-              {/* {v?.treatments?.map((value, index) => (
-                <Typography key={index} variant="body2">
-                  - Região: {value?.region} - {value?.treatments?.name}
+              {v?.treatments?.map((value, index) => (
+                <Typography
+                  key={index}
+                  variant="body2"
+                  sx={{ marginLeft: "8px" }}
+                >
+                  Região: {value?.region} - {value?.treatments?.name}
                 </Typography>
-              ))} */}
+              ))}
             </Box>
           </Box>
         ))

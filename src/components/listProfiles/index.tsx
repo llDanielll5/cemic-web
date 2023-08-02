@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import styles from "../../styles/Admin.module.css";
+import { Box, styled, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { defaultImage, getImage } from "@/services/services";
 
@@ -56,23 +57,46 @@ const ListProfiles = (props: ListProfilesProps) => {
                 )}
               </p>
             </div>
-            <div className={styles["container-avatar"]}>
-              <span className={styles.name}>Código: {item.id}</span>
-              <p className={styles.cpf}>
-                {item?.role === "patient" ? (
-                  <p className={styles.patient}>Paciente</p>
-                ) : item?.role === "pre-register" ? (
-                  <p className={styles.notPatient}>Não-paciente</p>
-                ) : (
-                  <p className={styles.selected}>Selecionado</p>
-                )}
-              </p>
-            </div>
+            <RoleCard>
+              {item?.role === "patient" ? (
+                <Patient>Paciente</Patient>
+              ) : item?.role === "pre-register" ? (
+                <NotPatient>Não-Paciente</NotPatient>
+              ) : (
+                <Selected>Selecionado</Selected>
+              )}
+            </RoleCard>
           </div>
         ))
       )}
     </div>
   );
 };
+
+const RoleCard = styled(Box)`
+  color: var(--dark-blue);
+  width: fit-content;
+`;
+const Patient = styled(Typography)`
+  background-color: green;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+`;
+const NotPatient = styled(Typography)`
+  background-color: var(--red);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+`;
+const Selected = styled(Typography)`
+  background-color: goldenrod;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+`;
 
 export default ListProfiles;

@@ -109,7 +109,12 @@ const ScreeningDetailsProfessional = (
       if (findTreatment.size === 0) {
         const ref = doc(db, "clients_treatments", id);
         const dataTreatments: ClientTreatmentsProps = {
-          treatments: { treatment_plan: values, realizeds: [], forwardeds: [] },
+          treatments: {
+            treatment_plan: values,
+            realizeds: [],
+            forwardeds: [],
+            toRealize: values,
+          },
           client: clientId,
           updatedAt: Timestamp.now(),
           actualProfessional: "",
@@ -132,7 +137,10 @@ const ScreeningDetailsProfessional = (
       } else {
         const currDoc = findTreatment.docs[0].data();
         const ref = doc(db, "clients_treatments", currDoc.id);
-        return await updateDoc(ref, { "treatments.treatment_plan": values })
+        return await updateDoc(ref, {
+          "treatments.treatment_plan": values,
+          "treatments.toRealize": values,
+        })
           .then(() => {
             setIsCreateTreatment(false);
             setTreatmentPlansVisible(false);

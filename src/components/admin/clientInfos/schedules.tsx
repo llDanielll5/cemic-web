@@ -1,5 +1,5 @@
 //@ts-nocheck
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "@/services/firebase";
 import { useRecoilValue } from "recoil";
 import { parseDateIso } from "@/services/services";
@@ -59,10 +59,30 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
   };
 
   const handleSendPatient = async () => {
+    const torealize: any[] = snapTreatments[0]?.treatments?.toRealize;
+    const forwards = forwardTreatments;
+    let reduced = [];
+
+    torealize.forEach((item) => {
+      var duplicated =
+        forwards.findIndex((val) => {
+          return (
+            item.region === val.region &&
+            item.treatments.cod === val.treatments.cod
+          );
+        }) > -1;
+
+      if (!duplicated) {
+        reduced.push(item);
+      }
+    });
+
     setIsLoading(true);
     const document = doc(db, "clients_treatments", snapTreatments[0]!.id);
     return await updateDoc(document, {
       "treatments.forwardeds": arrayUnion(...forwardTreatments),
+      "treatments.toRealize": reduced,
+      actualProfessional: selectedProfessional!.id,
     })
       .then(async () => {
         const timeNow = Timestamp.now().seconds;
@@ -84,17 +104,8 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
         const data = forwardInformations;
         return await setDoc(ref, data)
           .then(async () => {
-            const ref = doc(db, "clients_treatments", snapTreatments[0]!.id);
-            return await updateDoc(ref, {
-              actualProfessional: selectedProfessional!.id,
-            })
-              .then(() => {
-                handleCloseForwardModal();
-                setIsLoading(false);
-              })
-              .catch(() => {
-                setIsLoading(false);
-              });
+            handleCloseForwardModal();
+            setIsLoading(false);
           })
           .catch((err) => {
             setIsLoading(false);
@@ -132,7 +143,7 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
           Escolha os tratamentos:
         </Typography>
         <Box display="flex" columnGap={"4px"}>
-          {snapTreatments[0]?.treatments?.treatment_plan?.map(
+          {snapTreatments[0]?.treatments?.toRealize?.map(
             (v: any, i: number) => (
               <StyledButton
                 key={i}

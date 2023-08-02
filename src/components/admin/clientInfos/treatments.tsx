@@ -120,6 +120,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
       return await F.updateDoc(ref, {
         "treatments.treatment_plan": F.arrayUnion(...reduced),
+        "treatments.toRealize": F.arrayUnion(...reduced),
       })
         .then(async () => {
           const ref = F.doc(db, "clients", treatments!.client);
@@ -145,7 +146,12 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       );
 
       return await F.setDoc(ref, {
-        treatments: { treatment_plan: values, realizeds: [], forwardeds: [] },
+        treatments: {
+          treatment_plan: values,
+          realizeds: [],
+          forwardeds: [],
+          toRealize: values,
+        },
         client: client!.id,
         updatedAt: F.Timestamp.now(),
         actualProfessional: "",
@@ -521,11 +527,13 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         </>
       )}
 
-      <AddTreatment
-        handleGeneratePayment={handleGeneratePayment}
-        openModal={() => setAddTreatmentVisible(true)}
-        treatments={treatments}
-      />
+      {client?.role === "patient" && (
+        <AddTreatment
+          handleGeneratePayment={handleGeneratePayment}
+          openModal={() => setAddTreatmentVisible(true)}
+          treatments={treatments}
+        />
+      )}
     </Box>
   );
 };

@@ -229,10 +229,10 @@ const ScreeningProfessional = (props: ScreeningProps) => {
   return (
     <div className={styles.screening}>
       <Modal
-        visible={clientDetailsVisible}
+        visible={clientInfos !== null}
         closeModal={closeClientDetailsModal}
       >
-        <ClientInfos client={clientInfos} />
+        {clientInfos !== null && <ClientInfos client={clientInfos} />}
       </Modal>
       <Modal
         visible={calendarVisible}

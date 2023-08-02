@@ -21,6 +21,8 @@ import Modal from "@/components/modal";
 import { doc, getDoc } from "firebase/firestore";
 import { ClientType } from "types";
 import ClientInfos from "@/components/admin/clientInfos";
+import { useGetIP } from "@/hooks/useGetIp";
+import { getIP } from "@/services/getIp";
 
 const renderPanelTitle = {
   1: "Início",
@@ -88,6 +90,21 @@ const Dashboard = () => {
       });
     });
   };
+
+  const handleGetIP = async () =>
+    await getIP().then(async (res) => {
+      if (
+        res === "187.4.88.174" ||
+        res === "191.56.48.3" ||
+        res === "200.173.248.161"
+      ) {
+        return;
+      } else return await signout();
+    });
+
+  useEffect(() => {
+    handleGetIP();
+  }, []);
 
   useEffect(() => {
     if (size?.width > 760) setDesktopNav();

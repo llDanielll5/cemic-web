@@ -199,14 +199,16 @@ const NewPatientForm = (props: AnamneseProps) => {
     const completeName = nameCapitalized(userData!.name!);
 
     const clientData = {
-      "address.neighbor": locationData?.neighbor ?? "",
-      "address.address": locationData?.address ?? "",
-      "address.city": locationData?.city ?? "",
-      "address.line1": locationData?.line1 ?? "",
-      "address.uf": locationData?.uf ?? "",
-      "address.cep": locationData?.cep ?? "",
-      "address.number": locationData?.number ?? "",
-      "address.complement": locationData?.complement ?? "",
+      address: {
+        neighbor: locationData?.neighbor ?? "",
+        address: locationData?.address ?? "",
+        city: locationData?.city ?? "",
+        line1: locationData?.line1 ?? "",
+        uf: locationData?.uf ?? "",
+        cep: locationData?.cep ?? "",
+        number: locationData?.number ?? "",
+        complement: locationData?.complement ?? "",
+      },
       name: completeName,
       cpf: cpfReplaced,
       rg: userData?.rg,
