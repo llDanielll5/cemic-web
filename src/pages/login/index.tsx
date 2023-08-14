@@ -103,9 +103,9 @@ const LoginScreen = () => {
     } else return await router.push("/");
   };
 
-  useEffect(() => {
-    handleGetIP();
-  }, []);
+  // useEffect(() => {
+  //   handleGetIP();
+  // }, []);
 
   return (
     <div className={styles.container}>
