@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ModalSuccess from "@/components/modalSuccess";
 import styles from "../../styles/Modal.module.css";
 import Loading from "@/components/loading";
@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { handleLogin } from "@/services/requests/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { getIP } from "@/services/getIp";
 
 const LoginScreen = () => {
   const router = useRouter();
@@ -89,6 +90,22 @@ const LoginScreen = () => {
       })
       .finally(() => setIsLoading(false));
   };
+
+  const handleGetIP = async () => {
+    const res = await getIP();
+    if (
+      res === "187.4.88.67" ||
+      res === "191.56.48.3" ||
+      res === "200.173.248.161" ||
+      res === "179.127.249.183"
+    ) {
+      return;
+    } else return await router.push("/");
+  };
+
+  useEffect(() => {
+    handleGetIP();
+  }, []);
 
   return (
     <div className={styles.container}>

@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { LectureDay, ScreeningInformations } from "types";
 import { db } from "../firebase";
+import { nameCapitalized } from "../services";
 
 export const updateUserData = async (userid: string, data: any) => {
   const userRef = doc(db, "clients", userid);
@@ -25,48 +26,68 @@ export const updateUserData = async (userid: string, data: any) => {
     });
 };
 
-export const scheduleLecture = async (day: string, user: any, hour: string) => {
+export const scheduleLecture = async (values: any) => {
+  const { name, phone, date, hour, cpf } = values;
   const lectureRef = collection(db, "lectures");
   const q = query(
     lectureRef,
-    where("day", "==", day),
-    where("client", "==", user?.id)
+    where("day", "==", date),
+    where("cpf", "==", cpf)
   );
-  const qDay = query(lectureRef, where("day", "==", day));
+  const hasQ = query(lectureRef, where("cpf", "==", cpf));
+  const qDay = query(lectureRef, where("day", "==", date));
+  const [y, m, d] = values.date.split("-");
   const querySnapshot = await getDocs(q);
+  const queryClient = await getDocs(hasQ);
   const queryDay = await getDocs(qDay);
+  const today = new Date();
+  const newDate = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
 
-  if (queryDay.docs.length === 25) {
+  const completeName = nameCapitalized(name);
+  const phoneReplaced = phone!
+    .replace("(", "")
+    .replace(")", "")
+    .replace("-", "")
+    .replace(" ", "");
+  const cpfReplaced = cpf!.replace(".", "").replace("-", "").replace(".", "");
+
+  if (queryDay.docs.length === 25)
     return alert("Número de pacientes agendados para esse dia excedido!");
-  }
 
   if (querySnapshot.docs.length > 0)
     return alert("Usuário já agendado para este dia!");
-  else {
-    return await addDoc(lectureRef, {
-      day,
-      hour,
-      isMissed: null,
-      examRequest: null,
-      client: user?.cpf,
-      client_name: user?.name,
-      client_phone: user?.phone,
+
+  if (queryClient.docs.length > 0) return alert("Usuário já agendou palestra");
+
+  if (date < today.toISOString().substring(0, 10))
+    return alert("Não é possível agendar para dias anteriores");
+
+  if (newDate.getDay() === 0 || newDate.getDay() === 6)
+    return alert("Não é possivel agendar para Finais de Semana");
+
+  return await addDoc(lectureRef, {
+    hour,
+    day: date,
+    isMissed: null,
+    cpf: cpfReplaced,
+    examRequest: null,
+    name: completeName,
+    phone: phoneReplaced,
+  })
+    .then(async (res) => {
+      const lectureDoc = doc(db, "lectures", res.id);
+      await updateDoc(lectureDoc, { id: res.id });
+      return "Sucesso";
     })
-      .then(async (res) => {
-        const lectureDoc = doc(db, "lectures", res.id);
-        await updateDoc(lectureDoc, { id: res.id });
-        return "Sucesso";
-      })
-      .catch((err) => {
-        return err.code;
-      });
-  }
+    .catch((err) => {
+      return err.code;
+    });
 };
 
 export const scheduleScreening = async (
   user: any,
-  patients: any,
   date: string,
+  patients: any,
   professional: any
 ) => {
   const screeningRef = collection(db, "screenings");

@@ -16,6 +16,7 @@ interface ClientInfoProps {
   client?: ClientType;
 }
 
+const professionalTabs = ["Anamnese", "Problemas", "Exames", "Agendamentos"];
 const tabs = [
   "Anamnese",
   "Financeiro",
@@ -23,10 +24,9 @@ const tabs = [
   "Exames",
   "Agendamentos",
   "Problemas",
-  "Protocolos",
+  "Anexos",
 ];
 
-const professionalTabs = ["Anamnese", "Problemas", "Exames", "Agendamentos"];
 const imageStyle = { width: "100%", height: "100%", borderRadius: "8px" };
 const tabStyle = { textTransform: "capitalize", padding: "0 8px" };
 const tabActive = {

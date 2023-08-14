@@ -12,7 +12,7 @@ interface LectureDetailsProps {
 }
 
 const LectureDetails = (props: LectureDetailsProps) => {
-  const { clientInfos, lectureInfos, closeModal } = props;
+  const { lectureInfos, closeModal } = props;
   const momentNow = new Date();
   const [y, m, d] = lectureInfos.day.split("-");
   const hourSchedule = lectureInfos.hour.split(":")[0];
@@ -48,22 +48,22 @@ const LectureDetails = (props: LectureDetailsProps) => {
       flexDirection="column"
     >
       <HeaderTitle variant="semibold" textAlign="center" mb={1}>
-        {clientInfos.name}
+        {lectureInfos.name}
       </HeaderTitle>
 
       <Box width="100%" display="flex" flexDirection="column">
-        <FlexRowCenter>
+        {/* <FlexRowCenter>
           <Typography variant="semibold">ID Cliente: </Typography>
           <Typography variant="body1">{clientInfos.id}</Typography>
-        </FlexRowCenter>
+        </FlexRowCenter> */}
         <FlexRowCenter>
           <Typography variant="semibold">CPF: </Typography>
-          <Typography variant="body1">{cpfMask(clientInfos.cpf)}</Typography>
+          <Typography variant="body1">{cpfMask(lectureInfos.cpf)}</Typography>
         </FlexRowCenter>
         <FlexRowCenter>
           <Typography variant="semibold">Telefone: </Typography>
           <Typography variant="body1">
-            {phoneMask(clientInfos.phone)}
+            {phoneMask(lectureInfos.phone)}
           </Typography>
         </FlexRowCenter>
 

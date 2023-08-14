@@ -6,6 +6,9 @@ import ClientExams from "./exams";
 import SchedulesPatient from "./schedules";
 import ClientInfosTreatments from "./treatments";
 import styles from "../../../styles/ClientDetails.module.css";
+import ClientDocuments from "./docs";
+import ClientProblems from "./problems";
+import ClientAnamneseInfos from "./anamnese";
 
 interface ClientInformationsProps {
   tabIndex: number;
@@ -34,18 +37,13 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
       </div>
     );
 
-  if (tabIndex === 0)
+  if (tabIndex === 0 && anamneseKeys !== null)
     return (
-      <div className={styles["client-infos"]}>
-        {anamneseKeys?.map((item, index) => (
-          <p className={styles["p-anamnese"]} key={index}>
-            {item} <span>{anamneseValues![index]}</span>
-          </p>
-        ))}
-        <p className={styles["p-anamnese"]}>
-          Observações: <span>{client?.observations}</span>
-        </p>
-      </div>
+      <ClientAnamneseInfos
+        anamneseValues={anamneseValues}
+        anamneseKeys={anamneseKeys}
+        client={client}
+      />
     );
 
   if (tabIndex === 1) {
@@ -56,13 +54,11 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
       </div>
     );
   }
-  if (tabIndex === 2) {
-    return <ClientInfosTreatments client={client} />;
-  }
-  if (tabIndex === 3) {
-    return <ClientExams client={client} />;
-  }
+  if (tabIndex === 2) return <ClientInfosTreatments client={client} />;
+  if (tabIndex === 3) return <ClientExams client={client} />;
   if (tabIndex === 4) return <SchedulesPatient client={client} />;
+  if (tabIndex === 5) return <ClientProblems client={client} />;
+  if (tabIndex === 6) return <ClientDocuments client={client} />;
   return (
     <Box p={2}>
       <Typography variant="semibold">Função ainda não desenvolvida.</Typography>

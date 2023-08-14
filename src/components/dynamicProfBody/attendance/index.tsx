@@ -8,13 +8,20 @@ import Modal from "@/components/modal";
 import Calendar from "react-calendar";
 import { hoursToSelect } from "data";
 import { useRecoilValue } from "recoil";
+import { db } from "@/services/firebase";
 import { parseDateBr } from "@/services/services";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { collection, doc, getDoc, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import "react-calendar/dist/Calendar.css";
 import ListToSchedule from "./listSchedule";
 import Loading from "@/components/loading";
+import "react-calendar/dist/Calendar.css";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  query,
+  where,
+  doc,
+} from "firebase/firestore";
 
 interface AttendanceProfessionalProps {}
 
@@ -22,40 +29,30 @@ const today = new Date();
 const patientsRef = collection(db, "clients_treatments");
 const scheduleRef = collection(db, "schedules");
 
-const ellipsisText = {
+const ellipsisText: React.CSSProperties = {
   textOverflow: "ellipsis",
-  overflow: "hidden",
   whiteSpace: "nowrap",
+  overflow: "hidden",
   width: "100%",
   zIndex: 1000,
 };
 
 const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const userData = useRecoilValue(UserData);
-  const [dateSelected, setDateSelected] = useState<Date>(today);
-  const [dayWeek, setDayWeek] = useState(dateSelected.getDay());
-  const [currentDay, setCurrentDay] = useState(dateSelected.getDate());
-  const [currentMonth, setCurrentMonth] = useState(dateSelected.getMonth());
-  const [currentYear, setCurrentYear] = useState(dateSelected.getFullYear());
+  const [patient, setPatient] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [modalCalendar, setModalCalendar] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [patient, setPatient] = useState(null);
-
   const [client, setClient] = useState<string | null>(null);
+  const dateIso = dateSelected.toISOString().substring(0, 10);
+  const [dateSelected, setDateSelected] = useState<Date>(today);
+  const qSch = query(scheduleRef, where("date", "==", dateIso));
+  const snapPatients = useOnSnapshotQuery("clients_treatments", q);
   const [clientTreatment, setClientTreatment] = useState<string | null>(null);
   const q = query(patientsRef, where("actualProfessional", "==", userData!.id));
-  const snapPatients = useOnSnapshotQuery("clients_treatments", q);
-
-  const qSch = query(
-    scheduleRef,
-    where("date", "==", dateSelected.toISOString().substring(0, 10))
-  );
   const snapSchedules = useOnSnapshotQuery("schedules", qSch, [dateSelected]);
 
-  const handleCloseCalendar = () => {
-    setModalCalendar(false);
-  };
+  const handleCloseCalendar = () => setModalCalendar(false);
   const handleSelectDate = (d: any) => {
     setDateSelected(d);
     setModalCalendar(false);
@@ -63,11 +60,15 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   };
 
   const getClientInfos = useCallback(async () => {
+    if (client === null) return;
     const ref = doc(db, "clients", client);
+    const ref2 = collection(db, "clients_treatments");
+    const q = query(ref2, where("client", "==", client));
     const snapDocument = await getDoc(ref);
-    if (snapDocument.exists()) {
-      setPatient(snapDocument.data());
-    }
+    const snapDocument2 = await getDocs(q);
+    if (snapDocument.exists()) setPatient(snapDocument.data());
+    if (snapDocument2.docs.length > 0)
+      setClientTreatment(snapDocument2.docs[0].data());
   }, [client]);
 
   const getSchedule = (h: string) => {
@@ -83,6 +84,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   };
 
   const handleClosePatient = () => {
+    setClientTreatment(null);
     setClient(null);
     setPatient(null);
   };
@@ -113,11 +115,15 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         />
       </Modal>
 
-      {patient !== null && (
-        <Modal visible={patient !== null} closeModal={handleClosePatient}>
+      {patient !== null && clientTreatment !== null && client !== null ? (
+        <Modal
+          visible={patient !== null && clientTreatment !== null}
+          closeModal={handleClosePatient}
+        >
           <h2>{patient?.name}</h2>
+          <p>{clientTreatment?.actualProfessional}</p>
         </Modal>
-      )}
+      ) : null}
 
       <DoubleButtons>
         <Button

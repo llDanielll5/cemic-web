@@ -378,10 +378,13 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
     await F.setDoc(receiptRef, receiptData)
       .then(async () => {
-        await F.setDoc(paymentsRef, paymentData).then(handleSuccess, (err) => {
-          setIsLoading(false);
-          return alert(err + " Deu erro");
-        });
+        await F.setDoc(paymentsRef, paymentData).then(
+          async () => await handleSuccess(),
+          (err) => {
+            setIsLoading(false);
+            return alert("Erro" + " " + err);
+          }
+        );
       })
       .catch((err) => {
         setIsLoading(false);
@@ -527,7 +530,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         </>
       )}
 
-      {client?.role === "patient" && (
+      {client?.role !== "pre-register" && (
         <AddTreatment
           handleGeneratePayment={handleGeneratePayment}
           openModal={() => setAddTreatmentVisible(true)}

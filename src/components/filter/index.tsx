@@ -34,6 +34,9 @@ const Filter = (props: FilterProps) => {
             value={props.filterValue}
             onChange={(e) => props.setFilterValue(e.target.value)}
             maxLength={11}
+            onKeyDown={({ key }) => {
+              if (key === "Enter") return props.onClick();
+            }}
           />
         </div>
         <FaSearch onClick={props.onClick} className={styles.search} />
