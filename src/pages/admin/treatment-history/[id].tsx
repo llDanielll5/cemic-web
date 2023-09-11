@@ -31,8 +31,6 @@ const ClientTreatmentHistory = () => {
       <Typography variant="bold">Não foi encontrado o tratamento</Typography>
     );
 
-  console.log(data);
-
   return (
     <Box
       p={2}

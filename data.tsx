@@ -5,6 +5,7 @@ import { AiFillDollarCircle } from "react-icons/ai";
 import { MdToday, MdRecordVoiceOver } from "react-icons/md";
 import { GiExitDoor, GiAncientScrew } from "react-icons/gi";
 import { HiClipboardDocumentList } from "react-icons/hi2";
+import { BiMoney } from "react-icons/bi";
 import { TfiWrite } from "react-icons/tfi";
 import stylesDash from "./src/styles/Dashboard.module.css";
 import HealingIcon from "@mui/icons-material/Healing";
@@ -58,6 +59,11 @@ export const dashboardNav = [
     path: "",
     title: "Tratamentos",
     icon: <HealingIcon className={stylesDash["react-icon"]} />,
+  },
+  {
+    path: "",
+    title: "Pagamentos",
+    icon: <BiMoney className={stylesDash["react-icon"]} />,
   },
   {
     path: "",

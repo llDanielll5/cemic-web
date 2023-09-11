@@ -21,8 +21,6 @@ import Modal from "@/components/modal";
 import { doc, getDoc } from "firebase/firestore";
 import { ClientType } from "types";
 import ClientInfos from "@/components/admin/clientInfos";
-import { useGetIP } from "@/hooks/useGetIp";
-import { getIP } from "@/services/getIp";
 
 const renderPanelTitle = {
   1: "Início",
@@ -32,8 +30,9 @@ const renderPanelTitle = {
   5: "Triagens",
   6: "Palestras",
   7: "Tratamentos",
-  8: "Blog",
-  9: "Perfil",
+  8: "Pagamentos",
+  9: "Blog",
+  10: "Perfil",
 };
 
 const Dashboard = () => {
@@ -43,7 +42,6 @@ const Dashboard = () => {
   const navigationRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
-  const [date, setDate] = useState<string>("");
   const [userData, setUserData] = useRecoilState(UserData);
   const [isScheduling, setIsScheduling] = useState(false);
   const [screeningVisible, setScreeningVisible] = useState(false);
@@ -149,22 +147,9 @@ const Dashboard = () => {
       {/* MODALS FOR ADMIN BODY */}
 
       <Modal
-        visible={screeningVisible}
-        closeModal={() => setScreeningVisible(false)}
-      >
-        <ScreeningModal
-          date={date}
-          setVisible={setScreeningVisible}
-          setIsScheduling={setIsScheduling}
-          clientDetailsVisible={setClientDetailsVisible}
-          setClientID={setClientID}
-        />
-      </Modal>
-
-      <Modal
         visible={clientDetailsVisible}
         closeModal={closeClientModal}
-        style={{ content: { width: "85%" } }}
+        style={{ content: { width: "85%" }, overlay: { zIndex: 100 } }}
       >
         <ClientInfos client={clientInfos} />
       </Modal>
@@ -192,7 +177,6 @@ const Dashboard = () => {
           setScreeningVisible={setScreeningVisible}
           setIsGeneratePayment={setIsGeneratePayment}
           setClientID={setClientID}
-          setDate={setDate}
         />
       </div>
     </div>

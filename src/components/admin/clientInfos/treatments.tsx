@@ -1,6 +1,19 @@
 //@ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { Box, Typography } from "@mui/material";
+import { maskValue } from "@/services/services";
+import { useRecoilValue } from "recoil";
+import { db } from "@/services/firebase";
+import * as F from "firebase/firestore";
+import Link from "next/link";
+import Modal from "@/components/modal";
+import UserData from "@/atoms/userData";
+import AddTreatment from "./addTreatment";
+import HistoryIcon from "@mui/icons-material/History";
+import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
+import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
+import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import {
   ClientTreatmentsProps,
   ClientType,
@@ -8,19 +21,6 @@ import {
   PaymentTypes,
   ReceiptProps,
 } from "types";
-import { Box, Typography } from "@mui/material";
-import { useRecoilValue } from "recoil";
-import { db } from "@/services/firebase";
-import * as F from "firebase/firestore";
-import Link from "next/link";
-import Modal from "@/components/modal";
-import UserData from "@/atoms/userData";
-import HistoryIcon from "@mui/icons-material/History";
-import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
-import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
-import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
-import { maskValue } from "@/services/services";
-import AddTreatment from "./addTreatment";
 
 interface ClientTreatmentsInterface {
   client: ClientType;
@@ -532,8 +532,8 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
       {client?.role !== "pre-register" && (
         <AddTreatment
-          handleGeneratePayment={handleGeneratePayment}
           openModal={() => setAddTreatmentVisible(true)}
+          handleGeneratePayment={handleGeneratePayment}
           treatments={treatments}
         />
       )}

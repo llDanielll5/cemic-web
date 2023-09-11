@@ -30,61 +30,70 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
   const [newPatientVisible, setNewPatientVisible] = useState(false);
   const [filterLetter, setFilterLetter] = useState<string | null>("A");
   const [patientsData, setPatientsData] = useState<ClientType[] | []>([]);
-  const [filterByClientType, setFilterByClientType] =
-    useState<ClientTypes>("patient");
+  const [filterByClientType, setFilterByClientType] = useState("");
 
   /**  ONSNAPSHOT FOR LETTER FILTER   */
   const qPatientLetter = query(
     patientsRef,
-    where("firstLetter", "==", filterLetter),
-    where("role", "==", filterByClientType)
+    where("firstLetter", "==", filterLetter)
   );
   const filterPatientByLetter = useOnSnapshotQuery("clients", qPatientLetter, [
     filterLetter,
-    filterByClientType,
   ]);
   /** ********** */
 
-  const handleSelectFilter = (type: ClientTypes) => setFilterByClientType(type);
+  const handleSelectFilter = (value: any) => setFilterByClientType(value);
+
   const handleCloseNewPatientModal = () => {
     return setNewPatientVisible(false);
   };
 
   const handleFilterPatient = async () => {
-    const qPatientFilter = (type: "id" | "cpf") => {
-      return query(patientsRef, where(type, "==", patientFilterValue));
+    const qPatientFilter = () => {
+      switch (filterByClientType) {
+        case "Não-Paciente":
+          return query(
+            patientsRef,
+            where("cpf", "==", patientFilterValue),
+            where("role", "==", "pre-register")
+          );
+        case "Paciente":
+          return query(
+            patientsRef,
+            where("cpf", "==", patientFilterValue),
+            where("role", "==", "patient")
+          );
+        case "Selecionado":
+          return query(
+            patientsRef,
+            where("cpf", "==", patientFilterValue),
+            where("role", "==", "selected")
+          );
+        default:
+          return query(patientsRef, where("cpf", "==", patientFilterValue));
+      }
     };
-    const queryFunction = async (type: "id" | "cpf") => {
-      const querySnapshot = await getDocs(qPatientFilter(type));
+
+    const queryFunction = async () => {
+      const querySnapshot = await getDocs(qPatientFilter());
       querySnapshot.forEach((doc) => {
         documents.push(doc.data());
       });
       setPatientsData(documents);
     };
     const documents: any[] = [];
-    return queryFunction("cpf");
+
+    return queryFunction();
   };
 
   useEffect(() => {
     setPatientsData(filterPatientByLetter);
-  }, [filterPatientByLetter, patientFilterValue, filterByClientType]);
+  }, [filterPatientByLetter, patientFilterValue]);
 
   useEffect(() => {
     setFilterLetter("A");
     setPatientFilterValue("");
   }, []);
-
-  const patient = filterByClientType === "patient";
-  const notPatient = filterByClientType === "pre-register";
-  const selected = filterByClientType === "selected";
-  const styleForSelected = { backgroundColor: "#1b083e", color: "white" };
-  const notSelectedStyle = { backgroundColor: "#ddd", color: "#1b083e" };
-  const notHaveProfiles =
-    filterByClientType === "patient"
-      ? "Nenhum paciente encontrado."
-      : filterByClientType === "pre-register"
-      ? "Nenhum Não-Paciente encontrado."
-      : "Não foi encontrado paciente selecionado.";
 
   if (isLoading)
     return (
@@ -123,38 +132,14 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
 
       <Filter
         title="Filtrar paciente por:"
-        options={["CPF"]}
-        content={"CPF"}
-        setContent={(e) => console.log(e)}
+        options={["Qualquer", "Paciente", "Não-Paciente", "Selecionado"]}
+        content={filterByClientType}
+        setContent={(e) => handleSelectFilter(e)}
         filterValue={patientFilterValue}
         setFilterValue={(e) => setPatientFilterValue(e)}
         onClick={handleFilterPatient}
-        baseStyle={{
-          margin: "20px auto",
-          padding: "16px",
-        }}
+        baseStyle={{ margin: "20px auto", padding: "16px" }}
       />
-
-      <Buttons>
-        <StyledButton
-          sx={patient ? styleForSelected : notSelectedStyle}
-          onClick={() => handleSelectFilter("patient")}
-        >
-          Paciente
-        </StyledButton>
-        <StyledButton
-          sx={notPatient ? styleForSelected : notSelectedStyle}
-          onClick={() => handleSelectFilter("pre-register")}
-        >
-          Não-Paciente
-        </StyledButton>
-        <StyledButton
-          sx={selected ? styleForSelected : notSelectedStyle}
-          onClick={() => handleSelectFilter("selected")}
-        >
-          Selecionado
-        </StyledButton>
-      </Buttons>
 
       <FilterLetter
         letter={filterLetter}
@@ -164,7 +149,7 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
       <ListProfiles
         profiles={patientsData}
         setClientID={setClientID}
-        notHaveMessage={notHaveProfiles}
+        notHaveMessage={"Nenhum paciente encontrado."}
         setClientDetailsVisible={setClientDetailsVisible}
       />
     </Box>

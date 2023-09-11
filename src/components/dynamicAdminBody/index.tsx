@@ -8,6 +8,7 @@ import TreatmentsAdmin from "./treatments";
 import ReceiptPageAdmin from "./receipts";
 import ProfileAdmin from "./profile";
 import AdminBlog from "./blog";
+import AdminPayments from "./payments";
 
 export interface AdminBodyProps {
   page: number;
@@ -16,7 +17,6 @@ export interface AdminBodyProps {
   setScreeningVisible: (e: boolean) => void;
   setIsGeneratePayment: (e: boolean) => void;
   setClientID: (e: string) => void;
-  setDate: (e: string) => void;
 }
 export type ClientTypes = "pre-register" | "patient" | "selected" | "";
 
@@ -63,7 +63,6 @@ const DynamicAdminBody = (props: AdminBodyProps) => {
         setIsGeneratePayment={props.setIsGeneratePayment}
         screeningModal={props.setScreeningVisible}
         setClientID={props.setClientID}
-        setDate={props.setDate}
       />
     );
   }
@@ -77,8 +76,9 @@ const DynamicAdminBody = (props: AdminBodyProps) => {
       <TreatmentsAdmin setIsCreateTreatment={props.setIsCreateTreatment} />
     );
   }
-  if (props.page === 8) return <AdminBlog />;
-  if (props.page === 9) {
+  if (props.page === 8) return <AdminPayments />;
+  if (props.page === 9) return <AdminBlog />;
+  if (props.page === 10) {
     return <ProfileAdmin />;
   }
 };

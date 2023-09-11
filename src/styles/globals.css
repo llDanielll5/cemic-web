@@ -20,6 +20,22 @@ html {
   scroll-behavior: smooth;
 }
 
+button {
+  background-color: white;
+  border-radius: 24px;
+  border: 1.5px solid #d3d3d3;
+  font-size: 14px;
+  padding: 4px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 6px;
+  font-weight: 600;
+  color: var(--dark-blue);
+  margin: 12px auto;
+  cursor: pointer;
+}
+
 h1,
 h2,
 h3,

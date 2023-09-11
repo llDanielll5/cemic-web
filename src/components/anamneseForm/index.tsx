@@ -3,6 +3,7 @@ import { Radio, RadioGroup } from "react-radio-group";
 import styles from "../../styles/Selected.module.css";
 import Input from "../input";
 import { StyledButton } from "../dynamicAdminBody/receipts";
+import { StyledTextField } from "../patient/profile";
 
 interface AnamneseFormProps {
   handleAnswer: any;
@@ -11,6 +12,8 @@ interface AnamneseFormProps {
   observations: any;
   setObservations: any;
   handleBackPage: any;
+  userData: any;
+  setUserData: any;
 }
 
 const anamneseOptions = ["SIM", "NÃO", "NÃO SEI"];
@@ -23,6 +26,8 @@ const AnamneseForm = (props: AnamneseFormProps) => {
     observations,
     setObservations,
     handleBackPage,
+    userData,
+    setUserData,
   } = props;
   const renderRadioGroup = (props: {
     name: string;
@@ -130,10 +135,25 @@ const AnamneseForm = (props: AnamneseFormProps) => {
         })}
       </div>
 
-      <Input
+      <StyledTextField
         label="Observações:"
         value={observations!}
-        onChange={(e) => setObservations(e)}
+        onChange={(e) => setObservations(e.target.value)}
+        margin="dense"
+      />
+      <StyledTextField
+        type={"date"}
+        margin="dense"
+        sx={{ width: "30%", alignSelf: "center" }}
+        label="Data de Triagem*:"
+        value={userData?.screeningDate}
+        InputLabelProps={{ shrink: true }}
+        onChange={(e) =>
+          setUserData((prev: any) => ({
+            ...prev,
+            screeningDate: e.target.value,
+          }))
+        }
       />
       <div style={{ marginBottom: "12px" }} />
 

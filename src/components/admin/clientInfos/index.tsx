@@ -1,19 +1,31 @@
 /* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
 import React, { useState } from "react";
-import { Avatar } from "@mui/material";
+import { Avatar, IconButton } from "@mui/material";
 import { ClientType } from "types";
 import { useRecoilValue } from "recoil";
 import { Box, styled, Typography } from "@mui/material";
 import { cpfMask, parseDateIso, phoneMask } from "@/services/services";
-import UserData from "@/atoms/userData";
-import ClientInformationsAdmin from "./informations";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { StyledTextField } from "@/components/patient/profile";
 import ClientInformationsProfessional from "./informationsProfessional";
 import styles from "../../../styles/ClientDetails.module.css";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
+import ClientInformationsAdmin from "./informations";
+import EditIcon from "@mui/icons-material/Edit";
+import UserData from "@/atoms/userData";
 
 interface ClientInfoProps {
   client?: ClientType;
+}
+
+interface ClientAttributes {
+  name: string;
+  email: string;
+  dateBorn: string;
+  phone: string;
+  cpf: string;
+  rg: string;
 }
 
 const professionalTabs = ["Anamnese", "Problemas", "Exames", "Agendamentos"];
@@ -42,6 +54,8 @@ const tabInactive = {
 
 const ClientInfos = (props: ClientInfoProps) => {
   const { client } = props;
+  const [clientData, setClientData] = useState();
+  const [hasEditMode, setHasEditMode] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const userData = useRecoilValue(UserData);
 
@@ -54,41 +68,103 @@ const ClientInfos = (props: ClientInfoProps) => {
 
       <h5>Informações do Cliente</h5>
       <ClientContainer>
-        <p>
-          Nome: <span>{client?.name}</span>
-        </p>
-
-        <p>
-          Email: <span>{client?.email}</span>
-        </p>
-
-        <p>
-          Endereço: <span>{client?.address?.address ?? "Sem endereço"}</span>
-        </p>
+        <Double>
+          <StyledTextField
+            value={client?.name}
+            sx={{ width: "100%" }}
+            disabled
+            label="Nome"
+            placeholder="Nome do Paciente"
+            InputLabelProps={{ shrink: true }}
+            margin="dense"
+            variant="standard"
+          />
+          <StyledTextField
+            value={client?.email}
+            sx={{ width: "100%" }}
+            disabled={!hasEditMode}
+            label="Email"
+            placeholder="Email do Paciente"
+            InputLabelProps={{ shrink: true }}
+            margin="dense"
+            variant="standard"
+          />
+        </Double>
 
         <Double>
-          <p>
-            Nascimento:{" "}
-            <span>{parseDateIso(client?.dateBorn) ?? "Não-Cadastrado"}</span>
-          </p>
-          <p>
-            Telefone: <span>{phoneMask(client?.phone ?? "")}</span>
-          </p>
+          <StyledTextField
+            value={parseDateIso(client?.dateBorn) ?? "Não-Cadastrado"}
+            sx={{ width: "100%" }}
+            disabled={!hasEditMode}
+            label="Nascimento"
+            placeholder="Data de Nascimento"
+            margin="dense"
+            variant="standard"
+          />
+          <StyledTextField
+            value={phoneMask(client?.phone ?? "")}
+            sx={{ width: "100%" }}
+            disabled={!hasEditMode}
+            label="Telefone"
+            placeholder="Telefone do Paciente"
+            margin="dense"
+            variant="standard"
+          />
         </Double>
 
         {userData?.role === "admin" && (
           <Double>
-            <p>
-              CPF: <span>{cpfMask(client?.cpf)}</span>
-            </p>
-            <p>
-              RG:{" "}
-              <span>
-                {client?.rg === "" ? "Sem RG Cadastrado" : client?.rg}
-              </span>
-            </p>
+            <StyledTextField
+              value={cpfMask(client?.cpf)}
+              sx={{ width: "100%" }}
+              disabled={!hasEditMode}
+              label="CPF"
+              placeholder="CPF do Paciente"
+              margin="dense"
+              variant="standard"
+            />
+            <StyledTextField
+              value={client?.rg === "" ? "Sem RG Cadastrado" : client?.rg}
+              sx={{ width: "100%" }}
+              disabled={!hasEditMode}
+              label="RG"
+              placeholder="RG do Paciente"
+              InputLabelProps={{ shrink: true }}
+              margin="dense"
+              variant="standard"
+            />
           </Double>
         )}
+
+        <Double>
+          <StyledTextField
+            value={client?.address?.address}
+            sx={{ width: "90%" }}
+            disabled
+            label="Endereço"
+            placeholder="Endereço do Paciente"
+            InputLabelProps={{ shrink: true }}
+            margin="dense"
+            variant="standard"
+          />
+          <StyledButton
+            sx={{ height: "55px" }}
+            title="Alterar endereço do paciente"
+          >
+            <AddLocationAltIcon />
+          </StyledButton>
+        </Double>
+
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          columnGap={1}
+          title="Editar informações do paciente"
+        >
+          <StyledButton endIcon={<EditIcon sx={{ color: "white" }} />}>
+            Editar
+          </StyledButton>
+        </Box>
       </ClientContainer>
 
       <TabsContainer>
@@ -99,6 +175,7 @@ const ClientInfos = (props: ClientInfoProps) => {
               key={index}
               sx={style}
               onClick={() => setTabIndex(index)}
+              title={`Aba ${item}`}
             >
               {item}
             </StyledButton>
@@ -141,6 +218,7 @@ const Double = styled(Box)`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  column-gap: 12px;
 `;
 
 const TabsContainer = styled(Box)`

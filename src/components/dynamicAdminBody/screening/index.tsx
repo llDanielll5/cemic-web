@@ -1,29 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-//@ts-nocheck
+//@ts-check
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/Admin.module.css";
 import "react-calendar/dist/Calendar.css";
-import Button from "@/components/button";
-import {
-  BsFillArrowLeftSquareFill,
-  BsFillArrowRightSquareFill,
-  BsFillCalendar2EventFill,
-} from "react-icons/bs";
-import { MdOutlineFindInPage } from "react-icons/md";
-import { parseDateBr, parseDateIso, phoneMask } from "@/services/services";
+import { Box, styled, IconButton, Button } from "@mui/material";
+import { parseDateIso, phoneMask } from "@/services/services";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { ScreeningInformations } from "types";
 import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
-import Calendar from "react-calendar";
+import UserData from "@/atoms/userData";
+import SearchIcon from "@mui/icons-material/Search";
 import ScreeningDetailsAdmin from "./screeningDetails";
 import { useRecoilValue } from "recoil";
-import UserData from "@/atoms/userData";
+import { StyledTextField } from "@/components/patient/profile";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ScreeningModal from "@/components/admin/screeningModal";
 
 interface ScreeningProps {
   screeningModal: any;
-  setDate: (e: string) => void;
   setClientID: (e: string) => void;
   setClientDetailsVisible: (e: boolean) => void;
   setIsGeneratePayment: (e: boolean) => void;
@@ -33,46 +28,29 @@ const momentIso = new Date().toISOString().substring(0, 10);
 const screeningRef = collection(db, "screenings");
 
 const ScreeningAdmin = (props: ScreeningProps) => {
-  const {
-    screeningModal,
-    setDate,
-    setClientDetailsVisible,
-    setClientID,
-    setIsGeneratePayment,
-  } = props;
+  const { setClientDetailsVisible, setClientID, setIsGeneratePayment } = props;
 
   const [idFind, setIdFind] = useState("");
   const [client, setClient] = useState<any | null>(null);
   const [patientFind, setPatientFind] = useState<any[]>([]);
-  const [dateSelected, setDateSelected] = useState(new Date());
-  const [currentDay, setCurrentDay] = useState<number>(new Date().getDate());
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [dateSelected, setDateSelected] = useState(momentIso);
   const [findModal, setFindModal] = useState<boolean>(false);
   const [clientModalVisible, setClientModalVisible] = useState(false);
-  const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
-  const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
-  const date = new Date(currentYear, currentMonth, currentDay);
-  const datePickerValue = date.toISOString().substring(0, 10);
-  const yesterday = datePickerValue < momentIso;
-  const dateBr = date.toLocaleDateString();
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [screeningModal, setScreeningModal] = useState(false);
   const [screeningList, setScreeningList] = useState<
     ScreeningInformations[] | null
   >(null);
 
-  const userData = useRecoilValue(UserData);
+  const userData: any = useRecoilValue(UserData);
 
   // SNAPSHOT QUERY FOR SCREENINGS COLLECTION
   const q = query(
     screeningRef,
-    where("date", "==", datePickerValue),
+    where("date", "==", dateSelected),
     orderBy("hour", "asc")
   );
-  const snapScreening = useOnSnapshotQuery("screenings", q, [
-    currentDay,
-    currentMonth,
-    currentYear,
-  ]);
+  const snapScreening = useOnSnapshotQuery("screenings", q, [dateSelected]);
 
   const getByClientID = async () => {
     if (idFind.length < 7) return alert("Digite um ID Válido");
@@ -107,58 +85,10 @@ const ScreeningAdmin = (props: ScreeningProps) => {
     setScreeningList(snapScreening);
   }, [snapScreening]);
 
-  useEffect(() => {
-    setDate(datePickerValue);
-  }, [currentDay, currentYear, currentMonth, datePickerValue]);
-
-  useEffect(() => {
-    setDate(momentIso);
-  }, []);
-
-  const previousMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentDay(0);
-      setCurrentMonth(11);
-      setCurrentYear((prev) => prev - 1);
-      return;
-    }
-    setCurrentMonth((prev) => prev - 1);
-    setCurrentDay(lastDayOfMonth + 1);
-    return;
-  };
-
-  const nextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear((prev) => prev + 1);
-      return;
-    }
-    setCurrentMonth((prev) => prev + 1);
-    setCurrentDay(0);
-    return;
-  };
-
-  const onChangeDate = (e: Date) => {
-    setDateSelected(e);
-    setCurrentYear(e.getFullYear());
-    setCurrentMonth(e.getMonth());
-    setCurrentDay(e.getDate());
-    setCalendarVisible(false);
-    return;
-  };
-
-  const handleNextDay = () => {
-    if (currentDay === lastDayOfMonth - 1) nextMonth();
-    setCurrentDay((prev) => prev + 1);
-  };
-
-  const handlePreviousDay = () => {
-    if (currentDay === 1) previousMonth();
-    setCurrentDay((prev) => prev - 1);
-  };
-
   const handleCreateScreening = () => {
-    if (!yesterday) return screeningModal(true);
+    if (dateSelected === momentIso)
+      return alert("Não é possível agendar para hoje");
+    else if (dateSelected > momentIso) return setScreeningModal(true);
     else return alert("Não é possível em dias anteriores");
   };
 
@@ -223,8 +153,8 @@ const ScreeningAdmin = (props: ScreeningProps) => {
 
   const renderScreening = () => {
     const notScreenings = screeningList?.length === 0;
-    const momentLess = notScreenings && datePickerValue < momentIso;
-    const momentMore = notScreenings && datePickerValue >= momentIso;
+    const momentLess = notScreenings && dateSelected < momentIso;
+    const momentMore = notScreenings && dateSelected >= momentIso;
 
     if (momentLess) return renderPassedDayNotSchedule();
     if (momentMore) return renderNotHaveSchedules();
@@ -234,14 +164,18 @@ const ScreeningAdmin = (props: ScreeningProps) => {
   return (
     <div className={styles.screening}>
       <Modal
-        visible={calendarVisible}
-        closeModal={() => setCalendarVisible(false)}
+        visible={screeningModal}
+        closeModal={() => setScreeningModal(false)}
       >
-        <div className={styles["date-select-container"]}>
-          <h4>Selecione uma data</h4>
-          <Calendar onChange={onChangeDate} value={dateSelected} />
-        </div>
+        <ScreeningModal
+          date={dateSelected}
+          setVisible={setScreeningModal}
+          setIsScheduling={setIsScheduling}
+          clientDetailsVisible={setClientDetailsVisible}
+          setClientID={setClientID}
+        />
       </Modal>
+
       <Modal closeModal={() => setFindModal(false)} visible={findModal}>
         <div className={styles["find-modal-container"]}>
           <h4>Informações da busca de Triagens</h4>
@@ -271,46 +205,53 @@ const ScreeningAdmin = (props: ScreeningProps) => {
         )}
       </Modal>
 
-      <Button onClick={handleCreateScreening}>Agendar Paciente</Button>
-      <div className={styles["date-container"]}>
-        <BsFillArrowLeftSquareFill
-          className={styles["arrow"]}
-          onClick={handlePreviousDay}
-        />
-        <div className={styles.calendar}>
-          <span>{parseDateBr(dateBr)}</span>
-        </div>
-        <BsFillArrowRightSquareFill
-          className={styles["arrow"]}
-          onClick={handleNextDay}
-        />
-      </div>
+      <Button
+        onClick={handleCreateScreening}
+        sx={{ height: "55px" }}
+        color="info"
+        endIcon={<PersonAddIcon />}
+      >
+        Agendar Paciente
+      </Button>
 
-      <div className={styles["have-schedule-container"]}>
-        <div className={styles["have-schedule-item"]}>
-          <h5>{parseDateBr(date.toLocaleDateString())}</h5>
-        </div>
-        <div className={styles["find-container"]}>
-          <input
+      <Box
+        display="flex"
+        alignItems={"center"}
+        justifyContent={"center"}
+        my={2}
+        columnGap={2}
+      >
+        <StyledTextField
+          sx={{ width: "fit-content", backgroundColor: "white" }}
+          value={dateSelected}
+          onChange={(e) => setDateSelected(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          label="Selecionar Data"
+          type={"date"}
+        />
+
+        <Box display="flex" columnGap={1} alignItems="center">
+          <StyledTextField
             type="text"
             placeholder={"Buscar por ID de cliente"}
-            maxLength={7}
+            label="Buscar por ID"
+            sx={{ backgroundColor: "white", height: "55px" }}
+            inputProps={{ maxLength: 11 }}
             value={idFind}
             onChange={({ target }) => setIdFind(target.value)}
+            onKeyDown={({ key }) => {
+              if (key === "Enter") return getByClientID();
+            }}
           />
-          <MdOutlineFindInPage
-            className={styles.icon}
+          <IconButton
             onClick={getByClientID}
+            sx={{ height: "55px" }}
             title="Buscar paciente pelo ID"
-          />
-        </div>
-        <div className={styles["have-schedule-item"]}>
-          <BsFillCalendar2EventFill
-            className={styles.icon}
-            onClick={() => setCalendarVisible(true)}
-          />
-        </div>
-      </div>
+          >
+            <SearchIcon />
+          </IconButton>
+        </Box>
+      </Box>
 
       <div className={styles["screening-container"]}>{renderScreening()}</div>
     </div>

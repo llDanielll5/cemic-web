@@ -1,19 +1,19 @@
 //@ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
 import { Box, styled, Typography, Button } from "@mui/material";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ScheduleIcon from "@mui/icons-material/PermContactCalendar";
 import UserData from "@/atoms/userData";
 import Modal from "@/components/modal";
-import Calendar from "react-calendar";
-import { hoursToSelect } from "data";
 import { useRecoilValue } from "recoil";
 import { db } from "@/services/firebase";
-import { parseDateBr } from "@/services/services";
+import { parseDateBr, phoneMask } from "@/services/services";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import ListToSchedule from "./listSchedule";
+import PostAddIcon from "@mui/icons-material/PostAdd";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import Loading from "@/components/loading";
 import "react-calendar/dist/Calendar.css";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import {
   collection,
   getDocs,
@@ -21,7 +21,9 @@ import {
   query,
   where,
   doc,
+  Timestamp,
 } from "firebase/firestore";
+import { StyledTextField } from "@/components/patient/profile";
 
 interface AttendanceProfessionalProps {}
 
@@ -43,13 +45,16 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [modalCalendar, setModalCalendar] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
+  const [reportModal, setReportModal] = useState(false);
   const [client, setClient] = useState<string | null>(null);
-  const dateIso = dateSelected.toISOString().substring(0, 10);
   const [dateSelected, setDateSelected] = useState<Date>(today);
+  const dateIso = dateSelected.toISOString().substring(0, 10);
   const qSch = query(scheduleRef, where("date", "==", dateIso));
-  const snapPatients = useOnSnapshotQuery("clients_treatments", q);
-  const [clientTreatment, setClientTreatment] = useState<string | null>(null);
   const q = query(patientsRef, where("actualProfessional", "==", userData!.id));
+  const [clientTreatment, setClientTreatment] = useState<any | null>(null);
+  const [forwardedsTreatments, setForwardedsTreatments] = useState([]);
+  const [selectedTreatmentsFinish, setSelectedTreatmentsFinish] = useState([]);
+  const [confirmTreatmentModal, setConfirmTreatmentModal] = useState(false);
   const snapSchedules = useOnSnapshotQuery("schedules", qSch, [dateSelected]);
 
   const handleCloseCalendar = () => setModalCalendar(false);
@@ -67,26 +72,44 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
     const snapDocument = await getDoc(ref);
     const snapDocument2 = await getDocs(q);
     if (snapDocument.exists()) setPatient(snapDocument.data());
-    if (snapDocument2.docs.length > 0)
+    if (snapDocument2.docs.length > 0) {
       setClientTreatment(snapDocument2.docs[0].data());
+      setForwardedsTreatments(clientTreatment?.treatments?.forwardeds);
+    }
   }, [client]);
 
-  const getSchedule = (h: string) => {
-    if (snapSchedules.length === 0) return "";
-    const find = snapSchedules.filter((v) => v?.hour === h);
-    return find[0]?.client_name;
+  const handleAddForwardTreatments = (item: any) => {
+    const hasItem = selectedTreatmentsFinish.filter((v) => v === item);
+    if (selectedTreatmentsFinish.length === 0)
+      return setSelectedTreatmentsFinish([item]);
+    if (hasItem.length === 0) {
+      setSelectedTreatmentsFinish((prev) => [...prev, item]);
+    } else return;
   };
 
-  const getPatient = (h: string) => {
-    if (snapSchedules.length === 0) return "";
-    const find = snapSchedules.filter((v) => v?.hour === h);
-    return setClient(find[0].client);
+  const closeReportModal = () => {
+    setReportModal(false);
+    setSelectedTreatmentsFinish([]);
   };
 
   const handleClosePatient = () => {
     setClientTreatment(null);
     setClient(null);
     setPatient(null);
+  };
+
+  const handleSubmitTreatment = async () => {
+    let isoTimeNow = new Date().toISOString().substring(0, 10);
+    let values = {
+      professional: userData?.id,
+      client: client?.id,
+      date: Timestamp.now(),
+      dateStr: isoTimeNow,
+      medias: [],
+      hasPayed: false,
+      updatedAt: isoTimeNow,
+      content: {},
+    };
   };
 
   useEffect(() => {
@@ -103,42 +126,108 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
 
   return (
     <Box display="flex" flexDirection="column" width="100%" mt={2} px={1}>
-      <Modal visible={modalCalendar} closeModal={handleCloseCalendar}>
-        <Box display="flex" alignItems="center" justifyContent="center">
-          <Calendar value={dateSelected} onChange={handleSelectDate} />
-        </Box>
-      </Modal>
-      <Modal visible={scheduleModal} closeModal={() => setScheduleModal(false)}>
-        <ListToSchedule
-          snapPatients={snapPatients}
-          setIsLoading={setIsLoading}
-        />
-      </Modal>
+      <Modal
+        visible={scheduleModal}
+        closeModal={() => setScheduleModal(false)}
+      ></Modal>
 
       {patient !== null && clientTreatment !== null && client !== null ? (
         <Modal
           visible={patient !== null && clientTreatment !== null}
           closeModal={handleClosePatient}
         >
-          <h2>{patient?.name}</h2>
-          <p>{clientTreatment?.actualProfessional}</p>
+          <h3>{patient?.name}</h3>
+          <h3>{phoneMask(patient?.phone)}</h3>
+
+          <Typography variant="body1">
+            Tratamentos a serem realizados
+          </Typography>
+          {clientTreatment?.treatments?.forwardeds.map((v, i) => (
+            <p key={i}>· {v.treatments.name}</p>
+          ))}
+
+          <StyledButton
+            endIcon={<PostAddIcon />}
+            onClick={() => setReportModal(true)}
+          >
+            Gerar Relatório
+          </StyledButton>
+          <StyledButton endIcon={<ContentPasteIcon />}>
+            Gerar Atestado Comparecimento
+          </StyledButton>
+          <StyledButton endIcon={<AssignmentIndIcon />}>
+            Gerar Atestado Médico
+          </StyledButton>
         </Modal>
       ) : null}
 
-      <DoubleButtons>
-        <Button
-          variant="contained"
-          color={"info"}
-          sx={{ margin: "8px auto 16px auto", width: "fit-content" }}
-          endIcon={<CalendarMonthIcon />}
-          onClick={() => setModalCalendar(true)}
+      <Modal
+        visible={reportModal}
+        closeModal={closeReportModal}
+        style={{ overlay: { zIndex: 9999 } }}
+      >
+        <Typography variant="bold" mt={1}>
+          Quais tratamentos foram feitos?
+        </Typography>
+        <Box display="flex" columnGap={"4px"}>
+          {clientTreatment?.treatments?.forwardeds.map((v: any, i: number) => (
+            <StyledButton key={i} onClick={() => handleAddForwardTreatments(v)}>
+              {v?.region} - {v?.treatments.name}
+            </StyledButton>
+          ))}
+        </Box>
+
+        <Typography variant="semibold" my={1}>
+          Tratamentos escolhidos:
+        </Typography>
+        <Box display="flex" columnGap={"4px"}>
+          {selectedTreatmentsFinish?.length > 0 &&
+            selectedTreatmentsFinish.map((v, i) => (
+              <StyledButton key={i}>
+                {v?.region} - {v?.treatments?.name}
+              </StyledButton>
+            ))}
+        </Box>
+
+        <StyledButton onClick={() => setConfirmTreatmentModal(true)}>
+          Finalizar Consulta
+        </StyledButton>
+      </Modal>
+
+      <Modal
+        visible={confirmTreatmentModal}
+        closeModal={() => setConfirmTreatmentModal(false)}
+        style={{ overlay: { zIndex: 999999 } }}
+      >
+        <Box
+          display="flex"
+          alignItems={"center"}
+          justifyContent={"center"}
+          flexDirection={"column"}
         >
-          Escolher Data
-        </Button>
+          <Typography variant="semibold">Confirma os tratamentos?</Typography>
+          <Box display="flex" columnGap={1}>
+            <StyledButton onClick={handleSubmitTreatment}>Sim</StyledButton>
+            <StyledButton onClick={() => setConfirmTreatmentModal(false)}>
+              Não
+            </StyledButton>
+          </Box>
+        </Box>
+      </Modal>
+
+      <DoubleButtons>
+        <StyledTextField
+          sx={{ width: "fit-content", backgroundColor: "white" }}
+          value={dateSelected.toISOString().substring(0, 10)}
+          onChange={(e) => setDateSelected(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          label="Selecionar Data"
+          type={"date"}
+        />
         <Button
           variant="contained"
           color={"info"}
-          sx={{ margin: "8px auto 16px auto", width: "fit-content" }}
+          sx={{ width: "fit-content", height: "55px" }}
           endIcon={<ScheduleIcon />}
           onClick={() => setScheduleModal(true)}
         >
@@ -152,6 +241,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         columnGap="8px"
         overflow={"auto"}
         width="100%"
+        my={2}
       >
         <DateText variant="bold">
           {parseDateBr(dateSelected.toLocaleDateString())}
@@ -164,20 +254,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         justifyContent="flex-start"
         alignItems="center"
         width="100%"
-      >
-        {hoursToSelect.map((v, i) => (
-          <HourSingle key={i}>
-            <Typography variant="semibold" width="45px">
-              {v}
-            </Typography>
-            <HourScheduleSpace onClick={() => getPatient(v)}>
-              <Typography variant="body1" sx={ellipsisText}>
-                {getSchedule(v)}
-              </Typography>
-            </HourScheduleSpace>
-          </HourSingle>
-        ))}
-      </Box>
+      ></Box>
     </Box>
   );
 };
@@ -186,32 +263,11 @@ const DoubleButtons = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
+  column-gap: 2rem;
+  width: 100%;
   @media screen and (max-width: 500px) {
     flex-direction: column;
   }
-`;
-
-const HourScheduleSpace = styled(Box)`
-  background-color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 85%;
-  height: 35px;
-  display: flex;
-  padding: 0 8px;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const HourSingle = styled(Box)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 40px;
-  row-gap: 8px;
-  column-gap: 16px;
-  padding: 0 8px;
 `;
 
 const DateText = styled(Typography)`

@@ -204,7 +204,7 @@ const UserForm = (props: UserFormProps) => {
   );
 };
 
-const InputsContainer = styled(Box)`
+export const InputsContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;

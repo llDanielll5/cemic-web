@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import ReactDropdown from "react-dropdown";
 import styles from "../../styles/Filter.module.css";
+import { StyledTextField } from "../patient/profile";
+import { IconButton } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 interface FilterProps {
   options: string[];
@@ -27,19 +30,26 @@ const Filter = (props: FilterProps) => {
           className={styles.dropdown}
         />
         <div className={styles["input-content"]}>
-          <input
-            placeholder="Digite sua busca"
-            className={styles.input}
+          <StyledTextField
             type="text"
+            size="small"
+            label="Digite o CPF*"
+            placeholder="Números somente"
             value={props.filterValue}
             onChange={(e) => props.setFilterValue(e.target.value)}
-            maxLength={11}
+            inputProps={{
+              maxLength: 11,
+              style: { height: "24px" },
+              pattern: "[/^[0-9\b]+$/]",
+            }}
             onKeyDown={({ key }) => {
               if (key === "Enter") return props.onClick();
             }}
           />
         </div>
-        <FaSearch onClick={props.onClick} className={styles.search} />
+        <IconButton color="info" onClick={props.onClick}>
+          <SearchIcon fontSize="large" />
+        </IconButton>
       </div>
     </div>
   );

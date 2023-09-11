@@ -29,6 +29,7 @@ import {
 } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
+import { StyledTextField } from "@/components/patient/profile";
 
 interface TreatmentValues {
   cod?: string;
@@ -253,46 +254,51 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
       <Modal visible={modalVisible} closeModal={handleCloseModal}>
         <h4 style={{ margin: "0 auto" }}>Adicionar Tratamento</h4>
         <Box
-          display={"flex"}
-          width={"100%"}
           justifyContent={"space-between"}
           alignItems={"center"}
+          display={"flex"}
+          width={"100%"}
+          columnGap={2}
+          mt={1}
         >
-          <Box width={"48%"}>
-            <Input
-              label="Tratamento"
-              value={treatmentValues.name}
-              onChange={(e) => handleChangeValue("name", e)}
-              onKeyDown={({ key }: any) => {
-                if (key === "Enter") return handleConclusion();
-              }}
-            />
-          </Box>
-          <Box width={"48%"}>
-            <Input
-              label="Preço"
-              value={treatmentValues.price}
-              onChange={(e) => handleChangeValue("price", maskValue(e))}
-              maxLenght={10}
-              onKeyDown={({ key }: any) => {
-                if (key === "Enter") return handleConclusion();
-              }}
-            />
-          </Box>
+          <StyledTextField
+            label="Tratamento"
+            value={treatmentValues.name}
+            sx={{ width: "100%" }}
+            onChange={(e) => handleChangeValue("name", e.target.value)}
+            onKeyDown={({ key }: any) => {
+              if (key === "Enter") return handleConclusion();
+            }}
+          />
+
+          <StyledTextField
+            label="Preço"
+            value={treatmentValues.price}
+            onChange={(e) =>
+              handleChangeValue("price", maskValue(e.target.value))
+            }
+            sx={{ width: "100%" }}
+            inputProps={{ maxLength: 10 }}
+            onKeyDown={({ key }: any) => {
+              if (key === "Enter") return handleConclusion();
+            }}
+          />
         </Box>
 
-        <AddButton
-          color="info"
+        <Button
+          sx={{ mt: 2 }}
+          color="primary"
           variant="outlined"
           title="Adicionar novo tratamento"
           endIcon={registerType === "Register" ? <AddIcon /> : <EditIcon />}
           onClick={() => handleConclusion()}
         >
           {registerType === "Register" ? "Adicionar" : "Editar"}
-        </AddButton>
+        </Button>
       </Modal>
       {userData.role === "admin" && (
-        <AddButton
+        <Button
+          sx={{ mt: 2, borderRadius: "16px" }}
           color="info"
           variant="outlined"
           title="Adicionar novo tratamento"
@@ -303,7 +309,7 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
           }}
         >
           Adicionar Tratamento
-        </AddButton>
+        </Button>
       )}
 
       <Typography variant="bold" my={2}>

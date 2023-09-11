@@ -36,15 +36,15 @@ const ellipsisText = {
 
 const ClientDocuments = (props: ClientDocumentsProps) => {
   const { client } = props;
+  const [idImg, setIdImg] = useState("");
   const examRef = collection(db, "clients_docs");
+  const [isLoading, setIsLoading] = useState(false);
   const querySnap = query(examRef, where("client", "==", client!.id ?? ""));
   const snapExams = useOnSnapshotQuery("clients_docs", querySnap, [client]);
   const [addDocVisible, setAddDocVisible] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [document, setDocument] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [documentName, setDocumentName] = useState<string>("");
-  const [idImg, setIdImg] = useState("");
   const userData = useRecoilValue(UserData);
 
   const handleCloseExams = () => {
@@ -118,7 +118,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
   if (isLoading) {
     return (
       <Box position="fixed" top={0} left={0} zIndex={"999999"}>
-        <Loading message="Atualizando informações do usuário..." />
+        <Loading message="Atualizando..." />
       </Box>
     );
   }
@@ -133,11 +133,11 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
           flexDirection="column"
         >
           <StyledTextField
-            value={documentName}
-            onChange={(e) => setDocumentName(e.target.value)}
-            label={"Nome do documento"}
             margin="dense"
+            value={documentName}
+            label={"Nome do documento"}
             sx={{ width: "100%", mb: 1 }}
+            onChange={(e) => setDocumentName(e.target.value)}
           />
           <input type={"file"} onChange={handleChangeFile} />
           <StyledButton
@@ -148,10 +148,14 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
           </StyledButton>
         </Box>
       </Modal>
-      <Modal visible={deleteModal} closeModal={handleCloseModalDelete}>
+      <Modal
+        visible={deleteModal}
+        closeModal={handleCloseModalDelete}
+        style={{ overlay: 200 }}
+      >
         <Box display="flex" flexDirection="column" alignItems="center">
           <Typography variant="bold">
-            Deseja realmente apagar este exame?
+            Deseja realmente apagar este arquivo?
           </Typography>
           <Box
             display="flex"

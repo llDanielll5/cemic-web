@@ -21,6 +21,7 @@ interface UserDefaultEdit {
   dateBorn: string;
   sexo: string;
   anamnese: any | null;
+  screeningDate: string;
 }
 
 interface AnamneseProps {
@@ -47,6 +48,7 @@ const defaultValues: UserDefaultEdit = {
   profileImage: "",
   role: "pre-register",
   sexo: "NENHUM",
+  screeningDate: "",
 };
 
 const defaultAddress: AddressType = {
@@ -168,6 +170,7 @@ const NewPatientForm = (props: AnamneseProps) => {
     if (page === 0) {
       if (notUserCompleted)
         return alert("Conclua todos os campos de dados pessoais!");
+      if (userData?.role === "pre-register") return handleFinish();
 
       if (notLocationCompleted)
         return alert("Você deve preencher um endereço completo válido!");
@@ -177,6 +180,8 @@ const NewPatientForm = (props: AnamneseProps) => {
 
     if (page === 1) {
       if (!hasFinishAnamnese) return alert("Preencha a Anamnese completa!");
+      if (userData?.screeningDate === "")
+        return alert("Sem data de triagem selecionada");
       return handleFinish();
     }
   };
@@ -220,10 +225,8 @@ const NewPatientForm = (props: AnamneseProps) => {
       profileImage: "",
       role: userData?.role,
       sexo: "NENHUM",
-      anamnese: {
-        ...anamneseData,
-      },
       observations,
+      anamnese: { ...anamneseData },
       terms: {
         implant: implantTermRead,
         crown: crownTermRead,
@@ -269,6 +272,8 @@ const NewPatientForm = (props: AnamneseProps) => {
           handleNextPage={handleNextPage}
           observations={observations}
           setObservations={setObservations}
+          userData={userData}
+          setUserData={setUserData}
         />
       )}
     </Container>

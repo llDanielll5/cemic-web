@@ -65,6 +65,43 @@ declare module "@mui/material/Typography" {
 
 // Create a theme instance.
 const theme = createTheme({
+  components: {
+    MuiButtonBase: {
+      defaultProps: {
+        // sx: {
+        //   backgroundColor: "white",
+        //   borderRadius: "40px",
+        //   border: "1.5px solid #d3d3d3",
+        //   fontSize: "14px",
+        //   padding: "4px 24px",
+        //   display: "flex",
+        //   alignItems: "center",
+        //   justifyContent: "center",
+        //   columnGap: "6px",
+        //   fontWeight: 600,
+        //   color: "var(--dark-blue)",
+        //   margin: "12px auto",
+        //   cursor: "pointer",
+        //   width: "fit-content",
+        // },
+        // style: {
+        //   backgroundColor: "white",
+        //   borderRadius: "40px",
+        //   fontSize: "14px",
+        //   padding: "4px 24px",
+        //   display: "flex",
+        //   alignItems: "center",
+        //   justifyContent: "center",
+        //   columnGap: "6px",
+        //   fontWeight: 600,
+        //   color: "var(--dark-blue)",
+        //   margin: "12px auto",
+        //   cursor: "pointer",
+        // },
+        disableRipple: false,
+      },
+    },
+  },
   palette: {
     primary: {
       main: colors.primaryDarkBlue,

@@ -4,8 +4,11 @@ import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import Button from "@/components/button";
 import styles from "../../../styles/Admin.module.css";
-import { useRecoilValue } from "recoil";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import RemoveIcon from "@mui/icons-material/HighlightOff";
+import { useRecoilValue } from "recoil";
+import { db } from "@/services/firebase";
+import { ProfessionalData } from "types";
 import { parseDateBr, phoneMask } from "@/services/services";
 import { collection, query, where } from "firebase/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
@@ -17,9 +20,9 @@ import {
   styled,
   TextField,
   Autocomplete,
+  IconButton,
 } from "@mui/material";
-import { db } from "@/services/firebase";
-import { ProfessionalData } from "types";
+import { StyledTextField } from "@/components/patient/profile";
 
 interface ScreeningModalProps {
   date: string;
@@ -112,31 +115,48 @@ const ScreeningModal = (props: ScreeningModalProps) => {
     };
 
     return (
-      <div className={styles["list-item"]}>
-        <div
-          className={styles.less}
+      <Box
+        p={2}
+        columnGap={1}
+        display="flex"
+        borderRadius={2}
+        alignItems="center"
+        justifyContent={"space-between"}
+        backgroundColor="#f4f4f4"
+        minWidth={"370px"}
+      >
+        <IconButton
           onClick={() => handleDeletePatient(index)}
           title={`Remover ${item?.name} da lista`}
         >
-          -
-        </div>
-        <p>{item?.name}</p>
-        <p>{phoneMask(item?.phone)}</p>
-        <input
+          <RemoveIcon color="error" />
+        </IconButton>
+
+        <TextSchedule variant="body2">{item?.name}</TextSchedule>
+        <TextSchedule variant="body2">{phoneMask(item?.phone)}</TextSchedule>
+
+        <StyledTextField
           type="time"
-          className={styles.hour}
+          label="Horário"
+          size="small"
+          style={{
+            width: "fit-content",
+            minWidth: "80px",
+            backgroundColor: "white",
+          }}
+          InputLabelProps={{ shrink: true }}
+          value={item?.hour ?? ""}
           onChange={({ target }) =>
             handleAddHour({ value: target.value, index })
           }
-          value={item?.hour ?? ""}
         />
-        <Button
+        <DetailsButton
           title={`Ver mais detalhes do paciente`}
           onClick={handleGetDetails}
         >
           Detalhes
-        </Button>
-      </div>
+        </DetailsButton>
+      </Box>
     );
   };
   const PatientSingleModal = () => {
@@ -146,7 +166,16 @@ const ScreeningModal = (props: ScreeningModalProps) => {
           Lista de Não-Pacientes
         </h3>
         {notPatientsList.map((item, index) => (
-          <div key={index} className={styles["modal-center"]}>
+          <Box
+            p={0.7}
+            key={index}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            border={"1px solid #ccc"}
+            borderRadius={2}
+            m={1}
+          >
             <p>{item?.name}</p>
             <p>{phoneMask(item?.phone)}</p>
             <StyledButton
@@ -156,19 +185,24 @@ const ScreeningModal = (props: ScreeningModalProps) => {
             >
               Adicionar
             </StyledButton>
-          </div>
+          </Box>
         ))}
       </div>
     );
   };
 
   return (
-    <div className={styles["screening-modal-container"]}>
+    <Box minWidth={"400px"}>
       <Modal visible={listVisible} closeModal={() => setListVisible(false)}>
         {notPatientsList.length === 0 ? <NotPatients /> : PatientSingleModal()}
       </Modal>
 
-      <h4>Agendar paciente para o dia: {parseDateBr(dateBr)}</h4>
+      <Box my={2} display="flex" justifyContent="center">
+        <Typography variant="bold">
+          Agendar paciente para o dia: {parseDateBr(dateBr)}
+        </Typography>
+      </Box>
+
       <Typography variant="semibold">
         Relator: <span style={{ fontWeight: 400 }}>{currUser?.name ?? ""}</span>
       </Typography>
@@ -211,15 +245,20 @@ const ScreeningModal = (props: ScreeningModalProps) => {
         )}
       </div>
 
-      <div className={styles["buttons-footer"]}>
+      <Box
+        display="flex"
+        alignItems={"center"}
+        justifyContent="flex-end"
+        columnGap={1}
+      >
         <StyledButton onClick={handleSubmit} title={"Concluir Lista!"}>
           Salvar{" "}
         </StyledButton>
         <StyledButton onClick={closeModal} title={"Cancelar Lista"}>
           Cancelar
         </StyledButton>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
@@ -228,6 +267,20 @@ const TextInput = styled(TextField)`
   .MuiAutocomplete-input {
     border: none;
     outline: none;
+  }
+`;
+const TextSchedule = styled(Typography)`
+  @media screen and (max-width: 970px) {
+    font-size: 12px;
+  }
+  @media screen and (max-width: 550px) {
+    font-size: 10px;
+  }
+`;
+
+const DetailsButton = styled(StyledButton)`
+  @media screen and (max-width: 770px) {
+    font-size: 12px;
   }
 `;
 
