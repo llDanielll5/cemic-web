@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { db } from "@/services/firebase";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, styled } from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import Modal from "@/components/modal";
@@ -225,27 +225,19 @@ const Receipt = (props: ReceiptProps) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="bold">ID Recibo</Typography>
+            <TextId variant="bold">ID Recibo</TextId>
             <Typography variant="bold">Data do Recibo</Typography>
-            <Typography variant="bold">Ver</Typography>
+            <Box display="flex" columnGap={1} />
           </Box>
           {snapReceipts.map((v, i) => (
-            <Box
-              px={1}
-              my={1}
-              key={i}
-              width="100%"
-              display="flex"
-              borderRadius={1}
-              justifyContent="space-between"
-              sx={{ backgroundColor: "#cacaca" }}
-              alignItems="center"
-            >
-              <Typography variant="semibold">{v?.id}</Typography>
+            <ReceiptSingle key={i}>
+              <TextId variant="semibold">{v?.id}</TextId>
               <Typography variant="semibold">{v?.date}</Typography>
               <Box display="flex" columnGap={1}>
                 <Link passHref href={v?.media} target="_blank">
-                  <StyledButton variant="text">Visualizar Recibo</StyledButton>
+                  <ViewReceiptButton variant="text">
+                    Visualizar
+                  </ViewReceiptButton>
                 </Link>
                 <IconButton
                   title={`Excluir recibo ${v?.id}`}
@@ -254,11 +246,32 @@ const Receipt = (props: ReceiptProps) => {
                   <DeleteIcon color="error" />
                 </IconButton>
               </Box>
-            </Box>
+            </ReceiptSingle>
           ))}
         </Box>
       </Box>
     );
 };
+
+const ReceiptSingle = styled(Box)`
+  padding: 0 8px;
+  margin: 8px 0;
+  width: 100%;
+  display: flex;
+  border-radius: 8px;
+  justify-content: space-between;
+  background-color: #cacaca;
+  align-items: center;
+`;
+const TextId = styled(Typography)`
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
+`;
+const ViewReceiptButton = styled(StyledButton)`
+  @media screen and (max-width: 470px) {
+    font-size: 12px;
+  }
+`;
 
 export default Receipt;
