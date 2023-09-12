@@ -14,6 +14,7 @@ import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import Loading from "@/components/loading";
 import "react-calendar/dist/Calendar.css";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { StyledTextField } from "@/components/patient/profile";
 import {
   collection,
   getDocs,
@@ -23,12 +24,11 @@ import {
   doc,
   Timestamp,
 } from "firebase/firestore";
-import { StyledTextField } from "@/components/patient/profile";
 
 interface AttendanceProfessionalProps {}
 
 const today = new Date();
-const patientsRef = collection(db, "clients_treatments");
+const patientsRef = collection(db, "clients");
 const scheduleRef = collection(db, "schedules");
 
 const ellipsisText: React.CSSProperties = {
@@ -43,7 +43,6 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const userData = useRecoilValue(UserData);
   const [patient, setPatient] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [modalCalendar, setModalCalendar] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
   const [reportModal, setReportModal] = useState(false);
   const [client, setClient] = useState<string | null>(null);
@@ -56,13 +55,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const [selectedTreatmentsFinish, setSelectedTreatmentsFinish] = useState([]);
   const [confirmTreatmentModal, setConfirmTreatmentModal] = useState(false);
   const snapSchedules = useOnSnapshotQuery("schedules", qSch, [dateSelected]);
-
-  const handleCloseCalendar = () => setModalCalendar(false);
-  const handleSelectDate = (d: any) => {
-    setDateSelected(d);
-    setModalCalendar(false);
-    return;
-  };
+  const snapClients = useOnSnapshotQuery("clients", q);
 
   const getClientInfos = useCallback(async () => {
     if (client === null) return;
@@ -126,10 +119,10 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
 
   return (
     <Box display="flex" flexDirection="column" width="100%" mt={2} px={1}>
-      <Modal
-        visible={scheduleModal}
-        closeModal={() => setScheduleModal(false)}
-      ></Modal>
+      <Modal visible={scheduleModal} closeModal={() => setScheduleModal(false)}>
+        {snapClients?.length > 0 &&
+          snapClients.map((v, i) => <Box key={i}>{v?.name}</Box>)}
+      </Modal>
 
       {patient !== null && clientTreatment !== null && client !== null ? (
         <Modal

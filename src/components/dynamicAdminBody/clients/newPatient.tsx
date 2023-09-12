@@ -225,6 +225,8 @@ const NewPatientForm = (props: AnamneseProps) => {
       profileImage: "",
       role: userData?.role,
       sexo: "NENHUM",
+      screeningDate: userData?.screeningDate,
+      actualProfessional: "",
       observations,
       anamnese: { ...anamneseData },
       terms: {

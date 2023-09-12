@@ -19,6 +19,8 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
   const { tabIndex, client } = props;
   const [anamneseKeys, setAnamneseKeys] = useState<string[] | null>(null);
   const [anamneseValues, setAnamneseValues] = useState<any[] | null>(null);
+  const hasAnamnese = tabIndex === 0 && anamneseKeys !== null;
+  const hasClient = client === undefined || client === null;
 
   useEffect(() => {
     if (Object.keys(client!).length !== 0) {
@@ -30,14 +32,8 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
     }
   }, [client]);
 
-  if (client === undefined || client === null)
-    return (
-      <div>
-        <h2>Não há cliente</h2>
-      </div>
-    );
-
-  if (tabIndex === 0 && anamneseKeys !== null)
+  if (hasClient) return <Typography my={2}>Não há cliente</Typography>;
+  if (hasAnamnese)
     return (
       <ClientAnamneseInfos
         anamneseValues={anamneseValues}
@@ -46,14 +42,7 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
       />
     );
 
-  if (tabIndex === 1) {
-    return (
-      <div className={styles["client-infos"]}>
-        <h3>Recibos</h3>
-        <Receipt clientId={client?.id} />
-      </div>
-    );
-  }
+  if (tabIndex === 1) return <Receipt client={client} />;
   if (tabIndex === 2) return <ClientInfosTreatments client={client} />;
   if (tabIndex === 3) return <ClientExams client={client} />;
   if (tabIndex === 4) return <SchedulesPatient client={client} />;

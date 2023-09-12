@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { dentalArch } from "data";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/services/firebase";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+
 import {
   Box,
   Typography,
@@ -9,12 +16,6 @@ import {
   TextField,
   IconButton,
 } from "@mui/material";
-import SaveIcon from "@mui/icons-material/Save";
-import DeleteIcon from "@mui/icons-material/Delete";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 
 interface TreatmentPlanUpdateProps {
   onSaveTreatments: (field: string, value: any[]) => void;
@@ -280,18 +281,21 @@ const GridColumns = styled(Box)`
   position: relative;
   margin: 8px auto;
   .div2 {
+    display: flex;
     grid-area: 1 / 2 / 2 / 3;
     position: absolute;
     bottom: 0px;
     left: 6px;
   }
   .div3 {
+    display: flex;
     grid-area: 2 / 1 / 2 /2;
     position: absolute;
     top: 0px;
     right: 4px;
   }
   .div4 {
+    display: flex;
     grid-area: 2 / 2 / 3 / 3;
     position: absolute;
     top: 0px;
@@ -300,6 +304,7 @@ const GridColumns = styled(Box)`
 `;
 
 const Div1 = styled(Box)`
+  display: flex;
   grid-area: 1 / 1 / 2 / 2;
   position: absolute;
   bottom: 0;

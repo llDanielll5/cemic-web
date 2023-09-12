@@ -3,24 +3,106 @@ import Link from "next/link";
 import { db } from "@/services/firebase";
 import { Box, Typography } from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { collection, query, where } from "firebase/firestore";
+import PostAddIcon from "@mui/icons-material/PostAdd";
+import Modal from "@/components/modal";
+import uploadFile from "@/services/uploadFile";
+import Loading from "@/components/loading";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import styles from "../../../styles/ClientDetails.module.css";
+import { StyledTextField } from "@/components/patient/profile";
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  doc,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 interface ReceiptProps {
-  clientId?: string;
+  client?: any;
 }
 
 const Receipt = (props: ReceiptProps) => {
-  const ref = collection(db, "receipts");
-  const q = query(ref, where("patientId", "==", props?.clientId ?? ""));
-  const snapReceipts = useOnSnapshotQuery("receipts", q);
+  const ref = collection(db, "clients_receipts");
+  const q = query(ref, where("client", "==", props.client?.id ?? ""));
+  // const snapReceipts = useOnSnapshotQuery("receipts", q);
+  const snapReceipts = useOnSnapshotQuery("clients_receipts", q, [
+    props.client,
+  ]);
+  const [addReceiptVisible, setAddReceiptVisible] = useState(false);
+  const [receiptDate, setReceiptDate] = useState<string>("");
+  const [document, setDocument] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  if (!props.clientId) return null;
+  const closeAddReceipt = () => {
+    setDocument(null);
+    setReceiptDate("");
+    setAddReceiptVisible(false);
+  };
+  const handleChangeFile = async (e: any) => {
+    const targetImg = e.target.files[0];
+    return setDocument({
+      file: URL.createObjectURL(targetImg),
+      img: e.target.files[0],
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (receiptDate === "") return alert("Adicione a data do Recibo");
+    setIsLoading(true);
+    const timestamp = Timestamp.now().seconds;
+    const clientRef = collection(db, "clients_receipts");
+    const imgName = `${props?.client?.name.replaceAll(" ", "")}-${timestamp}`;
+    const imgUpload = await uploadFile(
+      "clients_receipts",
+      imgName,
+      document.img
+    );
+
+    if (imgUpload.state === "Success") {
+      return await addDoc(clientRef, {
+        media: imgUpload.url,
+        client: props?.client!.id,
+        title: `Recibo ${props?.client?.id}-${timestamp}`,
+        date: receiptDate,
+      })
+        .then(async (e) => {
+          setIsLoading(false);
+          const document = doc(db, "clients_receipts", e.id);
+          closeAddReceipt();
+          return await updateDoc(document, { id: e.id });
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          return alert("Erro ao adicionar documento");
+        });
+    } else {
+      return alert("Erro ao realizar upload de documento");
+    }
+  };
+
+  if (isLoading)
+    return (
+      <Box position="fixed" top={0} left={0} zIndex={999999}>
+        <Loading message="Atualizando..." />
+      </Box>
+    );
+
+  if (!props.client?.id) return null;
   else
     return (
-      <Box>
-        {snapReceipts.map((v, i) => (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        flexDirection="column"
+        width="100%"
+        border={"1.5px solid var(--dark-blue)"}
+        borderRadius={1}
+      >
+        {/* SNAPSHOT DE RECIBOS AUTOMATIZADOS DO SISTEMA FUTURO */}
+        {/* {snapReceipts.map((v, i) => (
           <Box
             p={1}
             key={i}
@@ -41,7 +123,88 @@ const Receipt = (props: ReceiptProps) => {
               <StyledButton>Detalhes</StyledButton>
             </Link>
           </Box>
-        ))}
+        ))} */}
+        <Modal visible={addReceiptVisible} closeModal={closeAddReceipt}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent={"center"}
+            flexDirection="column"
+          >
+            <StyledTextField
+              type={"date"}
+              margin="dense"
+              value={receiptDate}
+              label="Data do Recibo*:"
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => setReceiptDate(e.target.value)}
+            />
+            <Typography mt={1}>
+              Adicione a Imagem do recibo aqui (Foto ou PDF)
+            </Typography>
+            <Box
+              position="relative"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <input
+                type={"file"}
+                onChange={handleChangeFile}
+                title="Adicionar imagem"
+              />
+            </Box>
+            <StyledButton sx={{ marginTop: "12px" }} onClick={handleSubmit}>
+              Salvar
+            </StyledButton>
+          </Box>
+        </Modal>
+
+        <Typography variant="semibold" fontSize={16} mt={1.5} mb={0.75}>
+          Recibos
+        </Typography>
+
+        <StyledButton
+          endIcon={<PostAddIcon sx={{ color: "white" }} />}
+          onClick={() => setAddReceiptVisible(true)}
+        >
+          Gerar Recibo
+        </StyledButton>
+
+        <Box p={2} width="100%">
+          <Box
+            px={1}
+            my={1}
+            width="100%"
+            display="flex"
+            borderRadius={1}
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="bold">ID Recibo</Typography>
+            <Typography variant="bold">Data do Recibo</Typography>
+            <Typography variant="bold">Ver</Typography>
+          </Box>
+          {snapReceipts.map((v, i) => (
+            <Box
+              px={1}
+              my={1}
+              key={i}
+              width="100%"
+              display="flex"
+              borderRadius={1}
+              justifyContent="space-between"
+              sx={{ backgroundColor: "#cacaca" }}
+              alignItems="center"
+            >
+              <Typography variant="semibold">{v?.id}</Typography>
+              <Typography variant="semibold">{v?.date}</Typography>
+              <Link passHref href={v?.media} target="_blank">
+                <StyledButton variant="text">Visualizar Recibo</StyledButton>
+              </Link>
+            </Box>
+          ))}
+        </Box>
       </Box>
     );
 };
