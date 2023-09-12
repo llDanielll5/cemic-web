@@ -20,6 +20,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { parseDateIso } from "@/services/services";
 
 interface ReceiptProps {
   client?: any;
@@ -232,7 +233,9 @@ const Receipt = (props: ReceiptProps) => {
           {snapReceipts.map((v, i) => (
             <ReceiptSingle key={i}>
               <TextId variant="semibold">{v?.id}</TextId>
-              <Typography variant="semibold">{v?.date}</Typography>
+              <Typography variant="semibold">
+                {parseDateIso(v?.date)}
+              </Typography>
               <Box display="flex" columnGap={1}>
                 <Link passHref href={v?.media} target="_blank">
                   <ViewReceiptButton variant="text">
