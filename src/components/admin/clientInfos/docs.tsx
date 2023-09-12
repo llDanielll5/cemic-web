@@ -66,7 +66,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
     const timestamp = Timestamp.now().seconds;
     const imgName = `${client?.name.replaceAll(" ", "")}-${timestamp}`;
     const imgId = `${client!.id}-${timestamp}`;
-    const imgUpload = await uploadFile("clients", imgName, document.img);
+    const imgUpload = await uploadFile("clients_docs", imgName, document.img);
     const clientRef = doc(db, "clients_docs", imgId);
 
     if (imgUpload.state === "Success") {

@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { db } from "@/services/firebase";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, IconButton } from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import Modal from "@/components/modal";
 import uploadFile from "@/services/uploadFile";
 import Loading from "@/components/loading";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { StyledTextField } from "@/components/patient/profile";
 import {
   Timestamp,
   addDoc,
   collection,
+  deleteDoc,
   doc,
   query,
   updateDoc,
@@ -34,18 +36,44 @@ const Receipt = (props: ReceiptProps) => {
   const [receiptDate, setReceiptDate] = useState<string>("");
   const [document, setDocument] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [idReceipt, setIdReceipt] = useState("");
 
   const closeAddReceipt = () => {
     setDocument(null);
     setReceiptDate("");
     setAddReceiptVisible(false);
   };
+  const handleCloseModalDelete = () => {
+    setIdReceipt("");
+    setDeleteVisible(false);
+  };
+
   const handleChangeFile = async (e: any) => {
     const targetImg = e.target.files[0];
     return setDocument({
       file: URL.createObjectURL(targetImg),
       img: e.target.files[0],
     });
+  };
+
+  const getReceiptId = (id: string) => {
+    setIdReceipt(id);
+    setDeleteVisible(true);
+  };
+  const handleDeleteReceipt = async () => {
+    setIsLoading(true);
+    const reference = doc(db, "clients_receipts", idReceipt);
+    return await deleteDoc(reference)
+      .then(() => {
+        setIsLoading(false);
+        handleCloseModalDelete();
+        return;
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        return alert("Erro ao deletar recibo");
+      });
   };
 
   const handleSubmit = async () => {
@@ -124,6 +152,22 @@ const Receipt = (props: ReceiptProps) => {
             </Link>
           </Box>
         ))} */}
+        <Modal visible={deleteVisible} closeModal={handleCloseModalDelete}>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <Typography variant="bold">
+              Deseja realmente apagar este exame?
+            </Typography>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              columnGap={2}
+            >
+              <StyledButton onClick={handleDeleteReceipt}>Sim</StyledButton>
+              <StyledButton onClick={handleCloseModalDelete}>Não</StyledButton>
+            </Box>
+          </Box>
+        </Modal>
         <Modal visible={addReceiptVisible} closeModal={closeAddReceipt}>
           <Box
             display="flex"
@@ -199,9 +243,17 @@ const Receipt = (props: ReceiptProps) => {
             >
               <Typography variant="semibold">{v?.id}</Typography>
               <Typography variant="semibold">{v?.date}</Typography>
-              <Link passHref href={v?.media} target="_blank">
-                <StyledButton variant="text">Visualizar Recibo</StyledButton>
-              </Link>
+              <Box display="flex" columnGap={1}>
+                <Link passHref href={v?.media} target="_blank">
+                  <StyledButton variant="text">Visualizar Recibo</StyledButton>
+                </Link>
+                <IconButton
+                  title={`Excluir recibo ${v?.id}`}
+                  onClick={() => getReceiptId(v?.id)}
+                >
+                  <DeleteIcon color="error" />
+                </IconButton>
+              </Box>
             </Box>
           ))}
         </Box>
