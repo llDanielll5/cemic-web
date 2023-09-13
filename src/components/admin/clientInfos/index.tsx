@@ -147,12 +147,6 @@ const ClientInfos = (props: ClientInfoProps) => {
             margin="dense"
             variant="standard"
           />
-          <StyledButton
-            sx={{ height: "55px" }}
-            title="Alterar endereço do paciente"
-          >
-            <AddLocationAltIcon />
-          </StyledButton>
         </Double>
 
         <Box

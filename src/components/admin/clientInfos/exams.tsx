@@ -23,6 +23,7 @@ import {
 } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
+import { StyledTextField } from "@/components/patient/profile";
 
 interface ClientExamsProps {
   client: any;
@@ -45,6 +46,7 @@ const ClientExams = (props: ClientExamsProps) => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [imgVisible, setImgVisible] = useState(false);
   const [document, setDocument] = useState<any | null>(null);
+  const [examTitle, setExamTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [idImg, setIdImg] = useState("");
   const userData = useRecoilValue(UserData);
@@ -67,6 +69,8 @@ const ClientExams = (props: ClientExamsProps) => {
   };
 
   const handleChangeUserImage = async () => {
+    if (examTitle === "") return alert("Adicione um titulo");
+    if (document === null) return alert("Adicione uma imagem");
     setIsLoading(true);
     const timestamp = Timestamp.now().seconds;
     const imgName = `${client?.name.replaceAll(" ", "")}-${timestamp}`;
@@ -78,6 +82,7 @@ const ClientExams = (props: ClientExamsProps) => {
       return await setDoc(clientRef, {
         media: imgUpload.url,
         id: imgId,
+        title: examTitle,
         client: client!.id,
       })
         .then(() => {
@@ -147,6 +152,14 @@ const ClientExams = (props: ClientExamsProps) => {
             sx={{ ...avatarImg }}
           />
           <input type={"file"} onChange={handleChangeFile} />
+
+          <StyledTextField
+            margin="dense"
+            value={examTitle}
+            label={"Título do Exame"}
+            sx={{ width: "100%", my: 1 }}
+            onChange={(e) => setExamTitle(e.target.value)}
+          />
           <StyledButton
             sx={{ marginTop: "12px" }}
             onClick={handleChangeUserImage}

@@ -1,8 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import styles from "../../styles/Admin.module.css";
-import { Box, styled, Typography } from "@mui/material";
-import { useRouter } from "next/router";
+import { Avatar, Box, styled, Typography } from "@mui/material";
 import { defaultImage, getImage } from "@/services/services";
 
 interface BasicProfiles {
@@ -23,56 +22,82 @@ interface ListProfilesProps {
 }
 
 const ListProfiles = (props: ListProfilesProps) => {
-  const route = useRouter();
+  const getClientDetails = (item: any) => {
+    props.setClientID(item?.id);
+    props.setClientDetailsVisible(true);
+    return;
+  };
+  const getCpfReplaced = (cpf: string) => {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "$1.$2.$3-$4");
+  };
+  const getPatientRole = (item: any) => {
+    if (item?.role === "patient") return <Patient>Paciente</Patient>;
+    else if (item?.role === "pre-register")
+      return <NotPatient>Não-Paciente</NotPatient>;
+    else return <Selected>Selecionado</Selected>;
+  };
 
   return (
-    <div className={styles["container-list"]}>
+    <UserContainer>
       {props.profiles.length === 0 ? (
-        <div className={styles["notHaveProfiles"]}>
-          <h2>{props.notHaveMessage}</h2>
-        </div>
+        <Typography variant="bold">{props.notHaveMessage}</Typography>
       ) : (
         props.profiles.map((item, index) => (
-          <div
-            key={index}
-            className={styles["profile-item"]}
-            onClick={() => {
-              props.setClientID(item?.id);
-              props.setClientDetailsVisible(true);
-              return;
-            }}
-          >
-            <img
-              className={styles["avatar-image"]}
-              src={getImage(item.profileImage)}
-              alt=""
-            ></img>
-            <div className={styles["container-avatar"]}>
+          <AvatarContainer key={index} onClick={() => getClientDetails(item)}>
+            <UserImage src={getImage(item.profileImage)} alt="" />
+            <AvatarContent>
               <span className={styles.name}>Nome: {item.name}</span>
-              <p className={styles.cpf}>
-                CPF:{" "}
-                {item.cpf.replace(
-                  /(\d{3})(\d{3})(\d{3})(\d{2})/g,
-                  "$1.$2.$3-$4"
-                )}
-              </p>
-            </div>
-            <RoleCard>
-              {item?.role === "patient" ? (
-                <Patient>Paciente</Patient>
-              ) : item?.role === "pre-register" ? (
-                <NotPatient>Não-Paciente</NotPatient>
-              ) : (
-                <Selected>Selecionado</Selected>
-              )}
-            </RoleCard>
-          </div>
+              <p className={styles.cpf}>CPF: {getCpfReplaced(item.cpf)}</p>
+            </AvatarContent>
+            <RoleCard>{getPatientRole(item)}</RoleCard>
+          </AvatarContainer>
         ))
       )}
-    </div>
+    </UserContainer>
   );
 };
 
+const UserContainer = styled(Box)`
+  padding: 8px;
+  margin: 16px 0;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.14);
+`;
+const AvatarContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #ccc;
+  column-gap: 8px;
+  cursor: pointer;
+  width: 100%;
+  padding: 8px 0;
+  :last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  @media screen and (max-width: 400px) {
+    flex-direction: column;
+  }
+`;
+const UserImage = styled(Avatar)`
+  @media screen and (max-width: 500px) {
+    display: none;
+  }
+`;
+const AvatarContent = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  @media screen and (max-width: 500px) {
+    width: 70%;
+  }
+  @media screen and (max-width: 400px) {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+`;
 const RoleCard = styled(Box)`
   color: var(--dark-blue);
   width: fit-content;
