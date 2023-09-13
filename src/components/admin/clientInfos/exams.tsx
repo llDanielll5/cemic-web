@@ -230,7 +230,7 @@ const ClientExams = (props: ClientExamsProps) => {
               src={v?.media}
               sx={{ width: "40px", height: "40px", borderRadius: "8px" }}
             />
-            <Typography variant="semibold">{v?.id}</Typography>
+            <Typography variant="semibold">{v?.title}</Typography>
             <Link passHref href={v?.media} target="_blank">
               <StyledButton>Ver</StyledButton>
             </Link>
