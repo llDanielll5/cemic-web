@@ -24,6 +24,7 @@ import {
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import { StyledTextField } from "@/components/patient/profile";
+import Link from "next/link";
 
 interface ClientExamsProps {
   client: any;
@@ -230,9 +231,9 @@ const ClientExams = (props: ClientExamsProps) => {
               sx={{ width: "40px", height: "40px", borderRadius: "8px" }}
             />
             <Typography variant="semibold">{v?.id}</Typography>
-            <StyledButton onClick={() => handleSeeExam(v?.media)}>
-              Ver
-            </StyledButton>
+            <Link passHref href={v?.media} target="_blank">
+              <StyledButton>Ver</StyledButton>
+            </Link>
             {userData?.role === "admin" && (
               <IconButton onClick={() => handleDeleteModal(v?.id)}>
                 <DeleteIcon color="error" fontSize="medium" />
