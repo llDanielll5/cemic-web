@@ -1,7 +1,7 @@
 import { FaTooth } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { RxDashboard } from "react-icons/rx";
-import { AiFillDollarCircle } from "react-icons/ai";
+import { AiFillDollarCircle, AiFillAlert } from "react-icons/ai";
 import { MdToday, MdRecordVoiceOver } from "react-icons/md";
 import { GiExitDoor, GiAncientScrew } from "react-icons/gi";
 import { HiClipboardDocumentList } from "react-icons/hi2";
@@ -64,6 +64,11 @@ export const dashboardNav = [
     path: "",
     title: "Pagamentos",
     icon: <BiMoney className={stylesDash["react-icon"]} />,
+  },
+  {
+    path: "",
+    title: "Pendências",
+    icon: <AiFillAlert className={stylesDash["react-icon"]} />,
   },
   {
     path: "",

@@ -1,23 +1,37 @@
-import React, { useState, useEffect } from "react";
-import { ClientTypes } from "..";
+import React, { useState, useEffect, useCallback } from "react";
 import { StyledButton } from "../receipts";
-import { Box, Typography, styled } from "@mui/material";
-import Filter from "@/components/filter";
-import FilterLetter from "@/components/filterLetter";
-import ListProfiles from "@/components/listProfiles";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import { Box, styled, IconButton, Typography } from "@mui/material";
 import { ClientType } from "types";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
 import NewPatientForm from "./newPatient";
 import Loading from "@/components/loading";
+import Filter from "@/components/filter";
+import FilterLetter from "@/components/filterLetter";
+import ListProfiles from "@/components/listProfiles";
+import ArrowBack from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForward from "@mui/icons-material/ArrowForwardIos";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import {
+  collection,
+  endBefore,
+  getDocs,
+  limit,
+  limitToLast,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from "firebase/firestore";
+import ReactDropdown from "react-dropdown";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 
 interface ClientsAdminProps {
   setClientDetailsVisible: (e: boolean) => void;
   setClientID: (e: string) => void;
 }
+
+const limitValues = ["3", "5", "10", "20", "50"];
 
 const patientsRef = collection(db, "clients");
 
@@ -31,16 +45,102 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
   const [filterLetter, setFilterLetter] = useState<string | null>("A");
   const [patientsData, setPatientsData] = useState<ClientType[] | []>([]);
   const [filterByClientType, setFilterByClientType] = useState("");
+  const [lastVisible, setLastVisible] = useState<any | null>(null);
+  const [firstVisible, setFirstVisible] = useState<any | null>(null);
+  const [limitQuery, setLimitQuery] = useState<number>(10);
+  const [page, setPage] = useState<number>(1);
 
   /**  ONSNAPSHOT FOR LETTER FILTER   */
   const qPatientLetter = query(
     patientsRef,
-    where("firstLetter", "==", filterLetter)
+    where("firstLetter", "==", filterLetter),
+    orderBy("name"),
+    limit(limitQuery)
   );
-  const filterPatientByLetter = useOnSnapshotQuery("clients", qPatientLetter, [
-    filterLetter,
-  ]);
+  // const filterPatientByLetter = useOnSnapshotQuery("clients", qPatientLetter, [
+  //   filterLetter,
+  // ]);
   /** ********** */
+
+  const getTreatments = async () => {
+    setIsloading(true);
+    const documentSnapshots = await getDocs(qPatientLetter);
+    const lastIndex = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    setLastVisible(lastIndex);
+    var arr: any[] = [];
+    documentSnapshots.forEach((v: any) => arr.push(v.data()));
+    setPatientsData(arr);
+    setIsloading(false);
+    return;
+  };
+
+  const handleNextPage = async () => {
+    if (patientsData.length < limitQuery) return;
+    setIsloading(true);
+    var arr: any[] = [];
+    const qNext = query(
+      patientsRef,
+      where("firstLetter", "==", filterLetter),
+      orderBy("name"),
+      limit(limitQuery),
+      startAfter(lastVisible)
+    );
+    const documentSnapshots = await getDocs(qNext);
+    const firstIndex = documentSnapshots.docs[0];
+    const lastIndex = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    if (documentSnapshots.docs.length === 0) {
+      setIsloading(false);
+      return;
+    }
+    setLastVisible(lastIndex);
+    setFirstVisible(firstIndex);
+    documentSnapshots.forEach((v: any) => arr.push(v.data()));
+    setPatientsData(arr);
+    setPage((prev) => prev + 1);
+    setIsloading(false);
+    return;
+  };
+
+  const handleBackPage = async () => {
+    if (page === 1) return;
+    setIsloading(true);
+    var arr: any[] = [];
+    const qPrev = query(
+      patientsRef,
+      where("firstLetter", "==", filterLetter),
+      orderBy("name"),
+      limitToLast(limitQuery),
+      endBefore(firstVisible)
+    );
+    const documentSnapshots = await getDocs(qPrev);
+    const firstIndex = documentSnapshots.docs[0];
+    const lastIndex = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    if (documentSnapshots.docs.length === 0) {
+      setIsloading(false);
+      return;
+    }
+    setLastVisible(lastIndex);
+    setFirstVisible(firstIndex);
+    documentSnapshots.forEach((v: any) => arr.push(v.data()));
+    setPatientsData(arr);
+    setPage((prev) => prev - 1);
+    setIsloading(false);
+    return;
+  };
+
+  useEffect(() => {
+    setFilterLetter("A");
+    setPatientFilterValue("");
+  }, []);
+
+  useEffect(() => {
+    getTreatments();
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+    getTreatments();
+  }, [filterLetter, limitQuery]);
 
   const handleSelectFilter = (value: any) => setFilterByClientType(value);
 
@@ -85,15 +185,6 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
 
     return queryFunction();
   };
-
-  useEffect(() => {
-    setPatientsData(filterPatientByLetter);
-  }, [filterPatientByLetter, patientFilterValue]);
-
-  useEffect(() => {
-    setFilterLetter("A");
-    setPatientFilterValue("");
-  }, []);
 
   if (isLoading)
     return (
@@ -146,12 +237,40 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
         setLetter={(l) => setFilterLetter(l)}
       />
 
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-end"
+        columnGap={1}
+        mt={2}
+      >
+        <Typography>Limitar por:</Typography>
+        <Box width="fit-content">
+          <ReactDropdown
+            options={limitValues}
+            onChange={({ value }) => setLimitQuery(parseInt(value))}
+            value={limitQuery.toString()}
+            placeholder="Limitar por:"
+          />
+        </Box>
+      </Box>
+
       <ListProfiles
         profiles={patientsData}
         setClientID={setClientID}
         notHaveMessage={"Nenhum paciente encontrado."}
         setClientDetailsVisible={setClientDetailsVisible}
       />
+
+      <Box display="flex" alignItems="center" justifyContent="center">
+        <IconButton onClick={handleBackPage}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="bold">{page}</Typography>
+        <IconButton onClick={handleNextPage}>
+          <ArrowForward />
+        </IconButton>
+      </Box>
     </Box>
   );
 };

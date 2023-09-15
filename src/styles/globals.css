@@ -92,6 +92,10 @@ section h1 img {
   }
 }
 
+.dropdown-limit-query {
+  width: 30%;
+}
+
 .scrollup {
   position: fixed;
   right: 1rem;

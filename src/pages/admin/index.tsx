@@ -31,8 +31,9 @@ const renderPanelTitle = {
   6: "Palestras",
   7: "Tratamentos",
   8: "Pagamentos",
-  9: "Blog",
-  10: "Perfil",
+  9: "Pendências",
+  10: "Blog",
+  11: "Perfil",
 };
 
 const Dashboard = () => {
@@ -149,7 +150,10 @@ const Dashboard = () => {
       <Modal
         visible={clientDetailsVisible}
         closeModal={closeClientModal}
-        style={{ content: { width: "85%" }, overlay: { zIndex: 100 } }}
+        style={{
+          content: { width: "85%", margin: "20px 0" },
+          overlay: { zIndex: 100 },
+        }}
       >
         <ClientInfos client={clientInfos} />
       </Modal>

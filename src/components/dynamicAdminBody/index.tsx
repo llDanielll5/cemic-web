@@ -9,6 +9,7 @@ import ReceiptPageAdmin from "./receipts";
 import ProfileAdmin from "./profile";
 import AdminBlog from "./blog";
 import AdminPayments from "./payments";
+import PendingsTab from "./pendings";
 
 export interface AdminBodyProps {
   page: number;
@@ -77,8 +78,9 @@ const DynamicAdminBody = (props: AdminBodyProps) => {
     );
   }
   if (props.page === 8) return <AdminPayments />;
-  if (props.page === 9) return <AdminBlog />;
-  if (props.page === 10) {
+  if (props.page === 9) return <PendingsTab />;
+  if (props.page === 10) return <AdminBlog />;
+  if (props.page === 11) {
     return <ProfileAdmin />;
   }
 };

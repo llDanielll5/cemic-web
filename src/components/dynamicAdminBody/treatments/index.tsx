@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Typography, styled, IconButton } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import CustomTable from "@/components/table";
 import Modal from "@/components/modal";
-import Input from "@/components/input";
+import { useRecoilValue } from "recoil";
 import { db } from "@/services/firebase";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import EditIcon from "@mui/icons-material/Edit";
 import { maskValue } from "@/services/services";
 import { HeaderTitle } from "../lectures/lectureDetails";
+import { StyledTextField } from "@/components/patient/profile";
 import Loading from "@/components/loading";
+import UserData from "@/atoms/userData";
 import {
   collection,
   deleteDoc,
@@ -27,9 +29,6 @@ import {
   startAfter,
   updateDoc,
 } from "firebase/firestore";
-import { useRecoilValue } from "recoil";
-import UserData from "@/atoms/userData";
-import { StyledTextField } from "@/components/patient/profile";
 
 interface TreatmentValues {
   cod?: string;
