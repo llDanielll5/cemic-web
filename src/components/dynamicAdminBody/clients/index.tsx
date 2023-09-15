@@ -58,6 +58,11 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
     orderBy("name"),
     limit(limitQuery)
   );
+  const queryAllSize = query(
+    patientsRef,
+    where("firstLetter", "==", filterLetter),
+    orderBy("name")
+  );
   // const filterPatientByLetter = useOnSnapshotQuery("clients", qPatientLetter, [
   //   filterLetter,
   // ]);
@@ -66,13 +71,14 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
   const getTreatments = async () => {
     setIsloading(true);
     const documentSnapshots = await getDocs(qPatientLetter);
+    const docSize = await getDocs(queryAllSize);
     const lastIndex = documentSnapshots.docs[documentSnapshots.docs.length - 1];
     setLastVisible(lastIndex);
     var arr: any[] = [];
     documentSnapshots.forEach((v: any) => arr.push(v.data()));
     setPatientsData(arr);
     setIsloading(false);
-    setDbLength(documentSnapshots.size);
+    setDbLength(docSize.size);
     return;
   };
 
@@ -100,7 +106,6 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
     setPatientsData(arr);
     setPage((prev) => prev + 1);
     setIsloading(false);
-    setDbLength(documentSnapshots.size);
     return;
   };
 
@@ -128,7 +133,6 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
     setPatientsData(arr);
     setPage((prev) => prev - 1);
     setIsloading(false);
-    setDbLength(documentSnapshots.size);
     return;
   };
 
