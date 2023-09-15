@@ -82,7 +82,7 @@ const UserForm = (props: UserFormProps) => {
           label="RG:"
           value={userData?.rg!}
           sx={{ width: "30%" }}
-          inputProps={{ maxLength: 7 }}
+          inputProps={{ maxLength: 11 }}
           onChange={(e) => handleChange(e.target.value, "rg", setUserData)}
         />
       </InputsContainer>

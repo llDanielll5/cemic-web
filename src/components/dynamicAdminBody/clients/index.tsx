@@ -47,7 +47,8 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
   const [filterByClientType, setFilterByClientType] = useState("");
   const [lastVisible, setLastVisible] = useState<any | null>(null);
   const [firstVisible, setFirstVisible] = useState<any | null>(null);
-  const [limitQuery, setLimitQuery] = useState<number>(10);
+  const [limitQuery, setLimitQuery] = useState<number>(5);
+  const [dbLength, setDbLength] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
 
   /**  ONSNAPSHOT FOR LETTER FILTER   */
@@ -71,6 +72,7 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
     documentSnapshots.forEach((v: any) => arr.push(v.data()));
     setPatientsData(arr);
     setIsloading(false);
+    setDbLength(documentSnapshots.size);
     return;
   };
 
@@ -98,6 +100,7 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
     setPatientsData(arr);
     setPage((prev) => prev + 1);
     setIsloading(false);
+    setDbLength(documentSnapshots.size);
     return;
   };
 
@@ -125,6 +128,7 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
     setPatientsData(arr);
     setPage((prev) => prev - 1);
     setIsloading(false);
+    setDbLength(documentSnapshots.size);
     return;
   };
 
@@ -240,18 +244,22 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
       <Box
         display="flex"
         alignItems="center"
-        justifyContent="flex-end"
-        columnGap={1}
+        justifyContent="space-between"
         mt={2}
       >
-        <Typography>Limitar por:</Typography>
-        <Box width="fit-content">
-          <ReactDropdown
-            options={limitValues}
-            onChange={({ value }) => setLimitQuery(parseInt(value))}
-            value={limitQuery.toString()}
-            placeholder="Limitar por:"
-          />
+        <Typography variant="body2">
+          Foram encontrados <b>{dbLength.toString()}</b> resultados
+        </Typography>
+        <Box display="flex" alignItems="center" columnGap={1}>
+          <Typography>Limitar por:</Typography>
+          <Box width="fit-content">
+            <ReactDropdown
+              options={limitValues}
+              onChange={({ value }) => setLimitQuery(parseInt(value))}
+              value={limitQuery.toString()}
+              placeholder="Limitar por:"
+            />
+          </Box>
         </Box>
       </Box>
 
