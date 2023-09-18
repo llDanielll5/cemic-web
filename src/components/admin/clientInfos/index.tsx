@@ -73,7 +73,7 @@ const rolesOptions = [
 
 const inputColor = {
   "& .MuiInputBase-input.Mui-disabled": {
-    WebkitTextFillColor: "var(--dark-blue)",
+    WebkitTextFillColor: "gray",
   },
 };
 

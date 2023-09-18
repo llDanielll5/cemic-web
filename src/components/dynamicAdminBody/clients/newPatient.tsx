@@ -6,6 +6,9 @@ import { AddressType } from "types";
 import UserForm from "@/components/userForm";
 import AnamneseForm from "@/components/anamneseForm";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { Timestamp } from "firebase/firestore";
 
 interface UserDefaultEdit {
   bornDate: string;
@@ -83,16 +86,15 @@ const NewPatientForm = (props: AnamneseProps) => {
   const [implantTermRead, setImplantTermRead] = useState(false);
   const [crownTermRead, setCrownTermRead] = useState(false);
   const [page, setPage] = useState(0);
+  const adminData: any = useRecoilValue(UserData);
 
   const handleMasked = (value: string, type: string, setState: any) => {
     const masked = type === "cpf" ? cpfMask : phoneMask;
     setState((prev: any) => ({ ...prev, [type]: masked(value) }));
   };
-
   const handleChange = (e: any, value: string, setState: any) => {
     setState((prev: any) => ({ ...prev, [value]: e }));
   };
-
   const handleAnswer = (value: AnswerType, question: string) => {
     return setAnamneseData((prev) => ({ ...prev, [question]: value }));
   };
@@ -140,6 +142,7 @@ const NewPatientForm = (props: AnamneseProps) => {
   };
 
   const nextPage = () => setPage((prev) => prev + 1);
+  const handleBackPage = () => setPage((prev) => prev - 1);
 
   const handleNextPage = () => {
     const notUserCompleted =
@@ -171,10 +174,8 @@ const NewPatientForm = (props: AnamneseProps) => {
       if (notUserCompleted)
         return alert("Conclua todos os campos de dados pessoais!");
       if (userData?.role === "pre-register") return handleFinish();
-
       if (notLocationCompleted)
         return alert("Você deve preencher um endereço completo válido!");
-
       return nextPage();
     }
 
@@ -185,8 +186,6 @@ const NewPatientForm = (props: AnamneseProps) => {
       return handleFinish();
     }
   };
-
-  const handleBackPage = () => setPage((prev) => prev - 1);
 
   const handleFinish = async () => {
     props.setUserUpdating(true);
@@ -232,6 +231,11 @@ const NewPatientForm = (props: AnamneseProps) => {
       terms: {
         implant: implantTermRead,
         crown: crownTermRead,
+      },
+      createdBy: {
+        timestamp: Timestamp.now(),
+        reporterId: adminData?.id,
+        reporterName: adminData?.name,
       },
     };
     const updated = await createClient(clientData);
