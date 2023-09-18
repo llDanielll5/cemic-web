@@ -147,7 +147,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       userData.cpf?.length! < 14 ||
       userData?.name === "" ||
       userData?.phone?.length! < 14 ||
-      userData?.rg?.length! < 6;
+      userData?.rg?.length! < 4;
     const notLocationCompleted =
       locationData?.city === undefined ||
       locationData?.line1 === undefined ||

@@ -84,6 +84,7 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
 
   const handleNextPage = async () => {
     if (patientsData.length < limitQuery) return;
+    if (patientsData.length === dbLength) return;
     setIsloading(true);
     var arr: any[] = [];
     const qNext = query(
