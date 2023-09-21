@@ -5,10 +5,12 @@ import Receipt from "./receipt";
 import ClientExams from "./exams";
 import SchedulesPatient from "./schedules";
 import ClientInfosTreatments from "./treatments";
-import styles from "../../../styles/ClientDetails.module.css";
 import ClientDocuments from "./docs";
 import ClientProblems from "./problems";
 import ClientAnamneseInfos from "./anamnese";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import { collection, query, where } from "firebase/firestore";
+import { db } from "@/services/firebase";
 
 interface ClientInformationsProps {
   tabIndex: number;
@@ -48,6 +50,7 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
   if (tabIndex === 4) return <SchedulesPatient client={client} />;
   if (tabIndex === 5) return <ClientProblems client={client} />;
   if (tabIndex === 6) return <ClientDocuments client={client} />;
+
   return (
     <Box p={2}>
       <Typography variant="semibold">Função ainda não desenvolvida.</Typography>

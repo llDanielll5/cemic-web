@@ -20,6 +20,7 @@ import {
 interface TreatmentPlanUpdateProps {
   onSaveTreatments: (field: string, value: any[]) => void;
   setVisible: any;
+  previousTreatments: any[];
 }
 
 interface TreatmentPlan {
@@ -45,13 +46,22 @@ const buttonStyle = {
 };
 
 const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
-  const { onSaveTreatments } = props;
+  const { onSaveTreatments, previousTreatments } = props;
   const { lb, lt, rb, rt } = dentalArch;
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedTreatments, setSelectedTreatments] = useState<TreatmentPlan[]>(
     []
   );
   const [treatments, setTreatments] = useState<any[]>([]);
+
+  console.log(previousTreatments);
+
+  useEffect(() => {
+    if (previousTreatments?.length === 0) return;
+    setSelectedTreatments((prev) => [...previousTreatments]);
+    let previousRegions: any[] = previousTreatments?.map((v) => v?.region);
+    setSelectedRegions((prev) => [...prev, ...previousRegions]);
+  }, [previousTreatments]);
 
   useEffect(() => {
     const getTreatments = async () => {
@@ -223,8 +233,11 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
             options={treatments}
             sx={{ width: "85%" }}
             limitTags={2}
+            value={v?.treatments}
             getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
+            isOptionEqualToValue={(option, value) =>
+              option.name === value?.name
+            }
             onChange={(e, v) => {
               const clone = [...selectedTreatments];
               clone[i].treatments = v;

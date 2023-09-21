@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
 import React, { useEffect, useState } from "react";
-import { Avatar } from "@mui/material";
+import { Avatar, Typography } from "@mui/material";
 import { ClientType } from "types";
 import { useRecoilValue } from "recoil";
 import { Box, styled, Autocomplete } from "@mui/material";
@@ -16,6 +16,7 @@ import UserData from "@/atoms/userData";
 import Loading from "@/components/loading";
 import { updateUserData } from "@/services/requests/firestore";
 import { Timestamp } from "firebase/firestore";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 
 interface ClientInfoProps {
   client?: ClientType;
@@ -29,6 +30,9 @@ interface ClientAttributes {
   cpf: string;
   rg: string;
   role: string;
+  screeningDate: string;
+  professionalScreening: string;
+  address: string;
 }
 
 const defaultClientData: ClientAttributes = {
@@ -39,6 +43,9 @@ const defaultClientData: ClientAttributes = {
   cpf: "",
   rg: "",
   role: "",
+  screeningDate: "",
+  professionalScreening: "",
+  address: "",
 };
 
 const professionalTabs = ["Anamnese", "Problemas", "Exames", "Agendamentos"];
@@ -82,6 +89,7 @@ const ClientInfos = (props: ClientInfoProps) => {
   const [clientData, setClientData] = useState(defaultClientData);
   const [hasEditMode, setHasEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const snapProfessionals = useOnSnapshotQuery("professionals");
 
   const [tabIndex, setTabIndex] = useState(0);
   const userData = useRecoilValue(UserData);
@@ -98,21 +106,26 @@ const ClientInfos = (props: ClientInfoProps) => {
   };
 
   const handleSubmit = async () => {
-    const { email, dateBorn, phone, rg } = clientData;
+    const { name, email, dateBorn, phone, rg } = clientData;
     if (email === "" || dateBorn === "" || phone === "" || rg === "")
       return alert("Preencha os campos");
 
     setIsLoading(true);
     await updateUserData(client?.id, {
+      name,
       email,
       dateBorn,
       phone,
       rg,
       role: clientData?.role,
+      screeningDate: clientData?.screeningDate,
+      professionalScreening: clientData?.professionalScreening,
+      address: { address: clientData?.address },
       updatedBy: {
         timestamp: Timestamp.now(),
         reporterId: userData?.id,
         reporterName: userData?.name,
+        role: userData?.role,
       },
     }).then(
       (val) => {
@@ -137,6 +150,9 @@ const ClientInfos = (props: ClientInfoProps) => {
       cpf: client?.cpf,
       rg: client?.rg,
       role: client?.role,
+      screeningDate: client?.screeningDate,
+      professionalScreening: client?.professionalScreening,
+      address: client?.address?.address,
     }));
   }, [client]);
 
@@ -157,12 +173,13 @@ const ClientInfos = (props: ClientInfoProps) => {
         <Double>
           <StyledTextField
             value={clientData?.name}
-            disabled
+            disabled={!hasEditMode}
             label="Nome"
             margin="dense"
-            variant="standard"
             placeholder="Nome do Paciente"
             InputLabelProps={{ shrink: true }}
+            onChange={(e) => handleChange(e.target.value, "name")}
+            variant={!hasEditMode ? "standard" : "outlined"}
             sx={{ width: "100%", ...inputColor }}
           />
           <StyledTextField
@@ -173,7 +190,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             placeholder="Email do Paciente"
             InputLabelProps={{ shrink: true }}
             sx={{ width: "100%", ...inputColor }}
-            onChange={(e) => handleChange(e, "email")}
+            onChange={(e) => handleChange(e.target.value, "email")}
             variant={!hasEditMode ? "standard" : "outlined"}
           />
         </Double>
@@ -188,7 +205,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             sx={{ width: "100%", ...inputColor }}
             placeholder="Data de Nascimento"
             InputLabelProps={{ shrink: true }}
-            onChange={(e) => handleChange(e, "dateBorn")}
+            onChange={(e) => handleChange(e.target.value, "dateBorn")}
             variant={!hasEditMode ? "standard" : "outlined"}
           />
           <StyledTextField
@@ -199,6 +216,42 @@ const ClientInfos = (props: ClientInfoProps) => {
             sx={{ width: "100%", ...inputColor }}
             placeholder="Telefone do Paciente"
             variant={!hasEditMode ? "standard" : "outlined"}
+          />
+        </Double>
+
+        <Double>
+          <StyledTextField
+            type={"date"}
+            margin="dense"
+            label="Data Triagem"
+            disabled={!hasEditMode}
+            value={clientData?.screeningDate}
+            sx={{ width: "100%", ...inputColor }}
+            placeholder="Data de Triagem"
+            InputLabelProps={{ shrink: true }}
+            onChange={(e) => handleChange(e.target.value, "screeningDate")}
+            variant={!hasEditMode ? "standard" : "outlined"}
+          />
+          <Autocomplete
+            limitTags={2}
+            sx={{ width: "100%", mt: "3px" }}
+            disabled={!hasEditMode}
+            options={snapProfessionals?.map((v) => v?.name)}
+            value={clientData?.professionalScreening}
+            isOptionEqualToValue={(option, value) => option === value}
+            onChange={(e, v) => {
+              if (!v) return;
+              return handleChange(v, "professionalScreening");
+            }}
+            renderInput={(params) => (
+              <StyledTextField
+                {...params}
+                label="Profissional da Triagem"
+                InputLabelProps={{ shrink: true }}
+                placeholder={"Selecione o Profissional."}
+                variant={!hasEditMode ? "standard" : "outlined"}
+              />
+            )}
           />
         </Double>
 
@@ -219,6 +272,7 @@ const ClientInfos = (props: ClientInfoProps) => {
               placeholder="RG do Paciente"
               InputLabelProps={{ shrink: true }}
               sx={{ width: "100%", ...inputColor }}
+              onChange={({ target }) => handleChange(target.value, "rg")}
               value={clientData?.rg === "" ? "Sem RG" : clientData?.rg}
               variant={!hasEditMode ? "standard" : "outlined"}
               margin="dense"
@@ -228,14 +282,15 @@ const ClientInfos = (props: ClientInfoProps) => {
 
         <Double>
           <StyledTextField
-            disabled
+            disabled={!hasEditMode}
             label="Endereço"
-            value={client?.address?.address}
+            value={clientData?.address}
             sx={{ width: "70%", ...inputColor }}
             placeholder="Endereço do Paciente"
+            onChange={({ target }) => handleChange(target.value, "address")}
+            variant={!hasEditMode ? "standard" : "outlined"}
             InputLabelProps={{ shrink: true }}
             margin="dense"
-            variant="standard"
           />
           <Autocomplete
             limitTags={2}
@@ -264,10 +319,17 @@ const ClientInfos = (props: ClientInfoProps) => {
         <Box
           columnGap={1}
           display="flex"
-          justifyContent="flex-end"
-          title="Editar informações do paciente"
+          justifyContent={!client?.updatedBy ? "flex-end" : "space-between"}
+          alignItems="center"
         >
+          {!!client?.updatedBy && (
+            <Typography variant="small">
+              Atualizado por {client?.updatedBy?.reporterName} dia{" "}
+              {client?.updatedBy?.timestamp?.toDate()?.toLocaleString()}
+            </Typography>
+          )}
           <StyledButton
+            title="Editar informações do paciente"
             endIcon={<EditIcon sx={{ color: "white" }} />}
             onClick={!hasEditMode ? handleEdit : handleSubmit}
           >

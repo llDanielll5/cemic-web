@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { doc, getDoc } from "firebase/firestore";
 import { createUser } from "@/services/requests/auth";
@@ -21,10 +21,23 @@ const RegisterScreen = () => {
   const [cpf, setCPF] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [finishRegister, setFinishRegister] = useState(false);
   const [modalError, setModalError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    const loginPage = async () => {
+      setIsLoading(true);
+      setLoadingMessage("Voltando para a tela de login");
+      await router.push("/login").then(
+        () => setIsLoading(false),
+        (er) => setIsLoading(false)
+      );
+    };
+    loginPage();
+  }, [router]);
 
   const handleTogglePasswordVisible = (e: any) => {
     inputRef?.current?.focus();
@@ -59,6 +72,7 @@ const RegisterScreen = () => {
     const completeName = capitalizeds.join(" ");
 
     setIsLoading(true);
+    setLoadingMessage("Estamos criando sua conta");
     const checkHasIdUsed = async () => {
       await createUser({
         email,
@@ -114,7 +128,7 @@ const RegisterScreen = () => {
 
   return (
     <div className={styles.container}>
-      {isLoading && <Loading message="Estamos criando sua conta..." />}
+      {isLoading && <Loading message={loadingMessage} />}
       <ModalSuccess
         actionButton={handleFinishRegister}
         message={"Você criou sua conta na CEMIC com sucesso!"}

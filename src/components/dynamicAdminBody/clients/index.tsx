@@ -185,10 +185,14 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
 
     const queryFunction = async () => {
       const querySnapshot = await getDocs(qPatientFilter());
+      let size = querySnapshot.size;
       querySnapshot.forEach((doc) => {
         documents.push(doc.data());
       });
+      if (querySnapshot.size === 0)
+        return alert("Não foi encontrado paciente com este CPF cadastrado!");
       setPatientsData(documents);
+      setDbLength(size);
     };
     const documents: any[] = [];
 
@@ -275,15 +279,17 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
         setClientDetailsVisible={setClientDetailsVisible}
       />
 
-      <Box display="flex" alignItems="center" justifyContent="center">
-        <IconButton onClick={handleBackPage}>
-          <ArrowBack />
-        </IconButton>
-        <Typography variant="bold">{page}</Typography>
-        <IconButton onClick={handleNextPage}>
-          <ArrowForward />
-        </IconButton>
-      </Box>
+      {dbLength > 4 && (
+        <Box display="flex" alignItems="center" justifyContent="center">
+          <IconButton onClick={handleBackPage}>
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="bold">{page}</Typography>
+          <IconButton onClick={handleNextPage}>
+            <ArrowForward />
+          </IconButton>
+        </Box>
+      )}
     </Box>
   );
 };

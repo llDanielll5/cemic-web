@@ -209,10 +209,10 @@ const LoginScreen = () => {
               </span>
             </div>
 
-            <h3>Não possui conta ainda?</h3>
+            {/* <h3>Não possui conta ainda?</h3>
             <p onClick={() => router.push("/register")}>
               Crie uma agora grátis!
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

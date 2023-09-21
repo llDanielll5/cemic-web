@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { Box, Typography } from "@mui/material";
-import { maskValue } from "@/services/services";
+import { maskValue, parseDateIso } from "@/services/services";
 import { useRecoilValue } from "recoil";
 import { db } from "@/services/firebase";
 import * as F from "firebase/firestore";
@@ -21,6 +21,7 @@ import {
   PaymentTypes,
   ReceiptProps,
 } from "types";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 
 interface ClientTreatmentsInterface {
   client: ClientType;
@@ -45,7 +46,7 @@ type PayShapeArr = PaymentShapesArray[];
 const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const { client } = props;
   const [vezes, setVezes] = useState("");
-  const userData = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
   const [discount, setDiscount] = useState(5);
   const [totalValue, setTotalValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,28 +61,28 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [paymentType, setPaymentType] = useState<PaymentTypes | null>(null);
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
-  const [treatments, setTreatments] = useState<ClientTreatmentsProps | null>(
-    null
-  );
   const [actualProfessional, setActualProfessional] = useState<any | null>(
     null
   );
-
-  const getUserTreatments = useCallback(async () => {
-    const ref = F.collection(db, "clients_treatments");
-    const q = F.query(ref, F.where("client", "==", client?.id));
-
-    const querySnapshot = await F.getDocs(q);
-
-    if (querySnapshot.docs.length > 0) {
-      const document: any = querySnapshot.docs[0].data();
-      return setTreatments(document);
-    } else return;
-  }, [client?.id]);
+  const refTreats = F.collection(db, "clients_treatments");
+  const queryTreats = F.query(
+    refTreats,
+    F.where("client", "==", client?.id ?? "")
+  );
+  const snapUserTreatments = useOnSnapshotQuery(
+    "clients_treatments",
+    queryTreats,
+    [client]
+  );
+  let clientTreatments = snapUserTreatments[0];
+  let clientAdminTimestamp: F.Timestamp =
+    clientTreatments?.updatedBy?.timestamp;
 
   const getActualProfessional = useCallback(async () => {
+    if (client?.actualProfessional === "") return;
+
     const ref = F.collection(db, "professionals");
-    const q = F.query(ref, F.where("id", "==", treatments?.actualProfessional));
+    const q = F.query(ref, F.where("id", "==", client?.actualProfessional));
 
     const querySnapshot = await F.getDocs(q);
 
@@ -89,7 +90,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       const document: any = querySnapshot.docs[0].data();
       return setActualProfessional(document);
     } else return;
-  }, [treatments]);
+  }, [client]);
 
   const handleCloseAddTreatment = () => {
     setAddTreatmentVisible(false);
@@ -98,8 +99,8 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const handleSubmitTreatment = async (field: string, values: any[]) => {
     let reduced: any[] = [];
     setIsLoading(true);
-    if (treatments?.treatments?.treatment_plan.length > 0) {
-      let newArr = [...treatments?.treatments?.treatment_plan, ...values];
+    if (clientTreatments?.treatments?.treatment_plan.length > 0) {
+      let newArr = [...clientTreatments?.treatments?.treatment_plan, ...values];
       newArr.forEach((item) => {
         var duplicated =
           reduced.findIndex((val) => {
@@ -116,14 +117,17 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         }
       });
 
-      const ref = F.doc(db, "clients_treatments", treatments!.id);
+      const ref = F.doc(db, "clients_treatments", clientTreatments!.id);
 
       return await F.updateDoc(ref, {
         "treatments.treatment_plan": F.arrayUnion(...reduced),
-        "treatments.toRealize": F.arrayUnion(...reduced),
+        "updatedBy.reporter": adminData?.id,
+        "updatedBy.reporterName": adminData?.name,
+        "updatedBy.timestamp": F.Timestamp.now(),
+        "updatedBy.role": adminData?.role,
       })
         .then(async () => {
-          const ref = F.doc(db, "clients", treatments!.client);
+          const ref = F.doc(db, "clients", client!.id);
           return await F.updateDoc(ref, { role: "patient" })
             .then(() => {
               setIsLoading(false);
@@ -139,31 +143,30 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     } else {
       reduced = [...values];
 
-      const ref = F.doc(
-        db,
-        "clients_treatments",
-        `${client!.id}-${F.Timestamp.now().seconds}`
-      );
+      const ref = F.collection(db, "clients_treatments");
 
-      return await F.setDoc(ref, {
-        treatments: {
-          treatment_plan: values,
+      return await F.addDoc(ref, {
+        treatments: { treatment_plan: values },
+        negotiateds: {
+          payeds: [],
           realizeds: [],
           forwardeds: [],
-          toRealize: values,
+          toRealize: [],
         },
         client: client!.id,
-        updatedAt: F.Timestamp.now(),
-        actualProfessional: "",
-        screeningId: "",
-        professionalScreening: "",
-        medias: [],
-        negotiateds: [],
-        id: `${client!.id}-${F.Timestamp.now().seconds}`,
+        updatedBy: {
+          reporter: adminData?.id,
+          reporterName: adminData?.name,
+          timestamp: F.Timestamp.now(),
+          role: adminData?.role,
+        },
       })
-        .then(async () => {
-          const ref = F.doc(db, "clients", client!.id);
-          return await F.updateDoc(ref, { role: "patient" })
+        .then(async (queryDoc) => {
+          const clientRef = F.doc(db, "clients", client!.id);
+          await F.updateDoc(F.doc(db, "clients_treatments", queryDoc.id), {
+            id: queryDoc.id,
+          });
+          return await F.updateDoc(clientRef, { role: "patient" })
             .then(() => {
               setIsLoading(false);
               handleCloseAddTreatment();
@@ -222,24 +225,13 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   }, [getTotalValue, negotiateds]);
 
   useEffect(() => {
-    if (client?.id === "" || client?.id === null || client?.id === undefined)
-      return;
-    getUserTreatments();
-  }, [client?.id, getUserTreatments]);
-
-  useEffect(() => {
-    if (
-      treatments?.actualProfessional === "" ||
-      treatments?.actualProfessional === null ||
-      treatments?.actualProfessional === undefined
-    )
-      return;
+    if (client?.actualProfessional !== "") return;
     getActualProfessional();
-  }, [getActualProfessional, treatments?.actualProfessional]);
+  }, [client?.actualProfessional, getActualProfessional]);
 
   const handleGeneratePayment = () => {
-    const treats = treatments?.treatments?.treatment_plan;
-    const neg = treatments?.negotiateds;
+    const treats = clientTreatments?.treatments?.treatment_plan;
+    const neg = clientTreatments?.negotiateds?.payeds;
 
     let reduced = [];
     treats.forEach((item) => {
@@ -260,8 +252,9 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     setPaymentModal(true);
   };
 
-  const hasTreatmentPlan = treatments?.treatments?.treatment_plan?.length > 0;
-  const hasRealizeds = treatments?.treatments?.realizeds?.length > 0;
+  const hasTreatmentPlan =
+    clientTreatments?.treatments?.treatment_plan?.length > 0;
+  const hasRealizeds = clientTreatments?.negotiateds?.realizeds?.length > 0;
 
   const onCloseModalPayment = () => {
     setPaymentShapesValues("");
@@ -352,7 +345,11 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
     const receiptRef = F.doc(db, "receipts", generateId);
     const paymentsRef = F.doc(db, "payments", generateId);
-    const clientTreatmentRef = F.doc(db, "clients_treatments", treatments!.id);
+    const clientTreatmentRef = F.doc(
+      db,
+      "clients_treatments",
+      clientTreatments!.id
+    );
 
     const handleSuccess = async () => {
       const ref = F.doc(db, "clients", client!.id);
@@ -400,6 +397,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         <TreatmentPlanUpdate
           onSaveTreatments={handleSubmitTreatment}
           setVisible={setAddTreatmentVisible}
+          previousTreatments={clientTreatments?.treatments?.treatment_plan}
         />
       </Modal>
 
@@ -442,9 +440,14 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         />
       </Modal>
 
-      {treatments !== null && (
+      {clientTreatments !== null && (
         <>
-          <Box>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            columnGap={2}
+          >
             {actualProfessional !== null ? (
               <Typography variant="bold">
                 Atual Dentista: {actualProfessional?.name ?? ""}
@@ -452,6 +455,10 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             ) : (
               <Typography variant="bold">Sem dentista atualmente</Typography>
             )}
+            <Typography variant="small">
+              Atualizado por: {clientTreatments?.updatedBy?.reporterName} dia{" "}
+              {clientAdminTimestamp?.toDate()?.toLocaleString("pt-br")}
+            </Typography>
           </Box>
           <Typography variant="bold">
             Plano de Tratamento do paciente:
@@ -463,7 +470,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             my={1}
           >
             {hasTreatmentPlan &&
-              treatments?.treatments?.treatment_plan?.map((v, i) => (
+              clientTreatments?.treatments?.treatment_plan?.map((v, i) => (
                 <Box
                   key={i}
                   display={"flex"}
@@ -493,7 +500,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             mt={1}
           >
             {hasRealizeds &&
-              treatments?.treatments?.realizeds?.map((v, i) => (
+              clientTreatments?.treatments?.realizeds?.map((v, i) => (
                 <Box
                   key={i}
                   display={"flex"}
@@ -522,7 +529,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             <Link
               passHref
               target="_blank"
-              href={`/admin/treatment-history/${treatments?.client}`}
+              href={`/admin/treatment-history/${client!.id}`}
             >
               <StyledButton endIcon={<HistoryIcon />}>Histórico</StyledButton>
             </Link>
@@ -534,7 +541,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         <AddTreatment
           openModal={() => setAddTreatmentVisible(true)}
           handleGeneratePayment={handleGeneratePayment}
-          treatments={treatments}
+          treatments={clientTreatments}
         />
       )}
     </Box>

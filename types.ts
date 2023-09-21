@@ -84,6 +84,9 @@ export interface ClientType {
   sexo?: SexType;
   anamneseFilled?: boolean;
   observations?: string;
+  screeningDate: string;
+  actualProfessional: string;
+  professionalScreening: string;
   terms?: {
     implant?: boolean;
     crown?: boolean;
