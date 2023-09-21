@@ -236,6 +236,7 @@ const NewPatientForm = (props: AnamneseProps) => {
         timestamp: Timestamp.now(),
         reporterId: adminData?.id,
         reporterName: adminData?.name,
+        role: adminData?.role,
       },
     };
     const updated = await createClient(clientData);

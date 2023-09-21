@@ -119,14 +119,12 @@ const ClientInfos = (props: ClientInfoProps) => {
       rg,
       role: clientData?.role,
       screeningDate: clientData?.screeningDate,
-      professionalScreening: clientData?.professionalScreening,
-      address: { address: clientData?.address },
-      updatedBy: {
-        timestamp: Timestamp.now(),
-        reporterId: userData?.id,
-        reporterName: userData?.name,
-        role: userData?.role,
-      },
+      professionalScreening: clientData?.professionalScreening ?? "",
+      "address.address": clientData?.address,
+      "updatedBy.timestamp": Timestamp.now(),
+      "updatedBy.reporterId": userData?.id,
+      "updatedBy.reporterName": userData?.name,
+      "updatedBy.role": userData?.role,
     }).then(
       (val) => {
         if (val === "Sucesso") setIsLoading(false);
@@ -134,7 +132,7 @@ const ClientInfos = (props: ClientInfoProps) => {
       },
       (err) => {
         setIsLoading(false);
-        return alert("Erro na operação");
+        return alert(err);
       }
     );
   };
