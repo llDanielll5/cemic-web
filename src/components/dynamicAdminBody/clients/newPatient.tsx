@@ -76,7 +76,7 @@ export const anamneseQuestions: AnamneseQuestions = {
   "É alérgico a algum medicamento?": "",
   "Já teve algum problema com anestésicos?": "",
   "Tem ansiedade?": "",
-  "Faz uso de AAS": "",
+  "Faz uso de AAS?": "",
 };
 
 const NewPatientForm = (props: AnamneseProps) => {
@@ -172,7 +172,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       anamneseData["É alérgico a algum medicamento?"] !== "" &&
       anamneseData["Já teve algum problema com anestésicos?"] !== "" &&
       anamneseData["Tem ansiedade?"] !== "" &&
-      anamneseData["Faz uso de AAS"] !== "";
+      anamneseData["Faz uso de AAS?"] !== "";
 
     if (page === 0) {
       if (notUserCompleted)

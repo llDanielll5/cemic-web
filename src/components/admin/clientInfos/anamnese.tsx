@@ -42,7 +42,7 @@ const anamsVal = [
   "É alérgico a algum medicamento?",
   "Já teve algum problema com anestésicos?",
   "Tem ansiedade?",
-  "Faz uso AAS",
+  "Faz uso de AAS?",
 ];
 
 const ClientAnamneseInfos = (props: ClientAnamneseProps) => {
