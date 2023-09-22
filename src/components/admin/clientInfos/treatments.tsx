@@ -1,9 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { Box, Typography } from "@mui/material";
-import { maskValue, parseDateIso } from "@/services/services";
-import { useRecoilValue } from "recoil";
-import { db } from "@/services/firebase";
 import * as F from "firebase/firestore";
 import Link from "next/link";
 import Modal from "@/components/modal";
@@ -13,14 +8,13 @@ import HistoryIcon from "@mui/icons-material/History";
 import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
 import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
 import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
-import {
-  ClientTreatmentsProps,
-  ClientType,
-  PaymentShape,
-  PaymentTypes,
-  ReceiptProps,
-} from "types";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import { Box, Typography } from "@mui/material";
+import { maskValue } from "@/services/services";
+import { useRecoilValue } from "recoil";
+import { db } from "@/services/firebase";
+import { ClientType, PaymentShape, PaymentTypes } from "types";
 
 interface ClientTreatmentsInterface {
   client: ClientType;
@@ -45,7 +39,7 @@ type PayShapeArr = PaymentShapesArray[];
 const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const { client } = props;
   const [vezes, setVezes] = useState("");
-  const adminData = useRecoilValue(UserData);
+  const adminData: any = useRecoilValue(UserData);
   const [discount, setDiscount] = useState(5);
   const [totalValue, setTotalValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,9 +55,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
-  const [actualProfessional, setActualProfessional] = useState<any | null>(
-    null
-  );
+  const [actualProfessional, setActualProfessional] = useState<any>(null);
   const refTreats = F.collection(db, "clients_treatments");
   const queryTreats = F.query(
     refTreats,
@@ -516,21 +508,23 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             my={1}
           >
             {hasTreatmentPlan &&
-              clientTreatments?.treatments?.treatment_plan?.map((v, i) => (
-                <Box
-                  key={i}
-                  display={"flex"}
-                  alignItems={"center"}
-                  columnGap={"4px"}
-                  width={"100%"}
-                  my={"4px"}
-                >
-                  <Typography variant="semibold">{v?.region} - </Typography>
-                  <Typography variant="semibold">
-                    {v?.treatments?.name}
-                  </Typography>
-                </Box>
-              ))}
+              clientTreatments?.treatments?.treatment_plan?.map(
+                (v: any, i: number) => (
+                  <Box
+                    key={i}
+                    display={"flex"}
+                    alignItems={"center"}
+                    columnGap={"4px"}
+                    width={"100%"}
+                    my={"4px"}
+                  >
+                    <Typography variant="semibold">{v?.region} - </Typography>
+                    <Typography variant="semibold">
+                      {v?.treatments?.name}
+                    </Typography>
+                  </Box>
+                )
+              )}
             {!hasTreatmentPlan && (
               <Typography variant="semibold">
                 Sem plano de Tratamento
@@ -546,21 +540,23 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             mt={1}
           >
             {hasRealizeds &&
-              clientTreatments?.treatments?.realizeds?.map((v, i) => (
-                <Box
-                  key={i}
-                  display={"flex"}
-                  alignItems={"center"}
-                  columnGap={"4px"}
-                  width={"100%"}
-                  my={"4px"}
-                >
-                  <Typography variant="semibold">{v?.region} - </Typography>
-                  <Typography variant="semibold">
-                    {v?.treatments?.name}
-                  </Typography>
-                </Box>
-              ))}
+              clientTreatments?.treatments?.realizeds?.map(
+                (v: any, i: number) => (
+                  <Box
+                    key={i}
+                    display={"flex"}
+                    alignItems={"center"}
+                    columnGap={"4px"}
+                    width={"100%"}
+                    my={"4px"}
+                  >
+                    <Typography variant="semibold">{v?.region} - </Typography>
+                    <Typography variant="semibold">
+                      {v?.treatments?.name}
+                    </Typography>
+                  </Box>
+                )
+              )}
             {!hasRealizeds && (
               <Typography variant="semibold">
                 Sem Tratamentos concluídos

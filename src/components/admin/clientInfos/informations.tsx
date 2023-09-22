@@ -22,19 +22,23 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
   const [anamneseKeys, setAnamneseKeys] = useState<string[] | null>(null);
   const [anamneseValues, setAnamneseValues] = useState<any[] | null>(null);
   const hasAnamnese = tabIndex === 0 && anamneseKeys !== null;
-  const hasClient = client === undefined || client === null;
+  const notHasClient = client === undefined || client === null;
+  const refClient = collection(db, "clients");
+  const queryClient = query(refClient, where("id", "==", client?.id ?? ""));
+  let snapClient = useOnSnapshotQuery("clients", queryClient, [client]);
 
   useEffect(() => {
-    if (Object.keys(client!).length !== 0) {
-      const keys = Object.keys(client?.anamnese);
-      const values = Object.values(client?.anamnese);
+    if (snapClient.length === 0) return;
+    if (Object.keys(snapClient[0]!).length !== 0) {
+      const keys = Object.keys(snapClient?.[0]?.anamnese);
+      const values = Object.values(snapClient?.[0]?.anamnese);
       setAnamneseKeys(keys);
       setAnamneseValues(values);
       return;
     }
-  }, [client]);
+  }, [snapClient]);
 
-  if (hasClient) return <Typography my={2}>Não há cliente</Typography>;
+  if (notHasClient) return <Typography my={2}>Não há cliente</Typography>;
   if (hasAnamnese)
     return (
       <ClientAnamneseInfos
