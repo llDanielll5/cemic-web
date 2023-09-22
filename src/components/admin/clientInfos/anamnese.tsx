@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/ClientDetails.module.css";
 import AnamneseForm from "@/components/anamneseForm";
-import Loading from "@/components/loading";
-import Modal from "@/components/modal";
 import EditIcon from "@mui/icons-material/Edit";
+import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
-import {
-  Timestamp,
-  collection,
-  doc,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import Loading from "@/components/loading";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { db } from "@/services/firebase";
 import { useRecoilValue } from "recoil";
 import { Box } from "@mui/material";
@@ -22,7 +15,14 @@ import {
   AnswerType,
   anamneseQuestions,
 } from "@/components/dynamicAdminBody/clients/newPatient";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import {
+  Timestamp,
+  collection,
+  doc,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 interface ClientAnamneseProps {
   client: any;
@@ -41,6 +41,8 @@ const anamsVal = [
   "Tem anemia?",
   "É alérgico a algum medicamento?",
   "Já teve algum problema com anestésicos?",
+  "Tem ansiedade?",
+  "Faz uso AAS",
 ];
 
 const ClientAnamneseInfos = (props: ClientAnamneseProps) => {
@@ -66,18 +68,14 @@ const ClientAnamneseInfos = (props: ClientAnamneseProps) => {
     setIsLoading(true);
     setLoadingMessage("Atualizando Anamnese do Cliente!");
     const ref = doc(db, "clients", client!.id);
+    let anamneseForUpdate: { [s: string]: any } = {};
+    for (let i = 0; i < 12; i++) {
+      anamneseForUpdate[`anamnese.${anamsVal[i]}`] =
+        anamneseData?.[anamsVal[i]];
+    }
 
     const anamneseValues = {
-      [`anamnese.${anamsVal[0]}`]: anamneseData?.[`${anamsVal[0]}`],
-      [`anamnese.${anamsVal[1]}`]: anamneseData?.[`${anamsVal[1]}`],
-      [`anamnese.${anamsVal[2]}`]: anamneseData?.[`${anamsVal[2]}`],
-      [`anamnese.${anamsVal[3]}`]: anamneseData?.[`${anamsVal[3]}`],
-      [`anamnese.${anamsVal[4]}`]: anamneseData?.[`${anamsVal[4]}`],
-      [`anamnese.${anamsVal[5]}`]: anamneseData?.[`${anamsVal[5]}`],
-      [`anamnese.${anamsVal[6]}`]: anamneseData?.[`${anamsVal[6]}`],
-      [`anamnese.${anamsVal[7]}`]: anamneseData?.[`${anamsVal[7]}`],
-      [`anamnese.${anamsVal[8]}`]: anamneseData?.[`${anamsVal[8]}`],
-      [`anamnese.${anamsVal[9]}`]: anamneseData?.[`${anamsVal[9]}`],
+      ...anamneseForUpdate,
       observations,
       "updatedBy.reporterId": adminData?.id,
       "updatedBy.reporterName": adminData?.name,
@@ -109,6 +107,8 @@ const ClientAnamneseInfos = (props: ClientAnamneseProps) => {
       [anamsVal[7]]: client?.anamnese[`${anamsVal[7]}`],
       [anamsVal[8]]: client?.anamnese[`${anamsVal[8]}`],
       [anamsVal[9]]: client?.anamnese[`${anamsVal[9]}`],
+      [anamsVal[10]]: client?.anamnese[`${anamsVal[10]}`],
+      [anamsVal[11]]: client?.anamnese[`${anamsVal[11]}`],
     }));
     setObservations(client?.observations);
   }, [client]);

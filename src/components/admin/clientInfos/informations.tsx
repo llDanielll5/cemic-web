@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { collection, query, where } from "firebase/firestore";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { Box, Typography } from "@mui/material";
+import { db } from "@/services/firebase";
 import { ClientType } from "types";
 import Receipt from "./receipt";
 import ClientExams from "./exams";
-import SchedulesPatient from "./schedules";
-import ClientInfosTreatments from "./treatments";
 import ClientDocuments from "./docs";
 import ClientProblems from "./problems";
+import SchedulesPatient from "./schedules";
 import ClientAnamneseInfos from "./anamnese";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { collection, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
+import ClientInfosTreatments from "./treatments";
 
 interface ClientInformationsProps {
   tabIndex: number;
   client?: ClientType;
 }
+
+const refClient = collection(db, "clients");
 
 const ClientInformationsAdmin = (props: ClientInformationsProps) => {
   const { tabIndex, client } = props;
@@ -23,7 +25,6 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
   const [anamneseValues, setAnamneseValues] = useState<any[] | null>(null);
   const hasAnamnese = tabIndex === 0 && anamneseKeys !== null;
   const notHasClient = client === undefined || client === null;
-  const refClient = collection(db, "clients");
   const queryClient = query(refClient, where("id", "==", client?.id ?? ""));
   let snapClient = useOnSnapshotQuery("clients", queryClient, [client]);
 
@@ -47,7 +48,6 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
         client={client}
       />
     );
-
   if (tabIndex === 1) return <Receipt client={client} />;
   if (tabIndex === 2) return <ClientInfosTreatments client={client} />;
   if (tabIndex === 3) return <ClientExams client={client} />;

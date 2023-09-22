@@ -134,6 +134,22 @@ const AnamneseForm = (props: AnamneseFormProps) => {
           value: anamneseData["Já teve algum problema com anestésicos?"],
         })}
       </div>
+      <div className={styles["question-container"]}>
+        <span>Tem ansiedade?</span>
+        {renderRadioGroup({
+          name: "question11",
+          answer: "Tem ansiedade?",
+          value: anamneseData["Tem ansiedade?"],
+        })}
+      </div>
+      <div className={styles["question-container"]}>
+        <span>Faz uso de AAS?</span>
+        {renderRadioGroup({
+          name: "question12",
+          answer: "Faz uso de AAS?",
+          value: anamneseData["Faz uso de AAS?"],
+        })}
+      </div>
 
       <StyledTextField
         label="Observações:"
