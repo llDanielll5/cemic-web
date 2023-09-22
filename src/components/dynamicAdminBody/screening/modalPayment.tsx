@@ -45,6 +45,8 @@ interface ModalPaymentProps {
   setPaymentShapesValues: (e: string) => void;
   paymentShapesArr: PaymentShapesArray[];
   setPaymentShapesArr: (e: PaymentShapesArray[]) => void;
+  negotiatedsToRealize: any;
+  setNegotiatedsToRealize: any;
 }
 
 const parcelado = [
@@ -88,6 +90,8 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
     onCloseModalPayment,
     paymentShapesValues,
     setPaymentShapesValues,
+    negotiatedsToRealize,
+    setNegotiatedsToRealize,
   } = props;
 
   const paymentTypeText = () => {

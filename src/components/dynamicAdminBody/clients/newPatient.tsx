@@ -32,8 +32,8 @@ interface AnamneseProps {
   setUserUpdating: any;
   onClose: () => void;
 }
-type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
-interface AnamneseQuestions {
+export type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
+export interface AnamneseQuestions {
   [q: string]: AnswerType;
 }
 
@@ -64,7 +64,7 @@ const defaultAddress: AddressType = {
   address: "",
 };
 
-const anamneseQuestions: AnamneseQuestions = {
+export const anamneseQuestions: AnamneseQuestions = {
   "Está tomando alguma medicação no momento?": "",
   "Sofre ou sofreu de algum problema no coração?": "",
   "É diabético?": "",

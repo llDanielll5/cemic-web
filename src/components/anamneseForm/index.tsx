@@ -12,8 +12,8 @@ interface AnamneseFormProps {
   observations: any;
   setObservations: any;
   handleBackPage: any;
-  userData: any;
-  setUserData: any;
+  userData?: any;
+  setUserData?: any;
 }
 
 const anamneseOptions = ["SIM", "NÃO", "NÃO SEI"];
@@ -141,20 +141,22 @@ const AnamneseForm = (props: AnamneseFormProps) => {
         onChange={(e) => setObservations(e.target.value)}
         margin="dense"
       />
-      <StyledTextField
-        type={"date"}
-        margin="dense"
-        sx={{ width: "30%", alignSelf: "center" }}
-        label="Data de Triagem*:"
-        value={userData?.screeningDate}
-        InputLabelProps={{ shrink: true }}
-        onChange={(e) =>
-          setUserData((prev: any) => ({
-            ...prev,
-            screeningDate: e.target.value,
-          }))
-        }
-      />
+      {!!userData && (
+        <StyledTextField
+          type={"date"}
+          margin="dense"
+          sx={{ width: "30%", alignSelf: "center" }}
+          label="Data de Triagem*:"
+          value={userData?.screeningDate}
+          InputLabelProps={{ shrink: true }}
+          onChange={(e) =>
+            setUserData((prev: any) => ({
+              ...prev,
+              screeningDate: e.target.value,
+            }))
+          }
+        />
+      )}
       <div style={{ marginBottom: "12px" }} />
 
       <div className={styles["buttons-finish"]}>

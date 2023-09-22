@@ -1,4 +1,3 @@
-//@ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { Box, Typography } from "@mui/material";
@@ -61,6 +60,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [paymentType, setPaymentType] = useState<PaymentTypes | null>(null);
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
+  const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
   const [actualProfessional, setActualProfessional] = useState<any | null>(
     null
   );
@@ -182,12 +182,20 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   };
 
   const getTotalValue = useCallback(
-    (arr: { region: string; treatments: any }[]) => {
+    (
+      arr: {
+        region: string;
+        treatments: { cod: string; name: string; price: string };
+      }[]
+    ) => {
       const prices: number[] = [];
 
-      const arrMap = arr?.flatMap((v) =>
-        prices.push(parseFloat(v?.treatments?.price.replaceAll(".", "")))
-      );
+      const arrMap = arr?.map((v) => {
+        let hasPoint = v?.treatments?.price?.includes(".");
+        if (hasPoint)
+          prices.push(parseFloat(v?.treatments?.price.replaceAll(".", "")));
+        else prices.push(parseFloat(v?.treatments?.price));
+      });
 
       if (arrMap.length > 0) {
         let reduced = prices?.reduce(
@@ -230,13 +238,14 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   }, [client?.actualProfessional, getActualProfessional]);
 
   const handleGeneratePayment = () => {
+    if (!clientTreatments) return;
     const treats = clientTreatments?.treatments?.treatment_plan;
     const neg = clientTreatments?.negotiateds?.payeds;
 
-    let reduced = [];
-    treats.forEach((item) => {
+    let reduced: any[] = [];
+    treats.forEach((item: any) => {
       var duplicated =
-        neg.findIndex((val) => {
+        neg.findIndex((val: any) => {
           return (
             item.region === val.region &&
             item.treatments.cod === val.treatments.cod
@@ -287,7 +296,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     const dateNow = new Date().toLocaleDateString("pt-br");
     const treatmentsString = negotiateds.flatMap(
       (v) =>
-        `·${v?.region} - ${v?.treatments?.name} ==> R$ ${maskValue(
+        `· Região ${v?.region} - ${v?.treatments?.name} ==> R$ ${maskValue(
           v?.treatments?.price
         )}`
     );
@@ -302,8 +311,51 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     return;
   };
 
+  const updateTreatmentsPayeds = () => {
+    let negClone = negotiateds;
+    if (paymentType === "pix" || paymentType === "cash") {
+      let negotiatedsValues = negClone.map((v) =>
+        parseFloat(v?.treatments.price)
+      );
+      let reduced = negotiatedsValues.map((v) => {
+        let percent = (v * discount) / 100;
+        return v - percent;
+      });
+
+      let negotiatedsClone = negClone;
+      for (let i = 0; i < negClone.length; i++) {
+        negotiatedsClone[i].treatments.price = reduced[i]
+          .toFixed(2)
+          .replaceAll(".", ",");
+      }
+
+      setNegotiatedsToRealize(negotiatedsClone);
+    } else if (paymentType === "credit") {
+      let negotiatedsValues = negClone.map((v) =>
+        parseFloat(v?.treatments.price)
+      );
+      let reduced = negotiatedsValues.map((v) => {
+        let minAddition = 5;
+        let maxAddition = 10;
+        let percent =
+          parseInt(vezes) < 7
+            ? (v * minAddition) / 100
+            : (v * maxAddition) / 100;
+        return v + percent;
+      });
+
+      let negotiatedsClone = negClone;
+      for (let i = 0; i < negClone.length; i++) {
+        negotiatedsClone[i].treatments.price = reduced[i]
+          .toFixed(2)
+          .replaceAll(".", ",");
+      }
+      setNegotiatedsToRealize(negotiatedsClone);
+    } else setNegotiatedsToRealize(negotiateds);
+  };
+
   const handleFinishPayment = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
     const dateNow = F.Timestamp.now();
     let paymentShape: PaymentShape[] = [];
 
@@ -319,74 +371,66 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       }));
       paymentShape = formatShapes;
     }
-
-    let generateId = `${client.id!}-${dateNow.seconds}`;
-
-    const receiptData: ReceiptProps = {
+    const receiptData = {
       negotiateds,
       paymentShape,
       timestamp: dateNow,
-      screeningId: "",
-      patientId: client?.id,
-      paymentId: generateId,
-      id: generateId,
+      client: client?.id,
       total: totalValue,
       totalStr: totalValueString,
     };
 
-    const paymentData = {
-      id: generateId,
-      patientId: client?.id,
-      receiptId: generateId,
-      shape: paymentShape,
-      total: totalValue,
-      totalStr: totalValueString,
-    };
-
-    const receiptRef = F.doc(db, "receipts", generateId);
-    const paymentsRef = F.doc(db, "payments", generateId);
+    const clientRef = F.doc(db, "clients", client!.id);
+    const receiptRef = F.collection(db, "receipts");
+    const paymentsRef = F.collection(db, "payments");
     const clientTreatmentRef = F.doc(
       db,
       "clients_treatments",
       clientTreatments!.id
     );
 
-    const handleSuccess = async () => {
-      const ref = F.doc(db, "clients", client!.id);
-      return await F.updateDoc(ref, { role: "patient" })
-        .then(async () => {
-          return await F.updateDoc(clientTreatmentRef, {
-            negotiateds: F.arrayUnion(...negotiateds),
-          })
-            .then(() => {
-              setIsLoading(false);
-              onCloseModalPayment();
-              return;
-            })
-            .catch((err) => {
-              setIsLoading(false);
-            });
-        })
-        .catch(() => {
-          setIsLoading(false);
-          return alert("Erro ao atualizar o paciente");
-        });
-    };
+    updateTreatmentsPayeds();
 
-    await F.setDoc(receiptRef, receiptData)
-      .then(async () => {
-        await F.setDoc(paymentsRef, paymentData).then(
-          async () => await handleSuccess(),
-          (err) => {
-            setIsLoading(false);
-            return alert("Erro" + " " + err);
-          }
-        );
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        return alert("Deu erro ao criar o recibo");
-      });
+    return;
+
+    const receiptDoc = await F.addDoc(receiptRef, receiptData);
+    if (receiptDoc) {
+      const paymentData = {
+        client: client?.id,
+        receipt: receiptDoc.id,
+        shape: paymentShape,
+        total: totalValue,
+        totalStr: totalValueString,
+      };
+      const paymentDoc = await F.addDoc(paymentsRef, paymentData);
+
+      if (paymentDoc) {
+        let refReceipt = F.doc(db, "receipts", receiptDoc.id);
+        return await F.updateDoc(refReceipt, {
+          paymentId: paymentDoc.id,
+        }).then(async () => {
+          return await F.updateDoc(clientRef, { role: "patient" })
+            .then(async () => {
+              return await F.updateDoc(clientTreatmentRef, {
+                "negotiateds.toRealize": F.arrayUnion(...negotiatedsToRealize),
+                "negotiateds.payeds": F.arrayUnion(...negotiateds),
+              })
+                .then(() => {
+                  setIsLoading(false);
+                  onCloseModalPayment();
+                  return;
+                })
+                .catch((err) => {
+                  setIsLoading(false);
+                });
+            })
+            .catch(() => {
+              setIsLoading(false);
+              return alert("Erro ao atualizar o paciente");
+            });
+        });
+      }
+    } else return alert("Deu erro");
 
     return;
   };
@@ -425,6 +469,8 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
           setPaymentShapesArr={setPaymentsShapesArr}
           paymentShapesValues={paymentShapesValues}
           setPaymentShapesValues={setPaymentShapesValues}
+          negotiatedsToRealize={negotiatedsToRealize}
+          setNegotiatedsToRealize={setNegotiatedsToRealize}
         />
       </Modal>
 

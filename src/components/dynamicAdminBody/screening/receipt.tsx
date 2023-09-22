@@ -109,18 +109,19 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
         pl={"16px"}
         width="100%"
       >
-        Em caso de desistência, será descontado 10% do valor pago
+        Estou ciente que em caso de desistência, será descontado 10% do valor do
+        tratamento negociado
       </Typography>
       <Typography
-        variant="semibold"
+        variant="body1"
         textAlign="justify"
         m={1}
         pl={"16px"}
         width="100%"
       >
-        Estou ciente de que o pagamento de meus implantes, não estão inclusas as
-        próteses definitivas, da qual somente estarei fazendo no tempo
-        determinado pelo dentista e pagando na data proposta pelo dentista
+        Qualquer divergência em relação ao valor do material e procedimento, é
+        necessário retornar com o recibo na CEMIC. Paciente precisa trazer o
+        recibo sempre que retornar na CEMIC para resolver qualquer assunto
       </Typography>
 
       <Typography m={1} variant="semibold" textAlign="right" width="100%">
