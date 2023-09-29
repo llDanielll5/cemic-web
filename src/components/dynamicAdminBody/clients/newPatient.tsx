@@ -153,12 +153,6 @@ const NewPatientForm = (props: AnamneseProps) => {
       userData?.name === "" ||
       userData?.phone?.length! < 14 ||
       userData?.rg?.length! < 4;
-    const notLocationCompleted =
-      locationData?.city === undefined ||
-      locationData?.line1 === undefined ||
-      locationData?.neighbor === undefined ||
-      locationData?.uf === undefined ||
-      locationData?.cep?.length! < 8;
 
     const hasFinishAnamnese =
       anamneseData["Está tomando alguma medicação no momento?"] !== "" &&
@@ -178,8 +172,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       if (notUserCompleted)
         return alert("Conclua todos os campos de dados pessoais!");
       if (userData?.role === "pre-register") return handleFinish();
-      if (notLocationCompleted)
-        return alert("Você deve preencher um endereço completo válido!");
+
       return nextPage();
     }
 
@@ -192,7 +185,36 @@ const NewPatientForm = (props: AnamneseProps) => {
   };
 
   const handleFinish = async () => {
+    let address = {
+      neighbor: locationData?.neighbor ?? "",
+      address: locationData?.address ?? "",
+      city: locationData?.city ?? "",
+      line1: locationData?.line1 ?? "",
+      uf: locationData?.uf ?? "",
+      cep: locationData?.cep ?? "",
+      number: locationData?.number ?? "",
+      complement: locationData?.complement ?? "",
+    };
+    const notLocationCompleted =
+      locationData?.city === undefined ||
+      locationData?.line1 === undefined ||
+      locationData?.neighbor === undefined ||
+      locationData?.uf === undefined ||
+      locationData?.cep?.length! < 8;
+
     props.setUserUpdating(true);
+    if (notLocationCompleted) {
+      address = {
+        neighbor: "",
+        address: "",
+        city: "",
+        line1: "",
+        uf: "",
+        cep: "",
+        number: "",
+        complement: "",
+      };
+    }
 
     const phoneReplaced = userData
       ?.phone!.replace("(", "")
@@ -207,16 +229,7 @@ const NewPatientForm = (props: AnamneseProps) => {
     const completeName = nameCapitalized(userData!.name!);
 
     const clientData = {
-      address: {
-        neighbor: locationData?.neighbor ?? "",
-        address: locationData?.address ?? "",
-        city: locationData?.city ?? "",
-        line1: locationData?.line1 ?? "",
-        uf: locationData?.uf ?? "",
-        cep: locationData?.cep ?? "",
-        number: locationData?.number ?? "",
-        complement: locationData?.complement ?? "",
-      },
+      address,
       name: completeName,
       cpf: cpfReplaced,
       rg: userData?.rg,

@@ -45,6 +45,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [document, setDocument] = useState<any | null>(null);
   const [documentName, setDocumentName] = useState<string>("");
+  const [loadingMessage, setLoadingMessage] = useState<string>("");
   const userData = useRecoilValue(UserData);
 
   const handleCloseExams = () => {
@@ -63,6 +64,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
 
   const handleChangeUserImage = async () => {
     setIsLoading(true);
+    setLoadingMessage("Realizando upload da imagem");
     const timestamp = Timestamp.now().seconds;
     const imgName = `${client?.name.replaceAll(" ", "")}-${timestamp}`;
     const imgId = `${client!.id}-${timestamp}`;
@@ -102,6 +104,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
 
   const handleDeleteImg = async () => {
     setIsLoading(true);
+    setLoadingMessage("Deletando documento");
     const reference = doc(db, "clients_docs", idImg);
     return await deleteDoc(reference)
       .then(() => {
@@ -118,7 +121,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
   if (isLoading) {
     return (
       <Box position="fixed" top={0} left={0} zIndex={"999999"}>
-        <Loading message="Atualizando..." />
+        <Loading message={loadingMessage} />
       </Box>
     );
   }

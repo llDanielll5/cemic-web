@@ -17,6 +17,8 @@ import Loading from "@/components/loading";
 import { updateUserData } from "@/services/requests/firestore";
 import { Timestamp } from "firebase/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import Modal from "@/components/modal";
+import { InputsContainer } from "@/components/userForm";
 
 interface ClientInfoProps {
   client?: ClientType;
@@ -34,6 +36,16 @@ interface ClientAttributes {
   professionalScreening: string;
   address: string;
 }
+interface AddressInterface {
+  address: string;
+  cep: string;
+  city: string;
+  complement: string;
+  line1: string;
+  neighbor: string;
+  number: string;
+  uf: string;
+}
 
 const defaultClientData: ClientAttributes = {
   name: "",
@@ -46,6 +58,16 @@ const defaultClientData: ClientAttributes = {
   screeningDate: "",
   professionalScreening: "",
   address: "",
+};
+const defaultAddress: AddressInterface = {
+  address: "",
+  cep: "",
+  city: "",
+  complement: "",
+  line1: "",
+  neighbor: "",
+  number: "",
+  uf: "",
 };
 
 const professionalTabs = ["Anamnese", "Problemas", "Exames", "Agendamentos"];
@@ -87,8 +109,12 @@ const inputColor = {
 const ClientInfos = (props: ClientInfoProps) => {
   const { client } = props;
   const [clientData, setClientData] = useState(defaultClientData);
+  const [clientAddress, setClientAddress] =
+    useState<AddressInterface>(defaultAddress);
   const [hasEditMode, setHasEditMode] = useState(false);
+  const [addressModal, setAddressModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const snapProfessionals = useOnSnapshotQuery("professionals");
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -96,8 +122,11 @@ const ClientInfos = (props: ClientInfoProps) => {
   const currTabs = userData?.role !== "professional" ? tabs : professionalTabs;
 
   const handleEdit = () => setHasEditMode(!hasEditMode);
+  const getAddressValues = () => setAddressModal(!addressModal);
   const handleChange = (val, field) =>
     setClientData((prev) => ({ ...prev, [field]: val }));
+  const handleChangeAddress = (val, field) =>
+    setClientAddress((prev) => ({ ...prev, [field]: val }));
   const getPatientRole = () => {
     if (clientData?.role === "patient") return "Paciente";
     else if (clientData?.role === "pre-register") return "Não-Paciente";
@@ -111,6 +140,7 @@ const ClientInfos = (props: ClientInfoProps) => {
       return alert("Preencha os campos");
 
     setIsLoading(true);
+    setLoadingMessage();
     await updateUserData(client?.id, {
       name,
       email,
@@ -136,6 +166,71 @@ const ClientInfos = (props: ClientInfoProps) => {
       }
     );
   };
+  const handleEditAddress = async () => {
+    const { address, cep, city, complement, line1, neighbor, number, uf } =
+      clientAddress;
+    const notLocationCompleted =
+      city === undefined ||
+      line1 === undefined ||
+      neighbor === undefined ||
+      uf === undefined ||
+      cep?.length! < 8;
+
+    if (notLocationCompleted) return alert("Preencha os campos de endereço!");
+
+    setIsLoading(true);
+    setLoadingMessage("Alterando Endereço do Paciente!");
+    await updateUserData(client?.id, {
+      "address.address": address ?? "",
+      "address.cep": cep ?? "",
+      "address.city": city ?? "",
+      "address.complement": complement ?? "",
+      "address.line1": line1 ?? "",
+      "address.neighbor": neighbor ?? "",
+      "address.number": number ?? "",
+      "address.uf": uf ?? "",
+      "updatedBy.timestamp": Timestamp.now(),
+      "updatedBy.reporterId": userData?.id,
+      "updatedBy.reporterName": userData?.name,
+      "updatedBy.role": userData?.role,
+    }).then(
+      (val) => {
+        if (val === "Sucesso") setIsLoading(false);
+        setAddressModal(!addressModal);
+      },
+      (err) => {
+        setIsLoading(false);
+        return alert(err);
+      }
+    );
+  };
+
+  const handleGetCep = async (e: any) => {
+    setClientAddress(e.target.value, "cep");
+    let val = e.target.value;
+    if (val.length === 8) {
+      setIsLoading(true);
+      setLoadingMessage("Carregando informações de CEP");
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${val}/json/`);
+        const json = await res.json();
+        if (json) {
+          setClientAddress((prev: any) => ({
+            neighbor: json.bairro,
+            city: json.localidade,
+            complement: json.complemento,
+            line1: json.logradouro,
+            uf: json.uf,
+            cep: val,
+            address: `${json.logradouro}, ${json.bairro} ${json.complemento}, ${json.localidade} - ${json.uf}`,
+          }));
+          setIsLoading(false);
+        }
+      } catch (error) {
+        setIsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!client || client === undefined) return;
@@ -152,15 +247,99 @@ const ClientInfos = (props: ClientInfoProps) => {
       professionalScreening: client?.professionalScreening,
       address: client?.address?.address,
     }));
+    setClientAddress((prev) => ({
+      address: client?.address?.address,
+      cep: client?.address?.cep,
+      city: client?.address?.city,
+      complement: client?.address?.complement,
+      line1: client?.address?.line1,
+      neighbor: client?.address?.neighbor,
+      number: client?.address?.number,
+      uf: client?.address?.uf,
+    }));
   }, [client]);
+
+  if (isLoading)
+    return (
+      <Box position="fixed" top={0} left={0} zIndex={200}>
+        <Loading message={loadingMessage} />
+      </Box>
+    );
 
   return (
     <div className={styles.container}>
-      {isLoading && (
-        <Box position="fixed" top={0} left={0} zIndex={9999}>
-          <Loading message="Atualizando..." />
-        </Box>
-      )}
+      <Modal
+        visible={addressModal}
+        closeModal={() => setAddressModal(false)}
+        style={{ overlay: { zIndex: 100 } }}
+      >
+        <Typography variant="bold" fontSize={"1rem"} textAlign={"center"}>
+          Alterar Endereço
+        </Typography>
+        <InputsContainer>
+          <StyledTextField
+            label="CEP*:"
+            value={clientAddress?.cep!}
+            onChange={handleGetCep}
+            inputProps={{ maxLength: 8 }}
+            sx={{ width: "100%" }}
+          />
+          <StyledTextField
+            label="Logradouro:"
+            value={clientAddress?.line1!}
+            InputLabelProps={{ shrink: true }}
+            sx={{ width: "100%" }}
+            onChange={(e) => handleChangeAddress(e.target.value, "line1")}
+          />
+        </InputsContainer>
+
+        <InputsContainer>
+          <StyledTextField
+            label="Bairro:"
+            value={clientAddress?.neighbor!}
+            InputLabelProps={{ shrink: true }}
+            sx={{ width: "80%" }}
+            onChange={(e) => handleChangeAddress(e.target.value, "neighbor")}
+          />
+
+          <StyledTextField
+            label="Número:"
+            value={clientAddress?.number!}
+            sx={{ width: "20%" }}
+            onChange={(e) => handleChangeAddress(e.target.value, "number")}
+          />
+        </InputsContainer>
+
+        <InputsContainer>
+          <StyledTextField
+            label="Cidade:"
+            value={clientAddress?.city!}
+            InputLabelProps={{ shrink: true }}
+            onChange={(e) => handleChangeAddress(e.target.value, "city")}
+            sx={{ width: "80%" }}
+          />
+
+          <StyledTextField
+            label="UF:"
+            value={clientAddress?.uf!}
+            InputLabelProps={{ shrink: true }}
+            sx={{ width: "20%" }}
+            onChange={(e) => handleChangeAddress(e.target.value, "uf")}
+          />
+        </InputsContainer>
+
+        <StyledTextField
+          label="Complemento:"
+          value={clientAddress?.complement!}
+          InputLabelProps={{ shrink: true }}
+          sx={{ width: "100%", mt: "16px" }}
+          onChange={(e) => handleChangeAddress(e.target.value, "complement")}
+        />
+
+        <StyledButton onClick={handleEditAddress} sx={{ mt: 2 }}>
+          Salvar
+        </StyledButton>
+      </Modal>
 
       <div className={styles.picture}>
         <Avatar src={client?.profileImage} alt="" style={imageStyle} />
@@ -326,13 +505,22 @@ const ClientInfos = (props: ClientInfoProps) => {
               {client?.updatedBy?.timestamp?.toDate()?.toLocaleString()}
             </Typography>
           )}
-          <StyledButton
-            title="Editar informações do paciente"
-            endIcon={<EditIcon sx={{ color: "white" }} />}
-            onClick={!hasEditMode ? handleEdit : handleSubmit}
-          >
-            {!hasEditMode ? "Editar" : "Salvar"}
-          </StyledButton>
+          <Box display="flex" alignItems="center" flexDirection="column">
+            <StyledButton
+              title="Editar Endereço do Paciente"
+              endIcon={<EditIcon sx={{ color: "white" }} />}
+              onClick={getAddressValues}
+            >
+              Endereço
+            </StyledButton>
+            <StyledButton
+              title="Editar informações do paciente"
+              endIcon={<EditIcon sx={{ color: "white" }} />}
+              onClick={!hasEditMode ? handleEdit : handleSubmit}
+            >
+              {!hasEditMode ? "Editar" : "Salvar"}
+            </StyledButton>
+          </Box>
         </Box>
       </ClientContainer>
 
