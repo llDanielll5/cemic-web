@@ -1,24 +1,27 @@
 /* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
-import React, { useEffect, useState } from "react";
-import { Avatar, Typography } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
 import { ClientType } from "types";
 import { useRecoilValue } from "recoil";
-import { Box, styled, Autocomplete } from "@mui/material";
-import { cpfMask, phoneMask } from "@/services/services";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { StyledTextField } from "@/components/patient/profile";
-import ClientInformationsProfessional from "./informationsProfessional";
-import styles from "../../../styles/ClientDetails.module.css";
-import ClientInformationsAdmin from "./informations";
-import EditIcon from "@mui/icons-material/Edit";
-import UserData from "@/atoms/userData";
-import Loading from "@/components/loading";
-import { updateUserData } from "@/services/requests/firestore";
 import { Timestamp } from "firebase/firestore";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import Modal from "@/components/modal";
+import { Avatar, Typography } from "@mui/material";
 import { InputsContainer } from "@/components/userForm";
+import { cpfMask, phoneMask } from "@/services/services";
+import { Box, styled, Autocomplete, IconButton } from "@mui/material";
+import { StyledTextField } from "@/components/patient/profile";
+import { updateUserData } from "@/services/requests/firestore";
+import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import ClientInformationsProfessional from "./informationsProfessional";
+import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
+import styles from "../../../styles/ClientDetails.module.css";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import SaveIcon from "@mui/icons-material/Save";
+import ClientInformationsAdmin from "./informations";
+import CloseIcon from "@mui/icons-material/Close";
+import Loading from "@/components/loading";
+import UserData from "@/atoms/userData";
+import Modal from "@/components/modal";
 
 interface ClientInfoProps {
   client?: ClientType;
@@ -142,11 +145,11 @@ const ClientInfos = (props: ClientInfoProps) => {
     setIsLoading(true);
     setLoadingMessage();
     await updateUserData(client?.id, {
+      rg,
       name,
       email,
-      dateBorn,
       phone,
-      rg,
+      dateBorn,
       role: clientData?.role,
       screeningDate: clientData?.screeningDate,
       professionalScreening: clientData?.professionalScreening ?? "",
@@ -205,6 +208,38 @@ const ClientInfos = (props: ClientInfoProps) => {
     );
   };
 
+  const updateCliendStatus = useCallback(() => {
+    if (!client || client === undefined) return;
+
+    setClientData((prev) => ({
+      name: client?.name,
+      email: client?.email,
+      dateBorn: client?.dateBorn,
+      phone: client?.phone,
+      cpf: client?.cpf,
+      rg: client?.rg,
+      role: client?.role,
+      screeningDate: client?.screeningDate,
+      professionalScreening: client?.professionalScreening,
+      address: client?.address?.address,
+    }));
+    setClientAddress((prev) => ({
+      address: client?.address?.address,
+      cep: client?.address?.cep,
+      city: client?.address?.city,
+      complement: client?.address?.complement,
+      line1: client?.address?.line1,
+      neighbor: client?.address?.neighbor,
+      number: client?.address?.number,
+      uf: client?.address?.uf,
+    }));
+  }, [client]);
+
+  const handleNotSaveChanges = () => {
+    setHasEditMode(!hasEditMode);
+    updateCliendStatus();
+  };
+
   const handleGetCep = async (e: any) => {
     setClientAddress(e.target.value, "cep");
     let val = e.target.value;
@@ -233,31 +268,8 @@ const ClientInfos = (props: ClientInfoProps) => {
   };
 
   useEffect(() => {
-    if (!client || client === undefined) return;
-
-    setClientData((prev) => ({
-      name: client?.name,
-      email: client?.email,
-      dateBorn: client?.dateBorn,
-      phone: client?.phone,
-      cpf: client?.cpf,
-      rg: client?.rg,
-      role: client?.role,
-      screeningDate: client?.screeningDate,
-      professionalScreening: client?.professionalScreening,
-      address: client?.address?.address,
-    }));
-    setClientAddress((prev) => ({
-      address: client?.address?.address,
-      cep: client?.address?.cep,
-      city: client?.address?.city,
-      complement: client?.address?.complement,
-      line1: client?.address?.line1,
-      neighbor: client?.address?.neighbor,
-      number: client?.address?.number,
-      uf: client?.address?.uf,
-    }));
-  }, [client]);
+    updateCliendStatus();
+  }, [updateCliendStatus]);
 
   if (isLoading)
     return (
@@ -450,7 +462,7 @@ const ClientInfos = (props: ClientInfoProps) => {
               InputLabelProps={{ shrink: true }}
               sx={{ width: "100%", ...inputColor }}
               onChange={({ target }) => handleChange(target.value, "rg")}
-              value={clientData?.rg === "" ? "Sem RG" : clientData?.rg}
+              value={clientData?.rg === "" ? "" : clientData?.rg}
               variant={!hasEditMode ? "standard" : "outlined"}
               margin="dense"
             />
@@ -505,21 +517,31 @@ const ClientInfos = (props: ClientInfoProps) => {
               {client?.updatedBy?.timestamp?.toDate()?.toLocaleString()}
             </Typography>
           )}
-          <Box display="flex" alignItems="center" flexDirection="column">
-            <StyledButton
-              title="Editar Endereço do Paciente"
-              endIcon={<EditIcon sx={{ color: "white" }} />}
-              onClick={getAddressValues}
-            >
-              Endereço
-            </StyledButton>
-            <StyledButton
+          <Box display="flex" alignItems="center" columnGap={1}>
+            {hasEditMode && (
+              <IconEdit
+                title="Não Salvar informações"
+                onClick={handleNotSaveChanges}
+              >
+                <CloseIcon sx={{ color: "white" }} />
+              </IconEdit>
+            )}
+            <IconEdit
               title="Editar informações do paciente"
-              endIcon={<EditIcon sx={{ color: "white" }} />}
               onClick={!hasEditMode ? handleEdit : handleSubmit}
             >
-              {!hasEditMode ? "Editar" : "Salvar"}
-            </StyledButton>
+              {!hasEditMode ? (
+                <EditNoteIcon sx={{ color: "white" }} />
+              ) : (
+                <SaveIcon sx={{ color: "white" }} />
+              )}
+            </IconEdit>
+            <IconEdit
+              title="Editar Endereço do Paciente"
+              onClick={getAddressValues}
+            >
+              <EditLocationAltIcon sx={{ color: "white" }} />
+            </IconEdit>
           </Box>
         </Box>
       </ClientContainer>
@@ -586,6 +608,16 @@ const TabsContainer = styled(Box)`
   column-gap: 6px;
   flex-wrap: wrap;
   row-gap: 6px;
+`;
+
+const IconEdit = styled(IconButton)`
+  background-color: var(--dark-blue);
+  border-radius: 1rem;
+  :hover {
+    transition: 0.3s;
+    background-color: var(--dark-blue);
+    opacity: 0.8;
+  }
 `;
 
 export default ClientInfos;

@@ -54,10 +54,9 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
   );
   const [treatments, setTreatments] = useState<any[]>([]);
 
-  console.log(previousTreatments);
-
   useEffect(() => {
-    if (previousTreatments?.length === 0) return;
+    if (previousTreatments?.length === 0 || previousTreatments === undefined)
+      return;
     setSelectedTreatments((prev) => [...previousTreatments]);
     let previousRegions: any[] = previousTreatments?.map((v) => v?.region);
     setSelectedRegions((prev) => [...prev, ...previousRegions]);

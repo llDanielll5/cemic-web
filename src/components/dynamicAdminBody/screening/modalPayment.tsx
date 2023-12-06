@@ -96,8 +96,8 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
 
   const paymentTypeText = () => {
     if (paymentType === "credit") return "Cartão de Crédito";
-    if (paymentType === "pix") return "Pix/Transferência bancária";
-    if (paymentType === "cash") return "No dinheiro";
+    if (paymentType === "pix/cash") return "Pix ou Dinheiro";
+    if (paymentType === "debit") return "No Débito";
   };
 
   const handleAddToPay = (value: any) => {
@@ -355,11 +355,11 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
               >
                 {RenderPaymentTypes({
                   onClickCard: () => handlePress("credit", i),
-                  onClickCash: () => handlePress("cash", i),
-                  onClickPix: () => handlePress("pix", i),
+                  onClickCash: () => handlePress("pix/cash", i),
+                  onClickDebit: () => handlePress("debit", i),
                   valueCard: v.paymentType === "credit",
-                  valueCash: v.paymentType === "cash",
-                  valuePix: v.paymentType === "pix",
+                  valueDebit: v.paymentType === "debit",
+                  valueCash: v.paymentType === "pix/cash",
                 })}
                 {v.paymentType !== null && (
                   <Box
@@ -398,11 +398,11 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
       {allValue === "Sim" && (
         <RenderPaymentTypes
           onClickCard={() => setPaymentType("credit")}
-          onClickCash={() => setPaymentType("cash")}
-          onClickPix={() => setPaymentType("pix")}
+          onClickCash={() => setPaymentType("pix/cash")}
+          onClickDebit={() => setPaymentType("debit")}
           valueCard={paymentType === "credit"}
-          valueCash={paymentType === "cash"}
-          valuePix={paymentType === "pix"}
+          valueCash={paymentType === "pix/cash"}
+          valueDebit={paymentType === "debit"}
         />
       )}
 
@@ -424,7 +424,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
         </CreditDivide>
       ) : null}
 
-      {paymentType === "cash" && allValue !== null ? (
+      {paymentType === "pix/cash" && allValue !== null ? (
         <Box
           width="50%"
           display="flex"

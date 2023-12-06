@@ -184,7 +184,7 @@ export interface ProfessionalData {
   specialty: SpecialtyType;
 }
 
-export type PaymentTypes = "debit" | "pix" | "cash" | "credit";
+export type PaymentTypes = "debit" | "pix/cash" | "credit";
 
 export interface AcquittanceType {
   clientId: string;

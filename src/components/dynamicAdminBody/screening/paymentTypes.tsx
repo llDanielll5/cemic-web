@@ -1,15 +1,15 @@
 import React from "react";
 import { Box, styled, IconButton } from "@mui/material";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-import PaymentsIcon from "@mui/icons-material/Payments";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import PixIcon from "@mui/icons-material/Pix";
 
 interface PaymentTypesProps {
   onClickCard: () => void;
-  onClickPix: () => void;
+  onClickDebit: () => void;
   onClickCash: () => void;
   valueCard: boolean;
-  valuePix: boolean;
+  valueDebit: boolean;
   valueCash: boolean;
 }
 
@@ -26,21 +26,21 @@ const RenderPaymentTypes = (props: PaymentTypesProps) => {
         title={"Cartão de Crédito"}
         selected={props.valueCard}
       >
+        <CreditScoreIcon className="icon" />
+      </PaymentOption>
+      <PaymentOption
+        onClick={props.onClickDebit}
+        title="Débito"
+        selected={props.valueDebit}
+      >
         <CreditCardIcon className="icon" />
       </PaymentOption>
       <PaymentOption
-        onClick={props.onClickPix}
-        title="Pix/Transferência"
-        selected={props.valuePix}
-      >
-        <PixIcon className="icon" />
-      </PaymentOption>
-      <PaymentOption
         onClick={props.onClickCash}
-        title="Á vista"
+        title="Pix ou Dinheiro"
         selected={props.valueCash}
       >
-        <PaymentsIcon className="icon" />
+        <PixIcon className="icon" />
       </PaymentOption>
     </Box>
   );

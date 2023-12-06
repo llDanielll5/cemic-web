@@ -91,8 +91,8 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const handleSubmitTreatment = async (field: string, values: any[]) => {
     let reduced: any[] = [];
     setIsLoading(true);
-    if (clientTreatments?.treatments?.treatment_plan.length > 0) {
-      let newArr = [...clientTreatments?.treatments?.treatment_plan, ...values];
+    if (clientTreatments?.treatment_plan.length > 0) {
+      let newArr = [...values];
       newArr.forEach((item) => {
         var duplicated =
           reduced.findIndex((val) => {
@@ -112,7 +112,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       const ref = F.doc(db, "clients_treatments", clientTreatments!.id);
 
       return await F.updateDoc(ref, {
-        "treatments.treatment_plan": F.arrayUnion(...reduced),
+        treatment_plan: [...reduced],
         "updatedBy.reporter": adminData?.id,
         "updatedBy.reporterName": adminData?.name,
         "updatedBy.timestamp": F.Timestamp.now(),
@@ -138,7 +138,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       const ref = F.collection(db, "clients_treatments");
 
       return await F.addDoc(ref, {
-        treatments: { treatment_plan: values },
+        treatment_plan: values,
         negotiateds: {
           payeds: [],
           realizeds: [],
@@ -195,7 +195,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             parseFloat(prev.toFixed(2)) + parseFloat(curr.toFixed(2))
         );
 
-        if (paymentType === "cash") {
+        if (paymentType === "pix/cash") {
           let discounted = (reduced * discount) / 100;
           if (!discount) {
             reduced = reduced;
@@ -231,7 +231,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
   const handleGeneratePayment = () => {
     if (!clientTreatments) return;
-    const treats = clientTreatments?.treatments?.treatment_plan;
+    const treats = clientTreatments?.treatment_plan;
     const neg = clientTreatments?.negotiateds?.payeds;
 
     let reduced: any[] = [];
@@ -253,8 +253,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     setPaymentModal(true);
   };
 
-  const hasTreatmentPlan =
-    clientTreatments?.treatments?.treatment_plan?.length > 0;
+  const hasTreatmentPlan = clientTreatments?.treatment_plan?.length > 0;
   const hasRealizeds = clientTreatments?.negotiateds?.realizeds?.length > 0;
 
   const onCloseModalPayment = () => {
@@ -293,6 +292,13 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         )}`
     );
 
+    if (paymentType === "pix/cash") {
+      const changeNegotiatedsValues = negotiateds.map(
+        (v) => v.treatments.price
+      );
+      return console.log(changeNegotiatedsValues);
+    }
+
     setReceiptValues({
       total: totalValue,
       patientName,
@@ -305,7 +311,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
   const updateTreatmentsPayeds = () => {
     let negClone = negotiateds;
-    if (paymentType === "pix" || paymentType === "cash") {
+    if (paymentType === "pix/cash") {
       let negotiatedsValues = negClone.map((v) =>
         parseFloat(v?.treatments.price)
       );
@@ -433,7 +439,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         <TreatmentPlanUpdate
           onSaveTreatments={handleSubmitTreatment}
           setVisible={setAddTreatmentVisible}
-          previousTreatments={clientTreatments?.treatments?.treatment_plan}
+          previousTreatments={clientTreatments?.treatment_plan}
         />
       </Modal>
 
@@ -508,23 +514,21 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             my={1}
           >
             {hasTreatmentPlan &&
-              clientTreatments?.treatments?.treatment_plan?.map(
-                (v: any, i: number) => (
-                  <Box
-                    key={i}
-                    display={"flex"}
-                    alignItems={"center"}
-                    columnGap={"4px"}
-                    width={"100%"}
-                    my={"4px"}
-                  >
-                    <Typography variant="semibold">{v?.region} - </Typography>
-                    <Typography variant="semibold">
-                      {v?.treatments?.name}
-                    </Typography>
-                  </Box>
-                )
-              )}
+              clientTreatments?.treatment_plan?.map((v: any, i: number) => (
+                <Box
+                  key={i}
+                  display={"flex"}
+                  alignItems={"center"}
+                  columnGap={"4px"}
+                  width={"100%"}
+                  my={"4px"}
+                >
+                  <Typography variant="semibold">{v?.region} - </Typography>
+                  <Typography variant="semibold">
+                    {v?.treatments?.name}
+                  </Typography>
+                </Box>
+              ))}
             {!hasTreatmentPlan && (
               <Typography variant="semibold">
                 Sem plano de Tratamento
@@ -540,7 +544,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             mt={1}
           >
             {hasRealizeds &&
-              clientTreatments?.treatments?.realizeds?.map(
+              clientTreatments?.negotiateds?.realizeds?.map(
                 (v: any, i: number) => (
                   <Box
                     key={i}
