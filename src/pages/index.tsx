@@ -1,12 +1,12 @@
 //@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
-import { IoLogoWhatsapp } from "react-icons/io";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useGetScrollPosition } from "@/hooks/useGetScrollPosition";
 import { useCallback, useEffect, useRef, useState } from "react";
-import About from "@/components/about";
+import About from "@/components/landing/about";
 import useWindowSize from "@/hooks/useWindowSize";
-import Help from "@/components/help";
-import Footer from "@/components/footer";
+import Help from "@/components/landing/help";
+import Footer from "@/components/landing/footer";
 import HeadLanding from "@/components/landing/head";
 import HeaderLanding from "@/components/landing/header";
 import BannerLanding from "@/components/landing/banner";
@@ -91,7 +91,7 @@ export default function LandingPage() {
         target={"_blank"}
         rel="noreferrer"
       >
-        <IoLogoWhatsapp className="whatsapp" color="#34af23" />
+        <WhatsAppIcon sx={{ color: "white" }} fontSize="large" />
       </a>
     </>
   );

@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
+//@ts-nocheck
 import React, { useState } from "react";
 import { headerData } from "data";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { AiOutlineClose } from "react-icons/ai";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import CloseIcon from "@mui/icons-material/Close";
 import styles from "@/styles/Landing.module.css";
 import { useRouter } from "next/router";
 import useWindowSize from "@/hooks/useWindowSize";
@@ -53,14 +54,8 @@ const HeaderLanding = (props: HeaderLandingProps) => {
   };
 
   const renderIconMenu = () => {
-    if (!iconMenu)
-      return (
-        <AiOutlineClose className={styles["icon-menu"]} onClick={openMenu} />
-      );
-    else
-      return (
-        <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
-      );
+    if (!iconMenu) return <CloseIcon fontSize="large" onClick={openMenu} />;
+    else return <MenuOpenIcon fontSize="large" onClick={openMenu} />;
   };
   return (
     <HeaderContainer>
@@ -74,7 +69,7 @@ const HeaderLanding = (props: HeaderLandingProps) => {
       <ul className={styles["list-container"]} ref={props.refMenu}>
         {headerData.map((item, index) => listItem({ item, index }))}
       </ul>
-      {renderIconMenu()}
+      {size.width < 900 && renderIconMenu()}
     </HeaderContainer>
   );
 };

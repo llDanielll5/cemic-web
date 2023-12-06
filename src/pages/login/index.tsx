@@ -1,15 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useRef, useState } from "react";
-import ModalSuccess from "@/components/modalSuccess";
 import styles from "../../styles/Modal.module.css";
 import Loading from "@/components/loading";
-import Modal from "@/components/modal";
-import { TbArrowBackUp } from "react-icons/tb";
 import { auth } from "@/services/firebase";
 import { useRouter } from "next/router";
 import { handleLogin } from "@/services/requests/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { getIP } from "@/services/getIp";
 
 const LoginScreen = () => {
@@ -110,19 +109,14 @@ const LoginScreen = () => {
   return (
     <div className={styles.container}>
       {isLoading && <Loading />}
-      <ModalSuccess
-        actionButton={handleModalSuccessToggle}
-        message={"E-mail de recuperação enviado com sucesso!"}
-        closeModal={handleModalSuccessToggle}
-        visible={modalSuccessReset}
-      />
+
       <div className={styles["back-arrow"]}>
-        <TbArrowBackUp
+        <ArrowBackIcon
           className={styles["arrow-item"]}
           onClick={() => router.push("/")}
         />
       </div>
-      <Modal visible={modalVisible} closeModal={() => setModalVisible(false)}>
+      {/* <Modal visible={modalVisible} closeModal={() => setModalVisible(false)}>
         <div className={styles["reset-password"]}>
           <h3>
             Digite o seu email para enviarmos um código de recuperação de senha.
@@ -146,7 +140,7 @@ const LoginScreen = () => {
             />
           </div>
         </div>
-      </Modal>
+      </Modal> */}
       <div className={styles["left-side"]}>
         <div className={styles["login-form"]}>
           <img
@@ -189,16 +183,18 @@ const LoginScreen = () => {
                 />
                 <span className={styles["text-input"]}>Senha</span>
                 <span className={styles.line} />
-                {passwordVisible &&
-                  AiOutlineEye({
-                    onClick: handleTogglePasswordVisible,
-                    className: styles["icon-eye"],
-                  })}
-                {!passwordVisible &&
-                  AiOutlineEyeInvisible({
-                    onClick: handleTogglePasswordVisible,
-                    className: styles["icon-eye"],
-                  })}
+                {passwordVisible && (
+                  <VisibilityIcon
+                    onClick={handleTogglePasswordVisible}
+                    className={styles["icon-eye"]}
+                  />
+                )}
+                {!passwordVisible && (
+                  <VisibilityOffIcon
+                    onClick={handleTogglePasswordVisible}
+                    className={styles["icon-eye"]}
+                  />
+                )}
               </div>
             </div>
 
