@@ -1,7 +1,6 @@
 import React from "react";
 import CemicLogo from "../cemicLogo";
 import styles from "../../../styles/Dashboard.module.css";
-import { dashboardNav } from "data";
 
 interface RenderDashboardProps {
   setPage: any;

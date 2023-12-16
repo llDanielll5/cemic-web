@@ -13,9 +13,9 @@ import { useRecoilValue } from "recoil";
 import { db } from "@/services/firebase";
 import { IconButton } from "@mui/material";
 import { ScreeningInformations } from "types";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, TextField } from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { StyledTextField } from "@/components/patient/profile";
+
 import { parseDateBr, parseDateIso, phoneMask } from "@/services/services";
 import {
   collection,
@@ -181,7 +181,7 @@ const ScreeningProfessional = (props: ScreeningProps) => {
         justifyContent={"center"}
         my={2}
       >
-        <StyledTextField
+        <TextField
           sx={{ width: "fit-content", backgroundColor: "white" }}
           value={dateSelected}
           onChange={(e) => setDateSelected(e.target.value)}
@@ -192,7 +192,7 @@ const ScreeningProfessional = (props: ScreeningProps) => {
       </Box>
 
       <Box display="flex" alignItems="center" justifyContent="center" my={2.3}>
-        <Typography variant="bold" fontSize="1.3rem">
+        <Typography variant="subtitle1" fontSize="1.3rem">
           {parseDateBr(parseDateIso(dateSelected))}
         </Typography>
       </Box>

@@ -1,7 +1,13 @@
 import React from "react";
-import { Box, Typography, Autocomplete } from "@mui/material";
-import { StyledTextField } from "@/components/patient/profile";
-import { StyledButton } from "../receipts";
+import {
+  Box,
+  Typography,
+  Autocomplete,
+  TextField,
+  Button,
+  SvgIcon,
+} from "@mui/material";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 interface AddPatientLectureProps {
   patientValues: any;
@@ -35,11 +41,11 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
 
   return (
     <Box display="flex" alignItems="center" flexDirection="column">
-      <Typography variant="bold" mb={1} textAlign="center">
+      <Typography variant="h5" mb={1} textAlign="center">
         Preencha as informações do paciente
       </Typography>
 
-      <StyledTextField
+      <TextField
         margin="dense"
         sx={{ width: "100%" }}
         label="Nome Completo do Paciente*"
@@ -48,7 +54,7 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
           setPatientValues((prev: any) => ({ ...prev, name: e.target.value }))
         }
       />
-      <StyledTextField
+      <TextField
         margin="dense"
         sx={{ width: "100%" }}
         label="Telefone do Paciente*"
@@ -57,7 +63,7 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
         onChange={(e) => handleMasked(e.target.value, "phone")}
       />
 
-      <StyledTextField
+      <TextField
         margin="dense"
         sx={{ width: "100%" }}
         label="CPF do Paciente*"
@@ -73,7 +79,7 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
         width="100%"
         m={1}
       >
-        <StyledTextField
+        <TextField
           type="date"
           sx={{ width: "100%" }}
           label="Data de agendamento"
@@ -92,16 +98,22 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
             setPatientValues((prev: any) => ({ ...prev, hour: v! }))
           }
           renderInput={(params) => (
-            <StyledTextField
-              {...params}
-              label="Hora para agendar"
-              color="info"
-            />
+            <TextField {...params} label="Hora para agendar" color="info" />
           )}
         />
       </Box>
 
-      <StyledButton onClick={handleSchedule}>Agendar</StyledButton>
+      <Button
+        endIcon={
+          <SvgIcon fontSize="small">
+            <CalendarMonthIcon />
+          </SvgIcon>
+        }
+        variant="contained"
+        onClick={handleSchedule}
+      >
+        Agendar
+      </Button>
     </Box>
   );
 };

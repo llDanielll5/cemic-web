@@ -1,14 +1,19 @@
-/* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
+/* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useEffect, useState } from "react";
 import { ClientType } from "types";
 import { useRecoilValue } from "recoil";
 import { Timestamp } from "firebase/firestore";
-import { Avatar, Typography } from "@mui/material";
+import { Avatar, TextField, Typography } from "@mui/material";
 import { InputsContainer } from "@/components/userForm";
 import { cpfMask, phoneMask } from "@/services/services";
-import { Box, styled, Autocomplete, IconButton } from "@mui/material";
-import { StyledTextField } from "@/components/patient/profile";
+import {
+  Box,
+  styled,
+  Autocomplete,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import { updateUserData } from "@/services/requests/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
@@ -143,7 +148,7 @@ const ClientInfos = (props: ClientInfoProps) => {
       return alert("Preencha os campos");
 
     setIsLoading(true);
-    setLoadingMessage();
+    setLoadingMessage("");
     await updateUserData(client?.id, {
       rg,
       name,
@@ -211,7 +216,7 @@ const ClientInfos = (props: ClientInfoProps) => {
   const updateCliendStatus = useCallback(() => {
     if (!client || client === undefined) return;
 
-    setClientData((prev) => ({
+    setClientData((prev: any) => ({
       name: client?.name,
       email: client?.email,
       dateBorn: client?.dateBorn,
@@ -241,7 +246,7 @@ const ClientInfos = (props: ClientInfoProps) => {
   };
 
   const handleGetCep = async (e: any) => {
-    setClientAddress(e.target.value, "cep");
+    // setClientAddress(e.target.value, "cep");
     let val = e.target.value;
     if (val.length === 8) {
       setIsLoading(true);
@@ -280,23 +285,19 @@ const ClientInfos = (props: ClientInfoProps) => {
 
   return (
     <div className={styles.container}>
-      <Modal
-        visible={addressModal}
-        closeModal={() => setAddressModal(false)}
-        style={{ overlay: { zIndex: 100 } }}
-      >
-        <Typography variant="bold" fontSize={"1rem"} textAlign={"center"}>
+      <Modal visible={addressModal} closeModal={() => setAddressModal(false)}>
+        <Typography variant="h5" fontSize={"1rem"} textAlign={"center"}>
           Alterar Endereço
         </Typography>
         <InputsContainer>
-          <StyledTextField
+          <TextField
             label="CEP*:"
             value={clientAddress?.cep!}
             onChange={handleGetCep}
             inputProps={{ maxLength: 8 }}
             sx={{ width: "100%" }}
           />
-          <StyledTextField
+          <TextField
             label="Logradouro:"
             value={clientAddress?.line1!}
             InputLabelProps={{ shrink: true }}
@@ -306,7 +307,7 @@ const ClientInfos = (props: ClientInfoProps) => {
         </InputsContainer>
 
         <InputsContainer>
-          <StyledTextField
+          <TextField
             label="Bairro:"
             value={clientAddress?.neighbor!}
             InputLabelProps={{ shrink: true }}
@@ -314,7 +315,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             onChange={(e) => handleChangeAddress(e.target.value, "neighbor")}
           />
 
-          <StyledTextField
+          <TextField
             label="Número:"
             value={clientAddress?.number!}
             sx={{ width: "20%" }}
@@ -323,7 +324,7 @@ const ClientInfos = (props: ClientInfoProps) => {
         </InputsContainer>
 
         <InputsContainer>
-          <StyledTextField
+          <TextField
             label="Cidade:"
             value={clientAddress?.city!}
             InputLabelProps={{ shrink: true }}
@@ -331,7 +332,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             sx={{ width: "80%" }}
           />
 
-          <StyledTextField
+          <TextField
             label="UF:"
             value={clientAddress?.uf!}
             InputLabelProps={{ shrink: true }}
@@ -340,7 +341,7 @@ const ClientInfos = (props: ClientInfoProps) => {
           />
         </InputsContainer>
 
-        <StyledTextField
+        <TextField
           label="Complemento:"
           value={clientAddress?.complement!}
           InputLabelProps={{ shrink: true }}
@@ -360,7 +361,7 @@ const ClientInfos = (props: ClientInfoProps) => {
       <h5>Informações do Cliente</h5>
       <ClientContainer>
         <Double>
-          <StyledTextField
+          <TextField
             value={clientData?.name}
             disabled={!hasEditMode}
             label="Nome"
@@ -371,7 +372,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             variant={!hasEditMode ? "standard" : "outlined"}
             sx={{ width: "100%", ...inputColor }}
           />
-          <StyledTextField
+          <TextField
             label="Email"
             margin="dense"
             value={clientData?.email}
@@ -385,7 +386,7 @@ const ClientInfos = (props: ClientInfoProps) => {
         </Double>
 
         <Double>
-          <StyledTextField
+          <TextField
             type={"date"}
             margin="dense"
             label="Nascimento"
@@ -397,7 +398,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             onChange={(e) => handleChange(e.target.value, "dateBorn")}
             variant={!hasEditMode ? "standard" : "outlined"}
           />
-          <StyledTextField
+          <TextField
             margin="dense"
             label="Telefone"
             disabled={!hasEditMode}
@@ -409,7 +410,7 @@ const ClientInfos = (props: ClientInfoProps) => {
         </Double>
 
         <Double>
-          <StyledTextField
+          <TextField
             type={"date"}
             margin="dense"
             label="Data Triagem"
@@ -433,7 +434,7 @@ const ClientInfos = (props: ClientInfoProps) => {
               return handleChange(v, "professionalScreening");
             }}
             renderInput={(params) => (
-              <StyledTextField
+              <TextField
                 {...params}
                 label="Profissional da Triagem"
                 InputLabelProps={{ shrink: true }}
@@ -446,7 +447,7 @@ const ClientInfos = (props: ClientInfoProps) => {
 
         {userData?.role === "admin" && (
           <Double>
-            <StyledTextField
+            <TextField
               disabled
               label="CPF"
               margin="dense"
@@ -455,7 +456,7 @@ const ClientInfos = (props: ClientInfoProps) => {
               value={cpfMask(clientData?.cpf)}
               sx={{ width: "100%", ...inputColor }}
             />
-            <StyledTextField
+            <TextField
               label="RG"
               disabled={!hasEditMode}
               placeholder="RG do Paciente"
@@ -470,7 +471,7 @@ const ClientInfos = (props: ClientInfoProps) => {
         )}
 
         <Double>
-          <StyledTextField
+          <TextField
             disabled={!hasEditMode}
             label="Endereço"
             value={clientData?.address}
@@ -487,13 +488,13 @@ const ClientInfos = (props: ClientInfoProps) => {
             disabled={!hasEditMode}
             sx={{ width: "30%", ...inputColor }}
             value={{ name: getPatientRole(), value: clientData?.role }}
-            onChange={(e, v) => handleChange(v.value, "role")}
+            onChange={(e, v) => handleChange(v!.value, "role")}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) =>
               option.value === value.value
             }
             renderInput={(params) => (
-              <StyledTextField
+              <TextField
                 {...params}
                 margin="dense"
                 disabled={!hasEditMode}
@@ -512,7 +513,7 @@ const ClientInfos = (props: ClientInfoProps) => {
           alignItems="center"
         >
           {!!client?.updatedBy && (
-            <Typography variant="small">
+            <Typography variant="caption">
               Atualizado por {client?.updatedBy?.reporterName} dia{" "}
               {client?.updatedBy?.timestamp?.toDate()?.toLocaleString()}
             </Typography>

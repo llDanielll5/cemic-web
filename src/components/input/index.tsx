@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import styles from "../../styles/Input.module.css";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 interface InputProps {
   value?: string;
@@ -50,7 +49,7 @@ const Input = (props: InputProps) => {
       </span>
       <span className={styles.line}></span>
 
-      {passwordVisible && props.type === "password"
+      {/* {passwordVisible && props.type === "password"
         ? AiOutlineEye({
             onClick: handleTogglePasswordVisible,
             className: styles["icon-eye"],
@@ -61,7 +60,7 @@ const Input = (props: InputProps) => {
             onClick: handleTogglePasswordVisible,
             className: styles["icon-eye"],
           })
-        : null}
+        : null} */}
     </div>
   );
 };

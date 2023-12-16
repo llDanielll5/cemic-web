@@ -1,10 +1,8 @@
-import PropTypes from 'prop-types';
-import { format } from 'date-fns';
+import PropTypes from "prop-types";
 import {
   Avatar,
   Box,
   Card,
-  Checkbox,
   Stack,
   Table,
   TableBody,
@@ -12,28 +10,47 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography
-} from '@mui/material';
-import { Scrollbar } from 'src/components/scrollbar';
-import { getInitials } from 'src/utils/get-initials';
+  Typography,
+} from "@mui/material";
+import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
+import { getInitials } from "@/services/get-initials";
+import { cpfMask, phoneMask } from "@/services/services";
 
-export const CustomersTable = (props) => {
+export const CustomersTable = (props: any) => {
   const {
     count = 0,
     items = [],
-    onDeselectAll,
-    onDeselectOne,
+
     onPageChange = () => {},
     onRowsPerPageChange,
-    onSelectAll,
-    onSelectOne,
+
     page = 0,
     rowsPerPage = 0,
-    selected = []
+    selected = [],
   } = props;
 
-  const selectedSome = (selected.length > 0) && (selected.length < items.length);
-  const selectedAll = (items.length > 0) && (selected.length === items.length);
+  const getRoleColor = (customer: any) => {
+    if (customer.role === "patient")
+      return {
+        color: "green",
+        fontWeight: "bold",
+      };
+    else if (customer.role === "pre-register")
+      return {
+        color: "var(--red)",
+        fontWeight: "bold",
+      };
+    else
+      return {
+        color: "gold",
+        fontWeight: "bold",
+      };
+  };
+  const getPatientRole = (role: string) => {
+    if (role === "patient") return "Paciente";
+    if (role === "pre-register") return "Pré-Registro";
+    if (role === "selected") return "Selecionado";
+  };
 
   return (
     <Card>
@@ -42,65 +59,28 @@ export const CustomersTable = (props) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedAll}
-                    indeterminate={selectedSome}
-                    onChange={(event) => {
-                      if (event.target.checked) {
-                        onSelectAll?.();
-                      } else {
-                        onDeselectAll?.();
-                      }
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  Name
-                </TableCell>
-                <TableCell>
-                  Email
-                </TableCell>
-                <TableCell>
-                  Location
-                </TableCell>
-                <TableCell>
-                  Phone
-                </TableCell>
-                <TableCell>
-                  Signed Up
-                </TableCell>
+                <TableCell padding="checkbox"></TableCell>
+                <TableCell>Nome</TableCell>
+                <TableCell>CPF</TableCell>
+                <TableCell>Telefone</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((customer) => {
+              {items.map((customer: any) => {
                 const isSelected = selected.includes(customer.id);
-                const createdAt = format(customer.createdAt, 'dd/MM/yyyy');
+                // const createdAt = format(customer.createdAt, "dd/MM/yyyy");
 
                 return (
                   <TableRow
                     hover
                     key={customer.id}
-                    selected={isSelected}
+                    onClick={() => props.onClick(customer)}
+                    sx={{ cursor: "pointer" }}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={(event) => {
-                          if (event.target.checked) {
-                            onSelectOne?.(customer.id);
-                          } else {
-                            onDeselectOne?.(customer.id);
-                          }
-                        }}
-                      />
-                    </TableCell>
+                    <TableCell padding="checkbox"></TableCell>
                     <TableCell>
-                      <Stack
-                        alignItems="center"
-                        direction="row"
-                        spacing={2}
-                      >
+                      <Stack alignItems="center" direction="row" spacing={2}>
                         <Avatar src={customer.avatar}>
                           {getInitials(customer.name)}
                         </Avatar>
@@ -109,17 +89,10 @@ export const CustomersTable = (props) => {
                         </Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>
-                      {customer.email}
-                    </TableCell>
-                    <TableCell>
-                      {customer.address.city}, {customer.address.state}, {customer.address.country}
-                    </TableCell>
-                    <TableCell>
-                      {customer.phone}
-                    </TableCell>
-                    <TableCell>
-                      {createdAt}
+                    <TableCell>{cpfMask(customer.cpf)}</TableCell>
+                    <TableCell>{phoneMask(customer.phone)}</TableCell>
+                    <TableCell sx={getRoleColor(customer)}>
+                      {getPatientRole(customer.role)}
                     </TableCell>
                   </TableRow>
                 );
@@ -152,5 +125,5 @@ CustomersTable.propTypes = {
   onSelectOne: PropTypes.func,
   page: PropTypes.number,
   rowsPerPage: PropTypes.number,
-  selected: PropTypes.array
+  selected: PropTypes.array,
 };

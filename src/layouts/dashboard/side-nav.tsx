@@ -3,27 +3,28 @@
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import PropTypes from "prop-types";
-import ArrowTopRightOnSquareIcon from "@heroicons/react/24/solid/ArrowTopRightOnSquareIcon";
 import ChevronUpDownIcon from "@heroicons/react/24/solid/ChevronUpDownIcon";
 import {
   Box,
-  Button,
   Divider,
   Drawer,
   Stack,
   SvgIcon,
   Typography,
   useMediaQuery,
+  styled,
 } from "@mui/material";
-import { Logo } from "src/components/new-admin/comps/logo";
 import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
 import { items } from "./config";
 import { SideNavItem } from "./side-nav-item";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 export const SideNav = (props: any) => {
   const { open, onClose } = props;
   const pathname = usePathname();
   const lgUp = useMediaQuery((theme: any) => theme.breakpoints.up("lg"));
+  const userData: any = useRecoilValue(UserData);
 
   const content = (
     <Scrollbar
@@ -37,67 +38,40 @@ export const SideNav = (props: any) => {
         },
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-        }}
-      >
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <Box sx={{ p: 3 }}>
-          <Box
-            component={NextLink}
-            href="/"
-            sx={{
-              display: "inline-flex",
-              height: 32,
-              width: 32,
-            }}
-          >
-            <Logo />
+          <Box display="flex" alignItems={"center"}>
+            <Box component={NextLink} href="/admin">
+              <img
+                src="/images/logo.png"
+                alt=""
+                style={{ height: 40, width: 40 }}
+              />
+            </Box>
+            <Typography color="white" variant="subtitle1" ml={1}>
+              Sistema CEMIC
+            </Typography>
           </Box>
-          <Box
-            sx={{
-              alignItems: "center",
-              backgroundColor: "rgba(255, 255, 255, 0.04)",
-              borderRadius: 1,
-              cursor: "pointer",
-              display: "flex",
-              justifyContent: "space-between",
-              mt: 2,
-              p: "12px",
-            }}
-          >
+          <NameContainer>
             <div>
               <Typography color="inherit" variant="subtitle1">
-                Devias
+                {userData?.name}
               </Typography>
               <Typography color="neutral.400" variant="body2">
-                Production
+                {userData?.role}
               </Typography>
             </div>
             <SvgIcon fontSize="small" sx={{ color: "neutral.500" }}>
               <ChevronUpDownIcon />
             </SvgIcon>
-          </Box>
+          </NameContainer>
         </Box>
         <Divider sx={{ borderColor: "neutral.700" }} />
-        <Box
-          component="nav"
-          sx={{
-            flexGrow: 1,
-            px: 2,
-            py: 3,
-          }}
-        >
+        <Box component="nav" sx={{ flexGrow: 1, px: 2, py: 3 }}>
           <Stack
             component="ul"
             spacing={0.5}
-            sx={{
-              listStyle: "none",
-              p: 0,
-              m: 0,
-            }}
+            sx={{ listStyle: "none", p: 0, m: 0 }}
           >
             {items.map((item) => {
               const active = item.path ? pathname === item.path : false;
@@ -117,47 +91,6 @@ export const SideNav = (props: any) => {
           </Stack>
         </Box>
         <Divider sx={{ borderColor: "neutral.700" }} />
-        <Box
-          sx={{
-            px: 2,
-            py: 3,
-          }}
-        >
-          <Typography color="neutral.100" variant="subtitle2">
-            Need more features?
-          </Typography>
-          <Typography color="neutral.500" variant="body2">
-            Check out our Pro solution template.
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              mt: 2,
-              mx: "auto",
-              width: "160px",
-              "& img": {
-                width: "100%",
-              },
-            }}
-          >
-            <img alt="Go to pro" src="/assets/devias-kit-pro.png" />
-          </Box>
-          <Button
-            component="a"
-            endIcon={
-              <SvgIcon fontSize="small">
-                <ArrowTopRightOnSquareIcon />
-              </SvgIcon>
-            }
-            fullWidth
-            href="https://material-kit-pro-react.devias.io/"
-            sx={{ mt: 2 }}
-            target="_blank"
-            variant="contained"
-          >
-            Pro Live Preview
-          </Button>
-        </Box>
       </Box>
     </Scrollbar>
   );
@@ -205,3 +138,14 @@ SideNav.propTypes = {
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };
+
+const NameContainer = styled(Box)`
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 12px;
+`;

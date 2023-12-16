@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/ClientDetails.module.css";
-import { CgCloseR, CgCheckR } from "react-icons/cg";
 import { ClientType } from "types";
-import Receipt from "./receipt";
 import SchedulesPatient from "./schedules";
 
 interface ClientInformationsProps {

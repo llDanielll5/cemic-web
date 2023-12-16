@@ -71,7 +71,7 @@ export default function CustomTable(props: TableProps) {
       </Table>
       {data?.length === 0 && (
         <S.NotHaveFiscalContainer>
-          <Typography variant="semibold">{messageNothing}</Typography>
+          <Typography variant="subtitle1">{messageNothing}</Typography>
         </S.NotHaveFiscalContainer>
       )}
     </S.StyledTableContainer>

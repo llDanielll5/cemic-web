@@ -81,7 +81,7 @@ const ProfessionalScreen = () => {
     setIsLogout(true);
     return await signOut(auth)
       .then(async () => {
-        const getout = await router.push("/login");
+        const getout = await router.push("/auth/login");
         if (getout) {
           resetUser();
           setCookie("useruid", undefined);

@@ -44,7 +44,7 @@ const AdminBlog = () => {
       flexDirection={"column"}
     >
       <Modal visible={newPostVisible} closeModal={handleCloseNewPost}>
-        <Typography variant="semibold">Título da postagem</Typography>
+        <Typography variant="subtitle1">Título da postagem</Typography>
         <Input label="Título" type="text" />
       </Modal>
       <StyledButton

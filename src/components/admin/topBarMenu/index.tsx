@@ -1,7 +1,6 @@
 //@ts-nocheck
 import React from "react";
 import styles from "../../../styles/Dashboard.module.css";
-import { TiThMenuOutline } from "react-icons/ti";
 
 interface TopBarProps {
   page: Index;
@@ -20,7 +19,7 @@ const TopBarMenu = (props: TopBarProps) => {
         onClick={props.onClick}
         ref={props.toggleRef}
       >
-        <TiThMenuOutline className={styles.icon} />
+        {/* <TiThMenuOutline className={styles.icon} /> */}
       </div>
       <div className={styles.search}>
         <h2 className={styles.title}>{props.panelTitle[props.page]}</h2>

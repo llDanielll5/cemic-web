@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Typography, styled, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  styled,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import EditIcon from "@mui/icons-material/Edit";
@@ -10,7 +17,6 @@ import { useRecoilValue } from "recoil";
 import { db } from "@/services/firebase";
 import { maskValue } from "@/services/services";
 import { HeaderTitle } from "../lectures/lectureDetails";
-import { StyledTextField } from "@/components/patient/profile";
 import Loading from "@/components/loading";
 import UserData from "@/atoms/userData";
 import {
@@ -260,7 +266,7 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
           columnGap={2}
           mt={1}
         >
-          <StyledTextField
+          <TextField
             label="Tratamento"
             value={treatmentValues.name}
             sx={{ width: "100%" }}
@@ -270,7 +276,7 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
             }}
           />
 
-          <StyledTextField
+          <TextField
             label="Preço"
             value={treatmentValues.price}
             onChange={(e) =>
@@ -311,7 +317,7 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
         </Button>
       )}
 
-      <Typography variant="bold" my={2}>
+      <Typography variant="subtitle1" my={2}>
         Tratamentos Cadastrados
       </Typography>
 
@@ -333,7 +339,7 @@ const TreatmentsAdmin = (props: { setIsCreateTreatment: any }) => {
         <IconButton onClick={handleBackPage}>
           <ChevronLeftIcon fontSize="large" />
         </IconButton>
-        <HeaderTitle variant="semibold">{page}</HeaderTitle>
+        <HeaderTitle variant="subtitle1">{page}</HeaderTitle>
         <IconButton onClick={handleNextPage}>
           <ChevronRightIcon fontSize="large" />
         </IconButton>

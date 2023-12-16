@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { db } from "@/services/firebase";
-import { Box, Typography, IconButton, styled } from "@mui/material";
+import { Box, Typography, IconButton, styled, TextField } from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import Modal from "@/components/modal";
@@ -9,7 +9,7 @@ import uploadFile from "@/services/uploadFile";
 import Loading from "@/components/loading";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { StyledTextField } from "@/components/patient/profile";
+
 import {
   Timestamp,
   addDoc,
@@ -142,10 +142,10 @@ const Receipt = (props: ReceiptProps) => {
             justifyContent="space-between"
             border="1.3px solid #bbb"
           >
-            <Typography variant="semibold">
+            <Typography variant="subtitle1">
               Valor: <strong>{v?.totalStr}</strong>{" "}
             </Typography>
-            <Typography variant="semibold">
+            <Typography variant="subtitle1">
               {v?.timestamp?.toDate().toLocaleDateString("pt-br")}
             </Typography>
             <Link passHref target="_blank" href={`/admin/receipt/${v?.id}`}>
@@ -155,7 +155,7 @@ const Receipt = (props: ReceiptProps) => {
         ))} */}
         <Modal visible={deleteVisible} closeModal={handleCloseModalDelete}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Typography variant="bold">
+            <Typography variant="h5">
               Deseja realmente apagar este exame?
             </Typography>
             <Box
@@ -176,7 +176,7 @@ const Receipt = (props: ReceiptProps) => {
             justifyContent={"center"}
             flexDirection="column"
           >
-            <StyledTextField
+            <TextField
               type={"date"}
               margin="dense"
               value={receiptDate}
@@ -205,7 +205,7 @@ const Receipt = (props: ReceiptProps) => {
           </Box>
         </Modal>
 
-        <Typography variant="semibold" fontSize={16} mt={1.5} mb={0.75}>
+        <Typography variant="subtitle1" fontSize={16} mt={1.5} mb={0.75}>
           Recibos
         </Typography>
 
@@ -226,14 +226,14 @@ const Receipt = (props: ReceiptProps) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <TextId variant="bold">ID Recibo</TextId>
-            <Typography variant="bold">Data do Recibo</Typography>
+            <TextId variant="h5">ID Recibo</TextId>
+            <Typography variant="h5">Data do Recibo</Typography>
             <Box display="flex" columnGap={1} />
           </Box>
           {snapReceipts.map((v, i) => (
             <ReceiptSingle key={i}>
-              <TextId variant="semibold">{v?.id}</TextId>
-              <Typography variant="semibold">
+              <TextId variant="subtitle1">{v?.id}</TextId>
+              <Typography variant="subtitle1">
                 {parseDateIso(v?.date)}
               </Typography>
               <Box display="flex" columnGap={1}>

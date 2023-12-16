@@ -1,6 +1,11 @@
 import React, { useState } from "react";
-import { Box, Typography, InputAdornment, IconButton } from "@mui/material";
-import { StyledTextField } from "@/components/patient/profile";
+import {
+  Box,
+  Typography,
+  InputAdornment,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
@@ -62,13 +67,13 @@ const LoginFormLanding = (props: LoginFormLandingProps) => {
         Entrar com sua conta!
       </h3>
 
-      <StyledTextField
+      <TextField
         label="Email*"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <StyledTextField
+      <TextField
         label="Senha*"
         type={showPassword ? "text" : "password"}
         value={password}
@@ -89,7 +94,7 @@ const LoginFormLanding = (props: LoginFormLandingProps) => {
       <Box>
         <StyledButton onClick={handleSubmit}>Entrar</StyledButton>
       </Box>
-      <Typography mt={1} variant="small">
+      <Typography mt={1} variant="caption">
         Campos com * são obrigatórios
       </Typography>
     </Box>

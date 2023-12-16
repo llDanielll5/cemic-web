@@ -1,6 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, styled, Autocomplete } from "@mui/material";
-import { StyledTextField } from "@/components/patient/profile";
+import {
+  Box,
+  Typography,
+  styled,
+  Autocomplete,
+  TextField,
+} from "@mui/material";
+
 import { Timestamp } from "firebase/firestore";
 
 interface ContentPayment {
@@ -31,7 +37,7 @@ const AddAdminPaymentModal: React.FC = () => {
   const [values, setValues] = useState(defaultValues);
   return (
     <Box>
-      <Typography variant="semibold">
+      <Typography variant="subtitle1">
         Selecione a quem será o pagamento:
       </Typography>
       <Autocomplete
@@ -41,7 +47,7 @@ const AddAdminPaymentModal: React.FC = () => {
         value={values.title}
         onChange={(e, v) => setValues((prev: any) => ({ ...prev, title: v }))}
         renderInput={(params) => (
-          <StyledTextField {...params} label="" color="info" />
+          <TextField {...params} label="" color="info" />
         )}
       />
     </Box>

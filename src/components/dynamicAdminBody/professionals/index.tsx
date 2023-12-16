@@ -128,7 +128,7 @@ const ProfessionalsAdmin = (props: ProfessionalsAdminProps) => {
             justifyContent="center"
             mt={4}
           >
-            <Typography variant="semibold">
+            <Typography variant="subtitle1">
               Não há profissional com esta letra ou dado
             </Typography>
           </Box>

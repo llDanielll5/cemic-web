@@ -95,7 +95,7 @@ const LecturesAdmin = (props: any) => {
 
   const notHaveSchedule = () => (
     <Box display="flex" alignItems="center" justifyContent="center" mt={2}>
-      <Typography variant="semibold">
+      <Typography variant="subtitle1">
         Não há agendamentos para este horário!
       </Typography>
     </Box>
@@ -161,7 +161,7 @@ const LecturesAdmin = (props: any) => {
         closeModal={() => setCalendarVisible(false)}
       >
         <Box display="flex" alignItems="center" flexDirection="column">
-          <Typography variant="bold" mb={1} textAlign="center">
+          <Typography variant="subtitle1" mb={1} textAlign="center">
             Selecione a data desejada:
           </Typography>
           <Calendar onChange={handleChangeDate} value={dateSelected} />
@@ -198,7 +198,7 @@ const LecturesAdmin = (props: any) => {
         mt={2}
         sx={{ backgroundColor: "white" }}
       >
-        <Typography variant="bold" fontSize="18px">
+        <Typography variant="subtitle1" fontSize="18px">
           {parseDateBr(dateSelected.toLocaleDateString())}
         </Typography>
       </Box>

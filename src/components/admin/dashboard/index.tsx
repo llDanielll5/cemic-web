@@ -8,7 +8,6 @@ import Link from "next/link";
 import UserData from "@/atoms/userData";
 import Loading from "@/components/loading";
 import useWindowSize from "@/hooks/useWindowSize";
-import VerticalChart from "@/components/verticalChart";
 import styles from "../../../styles/Dashboard.module.css";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
@@ -152,7 +151,7 @@ const DashboardAdmin = (props: DashboardProps) => {
           como aconteceu.
         </h3>
 
-        <Typography variant="semibold" m={2}>
+        <Typography variant="subtitle1" m={2}>
           Telefone TI: (61) 99171-1401
         </Typography>
 
@@ -177,14 +176,10 @@ const DashboardAdmin = (props: DashboardProps) => {
     <div className={styles["dashboard-main"]}>
       <h3>Bem vindo Administrador</h3>
       {passedTime && (
-        <Typography variant="bold">
+        <Typography variant="subtitle1">
           As informações podem não estar atualizadas
         </Typography>
       )}
-
-      {VerticalChart({
-        data: { labels: width! > 1024 ? labels : labelResum, datasets },
-      })}
     </div>
   );
 };

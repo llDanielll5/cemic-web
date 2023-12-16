@@ -2,7 +2,14 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState } from "react";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
-import { Box, Typography, IconButton, Avatar, styled } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Avatar,
+  styled,
+  TextField,
+} from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { db } from "@/services/firebase";
@@ -23,7 +30,7 @@ import {
 } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
-import { StyledTextField } from "@/components/patient/profile";
+
 import Link from "next/link";
 
 interface ClientExamsProps {
@@ -154,7 +161,7 @@ const ClientExams = (props: ClientExamsProps) => {
           />
           <input type={"file"} onChange={handleChangeFile} />
 
-          <StyledTextField
+          <TextField
             margin="dense"
             value={examTitle}
             label={"Título do Exame"}
@@ -169,13 +176,7 @@ const ClientExams = (props: ClientExamsProps) => {
           </StyledButton>
         </Box>
       </Modal>
-      <Modal
-        visible={imgVisible}
-        closeModal={() => setImgVisible(false)}
-        style={{
-          content: { width: "100%", height: "100%", padding: "8px" },
-        }}
-      >
+      <Modal visible={imgVisible} closeModal={() => setImgVisible(false)}>
         <IconBack onClick={handleCloseSee}>
           <ReplyIcon fontSize="large" />
         </IconBack>
@@ -190,7 +191,7 @@ const ClientExams = (props: ClientExamsProps) => {
 
       <Modal visible={deleteModal} closeModal={handleCloseModalDelete}>
         <Box display="flex" flexDirection="column" alignItems="center">
-          <Typography variant="bold">
+          <Typography variant="h5">
             Deseja realmente apagar este exame?
           </Typography>
           <Box
@@ -206,7 +207,7 @@ const ClientExams = (props: ClientExamsProps) => {
       </Modal>
 
       <Box display="flex" alignItems="center" justifyContent="center" m={1}>
-        <Typography variant="bold" textAlign={"center"}>
+        <Typography variant="h5" textAlign={"center"}>
           Exames do paciente
         </Typography>
       </Box>
@@ -230,7 +231,7 @@ const ClientExams = (props: ClientExamsProps) => {
               src={v?.media}
               sx={{ width: "40px", height: "40px", borderRadius: "8px" }}
             />
-            <Typography variant="semibold">{v?.title}</Typography>
+            <Typography variant="subtitle1">{v?.title}</Typography>
             <Link passHref href={v?.media} target="_blank">
               <StyledButton>Ver</StyledButton>
             </Link>

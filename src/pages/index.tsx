@@ -1,27 +1,18 @@
 //@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+
 import { useGetScrollPosition } from "@/hooks/useGetScrollPosition";
-import { useCallback, useEffect, useRef, useState } from "react";
-import About from "@/components/landing/about";
+import { useCallback, useEffect, useRef } from "react";
 import useWindowSize from "@/hooks/useWindowSize";
-import Help from "@/components/landing/help";
-import Footer from "@/components/landing/footer";
-import HeadLanding from "@/components/landing/head";
-import HeaderLanding from "@/components/landing/header";
 import BannerLanding from "@/components/landing/banner";
+import { Box } from "@mui/material";
+import { LandingLayout } from "@/layouts/landing";
 
 export default function LandingPage() {
   const size = useWindowSize();
-  const refMenu = useRef<HTMLUListElement>(null);
+  const refMenu = useRef<HTMLDivElement>(null);
   const currentScroll = useGetScrollPosition();
-  const [activeTab, setActiveTab] = useState(0);
   const aboutRef = useRef<HTMLDivElement>(null);
-
-  const msg = `Olá!! Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
-  const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
-    msg
-  )}`;
 
   const scrollUp = useCallback(() => {
     const scroll_up = document.getElementById("scroll_up");
@@ -40,30 +31,22 @@ export default function LandingPage() {
       help?.style?.setProperty("opacity", "0");
       contact?.style?.setProperty("opacity", "0");
     };
-
-    // if (currentScroll > 30) about?.style?.setProperty("opacity", "1");
-    // if (currentScroll > help?.offsetHeight)
-    //   help?.style?.setProperty("opacity", "1");
-    // if (currentScroll > contact?.offsetHeight)
-    //   contact?.style?.setProperty("opacity", "1");
-    // if (currentScroll < contact?.offsetHeight)
-    //   contact?.style?.setProperty("opacity", "0");
-    // if (currentScroll < help?.offsetHeight)
-    //   help?.style?.setProperty("opacity", "0");
-    // if (currentScroll < 30) about?.style?.setProperty("opacity", "0");
     opacityNone();
-    if (activeTab === 1) {
+    if (currentScroll > 100) {
       about?.style?.setProperty("opacity", "1");
       help?.style?.setProperty("opacity", "0");
-    } else if (activeTab === 2) {
+    } else {
       about?.style?.setProperty("opacity", "0");
       help?.style?.setProperty("opacity", "1");
     }
-  }, [activeTab]);
+    // if (activeTab === 2) {
+    //   help?.style?.setProperty("opacity", "1");
+    // } else help?.style?.setProperty("opacity", "0");
+  }, [currentScroll]);
 
   useEffect(() => {
     getActiveScroll();
-  }, [getActiveScroll, activeTab]);
+  }, [getActiveScroll]);
 
   useEffect(() => {
     const changeRouter = () => {
@@ -76,23 +59,10 @@ export default function LandingPage() {
   }, [scrollUp, size?.width]);
 
   return (
-    <>
-      <HeadLanding />
-      <HeaderLanding refMenu={refMenu} setTabIndex={setActiveTab} />
-      {activeTab === 0 && <BannerLanding setTabIndex={setActiveTab} />}
-      {activeTab === 1 && <About ref={aboutRef} />}
-      {activeTab === 2 && <Help />}
-      <Footer />
-
-      <a
-        href={zapHref}
-        className="scrollup"
-        id="scroll_up"
-        target={"_blank"}
-        rel="noreferrer"
-      >
-        <WhatsAppIcon sx={{ color: "white" }} fontSize="large" />
-      </a>
-    </>
+    <Box position="relative" zIndex={0}>
+      <BannerLanding aboutRef={aboutRef} />
+    </Box>
   );
 }
+
+LandingPage.getLayout = (page: any) => <LandingLayout>{page}</LandingLayout>;

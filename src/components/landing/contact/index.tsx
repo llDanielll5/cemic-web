@@ -10,7 +10,6 @@ import { Box } from "@mui/material";
 import styles from "../../styles/Landing.module.css";
 import Loading from "../loading";
 import { AuthErrors } from "@/services/errors";
-import ModalError from "../modalError";
 import { StyledButton } from "../dynamicAdminBody/receipts";
 
 const ContactForm = () => {
@@ -99,14 +98,14 @@ const ContactForm = () => {
           <Loading message="Criando cadastro..." />
         </Box>
       )}
-      <ModalError
+      {/* <ModalError
         actionButton={
           <StyledButton onClick={handleCloseErrorModal}>Ok</StyledButton>
         }
         message={errorMessage}
         closeModal={handleCloseErrorModal}
         visible={modalError}
-      />
+      /> */}
       <h2>
         Faça sua inscrição agora e concorra a sua vaga na <span>CEMIC!</span>
       </h2>

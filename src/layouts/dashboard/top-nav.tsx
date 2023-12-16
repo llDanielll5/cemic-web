@@ -2,7 +2,8 @@ import PropTypes from "prop-types";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import Bars3Icon from "@heroicons/react/24/solid/Bars3Icon";
-import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
+
+import LogoutIcon from "@mui/icons-material/Logout";
 import {
   Avatar,
   Badge,
@@ -16,14 +17,18 @@ import {
 import { alpha } from "@mui/material/styles";
 import { AccountPopover } from "./account-popover";
 import { usePopover } from "@/hooks/usePopover";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { getInitials } from "@/services/get-initials";
 
 const SIDE_NAV_WIDTH = 280;
 const TOP_NAV_HEIGHT = 64;
 
 export const TopNav = (props: any) => {
-  const { onNavOpen } = props;
+  const { onNavOpen, logout } = props;
   const lgUp = useMediaQuery((theme: any) => theme.breakpoints.up("lg"));
   const accountPopover = usePopover();
+  const userData: any = useRecoilValue(UserData);
 
   return (
     <>
@@ -62,22 +67,8 @@ export const TopNav = (props: any) => {
                 </SvgIcon>
               </IconButton>
             )}
-            <Tooltip title="Search">
-              <IconButton>
-                <SvgIcon fontSize="small">
-                  <MagnifyingGlassIcon />
-                </SvgIcon>
-              </IconButton>
-            </Tooltip>
           </Stack>
           <Stack alignItems="center" direction="row" spacing={2}>
-            <Tooltip title="Contacts">
-              <IconButton>
-                <SvgIcon fontSize="small">
-                  <UsersIcon />
-                </SvgIcon>
-              </IconButton>
-            </Tooltip>
             <Tooltip title="Notifications">
               <IconButton>
                 <Badge badgeContent={4} color="success" variant="dot">
@@ -95,8 +86,10 @@ export const TopNav = (props: any) => {
                 height: 40,
                 width: 40,
               }}
-              src="/assets/avatars/avatar-anika-visser.png"
-            />
+              src={userData?.profileImage}
+            >
+              {getInitials(userData?.name)}
+            </Avatar>
           </Stack>
         </Stack>
       </Box>
@@ -104,6 +97,7 @@ export const TopNav = (props: any) => {
         anchorEl={accountPopover.anchorRef.current}
         open={accountPopover.open}
         onClose={accountPopover.handleClose}
+        logout={logout}
       />
     </>
   );
@@ -111,4 +105,5 @@ export const TopNav = (props: any) => {
 
 TopNav.propTypes = {
   onNavOpen: PropTypes.func,
+  logout: PropTypes.any,
 };

@@ -1,8 +1,6 @@
 import React from "react";
-import { Box, styled, Autocomplete } from "@mui/material";
-import { StyledTextField } from "../patient/profile";
+import { Box, styled, Autocomplete, TextField } from "@mui/material";
 import { StyledButton } from "../dynamicAdminBody/receipts";
-import styles from "../../styles/Selected.module.css";
 import { OptionsSpecialties } from "../dynamicProfBody/profile/styles";
 
 interface UserFormProps {
@@ -56,14 +54,14 @@ const UserForm = (props: UserFormProps) => {
     <Box position="relative" pt={1}>
       <h2>Dados do Paciente</h2>
 
-      <StyledTextField
+      <TextField
         label="Nome Completo:"
         value={userData?.name!}
         sx={{ width: "100%" }}
         onChange={(e) => handleChange(e.target.value, "name", setUserData)}
         margin="dense"
       />
-      <StyledTextField
+      <TextField
         label="Email:"
         value={userData?.email!}
         sx={{ width: "100%" }}
@@ -71,14 +69,14 @@ const UserForm = (props: UserFormProps) => {
         margin="dense"
       />
       <InputsContainer>
-        <StyledTextField
+        <TextField
           label="CPF:"
           value={cpfMask(userData?.cpf!)}
           onChange={(e) => handleChange(e.target.value, "cpf", setUserData)}
           inputProps={{ maxLength: 14 }}
           sx={{ width: "70%" }}
         />
-        <StyledTextField
+        <TextField
           label="RG:"
           value={userData?.rg!}
           sx={{ width: "30%" }}
@@ -88,14 +86,14 @@ const UserForm = (props: UserFormProps) => {
       </InputsContainer>
 
       <InputsContainer>
-        <StyledTextField
+        <TextField
           label="Celular*:"
           value={userData?.phone!}
           onChange={(e) => handleMasked(e.target.value, "phone", setUserData)}
           inputProps={{ maxLength: 15 }}
           sx={{ width: "70%" }}
         />
-        <StyledTextField
+        <TextField
           type={"date"}
           sx={{ width: "30%" }}
           label="Nascimento*:"
@@ -125,17 +123,17 @@ const UserForm = (props: UserFormProps) => {
         )}
       />
 
-      <h3 className={styles.local}>Dados de Localidade</h3>
+      <h3>Dados de Localidade</h3>
 
       <InputsContainer>
-        <StyledTextField
+        <TextField
           label="CEP*:"
           value={locationData?.cep!}
           onChange={handleGetCep}
           inputProps={{ maxLength: 8 }}
           sx={{ width: "100%" }}
         />
-        <StyledTextField
+        <TextField
           label="Logradouro:"
           value={locationData?.line1!}
           InputLabelProps={{ shrink: true }}
@@ -147,7 +145,7 @@ const UserForm = (props: UserFormProps) => {
       </InputsContainer>
 
       <InputsContainer>
-        <StyledTextField
+        <TextField
           label="Bairro:"
           value={locationData?.neighbor!}
           InputLabelProps={{ shrink: true }}
@@ -157,7 +155,7 @@ const UserForm = (props: UserFormProps) => {
           }
         />
 
-        <StyledTextField
+        <TextField
           label="Número:"
           value={locationData?.number!}
           sx={{ width: "20%" }}
@@ -168,7 +166,7 @@ const UserForm = (props: UserFormProps) => {
       </InputsContainer>
 
       <InputsContainer>
-        <StyledTextField
+        <TextField
           label="Cidade:"
           value={locationData?.city!}
           InputLabelProps={{ shrink: true }}
@@ -178,7 +176,7 @@ const UserForm = (props: UserFormProps) => {
           sx={{ width: "80%" }}
         />
 
-        <StyledTextField
+        <TextField
           label="UF:"
           value={locationData?.uf!}
           InputLabelProps={{ shrink: true }}
@@ -187,7 +185,7 @@ const UserForm = (props: UserFormProps) => {
         />
       </InputsContainer>
 
-      <StyledTextField
+      <TextField
         label="Complemento:"
         value={locationData?.complement!}
         InputLabelProps={{ shrink: true }}

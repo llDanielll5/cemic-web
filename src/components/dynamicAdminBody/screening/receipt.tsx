@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+//@ts-nocheck
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { Button50, PaymentShapesArray } from "./screeningDetails";
@@ -52,7 +53,7 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
         style={{ width: "50%", height: "100px" }}
       />
 
-      <Typography variant="bold" textAlign={"center"} m={1}>
+      <Typography variant="subtitle1" textAlign={"center"} m={1}>
         Recibo
       </Typography>
 
@@ -75,7 +76,7 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
       ))}
 
       <Typography
-        variant="semibold"
+        variant="subtitle1"
         textAlign="left"
         m={1}
         pl={"16px"}
@@ -103,7 +104,7 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
       )}
 
       <Typography
-        variant="semibold"
+        variant="subtitle1"
         textAlign="left"
         m={1}
         pl={"16px"}
@@ -124,12 +125,12 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
         recibo sempre que retornar na CEMIC para resolver qualquer assunto
       </Typography>
 
-      <Typography m={1} variant="semibold" textAlign="right" width="100%">
+      <Typography m={1} variant="subtitle1" textAlign="right" width="100%">
         Brasília {receiptValues?.date}
       </Typography>
 
       <Typography
-        variant="semibold"
+        variant="subtitle1"
         textAlign="right"
         m={1}
         width="100%"
@@ -142,7 +143,7 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
       </Typography>
 
       <Typography
-        variant="semibold"
+        variant="subtitle1"
         textAlign="right"
         m={1}
         width="100%"

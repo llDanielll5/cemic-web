@@ -493,18 +493,20 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             columnGap={2}
           >
             {actualProfessional !== null ? (
-              <Typography variant="bold">
+              <Typography variant="subtitle1">
                 Atual Dentista: {actualProfessional?.name ?? ""}
               </Typography>
             ) : (
-              <Typography variant="bold">Sem dentista atualmente</Typography>
+              <Typography variant="subtitle1">
+                Sem dentista atualmente
+              </Typography>
             )}
-            <Typography variant="small">
+            <Typography variant="caption">
               Atualizado por: {clientTreatments?.updatedBy?.reporterName} dia{" "}
               {clientAdminTimestamp?.toDate()?.toLocaleString("pt-br")}
             </Typography>
           </Box>
-          <Typography variant="bold">
+          <Typography variant="subtitle1">
             Plano de Tratamento do paciente:
           </Typography>
           <Box
@@ -523,20 +525,22 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
                   width={"100%"}
                   my={"4px"}
                 >
-                  <Typography variant="semibold">{v?.region} - </Typography>
-                  <Typography variant="semibold">
+                  <Typography variant="subtitle1">{v?.region} - </Typography>
+                  <Typography variant="subtitle1">
                     {v?.treatments?.name}
                   </Typography>
                 </Box>
               ))}
             {!hasTreatmentPlan && (
-              <Typography variant="semibold">
+              <Typography variant="subtitle1">
                 Sem plano de Tratamento
               </Typography>
             )}
           </Box>
 
-          <Typography variant="bold">Tratamentos já realizados:</Typography>
+          <Typography variant="subtitle1">
+            Tratamentos já realizados:
+          </Typography>
           <Box
             border="1.3px solid var(--dark-blue)"
             p={1}
@@ -554,22 +558,22 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
                     width={"100%"}
                     my={"4px"}
                   >
-                    <Typography variant="semibold">{v?.region} - </Typography>
-                    <Typography variant="semibold">
+                    <Typography variant="subtitle1">{v?.region} - </Typography>
+                    <Typography variant="subtitle1">
                       {v?.treatments?.name}
                     </Typography>
                   </Box>
                 )
               )}
             {!hasRealizeds && (
-              <Typography variant="semibold">
+              <Typography variant="subtitle1">
                 Sem Tratamentos concluídos
               </Typography>
             )}
           </Box>
 
           <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-            <Typography variant="semibold">
+            <Typography variant="subtitle1">
               Verificar histórico de encaminhamentos
             </Typography>
             <Link

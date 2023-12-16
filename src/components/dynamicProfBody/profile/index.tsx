@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Autocomplete, TextField } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
-import { chooseImgStyle } from "@/components/pre-register/profile";
+// import { chooseImgStyle } from "@/components/pre-register/profile";
 import { db } from "@/services/firebase";
 import Input from "@/components/input";
 import Loading from "@/components/loading";
@@ -11,7 +11,6 @@ import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { cpfMask, phoneMask } from "@/services/services";
 import { specialties } from "data";
 import * as S from "./styles";
-import { StyledTextField } from "@/components/patient/profile";
 
 interface ProfileProfessionalProps {
   userData?: any;
@@ -151,7 +150,7 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
 
   return (
     <S.Container>
-      <S.Title variant="bold">Seus Dados</S.Title>
+      <S.Title variant="subtitle1">Seus Dados</S.Title>
 
       <S.Form>
         <S.FieldForm>
@@ -162,7 +161,7 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
                 type="file"
                 onChange={handleChangeFile}
                 title="Escolher imagem"
-                style={{ ...chooseImgStyle }}
+                // style={{ ...chooseImgStyle }}
               />
             </S.ProfileImage>
           </S.AvatarContainer>
@@ -176,7 +175,7 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
           </Typography>
 
           <Box px={2}>
-            <StyledTextField
+            <TextField
               label="Nome Completo"
               value={userInformations?.name}
               onChange={(e) => handleChangeInfos("name", e)}
@@ -185,7 +184,7 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
               margin="dense"
             />
             <S.DoubleInputs>
-              <StyledTextField
+              <TextField
                 label="CPF"
                 onChange={(e) =>
                   handleChangeInfos("cpf", cpfMask(e.target.value))
@@ -195,7 +194,7 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
                 sx={{ width: "100%" }}
                 margin="dense"
               />
-              <StyledTextField
+              <TextField
                 label="RG"
                 value={userInformations?.rg}
                 onChange={(e) => handleChangeInfos("rg", e.target.value)}
@@ -204,14 +203,14 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
               />
             </S.DoubleInputs>
             <S.DoubleInputs>
-              <StyledTextField
+              <TextField
                 label="CRO"
                 value={userInformations?.cro}
                 onChange={(e) => handleChangeInfos("cro", e.target.value)}
                 sx={{ width: "100%" }}
                 margin="dense"
               />
-              <StyledTextField
+              <TextField
                 label="Telefone"
                 value={userInformations?.phone}
                 onChange={(e) =>

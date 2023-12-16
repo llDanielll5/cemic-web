@@ -144,7 +144,7 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
         <HighlightOffIcon />
       </IconClose>
       <Typography
-        variant="semibold"
+        variant="subtitle1"
         alignSelf={"center"}
         textAlign={"center"}
         mt={5}
@@ -224,7 +224,7 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
           >
             <DeleteIcon color="warning" />
           </IconButton>
-          <Typography variant="semibold" width={"10%"} mx={"2%"}>
+          <Typography variant="subtitle1" width={"10%"} mx={"2%"}>
             {v.region} -{" "}
           </Typography>
 

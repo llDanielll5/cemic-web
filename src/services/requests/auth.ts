@@ -189,55 +189,19 @@ export const createUserLanding = async ({
   );
 };
 
-export const createProfessional = async (
-  data: any,
-  password: string,
-  cpf: string,
-  phone: string
-) => {
-  const { name, cro, email, rg } = data;
-  return createUserWithEmailAndPassword(auth, email, password).then(
-    async (res) => {
-      const professionalData: ProfessionalData = {
-        cpf,
-        cro,
-        name,
-        rg,
-        email,
-        phone,
-        id: cpf,
-        payments: [],
-        protocols: [],
-        treatments: [],
-        profileImage: "",
-        uid: res.user.uid,
-        role: "professional",
-        specialty: "implant",
-        firstLetter: name.charAt(0).toUpperCase(),
-      };
-      if (res) {
-        const profRef = doc(db, "professionals", cpf);
-        const verify = await getDoc(profRef);
-        if (verify.exists()) {
-          return await deleteUser(res.user).then(() => {
-            return "CPF existente";
-          });
-        } else return await setDoc(profRef, professionalData);
-      }
-    }
-  );
-};
+export const createPartner = async (data: any) => {
+  const { name, email, cpf, phone, rg, password, role } = data;
 
-export const createAdmin = async (
-  data: any,
-  password: string,
-  cpf: string,
-  phone: string
-) => {
-  const { name, email, rg } = data;
+  let partnerRole = "";
+  if (role === "admins") partnerRole = "admin";
+  else if (role === "dentists") partnerRole = "dentist";
+  else if (role === "employees") partnerRole = "employee";
+  else if (role === "prosthetics") partnerRole = "prosthetic";
+  else partnerRole = "";
+
   return createUserWithEmailAndPassword(auth, email, password).then(
     async (res) => {
-      const adminData = {
+      const partnerData = {
         cpf,
         name,
         rg,
@@ -246,55 +210,19 @@ export const createAdmin = async (
         id: cpf,
         profileImage: "",
         uid: res.user.uid,
-        role: "admin",
+        role: partnerRole,
         firstLetter: name.charAt(0).toUpperCase(),
         dateBorn: "",
       };
       if (res) {
-        const profRef = doc(db, "admins", cpf);
+        const ref = doc(db, role, cpf);
 
-        const verify = await getDoc(profRef);
+        const verify = await getDoc(ref);
         if (verify.exists()) {
           return await deleteUser(res.user).then(() => {
-            return "CPF existente";
+            return alert("Parceiro já cadastrado!");
           });
-        } else return await setDoc(profRef, adminData);
-      }
-    }
-  );
-};
-
-export const createEmployee = async (
-  data: any,
-  password: string,
-  cpf: string,
-  phone: string
-) => {
-  const { name, email, rg } = data;
-  return createUserWithEmailAndPassword(auth, email, password).then(
-    async (res) => {
-      const adminData = {
-        cpf,
-        name,
-        rg,
-        email,
-        phone,
-        id: cpf,
-        profileImage: "",
-        uid: res.user.uid,
-        role: "employee",
-        firstLetter: name.charAt(0).toUpperCase(),
-        dateBorn: "",
-      };
-      if (res) {
-        const profRef = doc(db, "employees", cpf);
-
-        const verify = await getDoc(profRef);
-        if (verify.exists()) {
-          return await deleteUser(res.user).then(() => {
-            return "CPF existente";
-          });
-        } else return await setDoc(profRef, adminData);
+        } else return await setDoc(ref, partnerData);
       }
     }
   );

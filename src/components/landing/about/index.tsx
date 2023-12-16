@@ -66,7 +66,7 @@ const About = (props: any) => {
 
         <Box mb={5} />
 
-        <AddressText variant="bold">
+        <AddressText variant="subtitle1">
           Conjunto Nacional, Torre Amarela, Sala 5092, 5º Andar, Brasília - DF
         </AddressText>
 

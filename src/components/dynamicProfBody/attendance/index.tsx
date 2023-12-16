@@ -1,6 +1,6 @@
 //@ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, styled, Typography, Button } from "@mui/material";
+import { Box, styled, Typography, Button, TextField } from "@mui/material";
 import ScheduleIcon from "@mui/icons-material/PermContactCalendar";
 import UserData from "@/atoms/userData";
 import Modal from "@/components/modal";
@@ -14,7 +14,6 @@ import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import Loading from "@/components/loading";
 import "react-calendar/dist/Calendar.css";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { StyledTextField } from "@/components/patient/profile";
 import {
   collection,
   getDocs,
@@ -159,7 +158,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         closeModal={closeReportModal}
         style={{ overlay: { zIndex: 9999 } }}
       >
-        <Typography variant="bold" mt={1}>
+        <Typography variant="subtitle1" mt={1}>
           Quais tratamentos foram feitos?
         </Typography>
         <Box display="flex" columnGap={"4px"}>
@@ -170,7 +169,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
           ))}
         </Box>
 
-        <Typography variant="semibold" my={1}>
+        <Typography variant="subtitle1" my={1}>
           Tratamentos escolhidos:
         </Typography>
         <Box display="flex" columnGap={"4px"}>
@@ -198,7 +197,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
           justifyContent={"center"}
           flexDirection={"column"}
         >
-          <Typography variant="semibold">Confirma os tratamentos?</Typography>
+          <Typography variant="subtitle1">Confirma os tratamentos?</Typography>
           <Box display="flex" columnGap={1}>
             <StyledButton onClick={handleSubmitTreatment}>Sim</StyledButton>
             <StyledButton onClick={() => setConfirmTreatmentModal(false)}>
@@ -209,7 +208,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
       </Modal>
 
       <DoubleButtons>
-        <StyledTextField
+        <TextField
           sx={{ width: "fit-content", backgroundColor: "white" }}
           value={dateSelected.toISOString().substring(0, 10)}
           onChange={(e) => setDateSelected(e.target.value)}
@@ -236,7 +235,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         width="100%"
         my={2}
       >
-        <DateText variant="bold">
+        <DateText variant="subtitle1">
           {parseDateBr(dateSelected.toLocaleDateString())}
         </DateText>
       </Box>

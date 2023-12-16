@@ -9,14 +9,17 @@ import {
   Popover,
   Typography,
 } from "@mui/material";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 export const AccountPopover = (props: any) => {
   const { anchorEl, onClose, open } = props;
   const router = useRouter();
+  const userData: any = useRecoilValue(UserData);
 
   const handleSignOut = useCallback(() => {
     onClose?.();
-    router.push("/login");
+    props.logout?.();
   }, [onClose, router]);
 
   return (
@@ -30,29 +33,21 @@ export const AccountPopover = (props: any) => {
       open={open}
       PaperProps={{ sx: { width: 200 } }}
     >
-      <Box
-        sx={{
-          py: 1.5,
-          px: 2,
-        }}
-      >
-        <Typography variant="overline">Account</Typography>
+      <Box sx={{ py: 1.5, px: 2 }}>
+        <Typography variant="overline">Conta</Typography>
         <Typography color="text.secondary" variant="body2">
-          Anika Visser
+          {userData?.name}
         </Typography>
       </Box>
       <Divider />
       <MenuList
         disablePadding
         dense
-        sx={{
-          p: "8px",
-          "& > *": {
-            borderRadius: 1,
-          },
-        }}
+        sx={{ p: "8px", "& > *": { borderRadius: 1 } }}
       >
-        <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+        <MenuItem onClick={handleSignOut} title={"Sair"}>
+          Deslogar
+        </MenuItem>
       </MenuList>
     </Popover>
   );
@@ -62,4 +57,5 @@ AccountPopover.propTypes = {
   anchorEl: PropTypes.any,
   onClose: PropTypes.func,
   open: PropTypes.bool.isRequired,
+  logout: PropTypes.any,
 };

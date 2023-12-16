@@ -30,7 +30,7 @@ const ProblemsSinglePage = (props: any) => {
   if (hasId === "") return null;
   if (snapTreatment?.length === 0)
     return (
-      <Typography variant="bold">Não foi encontrado o problema</Typography>
+      <Typography variant="subtitle1">Não foi encontrado o problema</Typography>
     );
 
   return (
@@ -54,7 +54,7 @@ const ProblemsSinglePage = (props: any) => {
           style={{ width: "300px", height: "100px" }}
         />
       </Box>
-      <Typography variant="bold">{snapTreatment?.[0]?.title}</Typography>
+      <Typography variant="subtitle1">{snapTreatment?.[0]?.title}</Typography>
 
       <Box>
         <Typography variant="body2">{snapTreatment?.[0]?.content}</Typography>

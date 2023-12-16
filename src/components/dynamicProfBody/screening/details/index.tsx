@@ -170,10 +170,10 @@ const ScreeningDetailsProfessional = (
         />
       </Modal>
 
-      <Name variant="bold">{data?.name}</Name>
+      <Name variant="subtitle1">{data?.name}</Name>
       <Typography
         my={1}
-        variant="small"
+        variant="caption"
         display={"flex"}
         alignSelf={"center"}
         columnGap={"4px"}
@@ -182,7 +182,7 @@ const ScreeningDetailsProfessional = (
       </Typography>
       <Typography
         mb={1}
-        variant="small"
+        variant="caption"
         display={"flex"}
         alignSelf={"center"}
         columnGap={"4px"}
@@ -192,12 +192,12 @@ const ScreeningDetailsProfessional = (
 
       <Form px={2}>
         <BoolContainer>
-          <Hours variant="semibold">
+          <Hours variant="subtitle1">
             <AccessTimeIcon /> {data?.hour}h
           </Hours>
           {data?.isMissed === null ? (
             <HasMissed>
-              <Typography variant="semibold">Compareceu?</Typography>
+              <Typography variant="subtitle1">Compareceu?</Typography>
               {successIcon({
                 onClick: () => handleUpdateValue("isMissed", false),
               })}
@@ -207,7 +207,7 @@ const ScreeningDetailsProfessional = (
             </HasMissed>
           ) : (
             <BoolsOptions
-              variant="semibold"
+              variant="subtitle1"
               color={"white"}
               sx={backgroundcolor}
             >
@@ -218,11 +218,11 @@ const ScreeningDetailsProfessional = (
 
         <DoubleColumn>
           <Box display={"flex"} alignItems={"center"} columnGap={"4px"}>
-            <Typography variant="semibold">Dentista: </Typography>
+            <Typography variant="subtitle1">Dentista: </Typography>
             <Typography variant="body2">{data?.professional_name}</Typography>
           </Box>
           <Box display={"flex"} alignItems={"center"} columnGap={"4px"}>
-            <Typography variant="semibold">ID Dentista: </Typography>
+            <Typography variant="subtitle1">ID Dentista: </Typography>
             <Typography variant="body2">{data?.professionalId}</Typography>
           </Box>
         </DoubleColumn>
@@ -230,7 +230,7 @@ const ScreeningDetailsProfessional = (
         {hasTreatmentPlan && (
           <Box>
             <Typography
-              variant="semibold"
+              variant="subtitle1"
               alignSelf={"center"}
               textAlign={"center"}
               mb={2}
@@ -246,8 +246,8 @@ const ScreeningDetailsProfessional = (
                 width={"100%"}
                 mb={1}
               >
-                <Typography variant="semibold">{v?.region} - </Typography>
-                <Typography variant="semibold">
+                <Typography variant="subtitle1">{v?.region} - </Typography>
+                <Typography variant="subtitle1">
                   {v?.treatments?.name}
                 </Typography>
               </Box>
