@@ -28,7 +28,9 @@ const ClientTreatmentHistory = () => {
   if (hasId === "") return null;
   if (data?.length === 0)
     return (
-      <Typography variant="bold">Não foi encontrado o tratamento</Typography>
+      <Typography variant="subtitle1">
+        Não foi encontrado o tratamento
+      </Typography>
     );
 
   return (
@@ -58,7 +60,7 @@ const ClientTreatmentHistory = () => {
       </h2>
 
       {data?.length === 0 ? (
-        <Typography variant="semibold" my={1}>
+        <Typography variant="subtitle1" my={1}>
           Não houve encaminhamentos para dentistas
         </Typography>
       ) : (
@@ -71,7 +73,7 @@ const ClientTreatmentHistory = () => {
             border="1.3px solid var(--dark-blue)"
           >
             <Box display="flex" alignItems="center" columnGap={1}>
-              <Typography variant="semibold">
+              <Typography variant="subtitle1">
                 Data de encaminhamento:
               </Typography>
               <Typography variant="body1">
@@ -82,11 +84,11 @@ const ClientTreatmentHistory = () => {
             </Box>
 
             <Box display="flex" alignItems="center" columnGap={1}>
-              <Typography variant="semibold">Dentista:</Typography>
+              <Typography variant="subtitle1">Dentista:</Typography>
               <Typography variant="body1">{v?.professional_name}</Typography>
             </Box>
 
-            <Typography variant="semibold">
+            <Typography variant="subtitle1">
               Tratamentos para realizar:
             </Typography>
 

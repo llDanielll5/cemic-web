@@ -7,10 +7,8 @@ import { nameCapitalized } from "@/services/services";
 import { AuthErrors } from "@/services/errors";
 import { useRouter } from "next/router";
 import Loading from "@/components/loading";
-import ModalError from "@/components/modalError";
 import CustomTab from "@/components/customTab";
 import RegisterLandingForm from "./register";
-import LoginFormLanding from "./login";
 
 const FormLanding = () => {
   const router = useRouter();
@@ -106,13 +104,13 @@ const FormLanding = () => {
       setName={setName}
       setPassword={setPassword}
     />,
-    <LoginFormLanding
-      email={email}
-      password={password}
-      setEmail={setEmail}
-      setPassword={setPassword}
-      setIsLoading={setIsLoading}
-    />,
+    // <LoginFormLanding
+    //   email={email}
+    //   password={password}
+    //   setEmail={setEmail}
+    //   setPassword={setPassword}
+    //   setIsLoading={setIsLoading}
+    // />,
   ];
 
   if (isLoading)
@@ -124,14 +122,14 @@ const FormLanding = () => {
 
   return (
     <Container>
-      <ModalError
+      {/* <ModalError
         actionButton={
           <StyledButton onClick={handleCloseErrorModal}>Ok</StyledButton>
         }
         message={errorMessage}
         closeModal={handleCloseErrorModal}
         visible={modalError}
-      />
+      /> */}
 
       <CustomTab labels={tabs} values={tabs} renders={renders} />
     </Container>

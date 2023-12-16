@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
-import Button from "@/components/button";
 import styles from "../../../styles/Admin.module.css";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import RemoveIcon from "@mui/icons-material/HighlightOff";
@@ -22,7 +21,6 @@ import {
   Autocomplete,
   IconButton,
 } from "@mui/material";
-import { StyledTextField } from "@/components/patient/profile";
 
 interface ScreeningModalProps {
   date: string;
@@ -135,7 +133,7 @@ const ScreeningModal = (props: ScreeningModalProps) => {
         <TextSchedule variant="body2">{item?.name}</TextSchedule>
         <TextSchedule variant="body2">{phoneMask(item?.phone)}</TextSchedule>
 
-        <StyledTextField
+        <TextField
           type="time"
           label="Horário"
           size="small"
@@ -198,12 +196,12 @@ const ScreeningModal = (props: ScreeningModalProps) => {
       </Modal>
 
       <Box my={2} display="flex" justifyContent="center">
-        <Typography variant="bold">
+        <Typography variant="subtitle1">
           Agendar paciente para o dia: {parseDateBr(dateBr)}
         </Typography>
       </Box>
 
-      <Typography variant="semibold">
+      <Typography variant="subtitle1">
         Relator: <span style={{ fontWeight: 400 }}>{currUser?.name ?? ""}</span>
       </Typography>
       <Box
@@ -212,7 +210,7 @@ const ScreeningModal = (props: ScreeningModalProps) => {
         justifyContent="space-between"
         mb={1}
       >
-        <Typography variant="semibold">Dentista:</Typography>
+        <Typography variant="subtitle1">Dentista:</Typography>
         <Autocomplete
           limitTags={2}
           sx={{ width: "88%" }}

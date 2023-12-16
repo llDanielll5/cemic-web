@@ -22,28 +22,30 @@ const ProfessionalsAdminDetails: React.FC<ProfessionalAdminDetailsProps> = (
   return (
     <Box>
       <DoubleFlex>
-        <Typography variant="bold">Nome: </Typography>
-        <Typography variant="normal">{informations?.name}</Typography>
+        <Typography variant="subtitle1">Nome: </Typography>
+        <Typography variant="subtitle1">{informations?.name}</Typography>
       </DoubleFlex>
       <DoubleFlex>
-        <Typography variant="bold">CRO: </Typography>
-        <Typography variant="normal">{informations?.cro}</Typography>
+        <Typography variant="subtitle1">CRO: </Typography>
+        <Typography variant="subtitle1">{informations?.cro}</Typography>
       </DoubleFlex>
       <DoubleFlex>
-        <Typography variant="bold">Especialidade: </Typography>
-        <Typography variant="normal">
+        <Typography variant="subtitle1">Especialidade: </Typography>
+        <Typography variant="subtitle1">
           {getSpecialty(informations?.specialty)}
         </Typography>
       </DoubleFlex>
       <DoubleFlex>
-        <Typography variant="bold">Telefone: </Typography>
-        <Typography variant="normal">
+        <Typography variant="subtitle1">Telefone: </Typography>
+        <Typography variant="subtitle1">
           {phoneMask(informations?.phone)}
         </Typography>
       </DoubleFlex>
       <DoubleFlex>
-        <Typography variant="bold">CPF: </Typography>
-        <Typography variant="normal">{cpfMask(informations?.cpf)}</Typography>
+        <Typography variant="subtitle1">CPF: </Typography>
+        <Typography variant="subtitle1">
+          {cpfMask(informations?.cpf)}
+        </Typography>
       </DoubleFlex>
     </Box>
   );

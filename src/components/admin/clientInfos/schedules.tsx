@@ -123,7 +123,7 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
   return (
     <Box mt={2}>
       <Modal visible={forwardModalVisible} closeModal={handleCloseForwardModal}>
-        <Typography variant="bold">Escolha o dentista:</Typography>
+        <Typography variant="subtitle1">Escolha o dentista:</Typography>
         <Autocomplete
           options={snapProfessionals}
           sx={{ width: "85%" }}
@@ -139,7 +139,7 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
             />
           )}
         />
-        <Typography variant="bold" mt={1}>
+        <Typography variant="subtitle1" mt={1}>
           Escolha os tratamentos:
         </Typography>
         <Box display="flex" columnGap={"4px"}>
@@ -155,7 +155,7 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
           )}
         </Box>
 
-        <Typography variant="semibold" my={1}>
+        <Typography variant="subtitle1" my={1}>
           Tratamentos escolhidos:
         </Typography>
         <Box display="flex" columnGap={"4px"}>
@@ -178,9 +178,9 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
         columnGap={4}
         mb={1}
       >
-        <Typography variant="bold">Data Marcada</Typography>
-        <Typography variant="bold">Hora Marcada</Typography>
-        <Typography variant="bold">Dentista</Typography>
+        <Typography variant="subtitle1">Data Marcada</Typography>
+        <Typography variant="subtitle1">Hora Marcada</Typography>
+        <Typography variant="subtitle1">Dentista</Typography>
       </Box>
       {snapSchedules.length > 0 &&
         snapSchedules.map((v, i) => (
@@ -191,9 +191,9 @@ const SchedulesPatient = (props: SchedulesPatientProps) => {
             justifyContent="space-between"
             columnGap={4}
           >
-            <Typography variant="semibold">{parseDateIso(v?.date)}</Typography>
-            <Typography variant="semibold">{v?.hour}</Typography>
-            <Typography variant="semibold">{v?.professional}</Typography>
+            <Typography variant="subtitle1">{parseDateIso(v?.date)}</Typography>
+            <Typography variant="subtitle1">{v?.hour}</Typography>
+            <Typography variant="subtitle1">{v?.professional}</Typography>
           </Box>
         ))}
 

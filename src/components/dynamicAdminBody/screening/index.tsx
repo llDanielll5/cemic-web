@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/Admin.module.css";
 import "react-calendar/dist/Calendar.css";
-import { Box, styled, IconButton, Button } from "@mui/material";
+import { Box, styled, IconButton, Button, TextField } from "@mui/material";
 import { parseDateIso, phoneMask } from "@/services/services";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
@@ -13,7 +13,6 @@ import UserData from "@/atoms/userData";
 import SearchIcon from "@mui/icons-material/Search";
 import ScreeningDetailsAdmin from "./screeningDetails";
 import { useRecoilValue } from "recoil";
-import { StyledTextField } from "@/components/patient/profile";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ScreeningModal from "@/components/admin/screeningModal";
 
@@ -221,7 +220,7 @@ const ScreeningAdmin = (props: ScreeningProps) => {
         my={2}
         columnGap={2}
       >
-        <StyledTextField
+        <TextField
           sx={{ width: "fit-content", backgroundColor: "white" }}
           value={dateSelected}
           onChange={(e) => setDateSelected(e.target.value)}
@@ -231,7 +230,7 @@ const ScreeningAdmin = (props: ScreeningProps) => {
         />
 
         <Box display="flex" columnGap={1} alignItems="center">
-          <StyledTextField
+          <TextField
             type="text"
             placeholder={"Buscar por ID de cliente"}
             label="Buscar por ID"

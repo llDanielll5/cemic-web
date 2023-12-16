@@ -57,7 +57,9 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
 
   return (
     <Box p={2}>
-      <Typography variant="semibold">Função ainda não desenvolvida.</Typography>
+      <Typography variant="subtitle1">
+        Função ainda não desenvolvida.
+      </Typography>
     </Box>
   );
 };

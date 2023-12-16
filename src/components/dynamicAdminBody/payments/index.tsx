@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, styled, Autocomplete } from "@mui/material";
+import {
+  Box,
+  Typography,
+  styled,
+  Autocomplete,
+  TextField,
+} from "@mui/material";
 import { StyledButton } from "../receipts";
-import { StyledTextField } from "@/components/patient/profile";
 import Modal from "@/components/modal";
 import AddAdminPaymentModal from "./modal";
 
@@ -70,7 +75,7 @@ const AdminPayments: React.FC = () => {
         <StyledButton sx={{ mb: 2 }} onClick={() => setNewPaymentModal(true)}>
           Gerar Pagamento
         </StyledButton>
-        <Typography variant="bold" mb={1}>
+        <Typography variant="subtitle1" mb={1}>
           Selecione o Ano:
         </Typography>
         <Autocomplete
@@ -80,7 +85,7 @@ const AdminPayments: React.FC = () => {
           value={selectedYear}
           onChange={(e, v) => setSelectedYear(v!)}
           renderInput={(params) => (
-            <StyledTextField {...params} label="Selecione o Ano" color="info" />
+            <TextField {...params} label="Selecione o Ano" color="info" />
           )}
         />
       </Box>

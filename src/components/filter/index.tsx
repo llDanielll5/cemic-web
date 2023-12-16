@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { FaSearch } from "react-icons/fa";
-import ReactDropdown from "react-dropdown";
 import styles from "../../styles/Filter.module.css";
-import { StyledTextField } from "../patient/profile";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -22,15 +19,15 @@ const Filter = (props: FilterProps) => {
     <div className={styles.container} style={props.baseStyle}>
       <h2>{props.title}</h2>
       <div className={styles["inner-container"]}>
-        <ReactDropdown
+        {/* <ReactDropdown
           options={props.options}
           onChange={({ value }) => props.setContent(value)}
           value={props.content}
           placeholder="Filtrar por:"
           className={styles.dropdown}
-        />
+        /> */}
         <div className={styles["input-content"]}>
-          <StyledTextField
+          {/* <TextField
             type="text"
             size="small"
             label="Digite o CPF*"
@@ -45,7 +42,7 @@ const Filter = (props: FilterProps) => {
             onKeyDown={({ key }) => {
               if (key === "Enter") return props.onClick();
             }}
-          />
+          /> */}
         </div>
         <IconButton color="info" onClick={props.onClick}>
           <SearchIcon fontSize="large" />

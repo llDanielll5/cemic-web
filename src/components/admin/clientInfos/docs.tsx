@@ -1,6 +1,13 @@
 //@ts-nocheck
 import React, { useState, useEffect } from "react";
-import { Box, styled, Typography, Button, IconButton } from "@mui/material";
+import {
+  Box,
+  styled,
+  Typography,
+  Button,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { db } from "@/services/firebase";
@@ -11,7 +18,6 @@ import uploadFile from "@/services/uploadFile";
 import Modal from "@/components/modal";
 import Link from "next/link";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { StyledTextField } from "@/components/patient/profile";
 import {
   Timestamp,
   collection,
@@ -135,7 +141,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
           justifyContent={"center"}
           flexDirection="column"
         >
-          <StyledTextField
+          <TextField
             margin="dense"
             value={documentName}
             label={"Nome do documento"}
@@ -151,13 +157,9 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
           </StyledButton>
         </Box>
       </Modal>
-      <Modal
-        visible={deleteModal}
-        closeModal={handleCloseModalDelete}
-        style={{ overlay: 200 }}
-      >
+      <Modal visible={deleteModal} closeModal={handleCloseModalDelete}>
         <Box display="flex" flexDirection="column" alignItems="center">
-          <Typography variant="bold">
+          <Typography variant="h5">
             Deseja realmente apagar este arquivo?
           </Typography>
           <Box
@@ -175,7 +177,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
         Adicionar documento
       </StyledButton>
 
-      <ListTitle variant="bold">Lista de documentos</ListTitle>
+      <ListTitle variant="h5">Lista de documentos</ListTitle>
       <ListBox>
         {snapExams.length === 0 && (
           <Typography variant="body1">Lista vazia</Typography>

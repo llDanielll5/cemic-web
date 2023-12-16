@@ -105,7 +105,6 @@
   width: 100%;
 }
 #help {
-  opacity: 0;
   transition: 0.3s;
 }
 

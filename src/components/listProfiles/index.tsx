@@ -40,7 +40,7 @@ const ListProfiles = (props: ListProfilesProps) => {
   return (
     <UserContainer>
       {props.profiles.length === 0 ? (
-        <Typography variant="bold">{props.notHaveMessage}</Typography>
+        <Typography variant="subtitle1">{props.notHaveMessage}</Typography>
       ) : (
         props.profiles.map((item, index) => (
           <AvatarContainer key={index} onClick={() => getClientDetails(item)}>

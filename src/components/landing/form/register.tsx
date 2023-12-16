@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, InputAdornment, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  InputAdornment,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { StyledTextField } from "@/components/patient/profile";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -38,24 +43,24 @@ const RegisterLandingForm = (props: RegisterLandingFormProps) => {
       <h3 style={{ margin: "0 0 8px 0", textAlign: "center" }}>
         Cadastre-se no Projeto agora!
       </h3>
-      <StyledTextField
+      <TextField
         label="Nome Completo*"
         onChange={(e) => setName(e.target.value)}
         value={name}
       />
-      <StyledTextField
+      <TextField
         label="CPF*"
         onChange={(e) => handleCPF(e.target.value)}
         inputProps={{ maxLength: 14 }}
         value={cpf}
       />
-      <StyledTextField
+      <TextField
         label="Email*"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <StyledTextField
+      <TextField
         label="Senha*"
         type={showPassword ? "text" : "password"}
         value={password}
@@ -76,7 +81,7 @@ const RegisterLandingForm = (props: RegisterLandingFormProps) => {
       <Box>
         <StyledButton onClick={handleSubmit}>Cadastrar</StyledButton>
       </Box>
-      <Typography mt={1} variant="small">
+      <Typography mt={1} variant="caption">
         Campos com * são obrigatórios
       </Typography>
     </Box>

@@ -1,8 +1,8 @@
+//@ts-nocheck
 import React, { useState, useEffect } from "react";
-import { Box, styled, Typography } from "@mui/material";
+import { Box, styled, TextField, Typography } from "@mui/material";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import Modal from "@/components/modal";
-import { StyledTextField } from "@/components/patient/profile";
 import {
   Timestamp,
   addDoc,
@@ -95,14 +95,14 @@ const ClientProblems = (props: ClientDocumentsProps) => {
           justifyContent={"center"}
           flexDirection="column"
         >
-          <StyledTextField
+          <TextField
             margin="dense"
             value={problemTitle}
             onChange={(e) => setProblemTitle(e.target.value)}
             label={"Título do Problema"}
             sx={{ width: "100%", mb: 1 }}
           />
-          <StyledTextField
+          <TextField
             margin="dense"
             value={problemContent}
             onChange={(e) => setProblemContent(e.target.value)}
@@ -112,7 +112,7 @@ const ClientProblems = (props: ClientDocumentsProps) => {
             rows={3}
             maxRows={Infinity}
           />
-          <StyledTextField
+          <TextField
             type={"date"}
             margin="dense"
             value={problemDate}
@@ -149,7 +149,7 @@ const ClientProblems = (props: ClientDocumentsProps) => {
         Adicionar problema
       </StyledButton>
 
-      <ListTitle variant="bold">Relatórios de problemas</ListTitle>
+      <ListTitle variant="h5">Relatórios de problemas</ListTitle>
       <ListBox>
         {snapProblems.length > 0 ? (
           snapProblems.map((v: any, i) => (
@@ -161,8 +161,8 @@ const ClientProblems = (props: ClientDocumentsProps) => {
               alignItems="center"
               justifyContent="space-between"
             >
-              <Typography variant="bold">{v?.title}</Typography>
-              <Typography variant="bold">{parseDateIso(v?.date)}</Typography>
+              <Typography variant="h5">{v?.title}</Typography>
+              <Typography variant="h5">{parseDateIso(v?.date)}</Typography>
               <Link passHref href={`/problems/${v?.id}`} target="_blank">
                 <StyledButton variant="text" color="info">
                   Visualizar

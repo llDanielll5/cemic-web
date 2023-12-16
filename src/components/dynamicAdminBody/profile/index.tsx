@@ -2,11 +2,10 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../../dynamicProfBody/profile/styles";
 import { db } from "@/services/firebase";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, TextField } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
 import { chooseImgStyle } from "@/components/pre-register/profile";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { StyledTextField } from "@/components/patient/profile";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { cpfMask, phoneMask } from "@/services/services";
 import SaveIcon from "@mui/icons-material/Save";
@@ -142,7 +141,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
 
   return (
     <S.Container>
-      <S.Title variant="bold">Seus Dados</S.Title>
+      <S.Title variant="subtitle1">Seus Dados</S.Title>
 
       <S.Form>
         <S.FieldForm>
@@ -167,7 +166,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
           </Typography>
 
           <Box px={2}>
-            <StyledTextField
+            <TextField
               disabled
               label="Nome Completo"
               sx={{ width: "100%" }}
@@ -176,7 +175,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
               margin="dense"
             />
             <S.DoubleInputs>
-              <StyledTextField
+              <TextField
                 disabled
                 label="CPF"
                 sx={{ width: "100%" }}
@@ -186,7 +185,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
                   handleChangeInfos("cpf", cpfMask(e.target.value))
                 }
               />
-              <StyledTextField
+              <TextField
                 label="RG"
                 sx={{ width: "100%" }}
                 value={userInformations?.rg}
@@ -194,7 +193,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
               />
             </S.DoubleInputs>
             <S.DoubleInputs>
-              <StyledTextField
+              <TextField
                 type="date"
                 sx={{ width: "100%" }}
                 label="Data Nascimento"
@@ -202,7 +201,7 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
                 value={userInformations?.dateBorn}
                 onChange={(e) => handleChangeInfos("dateBorn", e.target.value)}
               />
-              <StyledTextField
+              <TextField
                 label="Telefone"
                 sx={{ width: "100%" }}
                 value={userInformations?.phone}

@@ -11,16 +11,14 @@ import {
   FormLabel,
   Radio,
   FormControlLabel,
+  TextField,
 } from "@mui/material";
 import { IconClose } from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import CalculateIcon from "@mui/icons-material/Calculate";
-import ReactDropdown from "react-dropdown";
 import Input from "@/components/input";
-import { RadioGroup } from "react-radio-group";
 import RenderPaymentTypes from "./paymentTypes";
 import { maskValue } from "@/services/services";
-import { StyledTextField } from "@/components/patient/profile";
 
 interface ModalPaymentProps {
   vezes: string;
@@ -257,31 +255,31 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
       <IconClose title={"Sair de pagamento"} onClick={onCloseModalPayment}>
         <HighlightOffIcon />
       </IconClose>
-      <Typography variant="semibold">Gerar Pagamento</Typography>
+      <Typography variant="subtitle1">Gerar Pagamento</Typography>
 
       {treatmentsToPay.length > 0 && (
-        <Typography variant="semibold" color="green" my={1}>
+        <Typography variant="subtitle1" color="green" my={1}>
           Escolha os tratamentos que serão pagos:
         </Typography>
       )}
 
       {treatmentsToPay.map((v, i) => (
         <TreatmentsChoice key={i} onClick={() => handleAddToPay(v)}>
-          <Typography variant="semibold">{v?.region} - </Typography>
-          <Typography variant="semibold">{v?.treatments?.name}</Typography>
+          <Typography variant="subtitle1">{v?.region} - </Typography>
+          <Typography variant="subtitle1">{v?.treatments?.name}</Typography>
         </TreatmentsChoice>
       ))}
 
       {negotiateds?.length > 0 && (
-        <Typography variant="semibold" my={1} color="orangered">
+        <Typography variant="subtitle1" my={1} color="orangered">
           Os tratamentos a pagar serão:
         </Typography>
       )}
       {negotiateds?.length > 0 &&
         negotiateds?.map((v, i) => (
           <TreatmentsChoice key={i} onClick={() => handleDeleteToPay(i)}>
-            <Typography variant="semibold">{v?.region} - </Typography>
-            <Typography variant="semibold">{v?.treatments?.name}</Typography>
+            <Typography variant="subtitle1">{v?.region} - </Typography>
+            <Typography variant="subtitle1">{v?.treatments?.name}</Typography>
           </TreatmentsChoice>
         ))}
 
@@ -293,7 +291,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
             <FormLabel color="warning" id="demo-radio-buttons-group-label">
               Será o valor todo no mesmo tipo de pagamento?
             </FormLabel>
-            <RadioGroup name="radio-buttons-group">
+            {/* <RadioGroup name="radio-buttons-group">
               <FormControlLabel
                 value={"Sim"}
                 checked={allValue === "Sim"}
@@ -306,13 +304,13 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
                 control={<Radio onChange={handleChangeRadio} color="warning" />}
                 label="Não"
               />
-            </RadioGroup>
+            </RadioGroup> */}
           </Former>
         </Box>
       )}
 
       {allValue !== null && (
-        <Typography variant="bold" my={2}>
+        <Typography variant="h5" my={2}>
           Adicione a forma de pagamento:
         </Typography>
       )}
@@ -370,7 +368,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
                     columnGap={1}
                     m={1}
                   >
-                    <StyledTextField
+                    <TextField
                       label="Valor"
                       type="text"
                       margin="dense"
@@ -415,12 +413,12 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
       {paymentType === "credit" && allValue === "Sim" ? (
         <CreditDivide>
           <Typography variant="body2">Em quantas vezes?</Typography>
-          <ReactDropdown
+          {/* <ReactDropdown
             options={parcelado}
             onChange={({ value }) => setVezes(value)}
             value={vezes}
             className={"dropdown"}
-          />
+          /> */}
         </CreditDivide>
       ) : null}
 
@@ -433,7 +431,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
           columnGap="4px"
         >
           <Box width={"40%"}>
-            <StyledTextField
+            <TextField
               type="number"
               label="Desconto"
               margin="dense"
@@ -442,7 +440,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
               inputProps={{ maxLength: 2 }}
             />
           </Box>
-          <Typography variant="bold" fontSize="30px">
+          <Typography variant="h5" fontSize="30px">
             %
           </Typography>
         </Box>

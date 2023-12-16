@@ -23,7 +23,6 @@ import {
   startAfter,
   where,
 } from "firebase/firestore";
-import ReactDropdown from "react-dropdown";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 
 interface ClientsAdminProps {
@@ -216,7 +215,6 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
       <Modal
         visible={newPatientVisible}
         closeModal={handleCloseNewPatientModal}
-        style={{ content: { width: "90%" } }}
       >
         <NewPatientForm
           setAddressLoading={setIsLoadingAddress}
@@ -262,12 +260,12 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
         <Box display="flex" alignItems="center" columnGap={1}>
           <Typography>Limitar por:</Typography>
           <Box width="fit-content">
-            <ReactDropdown
+            {/* <ReactDropdown
               options={limitValues}
               onChange={({ value }) => setLimitQuery(parseInt(value))}
               value={limitQuery.toString()}
               placeholder="Limitar por:"
-            />
+            /> */}
           </Box>
         </Box>
       </Box>
@@ -284,7 +282,7 @@ const ClientsAdmin = (props: ClientsAdminProps) => {
           <IconButton onClick={handleBackPage}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="bold">{page}</Typography>
+          <Typography variant="subtitle1">{page}</Typography>
           <IconButton onClick={handleNextPage}>
             <ArrowForward />
           </IconButton>

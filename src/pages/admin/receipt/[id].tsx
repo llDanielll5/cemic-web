@@ -85,8 +85,8 @@ const ReceiptPage = () => {
 
   const parsedPaymentTypeText = (type: PaymentTypes | null) => {
     if (type === "credit") return "Cartão de Crédito";
-    if (type === "pix") return "Pix/Transferência bancária";
-    if (type === "cash") return "dinheiro";
+    if (type === "pix/cash") return "Pix/Transferência bancária";
+    if (type === "debit") return "dinheiro";
   };
 
   if (receiptData === null)
@@ -120,7 +120,7 @@ const ReceiptPage = () => {
           style={{ width: "50%", height: "100px" }}
         />
 
-        <Typography variant="bold" textAlign={"center"} m={2}>
+        <Typography variant="subtitle1" textAlign={"center"} m={2}>
           Recibo
         </Typography>
 
@@ -143,7 +143,7 @@ const ReceiptPage = () => {
         ))}
 
         <Typography
-          variant="semibold"
+          variant="subtitle1"
           textAlign="left"
           m={1}
           pl={"16px"}
@@ -157,7 +157,7 @@ const ReceiptPage = () => {
             <Typography key={i} variant="body2" textAlign="left" m={1}>
               Pagos no {parsedPaymentTypeText(v.type)}{" "}
               {v.type === "credit" && `em ${"vezes"}`}
-              {v.type === "cash" && `com ${"discount"}% de desconto`}
+              {v.type === "pix/cash" && `com ${"discount"}% de desconto`}
             </Typography>
           ))
         ) : (
@@ -173,7 +173,7 @@ const ReceiptPage = () => {
         )}
 
         <Typography
-          variant="semibold"
+          variant="subtitle1"
           textAlign="left"
           m={1}
           pl={"16px"}
@@ -182,7 +182,7 @@ const ReceiptPage = () => {
           Em caso de desistência, será descontado 10% do valor pago
         </Typography>
         <Typography
-          variant="semibold"
+          variant="subtitle1"
           textAlign="justify"
           m={1}
           pl={"16px"}
@@ -193,12 +193,12 @@ const ReceiptPage = () => {
           determinado pelo dentista e pagando na data proposta pelo dentista
         </Typography>
 
-        <Typography m={1} variant="semibold" textAlign="right" width="100%">
+        <Typography m={1} variant="subtitle1" textAlign="right" width="100%">
           Brasília {parseDateIso(parseDate(receiptData.timestamp))}
         </Typography>
 
         <Typography
-          variant="semibold"
+          variant="subtitle1"
           textAlign="right"
           m={1}
           width="100%"
@@ -211,7 +211,7 @@ const ReceiptPage = () => {
         </Typography>
 
         <Typography
-          variant="semibold"
+          variant="subtitle1"
           textAlign="right"
           m={1}
           width="100%"

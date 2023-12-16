@@ -47,21 +47,21 @@ const LectureDetails = (props: LectureDetailsProps) => {
       justifyContent="center"
       flexDirection="column"
     >
-      <HeaderTitle variant="semibold" textAlign="center" mb={1}>
+      <HeaderTitle variant="subtitle1" textAlign="center" mb={1}>
         {lectureInfos.name}
       </HeaderTitle>
 
       <Box width="100%" display="flex" flexDirection="column">
         {/* <FlexRowCenter>
-          <Typography variant="semibold">ID Cliente: </Typography>
+          <Typography variant="subtitle1">ID Cliente: </Typography>
           <Typography variant="body1">{clientInfos.id}</Typography>
         </FlexRowCenter> */}
         <FlexRowCenter>
-          <Typography variant="semibold">CPF: </Typography>
+          <Typography variant="subtitle1">CPF: </Typography>
           <Typography variant="body1">{cpfMask(lectureInfos.cpf)}</Typography>
         </FlexRowCenter>
         <FlexRowCenter>
-          <Typography variant="semibold">Telefone: </Typography>
+          <Typography variant="subtitle1">Telefone: </Typography>
           <Typography variant="body1">
             {phoneMask(lectureInfos.phone)}
           </Typography>
@@ -69,34 +69,34 @@ const LectureDetails = (props: LectureDetailsProps) => {
 
         {passedHour && lectureInfos?.isMissed === null ? (
           <Box m={"8px 0"} display="flex" alignItems="center">
-            <HeaderTitle variant="bold">Paciente compareceu?</HeaderTitle>
+            <HeaderTitle variant="h5">Paciente compareceu?</HeaderTitle>
             {successIcon({ onClick: () => updateLecture(false) })}
             {closeIcon({ onClick: () => updateLecture(true) })}
           </Box>
         ) : passedHour && lectureInfos?.isMissed ? (
-          <Typography variant="bold" my={1}>
+          <Typography variant="h5" my={1}>
             Paciente Faltou
           </Typography>
         ) : passedHour && !lectureInfos?.isMissed ? (
-          <Typography variant="bold" my={1}>
+          <Typography variant="h5" my={1}>
             Paciente Compareceu
           </Typography>
         ) : null}
 
         {passedHour && lectureInfos?.examRequest === null ? (
           <Box m={"8px 0"} display="flex" alignItems="center">
-            <HeaderTitle variant="bold">
+            <HeaderTitle variant="h5">
               Paciente pegou pedido de exame?
             </HeaderTitle>
             {successIcon({ onClick: () => updateLectureExam(true) })}
             {closeIcon({ onClick: () => updateLectureExam(false) })}
           </Box>
         ) : passedHour && lectureInfos?.examRequest ? (
-          <Typography variant="bold" my={1}>
+          <Typography variant="h5" my={1}>
             Paciente Pegou pedido
           </Typography>
         ) : passedHour && !lectureInfos?.examRequest ? (
-          <Typography variant="bold" my={1}>
+          <Typography variant="h5" my={1}>
             Paciente Não pegou pedido
           </Typography>
         ) : null}

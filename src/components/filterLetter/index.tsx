@@ -1,6 +1,5 @@
 import React from "react";
 import useWindowSize from "@/hooks/useWindowSize";
-import ReactDropdown from "react-dropdown";
 import styles from "../../styles/Filter.module.css";
 
 interface FilterLetterProps {
@@ -66,13 +65,13 @@ const FilterLetter = (props: FilterLetterProps) => {
       {size?.width! < 760 && (
         <div className={styles["dropdown-letter-container"]}>
           <h2>Filtrar por primeira letra:</h2>
-          <ReactDropdown
+          {/* <ReactDropdown
             options={alfabeto}
             onChange={({ value }) => props.setLetter(value)}
             value={props.letter!}
             placeholder="Filtrar por letra:"
             className={styles["dropdown-letter"]}
-          />
+          /> */}
         </div>
       )}
     </div>

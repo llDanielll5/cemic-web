@@ -1,9 +1,6 @@
 import React from "react";
-import { Radio, RadioGroup } from "react-radio-group";
-import styles from "../../styles/Selected.module.css";
-import Input from "../input";
 import { StyledButton } from "../dynamicAdminBody/receipts";
-import { StyledTextField } from "../patient/profile";
+import { Box, TextField } from "@mui/material";
 
 interface AnamneseFormProps {
   handleAnswer: any;
@@ -29,136 +26,136 @@ const AnamneseForm = (props: AnamneseFormProps) => {
     userData,
     setUserData,
   } = props;
-  const renderRadioGroup = (props: {
-    name: string;
-    value: string;
-    answer: string;
-  }) => (
-    <RadioGroup
-      name={props.name}
-      className={styles["radio-group"]}
-      selectedValue={props.value}
-      onChange={(value) => handleAnswer(value, props.answer)}
-    >
-      {anamneseOptions.map((item, index) => (
-        <div key={index} className={styles["radio-options"]}>
-          <span>{item}</span>
-          <Radio key={index} value={item} className={styles["radio-item"]} />
-        </div>
-      ))}
-    </RadioGroup>
-  );
+  // const renderRadioGroup = (props: {
+  //   name: string;
+  //   value: string;
+  //   answer: string;
+  // }) => (
+  //   <RadioGroup
+  //     name={props.name}
+  //     className={styles["radio-group"]}
+  //     selectedValue={props.value}
+  //     onChange={(value) => handleAnswer(value, props.answer)}
+  //   >
+  //     {anamneseOptions.map((item, index) => (
+  //       <div key={index} className={styles["radio-options"]}>
+  //         <span>{item}</span>
+  //         <Radio key={index} value={item} className={styles["radio-item"]} />
+  //       </div>
+  //     ))}
+  //   </RadioGroup>
+  // );
   return (
     <>
       <h2>ANAMNESE</h2>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Está tomando alguma medicação no momento?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question1",
           answer: "Está tomando alguma medicação no momento?",
           value: anamneseData["Está tomando alguma medicação no momento?"],
-        })}
+        })} */}
       </div>
 
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Sofre ou sofreu de algum problema no coração?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question2",
           answer: "Sofre ou sofreu de algum problema no coração?",
           value: anamneseData["Sofre ou sofreu de algum problema no coração?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>É diabético?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question3",
           answer: "É diabético?",
           value: anamneseData["É diabético?"],
-        })}
+        })} */}
       </div>
 
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Possui dificuldade de cicatrização?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question4",
           answer: "Possui dificuldade de cicatrização?",
           value: anamneseData["Possui dificuldade de cicatrização?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Tem ou teve alguma doença nos rins ou fígado?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question5",
           answer: "Tem ou teve alguma doença nos rins ou fígado?",
           value: anamneseData["Tem ou teve alguma doença nos rins ou fígado?"],
-        })}
+        })} */}
       </div>
 
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Sofre de epilepsia?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question6",
           answer: "Sofre de epilepsia?",
           value: anamneseData["Sofre de epilepsia?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Já esteve hospitalizado por algum motivo?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question7",
           answer: "Já esteve hospitalizado por algum motivo?",
           value: anamneseData["Já esteve hospitalizado por algum motivo?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Tem anemia?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question8",
           answer: "Tem anemia?",
           value: anamneseData["Tem anemia?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>É alérgico a algum medicamento?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question9",
           answer: "É alérgico a algum medicamento?",
           value: anamneseData["É alérgico a algum medicamento?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Já teve algum problema com anestésicos?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question10",
           answer: "Já teve algum problema com anestésicos?",
           value: anamneseData["Já teve algum problema com anestésicos?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Tem ansiedade?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question11",
           answer: "Tem ansiedade?",
           value: anamneseData["Tem ansiedade?"],
-        })}
+        })} */}
       </div>
-      <div className={styles["question-container"]}>
+      <div style={{ display: "flex" }}>
         <span>Faz uso de AAS?</span>
-        {renderRadioGroup({
+        {/* {renderRadioGroup({
           name: "question12",
           answer: "Faz uso de AAS?",
           value: anamneseData["Faz uso de AAS?"],
-        })}
+        })} */}
       </div>
 
-      <StyledTextField
+      <TextField
         label="Observações:"
         value={observations!}
         onChange={(e) => setObservations(e.target.value)}
         margin="dense"
       />
       {!!userData && (
-        <StyledTextField
+        <TextField
           type={"date"}
           margin="dense"
           sx={{ width: "30%", alignSelf: "center" }}
@@ -175,10 +172,10 @@ const AnamneseForm = (props: AnamneseFormProps) => {
       )}
       <div style={{ marginBottom: "12px" }} />
 
-      <div className={styles["buttons-finish"]}>
+      <Box>
         <StyledButton onClick={handleBackPage}>Voltar</StyledButton>
         <StyledButton onClick={handleNextPage}>Finalizar</StyledButton>
-      </div>
+      </Box>
     </>
   );
 };

@@ -122,11 +122,7 @@ const ClientAnamneseInfos = (props: ClientAnamneseProps) => {
 
   return (
     <div className={styles["client-infos"]}>
-      <Modal
-        visible={anamneseModal}
-        closeModal={closeModal}
-        style={{ content: { margin: "20px 0", width: "90%" } }}
-      >
+      <Modal visible={anamneseModal} closeModal={closeModal}>
         <AnamneseForm
           anamneseData={anamneseData}
           handleAnswer={handleAnswer}

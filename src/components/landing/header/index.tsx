@@ -1,16 +1,20 @@
 /* eslint-disable @next/next/no-img-element */
+//@ts-nocheck
 import React, { useState } from "react";
 import { headerData } from "data";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { AiOutlineClose } from "react-icons/ai";
-import styles from "@/styles/Landing.module.css";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/router";
 import useWindowSize from "@/hooks/useWindowSize";
 import { Box, styled, Typography } from "@mui/material";
+import Image from "next/image";
+import { width } from "@mui/system";
+import Link from "next/link";
 
 interface HeaderLandingProps {
   refMenu: any;
   setTabIndex: (e: number) => void;
+  activeTab: any;
 }
 
 const HeaderLanding = (props: HeaderLandingProps) => {
@@ -19,33 +23,27 @@ const HeaderLanding = (props: HeaderLandingProps) => {
   const [iconMenu, setIconMenu] = useState(true);
   const list = props.refMenu?.current?.style;
 
-  const openMenu = (e?: any) => {
-    if (list?.display === "none" && size?.width! < 900) {
-      list?.setProperty("display", "flex");
-      setIconMenu(false);
-    } else if (list?.display === "flex" && size?.width! < 900) {
-      list?.setProperty("display", "none");
-      setIconMenu(true);
+  const HeaderContainer = styled(Box)`
+    width: 45%;
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    min-height: ${router.pathname !== "/" ? "0px" : "500px"};
+    background-color: white;
+    @media screen and (max-width: 1200px) {
+      width: 56%;
     }
-  };
+    @media screen and (max-width: 900px) {
+      width: 100%;
+    }
+  `;
+
+  const openMenu = (e?: any) => setIconMenu(!iconMenu);
 
   const listItem = ({ item, index }: any) => {
-    const handlePress = () => {
-      if (index === headerData.length - 1) return router.push("/login");
-      props.setTabIndex(index);
-      if (size?.width! < 900) {
-        list?.setProperty("display", "none");
-        setIconMenu(true);
-      }
-      return;
-    };
     return (
-      <ListBox key={index} onClick={handlePress}>
-        <List
-          variant="semibold"
-          onClick={handlePress}
-          sx={{ cursor: "pointer" }}
-        >
+      <ListBox key={index} passhref href={item.path}>
+        <List variant="subtitle1" sx={{ cursor: "pointer" }}>
           {item.title}
         </List>
       </ListBox>
@@ -53,44 +51,79 @@ const HeaderLanding = (props: HeaderLandingProps) => {
   };
 
   const renderIconMenu = () => {
-    if (!iconMenu)
-      return (
-        <AiOutlineClose className={styles["icon-menu"]} onClick={openMenu} />
-      );
-    else
-      return (
-        <GiHamburgerMenu className={styles["icon-menu"]} onClick={openMenu} />
-      );
+    if (!iconMenu) return <CloseIcon fontSize="large" onClick={openMenu} />;
+    else return <MenuOpenIcon fontSize="large" onClick={openMenu} />;
   };
+
+  const ListContainer = styled("ul")`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    transition: 0.7s;
+    @media screen and (max-width: 900px) {
+      display: ${iconMenu ? "none" : "flex"};
+      flex-direction: column;
+      background-color: white;
+      z-index: 10;
+      position: absolute;
+      top: 100px;
+      left: 0;
+      width: 100%;
+    }
+  `;
+
   return (
     <HeaderContainer>
-      <img
-        alt="cemic logo"
-        src="/images/cemicLogo.png"
-        className={styles.logocemic}
-        style={{ cursor: "pointer" }}
-        onClick={async () => await router.push("/")}
-      />
-      <ul className={styles["list-container"]} ref={props.refMenu}>
-        {headerData.map((item, index) => listItem({ item, index }))}
-      </ul>
-      {renderIconMenu()}
+      <HeaderListContainer>
+        <StyledImg
+          alt="cemic logo"
+          src={size?.width < 900 ? "/images/cemicLogo.png" : "/images/logo.png"}
+          onClick={async () => await router.push("/")}
+        />
+        <ListContainer ref={props.refMenu}>
+          {headerData.map((item, index) => listItem({ item, index }))}
+        </ListContainer>
+
+        {router.pathname === "/" && size?.width > 900 && (
+          <SVGImage
+            priority
+            src={"/images/middle-landing.svg"}
+            width={300}
+            height={500}
+            alt=""
+          />
+        )}
+
+        {size.width < 900 && renderIconMenu()}
+      </HeaderListContainer>
     </HeaderContainer>
   );
 };
 
-const HeaderContainer = styled(Box)`
+const HeaderListContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: white;
   width: 100%;
-  padding: 24px;
+  padding: 1.5rem 4rem;
 `;
-const ListBox = styled(Box)`
+
+const ListBox = styled(Link)`
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: space-around;
   margin: 0 16px;
+  transition: 0.3s;
+  text-decoration: none;
+  color: var(--dark-blue);
+  :hover {
+    color: var(--blue);
+    font-weight: bold;
+  }
 
   @media screen and (max-width: 900px) {
     border-top: 1.3px solid #bbb;
@@ -107,6 +140,38 @@ const List = styled(Typography)`
     :last-child {
       margin-bottom: 6px;
     }
+  }
+`;
+
+const StyledImg = styled("img")`
+  cursor: pointer;
+  width: 50px;
+  :hover {
+    opacity: 0.8;
+  }
+  @media screen and (max-width: 900px) {
+    width: 150px;
+  }
+`;
+
+const SVGImage = styled(Image)`
+  position: absolute;
+  left: 100%;
+  z-index: 2;
+  top: 0;
+
+  @media screen and (max-width: 1200px) {
+    left: 95%;
+  }
+  @media screen and (max-width: 900px) {
+    display: none;
+  }
+
+  @media screen and (min-width: 1600px) {
+    left: 105%;
+  }
+  @media screen and (min-width: 1700px) {
+    left: 110%;
   }
 `;
 

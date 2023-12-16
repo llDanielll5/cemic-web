@@ -117,7 +117,7 @@ const ListToSchedule = (props: ListToScheduleProps) => {
       </Modal>
       <Modal visible={schedulingModal} closeModal={handleCloseSchedule}>
         <Box display="flex" flexDirection="column" alignItems="center" p={2}>
-          <Typography variant="bold" mb={2}>
+          <Typography variant="subtitle1" mb={2}>
             Escolha a data e horário para agendamento
           </Typography>
           <Calendar value={dateSelected} onChange={handleSelectDate} />
@@ -140,7 +140,7 @@ const ListToSchedule = (props: ListToScheduleProps) => {
       </Modal>
       {/* END MODALS */}
 
-      <Typography variant="bold" mb={1}>
+      <Typography variant="subtitle1" mb={1}>
         Lista de pacientes
       </Typography>
       <Box
@@ -155,9 +155,9 @@ const ListToSchedule = (props: ListToScheduleProps) => {
           width="100%"
           justifyContent="space-between"
         >
-          <Typography variant="bold">Paciente</Typography>
-          <Typography variant="bold">ID Triagem</Typography>
-          <Typography variant="bold">Agendar Pac.</Typography>
+          <Typography variant="subtitle1">Paciente</Typography>
+          <Typography variant="subtitle1">ID Triagem</Typography>
+          <Typography variant="subtitle1">Agendar Pac.</Typography>
         </Box>
         {snapPatients.length > 0 &&
           snapPatients.map((v, i) => (

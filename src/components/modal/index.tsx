@@ -1,33 +1,35 @@
 import React from "react";
-import ReactModal from "react-modal";
-import styles from "../../styles/Modal.module.css";
+import { Modal, Box, Typography } from "@mui/material";
 
-interface ModalProps {
-  visible: boolean;
-  closeModal: () => void;
+interface ModalInterface {
+  visible: any;
+  closeModal: any;
   children: React.ReactNode;
-  style?: ReactModal.Styles;
-  el?: HTMLElement | HTMLElement[] | HTMLCollection | NodeList;
+  styles?: React.CSSProperties;
 }
 
-const Modal = (props: ModalProps) => {
+const basicStyle = {
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  borderRadius: 1,
+  transform: "translate(-50%, -50%)",
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
+
+const CModal = (props: ModalInterface) => {
+  // common modal
+  const { closeModal, children, visible } = props;
   return (
-    <ReactModal
-      isOpen={props.visible}
-      ariaHideApp={false}
-      shouldCloseOnOverlayClick
-      shouldCloseOnEsc
-      onRequestClose={props.closeModal}
-      overlayClassName={styles["overlay-modal"]}
-      className={styles["modal"]}
-      portalClassName={styles["modal-portal"]}
-      contentLabel="Example Modal"
-      appElement={props.el}
-      style={props.style}
-    >
-      {props.children}
-    </ReactModal>
+    <Modal open={visible} onClose={closeModal}>
+      <Box sx={{ ...basicStyle, ...props.styles }}>{children}</Box>
+    </Modal>
   );
 };
 
-export default Modal;
+export default CModal;

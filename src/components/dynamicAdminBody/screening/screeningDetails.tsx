@@ -522,7 +522,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
       </Modal>
 
       <Modal visible={forwardModalVisible} closeModal={handleCloseForwardModal}>
-        <Typography variant="bold">Escolha o dentista:</Typography>
+        <Typography variant="subtitle1">Escolha o dentista:</Typography>
         <Autocomplete
           options={snapProfessionals}
           sx={{ width: "85%" }}
@@ -538,7 +538,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
             />
           )}
         />
-        <Typography variant="bold" mt={1}>
+        <Typography variant="subtitle1" mt={1}>
           Escolha os tratamentos:
         </Typography>
         <Box display="flex" columnGap={"4px"}>
@@ -549,7 +549,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
           ))}
         </Box>
 
-        <Typography variant="semibold" my={1}>
+        <Typography variant="subtitle1" my={1}>
           Tratamentos escolhidos:
         </Typography>
         <Box display="flex" columnGap={"4px"}>
@@ -572,10 +572,10 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
         </Box>
       )}
 
-      <Name variant="bold">{infos?.name}</Name>
+      <Name variant="subtitle1">{infos?.name}</Name>
       <Typography
         my={1}
-        variant="small"
+        variant="caption"
         display={"flex"}
         columnGap={"4px"}
         alignSelf={"center"}
@@ -584,7 +584,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
       </Typography>
       <Typography
         mb={1}
-        variant="small"
+        variant="caption"
         display={"flex"}
         columnGap={"4px"}
         alignSelf={"center"}
@@ -594,13 +594,13 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
 
       <Form px={2}>
         <BoolContainer>
-          <Hours variant="semibold">
+          <Hours variant="subtitle1">
             <AccessTimeIcon /> {data?.hour}h
           </Hours>
           {momentNow < scheduledScreening ? null : data?.hasPay === null ? (
             <>
               <HasMissed>
-                <Typography variant="semibold">Fechou?</Typography>
+                <Typography variant="subtitle1">Fechou?</Typography>
                 {successIcon({
                   onClick: () => handleUpdateValue("hasPay", true),
                 })}
@@ -610,14 +610,14 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
               </HasMissed>
             </>
           ) : (
-            <BoolsOptions variant="semibold" color={"white"} sx={hasPayed}>
+            <BoolsOptions variant="subtitle1" color={"white"} sx={hasPayed}>
               {data?.hasPay ? "Fechou" : "Não-Fechou"}
             </BoolsOptions>
           )}
           {data?.isMissed !== null && (
             <BoolsOptions
               color={"white"}
-              variant="semibold"
+              variant="subtitle1"
               sx={backgroundcolor}
             >
               {data?.isMissed ? "Faltou" : "Presente"}
@@ -634,7 +634,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
             justifyContent="center"
             border="1px solid var(--dark-blue)"
           >
-            <Typography variant="semibold">Paciente fechou depois?</Typography>
+            <Typography variant="subtitle1">Paciente fechou depois?</Typography>
             {successIcon({
               onClick: () => handleUpdateValue("hasPay", true),
             })}
@@ -643,11 +643,11 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
 
         <DoubleColumn>
           <Box display={"flex"} alignItems={"center"} columnGap={"4px"}>
-            <Typography variant="semibold">Dentista: </Typography>
+            <Typography variant="subtitle1">Dentista: </Typography>
             <Typography variant="body2">{infos?.professional_name}</Typography>
           </Box>
           <Box display={"flex"} alignItems={"center"} columnGap={"4px"}>
-            <Typography variant="semibold">ID Dentista: </Typography>
+            <Typography variant="subtitle1">ID Dentista: </Typography>
             <Typography variant="body2">{infos?.professionalId}</Typography>
           </Box>
         </DoubleColumn>
@@ -656,7 +656,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
           <>
             <Typography
               mb={2}
-              variant="semibold"
+              variant="subtitle1"
               alignSelf={"center"}
               textAlign={"center"}
             >
@@ -672,10 +672,10 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
                 columnGap={"4px"}
                 alignItems={"center"}
               >
-                <Typography variant="semibold" sx={{ color: "var(--red)" }}>
+                <Typography variant="subtitle1" sx={{ color: "var(--red)" }}>
                   {v?.region} -{" "}
                 </Typography>
-                <Typography variant="semibold">
+                <Typography variant="subtitle1">
                   {v?.treatments?.name}
                 </Typography>
               </Box>
@@ -683,7 +683,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
           </>
         ) : notHasPlanTreat ? (
           <Typography
-            variant="semibold"
+            variant="subtitle1"
             alignSelf={"center"}
             textAlign={"center"}
             mb={2}
@@ -707,7 +707,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
           <>
             <Typography
               mb={2}
-              variant="semibold"
+              variant="subtitle1"
               alignSelf={"center"}
               textAlign={"center"}
             >
@@ -723,10 +723,10 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
                 columnGap={"4px"}
                 alignItems={"center"}
               >
-                <Typography variant="semibold" sx={{ color: "var(--red)" }}>
+                <Typography variant="subtitle1" sx={{ color: "var(--red)" }}>
                   {v?.region} -{" "}
                 </Typography>
-                <Typography variant="semibold">
+                <Typography variant="subtitle1">
                   {v?.treatments?.name}
                 </Typography>
               </Box>
@@ -736,7 +736,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
 
         {data?.receiptId.length > 0 && (
           <Box display="flex" alignItems="center" flexDirection="column">
-            <Typography variant="bold">Recibos</Typography>
+            <Typography variant="subtitle1">Recibos</Typography>
             <Box display="flex" alignItems="center">
               {data?.receiptId.map((v, i) => (
                 <Link
@@ -763,7 +763,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
         ) : null}
         {forwardsData !== null && (
           <Box display="flex" alignItems="center" justifyContent="center">
-            <Typography variant="semibold">
+            <Typography variant="subtitle1">
               Paciente encaminhado para:
             </Typography>
             <Button variant="text" color="warning">

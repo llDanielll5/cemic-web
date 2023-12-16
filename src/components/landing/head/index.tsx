@@ -1,10 +1,22 @@
 import React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 const HeadLanding = () => {
+  const router = useRouter();
+
+  const dynamicTitle =
+    router.pathname === "/"
+      ? "CEMIC - Centro Médico e de Implantes Comunitário"
+      : router.pathname === "/#about"
+      ? "Conheça um pouco mais sobre a maior ONG de serviços odontológicos de BSB"
+      : router.pathname === "/help"
+      ? "Ajude a construir o sonho de alguém aqui na CEMIC."
+      : "Entre em contato conosco";
   return (
     <Head>
-      <title>CEMIC</title>
+      <title>{dynamicTitle}</title>
+
       <meta
         name="description"
         content="Centro Médico e de Implantes Comunitário"

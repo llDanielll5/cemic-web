@@ -15,7 +15,7 @@ const AddTreatment = (props: AddTreatmentProps) => {
   return (
     <>
       <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-        <Typography variant="semibold">Adicionar tratamentos</Typography>
+        <Typography variant="subtitle1">Adicionar tratamentos</Typography>
 
         <StyledButton onClick={openModal} endIcon={<PostAddIcon />}>
           Adicionar Tratamento
@@ -24,7 +24,7 @@ const AddTreatment = (props: AddTreatmentProps) => {
 
       {props.treatments !== null && (
         <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-          <Typography variant="semibold">Adicionar Pagamento</Typography>
+          <Typography variant="subtitle1">Adicionar Pagamento</Typography>
 
           <StyledButton
             onClick={handleGeneratePayment}
