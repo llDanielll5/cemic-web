@@ -1,5 +1,4 @@
 import React from "react";
-import styles from "../../styles/Components.module.css";
 
 interface ButtonProps {
   onClick?: () => void;
@@ -12,7 +11,7 @@ const Button = (props: ButtonProps) => {
   return (
     <button
       onClick={props.onClick}
-      className={styles.button}
+      // className={styles.button}
       title={props.title}
       style={props.styles}
     >
