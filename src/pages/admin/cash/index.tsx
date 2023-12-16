@@ -37,6 +37,7 @@ import "react-calendar/dist/Calendar.css";
 import LoadingServer from "@/atoms/components/loading";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { getCookie, setCookie } from "cookies-next";
+import { formatISO } from "date-fns";
 
 const refInformations = collection(db, "cashiers_informations");
 const refCashiers = collection(db, "cashiers");
@@ -63,7 +64,7 @@ const CashAdmin = () => {
   const cookieDate: any = getCookie("oldDate");
   const cookieCashier: any = getCookie("cashierType");
   const [cashierType, setCashierType] = useState<number | null>(
-    !cookieCashier ? null : Number(cookieCashier)
+    !cookieCashier ? null : parseInt(cookieCashier)
   );
   const [loading, setLoading] = useRecoilState(LoadingServer);
   const [addVisible, setAddVisible] = useState(false);
@@ -86,7 +87,7 @@ const CashAdmin = () => {
 
   const qInfs = query(
     refInformations,
-    where("date", "==", dateSelected.toISOString().substring(0, 10)),
+    where("date", "==", formatISO(new Date()).substring(0, 10)),
     where("idCashier", "==", cashierData?.id! ?? "")
   );
   const snapshotInformations = useOnSnapshotQuery(
@@ -159,7 +160,7 @@ const CashAdmin = () => {
     let data: any = {
       name: nameCapital,
       description,
-      date: dateSelected.toISOString().substring(0, 10),
+      date: formatISO(new Date()).substring(0, 10),
       timestamp: dateSelected.getSeconds(),
       cashIn,
       out,
@@ -214,10 +215,11 @@ const CashAdmin = () => {
     else setAddVisible(true);
   };
 
-  const getCashierData = async () => {
+  const getCashierData = useCallback(async () => {
+    let timeNow = formatISO(dateSelected).substring(0, 10);
     let q = query(
       refCashiers,
-      where("date", "==", dateSelected.toISOString().substring(0, 10)),
+      where("date", "==", timeNow),
       where("type", "==", cashierType === 0 ? "clinic" : "implant")
     );
     let querySnapshot = await getDocs(q);
@@ -235,7 +237,7 @@ const CashAdmin = () => {
       setCashierData(data);
       return setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
     }
-  };
+  }, [dateSelected, cashierType]);
 
   const handleOpenCashier = () => {
     if (cashierData !== null) return alert("Caixa já aberto!");
@@ -245,7 +247,7 @@ const CashAdmin = () => {
   const handleConfirmOpenCashier = async () => {
     let q = query(
       refCashiers,
-      where("date", "==", dateSelected.toISOString().substring(0, 10)),
+      where("date", "==", formatISO(new Date()).substring(0, 10)),
       where("type", "==", cashierType === 0 ? "clinic" : "implant")
     );
     let querySnapshot = await getDocs(q);
@@ -257,7 +259,7 @@ const CashAdmin = () => {
     setCookie("oldDate", dateSelected);
 
     let cashierData: CashierData = {
-      date: dateSelected.toISOString().substring(0, 10),
+      date: formatISO(new Date()).substring(0, 10),
       timestamp: Timestamp.now(),
       closed: false,
       totalCard: 0,
@@ -314,12 +316,12 @@ const CashAdmin = () => {
     let actualMonth = dateSelected.getMonth();
     let actualYear = dateSelected.getFullYear();
 
-    let firstDayMonth = new Date(actualYear, actualMonth, 1)
-      .toISOString()
-      .substring(0, 10);
-    let lastDayMonth = new Date(actualYear, actualMonth + 1, 0)
-      .toISOString()
-      .substring(0, 10);
+    let firstDayMonth = formatISO(
+      new Date(actualYear, actualMonth, 1)
+    ).substring(0, 10);
+    let lastDayMonth = formatISO(
+      new Date(actualYear, actualMonth + 1, 0)
+    ).substring(0, 10);
 
     const qMonthValues = query(
       refCashiers,
@@ -419,15 +421,12 @@ const CashAdmin = () => {
 
   useEffect(() => {
     getCashierData();
-  }, [dateSelected, cashierType]);
+  }, [dateSelected, cashierType, getCashierData]);
 
   useEffect(() => {
     handleGetMonthValue();
-  }, [handleGetMonthValue]);
-
-  useEffect(() => {
     getMonthTotal();
-  }, [getMonthTotal]);
+  }, [handleGetMonthValue, getMonthTotal]);
 
   if (userData?.role !== "admin") return;
 

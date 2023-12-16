@@ -4,16 +4,17 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ClientType } from "types";
 import { useRecoilValue } from "recoil";
 import { Timestamp } from "firebase/firestore";
-import { Avatar, TextField, Typography } from "@mui/material";
-import { InputsContainer } from "@/components/userForm";
-import { cpfMask, phoneMask } from "@/services/services";
 import {
+  Avatar,
+  TextField,
+  Typography,
   Box,
   styled,
   Autocomplete,
   IconButton,
-  TextField,
 } from "@mui/material";
+import { InputsContainer } from "@/components/userForm";
+import { cpfMask, phoneMask } from "@/services/services";
 import { updateUserData } from "@/services/requests/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
