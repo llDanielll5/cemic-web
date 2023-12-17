@@ -4,7 +4,6 @@ import * as S from "../../dynamicProfBody/profile/styles";
 import { db } from "@/services/firebase";
 import { Box, Typography, TextField } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
-import { chooseImgStyle } from "@/components/pre-register/profile";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { cpfMask, phoneMask } from "@/services/services";
@@ -152,7 +151,6 @@ const ProfileAdmin = (props: ProfileAdminProps) => {
                 type="file"
                 onChange={handleChangeFile}
                 title="Escolher imagem"
-                style={{ ...chooseImgStyle }}
               />
             </S.ProfileImage>
           </S.AvatarContainer>

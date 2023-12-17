@@ -1,13 +1,12 @@
-//@ts-nocheck
 import React from "react";
 import styles from "../../../styles/Dashboard.module.css";
 
 interface TopBarProps {
-  page: Index;
+  page: number;
   onClick: any;
   toggleRef: any;
   panelTitle: {
-    [i as number]: string;
+    [i: number]: string;
   };
 }
 

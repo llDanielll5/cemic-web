@@ -1,8 +1,6 @@
-//@ts-nocheck
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/Selected.module.css";
 import { AddressType, ClientType } from "types";
-import { userDataEdited } from "../patient/profile";
 import UserForm from "../userForm";
 import AnamneseForm from "../anamneseForm";
 import ImplanteTerm from "../terms/implante";
@@ -10,7 +8,7 @@ import CrownTerm from "../terms/crown";
 import { updateUserData } from "@/services/requests/firestore";
 import { nameCapitalized } from "@/services/services";
 
-const defaultValues: userDataEdited = {
+const defaultValues = {
   bornDate: "",
   cpf: "",
   name: "",
@@ -56,7 +54,7 @@ const Anamnese = (props: AnamneseProps) => {
   const { userContext } = props;
   const [anamneseData, setAnamneseData] =
     useState<AnamneseQuestions>(anamneseQuestions);
-  const [userData, setUserData] = useState<userDataEdited>(defaultValues);
+  const [userData, setUserData] = useState<any>(defaultValues);
   const [locationData, setLocationData] = useState<AddressType>(defaultAddress);
   const [observations, setObservations] = useState("");
   const [implantTermRead, setImplantTermRead] = useState(false);

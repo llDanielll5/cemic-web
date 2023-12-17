@@ -1,4 +1,3 @@
-//@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
 
 import { useGetScrollPosition } from "@/hooks/useGetScrollPosition";

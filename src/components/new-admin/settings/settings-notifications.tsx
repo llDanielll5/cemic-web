@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { useCallback } from "react";
 import {
   Button,
@@ -52,7 +51,7 @@ export const SettingsNotifications = () => {
                 </Stack>
               </Stack>
             </Grid>
-            <Grid item md={4} sm={6} xs={12}>
+            <Grid md={4} sm={6} xs={12}>
               <Stack spacing={1}>
                 <Typography variant="h6">Messages</Typography>
                 <Stack>

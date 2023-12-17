@@ -1,4 +1,3 @@
-//@ts-nocheck
-export function applyPagination(documents, page, rowsPerPage) {
+export function applyPagination(documents: any, page: any, rowsPerPage: any) {
   return documents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

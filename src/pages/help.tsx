@@ -1,5 +1,3 @@
-//@ts-nocheck
-
 import { LandingLayout } from "@/layouts/landing";
 import Help from "@/components/landing/help";
 

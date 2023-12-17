@@ -1,4 +1,3 @@
-//@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
@@ -73,7 +72,7 @@ export const SideNav = (props: any) => {
             spacing={0.5}
             sx={{ listStyle: "none", p: 0, m: 0 }}
           >
-            {items.map((item) => {
+            {items.map((item: any) => {
               const active = item.path ? pathname === item.path : false;
 
               return (

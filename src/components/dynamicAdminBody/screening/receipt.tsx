@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-//@ts-nocheck
+
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { Button50, PaymentShapesArray } from "./screeningDetails";
@@ -29,14 +29,14 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
   } = props;
   const paymentTypeText = () => {
     if (paymentType === "credit") return "Cartão de Crédito";
-    if (paymentType === "pix") return "Pix/Transferência bancária";
-    if (paymentType === "cash") return "dinheiro";
+    if (paymentType === "pix/cash") return "Pix/Transferência bancária";
+    if (paymentType === "debit") return "dinheiro";
   };
 
   const parsedPaymentTypeText = (type: PaymentTypes | null) => {
     if (type === "credit") return "Cartão de Crédito";
-    if (type === "pix") return "Pix/Transferência bancária";
-    if (type === "cash") return "dinheiro";
+    if (type === "pix/cash") return "Pix/Transferência bancária";
+    if (type === "debit") return "dinheiro";
   };
   return (
     <Box
@@ -89,7 +89,7 @@ const ReceiptAdmin = (props: ReceiptAdminProps) => {
         <Typography variant="body2" textAlign="left" m={1}>
           Pagos no {paymentTypeText()}{" "}
           {paymentType === "credit" && `em ${vezes}`}
-          {paymentType === "cash" && `com ${discount}% de desconto`}
+          {paymentType === "pix/cash" && `com ${discount}% de desconto`}
         </Typography>
       ) : (
         <Typography variant="body2" textAlign="left" m={1}>

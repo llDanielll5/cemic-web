@@ -1,4 +1,3 @@
-//@ts-nocheck
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/Admin.module.css";
 import Button from "@/components/button";
@@ -46,7 +45,7 @@ const ScreeningProfessional = (props: ScreeningProps) => {
     ScreeningInformations[] | null
   >(null);
 
-  const userData = useRecoilValue(UserData);
+  const userData: any = useRecoilValue(UserData);
   const hasId = userData?.id ?? "";
 
   // SNAPSHOT QUERY FOR SCREENINGS COLLECTION

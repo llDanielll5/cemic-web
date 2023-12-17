@@ -241,10 +241,10 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
     const treats = clientTreatments?.treatments?.treatment_plan;
     const neg = clientTreatments?.negotiateds;
 
-    let reduced = [];
-    treats.forEach((item) => {
+    let reduced: any[] = [];
+    treats?.forEach((item) => {
       var duplicated =
-        neg.findIndex((val) => {
+        neg!.findIndex((val) => {
           return (
             item.region === val.region &&
             item.treatments.cod === val.treatments.cod
@@ -463,7 +463,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
                 setIsForwarding(false);
               });
           })
-          .catch(() => {
+          .catch((err: any) => {
             setIsForwarding(false);
             return alert(
               "Não foi possível encaminhar o paciente" + err.message

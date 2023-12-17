@@ -6,7 +6,7 @@ import About from "../about";
 import Link from "next/link";
 import useWindowSize from "@/hooks/useWindowSize";
 
-const BannerLanding = (props: { setTabIndex: any; aboutRef: any }) => {
+const BannerLanding = (props: { aboutRef: any }) => {
   const size = useWindowSize();
   const msg = `Olá!! Gostaria de saber mais sobre a CEMIC.`;
   const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(

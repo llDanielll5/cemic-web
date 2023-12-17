@@ -1,16 +1,11 @@
-//@ts-nocheck
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import { deleteUser } from "firebase/auth";
-import { makeid, nameCapitalized } from "@/services/services";
-import { auth, db } from "@/services/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { nameCapitalized } from "@/services/services";
 import { createUserLanding } from "@/services/requests/auth";
 import { Box } from "@mui/material";
 import styles from "../../styles/Landing.module.css";
-import Loading from "../loading";
 import { AuthErrors } from "@/services/errors";
-import { StyledButton } from "../dynamicAdminBody/receipts";
+import Loading from "@/components/loading";
 
 const ContactForm = () => {
   const router = useRouter();

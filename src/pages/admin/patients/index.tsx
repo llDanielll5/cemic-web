@@ -67,7 +67,7 @@ const PatientsPage = () => {
     if (snapshot.docs[0] === undefined)
       return alert("Paciente não encontrado ou não existe!");
     else {
-      let arr = [];
+      let arr: any[] = [];
       snapshot.docs.forEach((doc) => {
         arr.push(doc.data());
       });
@@ -126,9 +126,9 @@ const PatientsPage = () => {
             </Stack>
             <CustomersSearch
               value={searchPatientValue}
-              onChange={(e: string) => setSearchPatientValue(e.target.value)}
+              onChange={(e: any) => setSearchPatientValue(e.target.value)}
               onClick={() => getPatientByCPF()}
-              onKeyDown={({ key }) => {
+              onKeyDown={({ key }: any) => {
                 if (key === "Enter") getPatientByCPF();
               }}
             />

@@ -67,7 +67,7 @@ const ScreeningModal = (props: ScreeningModalProps) => {
     return setPatientsAdded(deleted);
   };
 
-  const handleAddHour = ({ value, index }) => {
+  const handleAddHour = ({ value, index }: any) => {
     const clone = [...patientsAdded];
     clone[index].hour = value;
     setPatientsAdded(clone);
@@ -120,7 +120,7 @@ const ScreeningModal = (props: ScreeningModalProps) => {
         borderRadius={2}
         alignItems="center"
         justifyContent={"space-between"}
-        backgroundColor="#f4f4f4"
+        sx={{ backgroundColor: "#f4f4f4" }}
         minWidth={"370px"}
       >
         <IconButton
@@ -163,7 +163,7 @@ const ScreeningModal = (props: ScreeningModalProps) => {
         <h3 style={{ textAlign: "center", marginBottom: "12px" }}>
           Lista de Não-Pacientes
         </h3>
-        {notPatientsList.map((item, index) => (
+        {notPatientsList.map((item: any, index) => (
           <Box
             p={0.7}
             key={index}
@@ -217,7 +217,7 @@ const ScreeningModal = (props: ScreeningModalProps) => {
           options={snapProfessionals}
           getOptionLabel={(option) => option.name}
           isOptionEqualToValue={(option, value) => option.name === value.name}
-          onChange={(e, v) => setProfessionalSelected(v)}
+          onChange={(e, v: any) => setProfessionalSelected(v)}
           renderInput={(params) => (
             <TextInput
               {...params}

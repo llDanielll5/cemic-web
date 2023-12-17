@@ -3,7 +3,6 @@ import { Box, Typography, Autocomplete, TextField } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
 // import { chooseImgStyle } from "@/components/pre-register/profile";
 import { db } from "@/services/firebase";
-import Input from "@/components/input";
 import Loading from "@/components/loading";
 import uploadFile from "@/services/uploadFile";
 import SaveIcon from "@mui/icons-material/Save";

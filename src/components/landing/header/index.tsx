@@ -8,7 +8,6 @@ import { useRouter } from "next/router";
 import useWindowSize from "@/hooks/useWindowSize";
 import { Box, styled, Typography } from "@mui/material";
 import Image from "next/image";
-import { width } from "@mui/system";
 import Link from "next/link";
 
 interface HeaderLandingProps {
@@ -79,14 +78,16 @@ const HeaderLanding = (props: HeaderLandingProps) => {
       <HeaderListContainer>
         <StyledImg
           alt="cemic logo"
-          src={size?.width < 900 ? "/images/cemicLogo.png" : "/images/logo.png"}
+          src={
+            size?.width! < 900 ? "/images/cemicLogo.png" : "/images/logo.png"
+          }
           onClick={async () => await router.push("/")}
         />
         <ListContainer ref={props.refMenu}>
           {headerData.map((item, index) => listItem({ item, index }))}
         </ListContainer>
 
-        {router.pathname === "/" && size?.width > 900 && (
+        {router.pathname === "/" && size?.width! > 900 && (
           <SVGImage
             priority
             src={"/images/middle-landing.svg"}
@@ -96,7 +97,7 @@ const HeaderLanding = (props: HeaderLandingProps) => {
           />
         )}
 
-        {size.width < 900 && renderIconMenu()}
+        {size.width! < 900 && renderIconMenu()}
       </HeaderListContainer>
     </HeaderContainer>
   );

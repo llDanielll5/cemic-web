@@ -1,4 +1,3 @@
-//@ts-nocheck
 import PropTypes from "prop-types";
 import ComputerDesktopIcon from "@heroicons/react/24/solid/ComputerDesktopIcon";
 import DeviceTabletIcon from "@heroicons/react/24/solid/DeviceTabletIcon";
@@ -15,7 +14,7 @@ import {
 } from "@mui/material";
 import { Chart } from "src/components/new-admin/comps/chart";
 
-const useChartOptions = (labels) => {
+const useChartOptions = (labels: any) => {
   const theme = useTheme();
 
   return {
@@ -63,7 +62,7 @@ const useChartOptions = (labels) => {
   };
 };
 
-const iconMap = {
+const iconMap: any = {
   Desktop: (
     <SvgIcon>
       <ComputerDesktopIcon />

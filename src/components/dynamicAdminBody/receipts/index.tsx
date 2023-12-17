@@ -6,7 +6,6 @@ import { maskValue, parseDateBr } from "@/services/services";
 import { useRouter } from "next/router";
 import { db } from "@/services/firebase";
 import PreviewIcon from "@mui/icons-material/Preview";
-import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";

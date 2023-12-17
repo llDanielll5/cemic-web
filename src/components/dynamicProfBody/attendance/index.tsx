@@ -40,7 +40,7 @@ const ellipsisText: React.CSSProperties = {
 
 const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
   const userData = useRecoilValue(UserData);
-  const [patient, setPatient] = useState(null);
+  const [patient, setPatient] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
   const [reportModal, setReportModal] = useState(false);
@@ -153,11 +153,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         </Modal>
       ) : null}
 
-      <Modal
-        visible={reportModal}
-        closeModal={closeReportModal}
-        style={{ overlay: { zIndex: 9999 } }}
-      >
+      <Modal visible={reportModal} closeModal={closeReportModal}>
         <Typography variant="subtitle1" mt={1}>
           Quais tratamentos foram feitos?
         </Typography>
@@ -174,7 +170,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         </Typography>
         <Box display="flex" columnGap={"4px"}>
           {selectedTreatmentsFinish?.length > 0 &&
-            selectedTreatmentsFinish.map((v, i) => (
+            selectedTreatmentsFinish.map((v: any, i: number) => (
               <StyledButton key={i}>
                 {v?.region} - {v?.treatments?.name}
               </StyledButton>
@@ -189,7 +185,6 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
       <Modal
         visible={confirmTreatmentModal}
         closeModal={() => setConfirmTreatmentModal(false)}
-        style={{ overlay: { zIndex: 999999 } }}
       >
         <Box
           display="flex"
@@ -211,7 +206,7 @@ const AttendanceProfessional = (props: AttendanceProfessionalProps) => {
         <TextField
           sx={{ width: "fit-content", backgroundColor: "white" }}
           value={dateSelected.toISOString().substring(0, 10)}
-          onChange={(e) => setDateSelected(e.target.value)}
+          onChange={(e) => setDateSelected(new Date(e.target.value))}
           InputLabelProps={{ shrink: true }}
           label="Selecionar Data"
           type={"date"}

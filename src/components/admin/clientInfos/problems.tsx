@@ -1,4 +1,3 @@
-//@ts-nocheck
 import React, { useState, useEffect } from "react";
 import { Box, styled, TextField, Typography } from "@mui/material";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
