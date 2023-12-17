@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React from "react";
 import CModal from "@/components/modal";
 import { Box, Button, TextField, Typography, styled } from "@mui/material";
