@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 //@ts-nocheck
 import Head from "next/head";
 import { useCallback, useEffect, useMemo, useState } from "react";

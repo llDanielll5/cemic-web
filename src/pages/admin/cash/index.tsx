@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
@@ -22,8 +23,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import AddCashModal from "./modals/add";
-import ConfirmCashModal from "./modals/confirm";
+import AddCashModal from "../../../components/new-admin/cash/modals/add";
+import ConfirmCashModal from "../../../components/new-admin/cash/modals/confirm";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { db } from "@/services/firebase";
@@ -32,7 +33,7 @@ import UserData from "@/atoms/userData";
 import CModal from "@/components/modal";
 import Calendar from "react-calendar";
 import { nameCapitalized } from "@/services/services";
-import OpenCashierModal from "./modals/open";
+import OpenCashierModal from "../../../components/new-admin/cash/modals/open";
 import "react-calendar/dist/Calendar.css";
 import LoadingServer from "@/atoms/components/loading";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
