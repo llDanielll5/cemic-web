@@ -1,9 +1,5 @@
 import axios from "axios";
-import { getCookie } from "cookies-next";
-
-const serverUrl = process.env.DEV_SERVER_URL;
-export const jwt = getCookie("jwt");
-export const headerAuth = { headers: { Authorization: `Bearer ${jwt}` } };
+import { headerAuth, serverUrl } from "..";
 
 export const handleGetTreatments = async (currPage?: number) => {
   let page = currPage;

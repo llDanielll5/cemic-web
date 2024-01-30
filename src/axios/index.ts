@@ -1,7 +1,9 @@
 import axios from "axios";
 import { getCookie } from "cookies-next";
 
-const serverUrl = process.env.DEV_SERVER_URL;
+export const serverUrl = process.env.DEV_SERVER_URL;
+export const jwt = getCookie("jwt");
+export const headerAuth = { headers: { Authorization: `Bearer ${jwt}` } };
 
 // ----------------------------------------------------------------------
 
@@ -32,3 +34,8 @@ axiosInstance.interceptors.request.use(
 );
 
 export default axiosInstance;
+
+export const endpoints = {
+  HOME: "/",
+  ADMIN: "/admin",
+};

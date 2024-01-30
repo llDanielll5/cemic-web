@@ -1,7 +1,5 @@
 import axios from "axios";
-import { headerAuth } from "./treatments";
-
-const serverUrl = process.env.DEV_SERVER_URL;
+import { serverUrl, headerAuth } from "..";
 
 export const getActualLectureDetails = async (dateString: string) => {
   let data = { dateString };

@@ -1,7 +1,5 @@
 import axios from "axios";
-import { headerAuth } from "./treatments";
-
-const serverUrl = process.env.DEV_SERVER_URL;
+import { headerAuth, serverUrl } from "..";
 
 export const handleGetAllDentists = async () => {
   return await axios.post(`${serverUrl}/lectures/?populate=*`, headerAuth);

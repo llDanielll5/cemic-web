@@ -1,8 +1,6 @@
 import axios from "axios";
 import { nameCapitalized } from "@/services/services";
-import { headerAuth } from "./treatments";
-
-const serverUrl = process.env.DEV_SERVER_URL;
+import { serverUrl, headerAuth } from "..";
 
 export const handleCreatePatient = async (data: any) => {
   const {

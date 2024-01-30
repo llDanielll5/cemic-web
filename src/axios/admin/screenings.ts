@@ -1,9 +1,6 @@
 import axios from "axios";
-import { getCookie } from "cookies-next";
-import { headerAuth } from "./treatments";
 import { formatISO } from "date-fns";
-
-const serverUrl = process.env.DEV_SERVER_URL;
+import { serverUrl, headerAuth } from "..";
 
 export const handleUpdatePatientPresenceOfScreening = async (
   isMissed: boolean,

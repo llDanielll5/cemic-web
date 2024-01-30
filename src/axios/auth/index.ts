@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getCookie, setCookie } from "cookies-next";
-
-const serverUrl = process.env.DEV_SERVER_URL;
+import { serverUrl } from "..";
 
 export const handleRegister = async (data: any) => {
   const { role, password, email, phone, rg, cpf, dateBorn, name, username } =
