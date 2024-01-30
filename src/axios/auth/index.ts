@@ -5,7 +5,7 @@ import { serverUrl } from "..";
 export const handleRegister = async (data: any) => {
   const { role, password, email, phone, rg, cpf, dateBorn, name, username } =
     data;
-  return axios.post(`${serverUrl}/auth/local/register`, {
+  return axios.post(`http://25.54.159.217:17000/api/auth/local/register`, {
     email,
     password,
     name,
