@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import { Layout as AuthLayout } from "src/layouts/auth/layout";
 import Loading from "@/components/loading";
 import CModal from "@/components/modal";
-import { handleLogin } from "@/services/requests/auth";
+import { handleLogin } from "@/axios/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/services/firebase";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -24,6 +24,9 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { getCookie, setCookie } from "cookies-next";
+import { useSetRecoilState } from "recoil";
+import UserData from "@/atoms/userData";
 
 const Page = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,6 +37,8 @@ const Page = () => {
   const [resetPasswordModal, setResetPasswordModal] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const setUserData = useSetRecoilState(UserData);
+  const userCookie = getCookie("user");
 
   const formik = useFormik({
     initialValues: {
@@ -64,38 +69,26 @@ const Page = () => {
     setIsLoading(true);
     setLoadingMessage("Estamos realizando o seu login.");
     return await handleLogin({ email, password })
-      .then(async (res) => {
-        if (res === null || res === undefined) {
-          return;
-        } else if (res?.role === "admin" || res?.role === "employee") {
-          router.push("/admin");
-        } else if (res?.role === "professional") {
-          router.push("/professional");
-        } else router.push("/");
-      })
+      .then(
+        async (res: any) => {
+          let jwt = res.data.jwt;
+          let user = res.data.user;
+          setCookie("jwt", jwt, { maxAge: 86400 });
+          setCookie("user", user, { maxAge: 86400 });
+          setUserData(user);
+          return router.push("/admin");
+        },
+        (error) => {
+          setIsLoading(false);
+          if (
+            error.response.data.error.message ===
+            "Invalid identifier or password"
+          )
+            return alert("Email ou Senha incorretos!");
+          if (error.response) console.log(error.response.data.error.details);
+        }
+      )
       .finally(() => setIsLoading(false));
-  };
-
-  const sendResetPassword = async () => {
-    setIsLoading(true);
-    setLoadingMessage("Estamos enviando um email para você!");
-    sendPasswordResetEmail(auth, resetEmail)
-      .then(() => {
-        setIsLoading(false);
-        setResetEmail("");
-        changeResetModalVisible();
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        const errorCode = error.code;
-        if (errorCode === "auth/invalid-email") {
-          return alert("E-mail não cadastrado ou errado");
-        } else if (errorCode === "auth/missing-email") {
-          return alert("Digite um e-mail");
-        } else if (errorCode === "auth/user-not-found") {
-          return alert("Usuário não cadastrado");
-        } else return alert(errorCode);
-      });
   };
 
   const handleMethodChange = useCallback((event: any, value: any) => {
@@ -113,6 +106,8 @@ const Page = () => {
   };
   const handleTogglePasswordVisible = (e: any) =>
     setPasswordVisible(!passwordVisible);
+
+  if (!!userCookie) return router.push("/admin");
 
   return (
     <>
@@ -144,7 +139,7 @@ const Page = () => {
           sx={{ mt: 3 }}
           type="submit"
           variant="contained"
-          onClick={sendResetPassword}
+          onClick={() => alert("Em desenvolvimento!")}
         >
           Recuperar Senha
         </Button>

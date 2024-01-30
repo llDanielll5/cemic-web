@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { PaymentTypes } from "types";
+import { PaymentTypes } from "types/payments";
 import { Button50, PaymentShapesArray } from "./screeningDetails";
 import {
   Box,
@@ -12,11 +12,11 @@ import {
   Radio,
   FormControlLabel,
   TextField,
+  RadioGroup,
 } from "@mui/material";
 import { IconClose } from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import CalculateIcon from "@mui/icons-material/Calculate";
-import Input from "@/components/input";
 import RenderPaymentTypes from "./paymentTypes";
 import { maskValue } from "@/services/services";
 
@@ -46,21 +46,6 @@ interface ModalPaymentProps {
   negotiatedsToRealize: any;
   setNegotiatedsToRealize: any;
 }
-
-const parcelado = [
-  "1x",
-  "2x",
-  "3x",
-  "4x",
-  "5x",
-  "6x",
-  "7x",
-  "8x",
-  "9x",
-  "10x",
-  "11x",
-  "12x",
-];
 
 export type AnswerOptions = "Sim" | "Não";
 
@@ -266,7 +251,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
       {treatmentsToPay.map((v, i) => (
         <TreatmentsChoice key={i} onClick={() => handleAddToPay(v)}>
           <Typography variant="subtitle1">{v?.region} - </Typography>
-          <Typography variant="subtitle1">{v?.treatments?.name}</Typography>
+          <Typography variant="subtitle1">{v?.treatment?.name}</Typography>
         </TreatmentsChoice>
       ))}
 
@@ -279,7 +264,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
         negotiateds?.map((v, i) => (
           <TreatmentsChoice key={i} onClick={() => handleDeleteToPay(i)}>
             <Typography variant="subtitle1">{v?.region} - </Typography>
-            <Typography variant="subtitle1">{v?.treatments?.name}</Typography>
+            <Typography variant="subtitle1">{v?.treatment?.name}</Typography>
           </TreatmentsChoice>
         ))}
 
@@ -291,7 +276,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
             <FormLabel color="warning" id="demo-radio-buttons-group-label">
               Será o valor todo no mesmo tipo de pagamento?
             </FormLabel>
-            {/* <RadioGroup name="radio-buttons-group">
+            <RadioGroup>
               <FormControlLabel
                 value={"Sim"}
                 checked={allValue === "Sim"}
@@ -304,7 +289,7 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
                 control={<Radio onChange={handleChangeRadio} color="warning" />}
                 label="Não"
               />
-            </RadioGroup> */}
+            </RadioGroup>
           </Former>
         </Box>
       )}

@@ -174,8 +174,8 @@ const LecturesAdmin = (props: any) => {
       >
         {lectureInfos !== null && (
           <LectureDetails
-            clientInfos={clientInfos}
-            lectureInfos={lectureInfos}
+            // clientInfos={clientInfos}
+            lectureID={lectureInfos?.id}
             closeModal={handleCloseLectureDetails}
           />
         )}
@@ -185,7 +185,7 @@ const LecturesAdmin = (props: any) => {
         <AddPatientLecture
           patientValues={patientValues}
           setPatientValues={setPatientValues}
-          handleSchedule={handleSchedule}
+          onScheduled={handleSchedule}
         />
       </Modal>
       {/* END MODALS */}

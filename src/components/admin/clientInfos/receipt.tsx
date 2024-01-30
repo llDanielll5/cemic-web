@@ -148,7 +148,7 @@ const Receipt = (props: ReceiptProps) => {
             <Typography variant="subtitle1">
               {v?.timestamp?.toDate().toLocaleDateString("pt-br")}
             </Typography>
-            <Link passHref target="_blank" href={`/admin/receipt/${v?.id}`}>
+            <Link passhref='true' target="_blank" href={`/admin/receipt/${v?.id}`}>
               <StyledButton>Detalhes</StyledButton>
             </Link>
           </Box>

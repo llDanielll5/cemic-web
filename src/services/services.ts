@@ -1,3 +1,5 @@
+import { UserRole } from "types";
+
 export function makeid(length: number) {
   let result = "";
   const characters = "0123456789";
@@ -134,8 +136,20 @@ export const nameCapitalized = (name: string) => {
   return completeName;
 };
 
-// export const parseDateString = (value: string) => {
-//   if(!value) return
-//   const [y, m, d] = value.split('-')
-//   return `${}`
-// }
+export const getCreditDiscount = (creditVal: number) => {
+  let discount = (creditVal * 10) / 100;
+  let discounted = creditVal - discount;
+  return discounted.toFixed(2);
+};
+
+export const getUserTypeRole = (role: UserRole) => {
+  if (role === "ADMIN") return "Administrador";
+  if (role === "DENTIST") return "Dentista";
+  if (role === "EMPLOYEE") return "Funcionário";
+  return "Protético";
+};
+
+export const defaultErrorFunction = (err: any, setLoading: any) => {
+  setLoading({ isLoading: false, loadingMessage: "" });
+  if (err.response) console.log(err.response.data.error.details);
+};

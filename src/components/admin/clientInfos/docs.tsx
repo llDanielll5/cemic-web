@@ -191,7 +191,7 @@ const ClientDocuments = (props: ClientDocumentsProps) => {
               >
                 {v.name}
               </Typography>
-              <Link passHref href={v.media} target="_blank">
+              <Link passhref="true" href={v.media} target="_blank">
                 <Typography variant="subtitle2" sx={{ ...ellipsisText }}>
                   Visualizar
                 </Typography>

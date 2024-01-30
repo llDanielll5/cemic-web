@@ -1,6 +1,12 @@
 import React from "react";
-import { Box, styled, Autocomplete, TextField } from "@mui/material";
-import { StyledButton } from "../dynamicAdminBody/receipts";
+import {
+  Box,
+  styled,
+  Autocomplete,
+  TextField,
+  Typography,
+  Button,
+} from "@mui/material";
 import { OptionsSpecialties } from "../dynamicProfBody/profile/styles";
 
 interface UserFormProps {
@@ -15,9 +21,9 @@ interface UserFormProps {
 }
 
 const options = [
-  { label: "Paciente", option: "patient" },
-  { label: "Pré-registro", option: "pre-register" },
-  { label: "Selecionado", option: "selected" },
+  { label: "Paciente", option: "PATIENT" },
+  { label: "Pré-registro", option: "PRE-REGISTER" },
+  { label: "Selecionado", option: "SELECTED" },
 ];
 
 const UserForm = (props: UserFormProps) => {
@@ -42,17 +48,19 @@ const UserForm = (props: UserFormProps) => {
   };
 
   const getRole =
-    userData?.role === "patient"
+    userData?.role === "PATIENT"
       ? "Paciente"
-      : userData?.role === "pre-register"
+      : userData?.role === "PRE-REGISTER"
       ? "Pré-registro"
-      : userData?.role === "selected"
+      : userData?.role === "SELECTED"
       ? "Selecionado"
       : "";
 
   return (
     <Box position="relative" pt={1}>
-      <h2>Dados do Paciente</h2>
+      <Typography variant="h5" p={2}>
+        Dados do Paciente
+      </Typography>
 
       <TextField
         label="Nome Completo:"
@@ -123,7 +131,9 @@ const UserForm = (props: UserFormProps) => {
         )}
       />
 
-      <h3>Dados de Localidade</h3>
+      <Typography variant="h5" p={2}>
+        Dados de Localidade
+      </Typography>
 
       <InputsContainer>
         <TextField
@@ -195,8 +205,10 @@ const UserForm = (props: UserFormProps) => {
         }
       />
 
-      <Box display="flex" width="100%" justifyContent="flex-end" mt={1}>
-        <StyledButton onClick={handleNextPage}>Próximo</StyledButton>
+      <Box display="flex" width="100%" justifyContent="flex-end" mt={2}>
+        <Button variant="contained" onClick={handleNextPage}>
+          Próximo
+        </Button>
       </Box>
     </Box>
   );

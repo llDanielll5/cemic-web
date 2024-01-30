@@ -4,11 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { Box, styled, Typography, Button, IconButton } from "@mui/material";
 import { parseDateIso } from "@/services/services";
-import { TreatmentPlanInterface } from "types";
+import { TreatmentPlanInterface, TreatmentProps } from "types";
 import { db } from "@/services/firebase";
 import { useRouter } from "next/router";
-import { ReceiptProps } from "types";
-import { PaymentTypes } from "types";
 import Loading from "@/components/loading";
 import ReplyIcon from "@mui/icons-material/Reply";
 import {
@@ -18,6 +16,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { PaymentTypes } from "types/payments";
 
 const receiptRef = collection(db, "receipts");
 const clientRef = collection(db, "clients");
@@ -25,7 +24,7 @@ const clientRef = collection(db, "clients");
 const ReceiptPage = () => {
   const router = useRouter();
   const id = router.query.id;
-  const [receiptData, setReceiptData] = useState<ReceiptProps | null>(null);
+  const [receiptData, setReceiptData] = useState<any | null>(null);
   const [patientData, setPatientData] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -129,7 +128,7 @@ const ReceiptPage = () => {
           referente a:
         </Typography>
 
-        {receiptData.negotiateds.map((v: TreatmentPlanInterface, i: number) => (
+        {receiptData.negotiateds.map((v: any, i: number) => (
           <Typography
             key={i}
             variant="body2"
@@ -138,7 +137,7 @@ const ReceiptPage = () => {
             pl={"16px"}
             width="100%"
           >
-            ·{v.region} - {`${v.treatments.name} ==> R$ ${v.treatments.price}`}
+            ·{v.region} - {`${v.treatment.name} ==> R$ ${v.treatment.price}`}
           </Typography>
         ))}
 
@@ -153,7 +152,7 @@ const ReceiptPage = () => {
         </Typography>
 
         {receiptData.paymentShape.length <= 1 ? (
-          receiptData.paymentShape.map((v, i) => (
+          receiptData.paymentShape.map((v: any, i: number) => (
             <Typography key={i} variant="body2" textAlign="left" m={1}>
               Pagos no {parsedPaymentTypeText(v.type)}{" "}
               {v.type === "credit" && `em ${"vezes"}`}
@@ -164,7 +163,7 @@ const ReceiptPage = () => {
           <Typography variant="body2" textAlign="left" m={1}>
             Sendo pagos{" "}
             {receiptData.paymentShape.map(
-              (v, i) =>
+              (v: any, i: number) =>
                 `R$${v.valueStr} no ${parsedPaymentTypeText(v?.type)}${
                   i == receiptData.paymentShape.length - 1 ? "." : ", "
                 }`

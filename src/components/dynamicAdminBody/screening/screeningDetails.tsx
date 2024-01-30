@@ -740,7 +740,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
             <Box display="flex" alignItems="center">
               {data?.receiptId.map((v, i) => (
                 <Link
-                  passHref
+                  passhref="true"
                   key={i}
                   target="_blank"
                   href={`/admin/receipt/${v}`}

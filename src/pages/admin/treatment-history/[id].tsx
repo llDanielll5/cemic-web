@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { collection, query, where } from "firebase/firestore";
 import { db } from "@/services/firebase";
-import { ForwardingHistoryInterface } from "types";
 import { parseDateIso } from "@/services/services";
 
 const ClientTreatmentHistory = () => {
@@ -14,16 +13,11 @@ const ClientTreatmentHistory = () => {
   const hasId = id ?? "";
   const ref = collection(db, "forwards_history");
   const q = query(ref, where("client", "==", hasId));
-  const [data, setData] = useState<ForwardingHistoryInterface[]>([]);
-  const snapTreatment: ForwardingHistoryInterface[] = useOnSnapshotQuery(
-    "forwards_history",
-    q,
-    [hasId]
-  );
+  const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
-    setData(snapTreatment);
-  }, [snapTreatment]);
+    // setData(snapTreatment);
+  }, []);
 
   if (hasId === "") return null;
   if (data?.length === 0)
@@ -93,7 +87,7 @@ const ClientTreatmentHistory = () => {
             </Typography>
 
             <Box>
-              {v?.treatments?.map((value, index) => (
+              {v?.treatments?.map((value: any, index: number) => (
                 <Typography
                   key={index}
                   variant="body2"

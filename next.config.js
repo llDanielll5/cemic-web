@@ -23,9 +23,10 @@ const nextConfig = {
   },
   reactStrictMode: true,
   env: {
-    REACT_APP_ACCESS_TOKEN_MAP_BOX:
-      "pk.eyJ1IjoibGxkYW5pZWxsbDUiLCJhIjoiY2xpZzlwMTYxMGRsMDNocDdtdHU0OXE0NSJ9.waM5ZQDmzW-zkT0ho5xwWw",
-    ADMIN_PASSWORD: "Cemic1243",
+    REACT_APP_ACCESS_TOKEN_MAP_BOX: process.env.REACT_APP_ACCESS_TOKEN_MAP_BOX,
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+    DEV_SERVER_URL: process.env.DEV_SERVER_URL,
+    PRODUCTION_SERVER_URL: process.env.PRODUCTION_SERVER_URL,
   },
 };
 

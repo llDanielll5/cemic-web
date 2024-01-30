@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/Selected.module.css";
-import { AddressType, ClientType } from "types";
+import { AddressType } from "types";
 import UserForm from "../userForm";
 import AnamneseForm from "../anamneseForm";
-import ImplanteTerm from "../terms/implante";
+import ImplanteTerm from "../terms/implant";
 import CrownTerm from "../terms/crown";
 import { updateUserData } from "@/services/requests/firestore";
 import { nameCapitalized } from "@/services/services";
+import { AnamneseQuestions, AnswerType, PatientInterface } from "types/patient";
+import { anamneseQuestions } from "data";
 
 const defaultValues = {
   bornDate: "",
@@ -18,13 +20,9 @@ const defaultValues = {
 };
 
 interface AnamneseProps {
-  userContext?: ClientType;
+  userContext?: PatientInterface;
   setAddressLoading: any;
   setUserUpdating: any;
-}
-type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
-interface AnamneseQuestions {
-  [q: string]: AnswerType;
 }
 
 const defaultAddress: AddressType = {
@@ -35,19 +33,6 @@ const defaultAddress: AddressType = {
   line1: "",
   uf: "",
   address: "",
-};
-
-const anamneseQuestions: AnamneseQuestions = {
-  "Está tomando alguma medicação no momento?": "",
-  "Sofre ou sofreu de algum problema no coração?": "",
-  "É diabético?": "",
-  "Possui dificuldade de cicatrização?": "",
-  "Tem ou teve alguma doença nos rins ou fígado?": "",
-  "Sofre de epilepsia?": "",
-  "Já esteve hospitalizado por algum motivo?": "",
-  "Tem anemia?": "",
-  "É alérgico a algum medicamento?": "",
-  "Já teve algum problema com anestésicos?": "",
 };
 
 const Anamnese = (props: AnamneseProps) => {

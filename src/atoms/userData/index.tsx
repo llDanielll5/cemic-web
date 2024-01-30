@@ -1,7 +1,7 @@
 import { atom } from "recoil";
-import { ClientType } from "types";
+import { AdminType } from "types";
 
-const UserData = atom<ClientType | {}>({
+const UserData = atom<AdminType | {}>({
   key: "UserData",
   default: {},
 });

@@ -44,29 +44,39 @@ export default function CustomTable(props: TableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((row, index) => (
-            <TableRow key={index}>
-              <TableCell component="th" scope="row" align={"left"}>
-                {row.cod}
-              </TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.price}</TableCell>
-              {userData?.role === "admin" && (
-                <>
-                  <TableCell>
-                    <IconButton onClick={() => onEdit(row.cod)}>
-                      <EditIcon />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => onDelete(row.cod)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </>
-              )}
-            </TableRow>
-          ))}
+          {data?.map((row: any, index) => {
+            let attr = row?.attributes;
+            let id = row?.id;
+
+            return (
+              <TableRow key={index}>
+                <TableCell component="th" scope="row" align={"left"}>
+                  {id}
+                </TableCell>
+                <TableCell>{attr.name}</TableCell>
+                <TableCell>
+                  {attr?.price.toLocaleString("pt-br", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </TableCell>
+                {userData?.userType === "ADMIN" && (
+                  <>
+                    <TableCell>
+                      <IconButton onClick={() => onEdit(id)}>
+                        <EditIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => onDelete(id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </>
+                )}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
       {data?.length === 0 && (

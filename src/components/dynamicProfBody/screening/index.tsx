@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/Admin.module.css";
-import Button from "@/components/button";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import ScreeningDetailsProfessional from "./details";
@@ -9,21 +8,11 @@ import ClientInfos from "@/components/admin/clientInfos";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import "react-calendar/dist/Calendar.css";
 import { useRecoilValue } from "recoil";
-import { db } from "@/services/firebase";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { ScreeningInformations } from "types";
 import { Box, Typography, TextField } from "@mui/material";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 
 import { parseDateBr, parseDateIso, phoneMask } from "@/services/services";
-import {
-  collection,
-  doc,
-  getDoc,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
 
 interface ScreeningProps {
   setDate: (e: string) => void;
@@ -31,7 +20,6 @@ interface ScreeningProps {
 }
 
 const momentIso = new Date().toISOString().substring(0, 10);
-const screeningRef = collection(db, "screenings");
 
 const ScreeningProfessional = (props: ScreeningProps) => {
   const { setIsCreateTreatment } = props;
@@ -49,31 +37,24 @@ const ScreeningProfessional = (props: ScreeningProps) => {
   const hasId = userData?.id ?? "";
 
   // SNAPSHOT QUERY FOR SCREENINGS COLLECTION
-  const q = query(
-    screeningRef,
-    where("date", "==", dateSelected),
-    where("professionalId", "==", hasId),
-    orderBy("hour", "asc")
-  );
-  const snapScreening = useOnSnapshotQuery("screenings", q, [dateSelected]);
 
   useEffect(() => {
-    const getClientInfo = async () => {
-      const document = doc(db, "clients", clientID!);
-      await getDoc(document)
-        .then((res) => {
-          return setClientInfos(res.data());
-        })
-        .catch(() => {
-          return alert("Não foi possível recuperar informações do paciente");
-        });
-    };
-    if (clientID !== null) getClientInfo();
+    // const getClientInfo = async () => {
+    //   const document = doc(db, "clients", clientID!);
+    //   await getDoc(document)
+    //     .then((res) => {
+    //       return setClientInfos(res.data());
+    //     })
+    //     .catch(() => {
+    //       return alert("Não foi possível recuperar informações do paciente");
+    //     });
+    // };
+    // if (clientID !== null) getClientInfo();
   }, [clientID]);
 
-  useEffect(() => {
-    setScreeningList(snapScreening);
-  }, [snapScreening]);
+  // useEffect(() => {
+  //   setScreeningList(snapScreening);
+  // }, [snapScreening]);
 
   const closeClientDetailsModal = () => {
     setClientDetailsVisible(false);
@@ -156,12 +137,12 @@ const ScreeningProfessional = (props: ScreeningProps) => {
 
   return (
     <div className={styles.screening}>
-      <Modal
+      {/* <Modal
         visible={clientInfos !== null}
         closeModal={closeClientDetailsModal}
       >
         {clientInfos !== null && <ClientInfos client={clientInfos} />}
-      </Modal>
+      </Modal> */}
 
       <Modal
         closeModal={handleCloseClientUpdateModal}

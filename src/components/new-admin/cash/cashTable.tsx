@@ -70,9 +70,9 @@ export const CashTable = (props: any) => {
                   <TableRow key={index}>
                     <TableCell padding="checkbox">
                       <Checkbox
-                        checked={cashier.checked}
-                        disabled={cashier.checked}
-                        unselectable={cashier.checked && "on"}
+                        checked={cashier.isChecked}
+                        disabled={cashier.isChecked}
+                        unselectable={cashier.isChecked && "on"}
                         onChange={(event) => {
                           if (event.target.checked) {
                             props.onSelect?.(cashier.id);

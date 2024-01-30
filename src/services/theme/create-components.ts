@@ -28,6 +28,8 @@ export function createComponents(config: any) {
         root: {
           borderRadius: "12px",
           textTransform: "none",
+          minWidth: "20px",
+          minHeight: "20px",
         },
         sizeSmall: {
           padding: "6px 16px",

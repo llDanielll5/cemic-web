@@ -2,17 +2,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
-import {
-  Box,
-  Button,
-  IconButton,
-  SvgIcon,
-  Tooltip,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Box, Button, TextField, Typography, styled } from "@mui/material";
 import { CashTable } from "@/components/new-admin/cash/cashTable";
 import ReplyIcon from "@mui/icons-material/Reply";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Timestamp,
   addDoc,
@@ -36,9 +29,13 @@ import { nameCapitalized } from "@/services/services";
 import OpenCashierModal from "../../../components/new-admin/cash/modals/open";
 import "react-calendar/dist/Calendar.css";
 import LoadingServer from "@/atoms/components/loading";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { getCookie, setCookie } from "cookies-next";
 import { formatISO } from "date-fns";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import IconButton from "@/components/iconButton";
 
 const refInformations = collection(db, "cashiers_informations");
 const refCashiers = collection(db, "cashiers");
@@ -62,11 +59,15 @@ interface CashierData {
 }
 
 const CashAdmin = () => {
+  const router = useRouter();
   const cookieDate: any = getCookie("oldDate");
   const cookieCashier: any = getCookie("cashierType");
+  const [readed, setReaded] = useState(false);
+  const [data, setData] = useState<any[]>([]);
   const [cashierType, setCashierType] = useState<number | null>(
     !cookieCashier ? null : parseInt(cookieCashier)
   );
+  const [filter, setFilter] = useState("");
   const [loading, setLoading] = useRecoilState(LoadingServer);
   const [addVisible, setAddVisible] = useState(false);
   const [openCashier, setOpenCashier] = useState(false);
@@ -88,14 +89,12 @@ const CashAdmin = () => {
 
   const qInfs = query(
     refInformations,
-    where("date", "==", formatISO(new Date()).substring(0, 10)),
+    where("date", "==", formatISO(dateSelected).substring(0, 10)),
     where("idCashier", "==", cashierData?.id! ?? "")
   );
-  const snapshotInformations = useOnSnapshotQuery(
-    "cashiers_informations",
-    qInfs,
-    [cashierData, cashierType, dateSelected]
-  );
+
+  let dateIso = formatISO(dateSelected).substring(0, 10);
+  let type = cashierType === 0 ? "clinic" : "implant";
 
   const formik = useFormik({
     initialValues: {
@@ -161,8 +160,8 @@ const CashAdmin = () => {
     let data: any = {
       name: nameCapital,
       description,
-      date: formatISO(new Date()).substring(0, 10),
-      timestamp: dateSelected.getSeconds(),
+      date: formatISO(dateSelected).substring(0, 10),
+      timestamp: Timestamp.now(),
       cashIn,
       out,
       cardIn,
@@ -196,6 +195,7 @@ const CashAdmin = () => {
             setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
             setAddVisible(false);
             formik.resetForm();
+            getData();
           },
           () => {
             setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
@@ -210,13 +210,29 @@ const CashAdmin = () => {
     );
   };
 
+  const getData = async () => {
+    return await getDocs(qInfs).then(
+      (snapshot) => {
+        if (snapshot.docs.length === 0) return;
+
+        let arr: any[] = [];
+        snapshot.forEach((doc) => {
+          arr.push(doc.data());
+        });
+        setData(arr);
+        return;
+      },
+      (err) => alert(err)
+    );
+  };
+
   const handleOpenAddInformations = () => {
     if (cashierData === null)
       return alert("Não há caixa aberto para lançamento!");
     else setAddVisible(true);
   };
 
-  const getCashierData = useCallback(async () => {
+  const getCashierData = async () => {
     let timeNow = formatISO(dateSelected).substring(0, 10);
     let q = query(
       refCashiers,
@@ -238,7 +254,7 @@ const CashAdmin = () => {
       setCashierData(data);
       return setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
     }
-  }, [dateSelected, cashierType]);
+  };
 
   const handleOpenCashier = () => {
     if (cashierData !== null) return alert("Caixa já aberto!");
@@ -421,8 +437,13 @@ const CashAdmin = () => {
   }, []);
 
   useEffect(() => {
+    if (cashierData !== null) getData();
+  }, [cashierData]);
+
+  useEffect(() => {
     getCashierData();
-  }, [dateSelected, cashierType, getCashierData]);
+    getData();
+  }, [dateSelected, cashierType]);
 
   useEffect(() => {
     handleGetMonthValue();
@@ -469,19 +490,30 @@ const CashAdmin = () => {
 
   return (
     <Box p={2}>
-      <Tooltip title={"Escolher Caixa"}>
-        <IconButton
-          onClick={() => {
-            setCashierType(null);
-            setCookie("cashierType", null);
-          }}
-        >
-          <SvgIcon>
-            <ReplyIcon fontSize="large" />
-          </SvgIcon>
-        </IconButton>
-      </Tooltip>
+      <IconButton
+        iconSize="large"
+        tooltip="Escolher Tipo de Protocolo"
+        onClick={() => {
+          setCashierType(null);
+          setCookie("cashierType", null);
+        }}
+      >
+        <ReplyIcon fontSize="large" />
+      </IconButton>
 
+      <TextField
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        label="Filtro por nome"
+        sx={{ ml: 2 }}
+      />
+      <IconButton
+        iconSize="large"
+        tooltip="Buscar"
+        onClick={() => alert("Em desenvolvimento!")}
+      >
+        <SearchIcon />
+      </IconButton>
       {/* BEGIN MODALS */}
       <AddCashModal
         closeModal={handleCloseAddVisible}
@@ -516,9 +548,29 @@ const CashAdmin = () => {
           Caixa {`${cashierType === 0 ? "Clínico" : "de Implantes"}`} do dia{" "}
           {dateSelected.toLocaleDateString()}
         </Typography>
-        <Button variant="outlined" onClick={() => setCalendarVisible(true)}>
-          Alterar Data
-        </Button>
+        <Box display="flex" columnGap={2} alignItems={"center"}>
+          <Link
+            passHref
+            href={`/admin/month-report/${dateIso}?type=${type}`}
+            target="_blank"
+          >
+            <Typography variant="subtitle2" color="blue">
+              Relatório Mensal
+            </Typography>
+          </Link>
+          <Link
+            passHref
+            href={`/admin/annual-report?type=${type}&date=${dateIso}`}
+            target="_blank"
+          >
+            <Typography variant="subtitle2" color="blue">
+              Relatório Anual
+            </Typography>
+          </Link>
+          <Button variant="outlined" onClick={() => setCalendarVisible(true)}>
+            Alterar Data
+          </Button>
+        </Box>
       </Box>
 
       {cashierData !== null && (
@@ -679,7 +731,7 @@ const CashAdmin = () => {
         </Buttons>
       </ButtonsContainer>
       {cashierData !== null ? (
-        <CashTable items={snapshotInformations} />
+        <CashTable items={data} />
       ) : (
         <Box display="flex" justifyContent={"center"}>
           <Typography variant="h5" pt={2}>

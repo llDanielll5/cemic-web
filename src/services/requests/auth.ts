@@ -15,7 +15,6 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { ClientType, ProfessionalData } from "types";
 
 const adminsRef = collection(db, "admins");
 const clientsRef = collection(db, "clients");
@@ -117,7 +116,7 @@ export const handlePersistLogin = async (user: any) => {
 export const createUser = async ({ email, password, name, cpf }: any) => {
   return createUserWithEmailAndPassword(auth, email, password).then(
     async (res) => {
-      const userData: ClientType = {
+      const userData: any = {
         name,
         cpf,
         email,
@@ -157,7 +156,7 @@ export const createUserLanding = async ({
 }: any) => {
   return await createUserWithEmailAndPassword(auth, email, password).then(
     async (res) => {
-      const userData: ClientType = {
+      const userData: any = {
         name,
         email,
         address: {},

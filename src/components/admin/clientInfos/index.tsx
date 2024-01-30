@@ -1,23 +1,9 @@
-//@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useEffect, useState } from "react";
-import { ClientType } from "types";
+import { AddressType, AdminType } from "types";
 import { useRecoilValue } from "recoil";
-import { Timestamp } from "firebase/firestore";
-import {
-  Avatar,
-  TextField,
-  Typography,
-  Box,
-  styled,
-  Autocomplete,
-  IconButton,
-} from "@mui/material";
 import { InputsContainer } from "@/components/userForm";
 import { cpfMask, phoneMask } from "@/services/services";
-import { updateUserData } from "@/services/requests/firestore";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import ClientInformationsProfessional from "./informationsProfessional";
 import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
 import styles from "../../../styles/ClientDetails.module.css";
@@ -26,14 +12,26 @@ import SaveIcon from "@mui/icons-material/Save";
 import ClientInformationsAdmin from "./informations";
 import CloseIcon from "@mui/icons-material/Close";
 import Loading from "@/components/loading";
-import UserData from "@/atoms/userData";
 import Modal from "@/components/modal";
+import IconButton from "@/components/iconButton";
+import { handleUpdatePatient } from "@/axios/admin/patients";
+import {
+  Avatar,
+  TextField,
+  Typography,
+  Box,
+  styled,
+  Autocomplete,
+  Button,
+} from "@mui/material";
 
 interface ClientInfoProps {
-  client?: ClientType;
+  client?: any;
+  onUpdate: any;
+  adminData: any;
 }
 
-interface ClientAttributes {
+interface PatientAttributes {
   name: string;
   email: string;
   dateBorn: string;
@@ -41,22 +39,10 @@ interface ClientAttributes {
   cpf: string;
   rg: string;
   role: string;
-  screeningDate: string;
-  professionalScreening: string;
   address: string;
-}
-interface AddressInterface {
-  address: string;
-  cep: string;
-  city: string;
-  complement: string;
-  line1: string;
-  neighbor: string;
-  number: string;
-  uf: string;
 }
 
-const defaultClientData: ClientAttributes = {
+const defaultClientData: PatientAttributes = {
   name: "",
   email: "",
   dateBorn: "",
@@ -64,11 +50,9 @@ const defaultClientData: ClientAttributes = {
   cpf: "",
   rg: "",
   role: "",
-  screeningDate: "",
-  professionalScreening: "",
   address: "",
 };
-const defaultAddress: AddressInterface = {
+const defaultAddress: AddressType = {
   address: "",
   cep: "",
   city: "",
@@ -90,57 +74,48 @@ const tabs = [
   "Anexos",
 ];
 
-const imageStyle = { width: "100%", height: "100%", borderRadius: "8px" };
-const tabStyle = { textTransform: "capitalize", padding: "0 8px" };
-const tabActive = {
-  backgroundColor: "#1b083e",
-  color: "white",
-  ...tabStyle,
-};
-const tabInactive = {
-  backgroundColor: "#f5f5f5",
-  color: "#1b083e",
-  ...tabStyle,
-};
-
 const rolesOptions = [
-  { name: "Paciente", value: "patient" },
-  { name: "Não-Paciente", value: "pre-register" },
-  { name: "Selecionado", value: "selected" },
+  { name: "Paciente", value: "PATIENT" },
+  { name: "Não-Paciente", value: "PRE-REGISTER" },
+  { name: "Selecionado", value: "SELECTED" },
 ];
 
 const inputColor = {
+  backgroundColor: "white",
+  padding: ".3rem",
+  borderRadius: "1rem",
   "& .MuiInputBase-input.Mui-disabled": {
     WebkitTextFillColor: "gray",
   },
 };
 
 const ClientInfos = (props: ClientInfoProps) => {
-  const { client } = props;
+  const { client, onUpdate, adminData }: any = props;
   const [clientData, setClientData] = useState(defaultClientData);
   const [clientAddress, setClientAddress] =
-    useState<AddressInterface>(defaultAddress);
+    useState<AddressType>(defaultAddress);
   const [hasEditMode, setHasEditMode] = useState(false);
   const [addressModal, setAddressModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const snapProfessionals = useOnSnapshotQuery("professionals");
-
   const [tabIndex, setTabIndex] = useState(0);
-  const userData = useRecoilValue(UserData);
-  const currTabs = userData?.role !== "professional" ? tabs : professionalTabs;
+  const currTabs = adminData?.userType !== "DENTIST" ? tabs : professionalTabs;
 
   const handleEdit = () => setHasEditMode(!hasEditMode);
   const getAddressValues = () => setAddressModal(!addressModal);
-  const handleChange = (val, field) =>
+  const handleChange = (val: any, field: any) =>
     setClientData((prev) => ({ ...prev, [field]: val }));
-  const handleChangeAddress = (val, field) =>
+  const handleChangeAddress = (val: any, field: any) =>
     setClientAddress((prev) => ({ ...prev, [field]: val }));
   const getPatientRole = () => {
-    if (clientData?.role === "patient") return "Paciente";
-    else if (clientData?.role === "pre-register") return "Não-Paciente";
-    else if (clientData?.role === "selected") return "Selecionado";
+    if (clientData?.role === "PATIENT") return "Paciente";
+    else if (clientData?.role === "PRE-REGISTER") return "Não-Paciente";
+    else if (clientData?.role === "SELECTED") return "Selecionado";
     else return "";
+  };
+
+  const adminUpdate = {
+    adminInfos: { updated: adminData?.id, updateTimestamp: new Date() },
   };
 
   const handleSubmit = async () => {
@@ -149,35 +124,35 @@ const ClientInfos = (props: ClientInfoProps) => {
       return alert("Preencha os campos");
 
     setIsLoading(true);
-    setLoadingMessage("");
-    await updateUserData(client?.id, {
-      rg,
-      name,
-      email,
-      phone,
-      dateBorn,
-      role: clientData?.role,
-      screeningDate: clientData?.screeningDate,
-      professionalScreening: clientData?.professionalScreening ?? "",
-      "address.address": clientData?.address,
-      "updatedBy.timestamp": Timestamp.now(),
-      "updatedBy.reporterId": userData?.id,
-      "updatedBy.reporterName": userData?.name,
-      "updatedBy.role": userData?.role,
-    }).then(
-      (val) => {
-        if (val === "Sucesso") setIsLoading(false);
+    setLoadingMessage("Atualizando informações do Paciente");
+
+    let data = {
+      data: {
+        rg,
+        name,
+        email,
+        phone,
+        dateBorn,
+        role: clientData?.role,
+        address: { address: clientData?.address },
+        ...adminUpdate,
+      },
+    };
+
+    await handleUpdatePatient(client?.id, data).then(
+      (res) => {
+        setIsLoading(false);
         setHasEditMode(!hasEditMode);
+        onUpdate();
       },
       (err) => {
         setIsLoading(false);
-        return alert(err);
+        console.log(err.response);
       }
     );
   };
   const handleEditAddress = async () => {
-    const { address, cep, city, complement, line1, neighbor, number, uf } =
-      clientAddress;
+    const { cep, city, line1, neighbor, uf } = clientAddress;
     const notLocationCompleted =
       city === undefined ||
       line1 === undefined ||
@@ -187,74 +162,62 @@ const ClientInfos = (props: ClientInfoProps) => {
 
     if (notLocationCompleted) return alert("Preencha os campos de endereço!");
 
-    setIsLoading(true);
+    let data = { data: { address: clientAddress, ...adminUpdate } };
+
     setLoadingMessage("Alterando Endereço do Paciente!");
-    await updateUserData(client?.id, {
-      "address.address": address ?? "",
-      "address.cep": cep ?? "",
-      "address.city": city ?? "",
-      "address.complement": complement ?? "",
-      "address.line1": line1 ?? "",
-      "address.neighbor": neighbor ?? "",
-      "address.number": number ?? "",
-      "address.uf": uf ?? "",
-      "updatedBy.timestamp": Timestamp.now(),
-      "updatedBy.reporterId": userData?.id,
-      "updatedBy.reporterName": userData?.name,
-      "updatedBy.role": userData?.role,
-    }).then(
-      (val) => {
-        if (val === "Sucesso") setIsLoading(false);
+    return await handleUpdatePatient(client?.id, data).then(
+      (res) => {
+        setIsLoading(false);
         setAddressModal(!addressModal);
+        onUpdate();
       },
       (err) => {
         setIsLoading(false);
-        return alert(err);
+        console.log(err.response);
       }
     );
   };
 
-  const updateCliendStatus = useCallback(() => {
+  const updateClientStatus = useCallback(() => {
     if (!client || client === undefined) return;
+    let attr = client?.attributes;
 
-    setClientData((prev: any) => ({
-      name: client?.name,
-      email: client?.email,
-      dateBorn: client?.dateBorn,
-      phone: client?.phone,
-      cpf: client?.cpf,
-      rg: client?.rg,
-      role: client?.role,
-      screeningDate: client?.screeningDate,
-      professionalScreening: client?.professionalScreening,
-      address: client?.address?.address,
-    }));
-    setClientAddress((prev) => ({
-      address: client?.address?.address,
-      cep: client?.address?.cep,
-      city: client?.address?.city,
-      complement: client?.address?.complement,
-      line1: client?.address?.line1,
-      neighbor: client?.address?.neighbor,
-      number: client?.address?.number,
-      uf: client?.address?.uf,
-    }));
+    setClientData({
+      name: attr?.name,
+      email: attr?.email,
+      dateBorn: attr?.dateBorn,
+      phone: attr?.phone,
+      cpf: attr?.cpf,
+      rg: attr?.rg,
+      role: attr?.role,
+      address: attr?.address?.address,
+    });
+    setClientAddress({
+      address: attr?.address?.address,
+      cep: attr?.address?.cep,
+      city: attr?.address?.city,
+      complement: attr?.address?.complement,
+      line1: attr?.address?.line1,
+      neighbor: attr?.address?.neighbor,
+      number: attr?.address?.number,
+      uf: attr?.address?.uf,
+    });
   }, [client]);
 
   const handleNotSaveChanges = () => {
     setHasEditMode(!hasEditMode);
-    updateCliendStatus();
+    updateClientStatus();
   };
 
   const handleGetCep = async (e: any) => {
-    // setClientAddress(e.target.value, "cep");
+    setClientAddress((prev) => ({ ...prev, cep: e.target.value }));
     let val = e.target.value;
     if (val.length === 8) {
       setIsLoading(true);
       setLoadingMessage("Carregando informações de CEP");
       try {
         const res = await fetch(`https://viacep.com.br/ws/${val}/json/`);
-        const json = await res.json();
+        const json: any = await res.json();
         if (json) {
           setClientAddress((prev: any) => ({
             neighbor: json.bairro,
@@ -263,6 +226,7 @@ const ClientInfos = (props: ClientInfoProps) => {
             line1: json.logradouro,
             uf: json.uf,
             cep: val,
+            number: json.number,
             address: `${json.logradouro}, ${json.bairro} ${json.complemento}, ${json.localidade} - ${json.uf}`,
           }));
           setIsLoading(false);
@@ -274,8 +238,8 @@ const ClientInfos = (props: ClientInfoProps) => {
   };
 
   useEffect(() => {
-    updateCliendStatus();
-  }, [updateCliendStatus]);
+    updateClientStatus();
+  }, [updateClientStatus]);
 
   if (isLoading)
     return (
@@ -350,22 +314,27 @@ const ClientInfos = (props: ClientInfoProps) => {
           onChange={(e) => handleChangeAddress(e.target.value, "complement")}
         />
 
-        <StyledButton onClick={handleEditAddress} sx={{ mt: 2 }}>
+        <StyledButton
+          variant="contained"
+          color="primary"
+          onClick={handleEditAddress}
+          sx={{ mt: 2 }}
+        >
           Salvar
         </StyledButton>
       </Modal>
 
-      <div className={styles.picture}>
-        <Avatar src={client?.profileImage} alt="" style={imageStyle} />
-      </div>
-
-      <h5>Informações do Cliente</h5>
       <ClientContainer>
         <Double>
+          <Avatar
+            alt=""
+            src={client?.profileImage}
+            style={{ width: "4rem", height: "4rem", borderRadius: 10 }}
+          />
           <TextField
             value={clientData?.name}
             disabled={!hasEditMode}
-            label="Nome"
+            label="Paciente"
             margin="dense"
             placeholder="Nome do Paciente"
             InputLabelProps={{ shrink: true }}
@@ -407,46 +376,11 @@ const ClientInfos = (props: ClientInfoProps) => {
             sx={{ width: "100%", ...inputColor }}
             placeholder="Telefone do Paciente"
             variant={!hasEditMode ? "standard" : "outlined"}
+            onChange={(e) => handleChange(e.target.value, "phone")}
           />
         </Double>
 
-        <Double>
-          <TextField
-            type={"date"}
-            margin="dense"
-            label="Data Triagem"
-            disabled={!hasEditMode}
-            value={clientData?.screeningDate}
-            sx={{ width: "100%", ...inputColor }}
-            placeholder="Data de Triagem"
-            InputLabelProps={{ shrink: true }}
-            onChange={(e) => handleChange(e.target.value, "screeningDate")}
-            variant={!hasEditMode ? "standard" : "outlined"}
-          />
-          <Autocomplete
-            limitTags={2}
-            sx={{ width: "100%", mt: "3px" }}
-            disabled={!hasEditMode}
-            options={snapProfessionals?.map((v) => v?.name)}
-            value={clientData?.professionalScreening}
-            isOptionEqualToValue={(option, value) => option === value}
-            onChange={(e, v) => {
-              if (!v) return;
-              return handleChange(v, "professionalScreening");
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Profissional da Triagem"
-                InputLabelProps={{ shrink: true }}
-                placeholder={"Selecione o Profissional."}
-                variant={!hasEditMode ? "standard" : "outlined"}
-              />
-            )}
-          />
-        </Double>
-
-        {userData?.role === "admin" && (
+        {adminData?.userType === "ADMIN" && (
           <Double>
             <TextField
               disabled
@@ -499,7 +433,7 @@ const ClientInfos = (props: ClientInfoProps) => {
                 {...params}
                 margin="dense"
                 disabled={!hasEditMode}
-                sx={!hasEditMode && { mt: "22px" }}
+                sx={!hasEditMode ? { mt: "22px" } : undefined}
                 placeholder="Alterar Tipo de Cliente"
                 variant={!hasEditMode ? "standard" : "outlined"}
               />
@@ -510,51 +444,59 @@ const ClientInfos = (props: ClientInfoProps) => {
         <Box
           columnGap={1}
           display="flex"
-          justifyContent={!client?.updatedBy ? "flex-end" : "space-between"}
+          justifyContent={
+            !client?.adminInfos?.updated ? "flex-end" : "space-between"
+          }
           alignItems="center"
         >
-          {!!client?.updatedBy && (
+          {!!client?.adminInfos && (
             <Typography variant="caption">
-              Atualizado por {client?.updatedBy?.reporterName} dia{" "}
-              {client?.updatedBy?.timestamp?.toDate()?.toLocaleString()}
+              Atualizado por{" "}
+              {client?.adminInfos?.updated?.data?.attributes?.name} dia{" "}
+              {client?.adminInfos?.updateTimestamp?.toLocaleString()}
             </Typography>
           )}
           <Box display="flex" alignItems="center" columnGap={1}>
             {hasEditMode && (
               <IconEdit
-                title="Não Salvar informações"
+                tooltip="Não Salvar informações"
                 onClick={handleNotSaveChanges}
+                iconSize="large"
               >
-                <CloseIcon sx={{ color: "white" }} />
+                <CloseIcon color="primary" />
               </IconEdit>
             )}
-            <IconEdit
-              title="Editar informações do paciente"
+            <IconButton
+              iconSize="large"
+              tooltip="Editar informações do paciente"
               onClick={!hasEditMode ? handleEdit : handleSubmit}
             >
               {!hasEditMode ? (
-                <EditNoteIcon sx={{ color: "white" }} />
+                <EditNoteIcon color="primary" />
               ) : (
-                <SaveIcon sx={{ color: "white" }} />
+                <SaveIcon color="primary" />
               )}
-            </IconEdit>
-            <IconEdit
-              title="Editar Endereço do Paciente"
+            </IconButton>
+            <IconButton
+              iconSize="large"
+              tooltip="Editar endereço do paciente"
               onClick={getAddressValues}
             >
-              <EditLocationAltIcon sx={{ color: "white" }} />
-            </IconEdit>
+              <EditLocationAltIcon color="primary" />
+            </IconButton>
           </Box>
         </Box>
       </ClientContainer>
 
       <TabsContainer>
         {currTabs.map((item, index) => {
-          const style = tabIndex === index ? tabActive : tabInactive;
+          const style = tabIndex === index ? "primary" : "inherit";
           return (
             <StyledButton
               key={index}
-              sx={style}
+              color={style}
+              variant="contained"
+              sx={{ height: "30px" }}
               onClick={() => setTabIndex(index)}
               title={`Aba ${item}`}
             >
@@ -564,24 +506,28 @@ const ClientInfos = (props: ClientInfoProps) => {
         })}
       </TabsContainer>
 
-      {userData?.role === "professional" ? (
+      {adminData?.userType === "DENTIST" ? (
         <ClientInformationsProfessional tabIndex={tabIndex} client={client} />
-      ) : (
+      ) : adminData?.userType === "ADMIN" ? (
         <ClientInformationsAdmin tabIndex={tabIndex} client={client} />
-      )}
+      ) : null}
     </div>
   );
 };
 
 const ClientContainer = styled(Box)`
-  border: 1.5px solid var(--dark-blue);
+  border: 1.5px solid #f3f3f3;
+  background-color: #f3f3f3;
+  -webkit-box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
+  box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
   width: 100%;
-  padding: 8px 16px;
+  padding: 1rem 2rem;
   margin: 12px 0;
-  border-radius: 4px;
+  border-radius: 1rem;
   display: flex;
   flex-direction: column;
-  row-gap: 4px;
+  row-gap: 0.5rem;
   p {
     font-weight: 600;
     font-size: 14px;
@@ -604,11 +550,11 @@ const Double = styled(Box)`
 
 const TabsContainer = styled(Box)`
   display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  column-gap: 6px;
+  column-gap: 0.5rem;
+  padding: 1rem;
   flex-wrap: wrap;
+  border-radius: 0.3rem;
   row-gap: 6px;
 `;
 
@@ -620,6 +566,12 @@ const IconEdit = styled(IconButton)`
     background-color: var(--dark-blue);
     opacity: 0.8;
   }
+`;
+
+const StyledButton = styled(Button)`
+  -webkit-box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
+  box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
 `;
 
 export default ClientInfos;

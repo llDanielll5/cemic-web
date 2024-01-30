@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -10,79 +10,72 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { cpfMask, phoneMask } from "@/services/services";
 
 const states = [
   {
-    value: "alabama",
-    label: "Alabama",
-  },
-  {
-    value: "new-york",
-    label: "New York",
-  },
-  {
-    value: "san-francisco",
-    label: "San Francisco",
-  },
-  {
-    value: "los-angeles",
-    label: "Los Angeles",
+    value: "brasilia",
+    label: "Brasilia-DF",
   },
 ];
 
 export const AccountProfileDetails = () => {
+  const userData: any = useRecoilValue(UserData);
   const [values, setValues] = useState({
-    firstName: "Anika",
-    lastName: "Visser",
-    email: "demo@devias.io",
+    name: "",
+    email: "",
     phone: "",
-    state: "los-angeles",
-    country: "USA",
+    cpf: "",
+    state: "",
+    rg: "",
   });
 
-  const handleChange = useCallback((event: any) => {
-    setValues((prevState) => ({
-      ...prevState,
-      [event.target.name]: event.target.value,
-    }));
+  const handleChange = useCallback((e: any) => {
+    setValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }, []);
 
   const handleSubmit = useCallback((event: any) => {
     event.preventDefault();
   }, []);
 
+  useEffect(() => {
+    setValues((prev) => ({
+      name: userData?.name,
+      email: userData?.email,
+      phone: phoneMask(userData?.phone),
+      cpf: cpfMask(userData?.cpf),
+      state: "brasilia",
+      rg: userData?.rg,
+    }));
+  }, []);
+
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
       <Card>
-        <CardHeader subheader="The information can be edited" title="Profile" />
+        <CardHeader
+          subheader="Você pode alterar suas informações!"
+          title="Perfil"
+        />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
             <Grid container spacing={3}>
               <Grid xs={12} md={6}>
                 <TextField
                   fullWidth
-                  helperText="Please specify the first name"
-                  label="First name"
-                  name="firstName"
+                  helperText="Esclareça seu nome Completo!"
+                  label="Nome Completo!"
+                  name="name"
                   onChange={handleChange}
                   required
-                  value={values.firstName}
+                  value={values.name}
                 />
               </Grid>
               <Grid xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Last name"
-                  name="lastName"
-                  onChange={handleChange}
-                  required
-                  value={values.lastName}
-                />
-              </Grid>
-              <Grid xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Email Address"
+                  label="Email"
                   name="email"
                   onChange={handleChange}
                   required
@@ -92,14 +85,23 @@ export const AccountProfileDetails = () => {
               <Grid xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Phone Number"
-                  name="phone"
+                  label="CPF"
+                  name="cpf"
                   onChange={handleChange}
-                  type="number"
-                  value={values.phone}
+                  required
+                  value={values.cpf}
                 />
               </Grid>
               <Grid xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Phone Number"
+                  name="phone"
+                  onChange={handleChange}
+                  value={values.phone}
+                />
+              </Grid>
+              {/* <Grid xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Country"
@@ -108,7 +110,7 @@ export const AccountProfileDetails = () => {
                   required
                   value={values.country}
                 />
-              </Grid>
+              </Grid> */}
               <Grid xs={12} md={6}>
                 <TextField
                   fullWidth

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/ClientDetails.module.css";
-import { ClientType } from "types";
 import SchedulesPatient from "./schedules";
 
 interface ClientInformationsProps {
   tabIndex: number;
-  client?: ClientType;
+  client?: any;
 }
 
 const ClientInformationsProfessional = (props: ClientInformationsProps) => {

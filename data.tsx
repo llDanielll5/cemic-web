@@ -1,44 +1,15 @@
 import { subDays, subHours } from "date-fns";
+import { AnamneseQuestions } from "types/patient";
 
 const now = new Date();
 
+export const defaultLectures = { "11:00": [], "17:00": [] };
 export const headerData = [
   { path: "/", title: "Inicio" },
   { path: "/#about", title: "Sobre" },
   { path: "/help", title: "Ajudar" },
   { path: "/contact", title: "Contatos" },
   { path: "/auth/login", title: "Entrar" },
-];
-
-export const hoursToSelect = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:30",
-  "22:00",
 ];
 
 export const dentalArch = {
@@ -55,7 +26,20 @@ export const specialties = [
   { label: "Clínico Geral", option: "general" },
 ];
 
-// Temporario
+export const parcelado = [
+  "1x",
+  "2x",
+  "3x",
+  "4x",
+  "5x",
+  "6x",
+  "7x",
+  "8x",
+  "9x",
+  "10x",
+  "11x",
+  "12x",
+];
 
 export const patientsData = [
   {
@@ -218,4 +202,34 @@ export const patientsData = [
     cpf: "12345678912",
     status: "patient",
   },
+];
+
+export const anamneseQuestions: AnamneseQuestions = {
+  "Está tomando alguma medicação no momento?": "",
+  "Sofre ou sofreu de algum problema no coração?": "",
+  "É diabético?": "",
+  "Possui dificuldade de cicatrização?": "",
+  "Tem ou teve alguma doença nos rins ou fígado?": "",
+  "Sofre de epilepsia?": "",
+  "Já esteve hospitalizado por algum motivo?": "",
+  "Tem anemia?": "",
+  "É alérgico a algum medicamento?": "",
+  "Já teve algum problema com anestésicos?": "",
+  "Tem ansiedade?": "",
+  "Faz uso de AAS?": "",
+};
+
+export const anamsVal = [
+  "Está tomando alguma medicação no momento?",
+  "Sofre ou sofreu de algum problema no coração?",
+  "É diabético?",
+  "Possui dificuldade de cicatrização?",
+  "Tem ou teve alguma doença nos rins ou fígado?",
+  "Sofre de epilepsia?",
+  "Já esteve hospitalizado por algum motivo?",
+  "Tem anemia?",
+  "É alérgico a algum medicamento?",
+  "Já teve algum problema com anestésicos?",
+  "Tem ansiedade?",
+  "Faz uso de AAS?",
 ];

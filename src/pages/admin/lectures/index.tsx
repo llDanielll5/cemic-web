@@ -1,62 +1,49 @@
-import React, { useState, useEffect, useCallback } from "react";
-import styles from "../../../styles/Admin.module.css";
-import { db } from "@/services/firebase";
-import { parseDateBr } from "@/services/services";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { scheduleLecture } from "@/services/requests/firestore";
-import { Box, Typography, IconButton, Button } from "@mui/material";
-import { collection, doc, getDoc, query, where } from "firebase/firestore";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import InfoIcon from "@mui/icons-material/Info";
-import { DashboardLayout } from "src/layouts/dashboard/layout";
-import LectureDetails from "@/components/dynamicAdminBody/lectures/lectureDetails";
-import Calendar from "react-calendar";
-import Modal from "@/components/modal";
+import React, { useCallback, useEffect, useState } from "react";
 import "react-calendar/dist/Calendar.css";
-import AddPatientLecture from "@/components/dynamicAdminBody/lectures/addPatient";
+import Modal from "@/components/modal";
 import Loading from "@/components/loading";
-import { add } from "date-fns";
+import InfoIcon from "@mui/icons-material/Info";
+import styles from "../../../styles/Admin.module.css";
+import CalendarModal from "@/components/modal/calendar";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import AddPatientLecture from "@/components/dynamicAdminBody/lectures/addPatient";
+import LectureDetails from "@/components/dynamicAdminBody/lectures/lectureDetails";
+import { defaultLectures } from "data";
+import { add, formatISO } from "date-fns";
+import { LectureHours } from "types/lectures";
+import { parseDateBr, phoneMask } from "@/services/services";
+import { DashboardLayout } from "src/layouts/dashboard/layout";
+import { getActualLectureDetails } from "@/axios/admin/lectures";
+import { Box, Typography, IconButton, Button } from "@mui/material";
 
-const lecturesRef = collection(db, "lectures");
-interface LectureHours {
-  "11:00": any[];
-  "17:00": any[];
-}
 interface PatientInfos {
-  name: string;
-  phone: string;
+  participant: string;
   date: string;
-  cpf: string;
   hour: string;
+  cpf: string;
 }
 
-const defaultLectures = { "11:00": [], "17:00": [] };
 const tomorrowFns = add(new Date(), { days: 1 });
 const defaultPatientValues = {
-  name: "",
-  phone: "",
+  participant: "",
   date: tomorrowFns.toISOString().substring(0, 10),
-  hour: "",
+  hour: "11:00",
   cpf: "",
 };
 
-const LecturesAdmin = (props: any) => {
-  const [clientId, setClientId] = useState<string>("");
+const LecturesAdmin = () => {
   const [dateSelected, setDateSelected] = useState(new Date());
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [addPatientVisible, setAddPatientVisible] = useState(false);
   const [lectureDetailsVisible, setLectureDetailsVisible] = useState(false);
-  const [patientValues, setPatientValues] =
-    useState<PatientInfos>(defaultPatientValues);
-  const [clientInfos, setClientInfos] = useState<any | null>(null);
-  const [lectureInfos, setLectureInfos] = useState<any | null>(null);
+  const [lectureID, setLectureID] = useState<string | null>(null);
   const [isScheduling, setIsScheduling] = useState<boolean>(false);
   const hasWeekend = dateSelected.getDay() === 0 || dateSelected.getDay() === 6;
   const [lectureData, setLectureData] = useState<LectureHours>(defaultLectures);
-  const isoDateSelected = dateSelected.toISOString().substring(0, 10);
-  const q = query(lecturesRef, where("day", "==", isoDateSelected));
-  const lectureSnap = useOnSnapshotQuery("lectures", q, [dateSelected]);
+  const [patientValues, setPatientValues] =
+    useState<PatientInfos>(defaultPatientValues);
+
   const notScheduleForThisDay =
     lectureData["11:00"]?.length === 0 &&
     lectureData["17:00"]?.length === 0 &&
@@ -70,12 +57,12 @@ const LecturesAdmin = (props: any) => {
 
   const handleCloseLectureDetails = () => {
     setLectureDetailsVisible(false);
-    setLectureInfos(null);
+    setLectureID(null);
     return;
   };
 
   const handleGetDetails = (item: any) => {
-    setLectureInfos(item);
+    setLectureID(item?.id);
     setLectureDetailsVisible(true);
     return;
   };
@@ -85,19 +72,21 @@ const LecturesAdmin = (props: any) => {
     setPatientValues(defaultPatientValues);
   };
 
-  const parsePhone = (phone: string) => {
-    if (phone === "" || !phone) return "";
-    const parsed = phone
-      .replace(/\D/g, "")
-      .replace(/(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{5})(\d{4})/, "$1-$2");
+  const onScheduled = () => {
+    closeAddPatient();
+    setIsScheduling(false);
+    return alert("Sucesso ao agendar sua palestra");
+  };
 
-    return parsed;
+  const handleSchedule = () => {
+    if (dateSelected.getDay() === 0 || dateSelected.getDay() === 6)
+      return alert("Não é possível agendar final de semana!");
+    return setAddPatientVisible(true);
   };
 
   const notHaveSchedule = () => (
     <Box display="flex" alignItems="center" justifyContent="center" mt={2}>
-      <Typography variant="h5">
+      <Typography variant="subtitle2">
         Não há agendamentos para este horário!
       </Typography>
     </Box>
@@ -105,8 +94,8 @@ const LecturesAdmin = (props: any) => {
 
   const scheduleRender = ({ item, index }: any) => (
     <div key={index} className={styles["name-container"]}>
-      <p>{item.name}</p>
-      <p>{parsePhone(item?.phone)}</p>
+      <p>{item?.patient?.name}</p>
+      <p>{phoneMask(item?.patient?.phone)}</p>
       {item.missed ? (
         <h5>Paciente faltou</h5>
       ) : (
@@ -120,34 +109,22 @@ const LecturesAdmin = (props: any) => {
     </div>
   );
 
-  const handleSchedule = async () => {
-    if (patientValues.name === "")
-      return alert("Preencha o nome do paciente completo");
-    if (patientValues.phone.length < 15)
-      return alert("Preencha um telefone válido");
-    if (patientValues.cpf.length < 14) return alert("Preencha um CPF válido");
-    if (patientValues.date === "") return alert("Adicione uma data");
-    if (patientValues.hour !== "11:00" && patientValues.hour !== "17:00")
-      return alert("Adicione um horário");
-
-    setIsScheduling(true);
-    await scheduleLecture(patientValues).then(async (res) => {
-      if (res === "Sucesso") {
-        closeAddPatient();
-        setIsScheduling(false);
-        return alert("Sucesso ao agendar sua palestra");
-      } else {
-        setIsScheduling(false);
-        return;
-      }
-    });
-  };
+  const handleGetAllLecturesOfDay = useCallback(async () => {
+    if (!dateSelected) return;
+    let date = formatISO(dateSelected).substring(0, 10);
+    return await getActualLectureDetails(date).then(
+      (res) =>
+        setLectureData({
+          "11:00": res.data["11:00"],
+          "17:00": res.data["17:00"],
+        }),
+      (err) => console.log(err.response)
+    );
+  }, [dateSelected]);
 
   useEffect(() => {
-    const filter11 = lectureSnap.filter((item) => item.hour === "11:00");
-    const filter17 = lectureSnap.filter((item) => item.hour === "17:00");
-    setLectureData({ "11:00": filter11, "17:00": filter17 });
-  }, [lectureSnap]);
+    handleGetAllLecturesOfDay();
+  }, [handleGetAllLecturesOfDay]);
 
   return (
     <div className={styles.lectures}>
@@ -158,26 +135,20 @@ const LecturesAdmin = (props: any) => {
         </Box>
       )}
 
-      <Modal
-        visible={calendarVisible}
+      <CalendarModal
         closeModal={() => setCalendarVisible(false)}
-      >
-        <Box display="flex" alignItems="center" flexDirection="column">
-          <Typography variant="subtitle1" mb={1} textAlign="center">
-            Selecione a data desejada:
-          </Typography>
-          <Calendar onChange={handleChangeDate} value={dateSelected} />
-        </Box>
-      </Modal>
+        dateSelected={dateSelected}
+        handleChangeDate={handleChangeDate}
+        visible={calendarVisible}
+      />
 
       <Modal
         visible={lectureDetailsVisible}
         closeModal={handleCloseLectureDetails}
       >
-        {lectureInfos !== null && (
+        {lectureID !== null && (
           <LectureDetails
-            clientInfos={clientInfos}
-            lectureInfos={lectureInfos}
+            lectureID={lectureID}
             closeModal={handleCloseLectureDetails}
           />
         )}
@@ -187,7 +158,7 @@ const LecturesAdmin = (props: any) => {
         <AddPatientLecture
           patientValues={patientValues}
           setPatientValues={setPatientValues}
-          handleSchedule={handleSchedule}
+          onScheduled={onScheduled}
         />
       </Modal>
       {/* END MODALS */}
@@ -214,7 +185,7 @@ const LecturesAdmin = (props: any) => {
         <Button
           endIcon={<PersonAddAlt1Icon />}
           sx={{ borderRadius: "4px" }}
-          onClick={() => setAddPatientVisible(true)}
+          onClick={handleSchedule}
           variant="contained"
         >
           Agendar Paciente

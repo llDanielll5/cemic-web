@@ -231,7 +231,7 @@ const ClientExams = (props: ClientExamsProps) => {
               sx={{ width: "40px", height: "40px", borderRadius: "8px" }}
             />
             <Typography variant="subtitle1">{v?.title}</Typography>
-            <Link passHref href={v?.media} target="_blank">
+            <Link passhref="true" href={v?.media} target="_blank">
               <StyledButton>Ver</StyledButton>
             </Link>
             {userData?.role === "admin" && (

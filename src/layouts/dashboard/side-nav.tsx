@@ -3,6 +3,12 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import PropTypes from "prop-types";
 import ChevronUpDownIcon from "@heroicons/react/24/solid/ChevronUpDownIcon";
+import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
+import { items } from "./config";
+import { SideNavItem } from "./side-nav-item";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { getUserTypeRole } from "@/services/services";
 import {
   Box,
   Divider,
@@ -13,11 +19,16 @@ import {
   useMediaQuery,
   styled,
 } from "@mui/material";
-import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
-import { items } from "./config";
-import { SideNavItem } from "./side-nav-item";
-import { useRecoilValue } from "recoil";
-import UserData from "@/atoms/userData";
+
+const scrollbarStyle = {
+  height: "100%",
+  "& .simplebar-content": {
+    height: "100%",
+  },
+  "& .simplebar-scrollbar:before": {
+    background: "neutral.400",
+  },
+};
 
 export const SideNav = (props: any) => {
   const { open, onClose } = props;
@@ -26,17 +37,7 @@ export const SideNav = (props: any) => {
   const userData: any = useRecoilValue(UserData);
 
   const content = (
-    <Scrollbar
-      sx={{
-        height: "100%",
-        "& .simplebar-content": {
-          height: "100%",
-        },
-        "& .simplebar-scrollbar:before": {
-          background: "neutral.400",
-        },
-      }}
-    >
+    <Scrollbar sx={scrollbarStyle}>
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <Box sx={{ p: 3 }}>
           <Box display="flex" alignItems={"center"}>
@@ -57,7 +58,7 @@ export const SideNav = (props: any) => {
                 {userData?.name}
               </Typography>
               <Typography color="neutral.400" variant="body2">
-                {userData?.role}
+                {getUserTypeRole(userData?.userType)}
               </Typography>
             </div>
             <SvgIcon fontSize="small" sx={{ color: "neutral.500" }}>
@@ -73,7 +74,14 @@ export const SideNav = (props: any) => {
             sx={{ listStyle: "none", p: 0, m: 0 }}
           >
             {items.map((item: any) => {
-              const active = item.path ? pathname === item.path : false;
+              let path =
+                "/" +
+                pathname
+                  ?.split("/")[1]
+                  .concat("/")
+                  .concat(pathname?.split("/")[2]);
+              // let pathnamePatient = "/" + path[1] + "/" + path[2];
+              const active = item.path === pathname || path === item.path;
 
               return (
                 <SideNavItem

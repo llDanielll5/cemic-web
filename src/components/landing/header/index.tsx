@@ -41,7 +41,7 @@ const HeaderLanding = (props: HeaderLandingProps) => {
 
   const listItem = ({ item, index }: any) => {
     return (
-      <ListBox key={index} passhref href={item.path}>
+      <ListBox key={index} passhref="true" href={item.path}>
         <List variant="subtitle1" sx={{ cursor: "pointer" }}>
           {item.title}
         </List>

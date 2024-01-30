@@ -189,7 +189,11 @@ const ReceiptPageAdmin = (props: ReceiptPageProps) => {
           <ListSingle key={i} sx={{ borderBottom: "1px solid #bbb" }}>
             <Typography variant="body2">{v?.id}</Typography>
             <Typography variant="body2">{maskValue(v?.totalStr)}</Typography>
-            <Link passHref href={`admin/receipt/${v?.id}`} target="_blank">
+            <Link
+              passhref="true"
+              href={`admin/receipt/${v?.id}`}
+              target="_blank"
+            >
               <StyledButton startIcon={<PreviewIcon />}>Ver</StyledButton>
             </Link>
           </ListSingle>

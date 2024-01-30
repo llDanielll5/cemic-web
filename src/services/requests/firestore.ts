@@ -1,6 +1,5 @@
 import {
   addDoc,
-  arrayUnion,
   collection,
   doc,
   getDocs,
@@ -8,7 +7,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { LectureDay, ScreeningInformations } from "types";
+import { ScreeningInformations } from "types";
 import { db } from "../firebase";
 import { nameCapitalized } from "../services";
 

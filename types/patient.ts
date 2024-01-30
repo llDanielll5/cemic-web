@@ -1,0 +1,79 @@
+import { AddressType, TreatmentPlanInterface, TreatmentProps } from "types";
+import { AdminInfosInterface } from "./admin";
+
+export type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
+export type PatientRole = "PRE-REGISTER" | "SELECTED" | "PATIENT";
+export type SexType = "MASCULINO" | "FEMININO" | "NENHUM";
+
+export interface AnamneseQuestions {
+  "Está tomando alguma medicação no momento?": AnswerType;
+  "Sofre ou sofreu de algum problema no coração?": AnswerType;
+  "É diabético?": AnswerType;
+  "Possui dificuldade de cicatrização?": AnswerType;
+  "Tem ou teve alguma doença nos rins ou fígado?": AnswerType;
+  "Sofre de epilepsia?": AnswerType;
+  "Já esteve hospitalizado por algum motivo?": AnswerType;
+  "Tem anemia?": AnswerType;
+  "É alérgico a algum medicamento?": AnswerType;
+  "Já teve algum problema com anestésicos?": AnswerType;
+  "Tem ansiedade?": AnswerType;
+  "Faz uso de AAS?": AnswerType;
+}
+
+export interface PatientTreatments {
+  all: TreatmentPlanInterface[];
+  toDo: TreatmentPlanInterface[];
+  inProgress: TreatmentPlanInterface[];
+}
+
+export interface PatientFinishedTreatments {
+  region: string;
+  treatment: TreatmentProps;
+  dentist: any;
+  finishedAt: Date;
+}
+
+export interface PatientInterface {
+  id: string;
+  name: string;
+  email: string;
+  cpf: string;
+  rg: string;
+  phone: string;
+  sexo?: SexType;
+  dateBorn: string;
+  profileImage: string;
+  firstLetter: string;
+  anamnese: AnamneseQuestions;
+  address?: AddressType;
+  role: PatientRole;
+  anamneseFilled?: boolean;
+  observations?: string;
+  actualProfessional: any;
+  lectures: any;
+  adminInfos: AdminInfosInterface;
+  screening: any;
+  cardId: string;
+  finishedTreatments: PatientFinishedTreatments[];
+  treatments: PatientTreatments;
+  payments: any;
+  treatmentPlan: TreatmentPlanInterface[];
+  forwardedTreatment: any;
+}
+
+interface PatientPaymentsHistoryInterface {
+  date: Date;
+  paymentShape: string;
+  value: number;
+  receipt: string | number;
+}
+export interface PatientPaymentsInterface {
+  total: number;
+  history: PatientPaymentsHistoryInterface[];
+}
+export interface ReceiptsInterface {
+  timestamp: Date;
+  treatments: [];
+  value: number;
+  asign: any;
+}

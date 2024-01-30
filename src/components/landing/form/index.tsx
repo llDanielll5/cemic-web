@@ -1,14 +1,13 @@
 /* eslint-disable react/jsx-key */
 import React, { useState } from "react";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { createUserLanding } from "@/services/requests/auth";
 import { Box, styled } from "@mui/material";
 import { nameCapitalized } from "@/services/services";
-import { AuthErrors } from "@/services/errors";
 import { useRouter } from "next/router";
 import Loading from "@/components/loading";
 import CustomTab from "@/components/customTab";
 import RegisterLandingForm from "./register";
+import { AuthErrorCodes } from "firebase/auth";
 
 const FormLanding = () => {
   const router = useRouter();
@@ -79,7 +78,7 @@ const FormLanding = () => {
       })
       .catch((err) => {
         setIsLoading(false);
-        if (err.code === AuthErrors["01"]) {
+        if (err.code === AuthErrorCodes.EMAIL_EXISTS) {
           setModalError(true);
           setErrorMessage("Email já está em uso");
           return;

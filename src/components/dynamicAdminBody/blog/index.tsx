@@ -3,14 +3,12 @@ import { Box, Typography } from "@mui/material";
 import { StyledButton } from "../receipts";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import Modal from "@/components/modal";
-import Input from "@/components/input";
-import { Timestamp } from "firebase/firestore";
 
 interface PostInterface {
   title: string;
   text: PostText[];
-  createdAt?: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt?: Date;
+  updatedAt?: Date;
   tags?: any[];
 }
 
@@ -45,7 +43,7 @@ const AdminBlog = () => {
     >
       <Modal visible={newPostVisible} closeModal={handleCloseNewPost}>
         <Typography variant="subtitle1">Título da postagem</Typography>
-        <Input label="Título" type="text" />
+        {/* <Input label="Título" type="text" /> */}
       </Modal>
       <StyledButton
         onClick={() => setNewPostVisible(true)}

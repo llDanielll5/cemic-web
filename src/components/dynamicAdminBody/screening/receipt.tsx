@@ -3,9 +3,9 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { Button50, PaymentShapesArray } from "./screeningDetails";
-import { PaymentTypes } from "types";
 import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import { PaymentTypes } from "types/payments";
 
 interface ReceiptAdminProps {
   vezes: string;

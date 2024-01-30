@@ -2,22 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Box, styled, TextField, Typography } from "@mui/material";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import Modal from "@/components/modal";
-import {
-  Timestamp,
-  addDoc,
-  collection,
-  doc,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import uploadFile from "@/services/uploadFile";
 import { db } from "@/services/firebase";
-import Loading from "@/components/loading";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import Link from "next/link";
 import { parseDateIso } from "@/services/services";
+import uploadFile from "@/services/uploadFile";
+import Loading from "@/components/loading";
+import Link from "next/link";
 
 interface ClientDocumentsProps {
   client: any;
@@ -31,11 +21,6 @@ const ClientProblems = (props: ClientDocumentsProps) => {
   const [problemContent, setProblemContent] = useState<string>("");
   const [problemDate, setProblemDate] = useState("");
   const [document, setDocument] = useState<any | null>(null);
-  const q = query(
-    collection(db, "clients_problems"),
-    where("client", "==", client!.id ?? "")
-  );
-  const snapProblems = useOnSnapshotQuery("clients_problems", q, [client]);
 
   const closeProblemModal = () => setAddProblemModal(false);
 
@@ -53,36 +38,36 @@ const ClientProblems = (props: ClientDocumentsProps) => {
       return alert("Adicione algum conteúdo do problema");
     if (problemDate === "") return alert("Adicione a data do acontecimento");
     setIsLoading(true);
-    const timestamp = Timestamp.now().seconds;
+    const timestamp = new Date();
     const imgName = `${client?.name.replaceAll(" ", "")}-${timestamp}`;
     const imgUpload = await uploadFile(
       "clients_problems",
       imgName,
       document.img
     );
-    const clientRef = collection(db, "clients_problems");
+    // const clientRef = collection(db, "clients_problems");
 
-    if (imgUpload.state === "Success") {
-      return await addDoc(clientRef, {
-        media: [imgUpload.url],
-        client: client!.id,
-        title: problemTitle,
-        content: problemContent,
-        date: problemDate,
-      })
-        .then(async (e) => {
-          setIsLoading(false);
-          const document = doc(db, "clients_problems", e.id);
-          closeProblemModal();
-          return await updateDoc(document, { id: e.id });
-        })
-        .catch((err) => {
-          setIsLoading(false);
-          return alert("Erro ao adicionar documento");
-        });
-    } else {
-      return alert("Erro ao realizar upload de documento");
-    }
+    // if (imgUpload.state === "Success") {
+    //   return await addDoc(clientRef, {
+    //     media: [imgUpload.url],
+    //     client: client!.id,
+    //     title: problemTitle,
+    //     content: problemContent,
+    //     date: problemDate,
+    //   })
+    //     .then(async (e) => {
+    //       setIsLoading(false);
+    //       const document = doc(db, "clients_problems", e.id);
+    //       closeProblemModal();
+    //       return await updateDoc(document, { id: e.id });
+    //     })
+    //     .catch((err) => {
+    //       setIsLoading(false);
+    //       return alert("Erro ao adicionar documento");
+    //     });
+    // } else {
+    //   return alert("Erro ao realizar upload de documento");
+    // }
   };
 
   return (
@@ -150,7 +135,7 @@ const ClientProblems = (props: ClientDocumentsProps) => {
 
       <ListTitle variant="h5">Relatórios de problemas</ListTitle>
       <ListBox>
-        {snapProblems.length > 0 ? (
+        {/* {snapProblems.length > 0 ? (
           snapProblems.map((v: any, i) => (
             <Box
               px={2}
@@ -162,7 +147,7 @@ const ClientProblems = (props: ClientDocumentsProps) => {
             >
               <Typography variant="h5">{v?.title}</Typography>
               <Typography variant="h5">{parseDateIso(v?.date)}</Typography>
-              <Link passHref href={`/problems/${v?.id}`} target="_blank">
+              <Link passhref href={`/problems/${v?.id}`} target="_blank">
                 <StyledButton variant="text" color="info">
                   Visualizar
                 </StyledButton>
@@ -171,7 +156,7 @@ const ClientProblems = (props: ClientDocumentsProps) => {
           ))
         ) : (
           <Typography variant="body1">Lista vazia</Typography>
-        )}
+        )} */}
       </ListBox>
     </Box>
   );

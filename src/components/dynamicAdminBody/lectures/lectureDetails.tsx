@@ -1,44 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, styled } from "@mui/material";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/services/firebase";
 import { cpfMask, phoneMask } from "@/services/services";
 import { closeIcon, successIcon } from "../screening/screeningDetails";
+import { getLectureDetails, updateSingleLecture } from "@/axios/admin/lectures";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 interface LectureDetailsProps {
-  clientInfos: any;
-  lectureInfos: any;
+  lectureID: any;
   closeModal: () => void;
 }
 
 const LectureDetails = (props: LectureDetailsProps) => {
-  const { lectureInfos, closeModal } = props;
-  const momentNow = new Date();
-  const [y, m, d] = lectureInfos.day.split("-");
-  const hourSchedule = lectureInfos.hour.split(":")[0];
-  const scheduledDay = new Date(
-    parseInt(y),
-    parseInt(m) - 1,
-    parseInt(d),
-    parseInt(hourSchedule)
-  );
-  const passedHour = momentNow > scheduledDay;
+  const { lectureID, closeModal } = props;
+  const [lectureData, setLectureData] = useState<any | null>(null);
+  const dateString = lectureData?.attributes?.dateString;
+  const userData: any = useRecoilValue(UserData);
+  const zoneTime = "T03:00:00.001Z";
+  const isoString = dateString + zoneTime;
+  const currDate = new Date(isoString);
+  const now = new Date();
+  const passedHour = currDate < now;
+  let patient = lectureData?.attributes?.patient?.data;
+  let patientId = patient?.id;
+  let patientAttr = patient?.attributes;
+  let attr = lectureData?.attributes;
 
-  const updateLecture = async (isMissed: boolean) => {
-    const ref = doc(db, "lectures", lectureInfos.id);
-    const data: any = { isMissed };
-    await updateDoc(ref, data)
-      .then(() => closeModal())
-      .catch(() => alert("Erro ao atualizar palestra do cliente"));
+  const updateLecture = async (data: any) => {
+    return await updateSingleLecture(lectureID, {
+      ...data,
+      admin: userData?.id,
+    }).then(
+      (res) => closeModal(),
+      (error) => console.log(error.response)
+    );
   };
 
-  const updateLectureExam = async (examRequest: boolean) => {
-    const ref = doc(db, "lectures", lectureInfos.id);
-    const data: any = { examRequest };
-    await updateDoc(ref, data)
-      .then(() => closeModal())
-      .catch(() => alert("Erro ao atualizar palestra do cliente"));
-  };
+  async function getLecture() {
+    if (lectureID === null) return;
+    return await getLectureDetails(lectureID).then(
+      (res) => setLectureData(res.data.data),
+      (error) => console.log(error.response)
+    );
+  }
+
+  useEffect(() => {
+    getLecture();
+  }, []);
+
   return (
     <Box
       display="flex"
@@ -48,55 +59,69 @@ const LectureDetails = (props: LectureDetailsProps) => {
       flexDirection="column"
     >
       <HeaderTitle variant="subtitle1" textAlign="center" mb={1}>
-        {lectureInfos.name}
+        {patientAttr?.name}
       </HeaderTitle>
 
       <Box width="100%" display="flex" flexDirection="column">
-        {/* <FlexRowCenter>
-          <Typography variant="subtitle1">ID Cliente: </Typography>
-          <Typography variant="body1">{clientInfos.id}</Typography>
-        </FlexRowCenter> */}
         <FlexRowCenter>
           <Typography variant="subtitle1">CPF: </Typography>
-          <Typography variant="body1">{cpfMask(lectureInfos.cpf)}</Typography>
+          <Typography variant="body1">{cpfMask(patientAttr?.cpf)}</Typography>
         </FlexRowCenter>
         <FlexRowCenter>
           <Typography variant="subtitle1">Telefone: </Typography>
           <Typography variant="body1">
-            {phoneMask(lectureInfos.phone)}
+            {phoneMask(patientAttr?.phone)}
           </Typography>
         </FlexRowCenter>
 
-        {passedHour && lectureInfos?.isMissed === null ? (
+        {passedHour && attr?.isMissed === null ? (
           <Box m={"8px 0"} display="flex" alignItems="center">
-            <HeaderTitle variant="h5">Paciente compareceu?</HeaderTitle>
-            {successIcon({ onClick: () => updateLecture(false) })}
-            {closeIcon({ onClick: () => updateLecture(true) })}
+            <HeaderTitle variant="subtitle2">Paciente compareceu?</HeaderTitle>
+            {successIcon({
+              onClick: () =>
+                updateLecture({
+                  examRequest: attr?.examRequest,
+                  isMissed: false,
+                }),
+            })}
+            {closeIcon({
+              onClick: () =>
+                updateLecture({
+                  examRequest: attr?.examRequest,
+                  isMissed: true,
+                }),
+            })}
           </Box>
-        ) : passedHour && lectureInfos?.isMissed ? (
-          <Typography variant="h5" my={1}>
+        ) : passedHour && attr?.isMissed ? (
+          <Typography variant="subtitle2" my={1}>
             Paciente Faltou
           </Typography>
-        ) : passedHour && !lectureInfos?.isMissed ? (
-          <Typography variant="h5" my={1}>
+        ) : passedHour && !attr?.isMissed ? (
+          <Typography variant="subtitle2" my={1}>
             Paciente Compareceu
           </Typography>
         ) : null}
 
-        {passedHour && lectureInfos?.examRequest === null ? (
+        {passedHour && attr?.examRequest === null ? (
           <Box m={"8px 0"} display="flex" alignItems="center">
-            <HeaderTitle variant="h5">
+            <HeaderTitle variant="subtitle2">
               Paciente pegou pedido de exame?
             </HeaderTitle>
-            {successIcon({ onClick: () => updateLectureExam(true) })}
-            {closeIcon({ onClick: () => updateLectureExam(false) })}
+            {successIcon({
+              onClick: () =>
+                updateLecture({ examRequest: true, isMissed: attr?.isMissed }),
+            })}
+            {closeIcon({
+              onClick: () =>
+                updateLecture({ examRequest: false, isMissed: attr?.isMissed }),
+            })}
           </Box>
-        ) : passedHour && lectureInfos?.examRequest ? (
-          <Typography variant="h5" my={1}>
+        ) : passedHour && attr?.examRequest ? (
+          <Typography variant="subtitle2" my={1}>
             Paciente Pegou pedido
           </Typography>
-        ) : passedHour && !lectureInfos?.examRequest ? (
-          <Typography variant="h5" my={1}>
+        ) : passedHour && !attr?.examRequest ? (
+          <Typography variant="subtitle2" my={1}>
             Paciente Não pegou pedido
           </Typography>
         ) : null}

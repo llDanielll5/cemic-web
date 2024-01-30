@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import ClientsAdmin from "./clients";
-import ProfessionalsAdmin from "./professionals";
 import LecturesAdmin from "./lectures";
 import ScreeningAdmin from "./screening";
 import DashboardAdmin from "../admin/dashboard";
-import TreatmentsAdmin from "./treatments";
+import TreatmentsAdmin from "../../pages/admin/treatments";
 import ReceiptPageAdmin from "./receipts";
 import ProfileAdmin from "./profile";
 import AdminBlog from "./blog";
@@ -46,16 +45,16 @@ const DynamicAdminBody = (props: AdminBodyProps) => {
   if (props.page === 3) {
     return <ReceiptPageAdmin />;
   }
-  if (props.page === 4) {
-    return (
-      <ProfessionalsAdmin
-        professionalFilterType={professionalFilterType}
-        professionalFilterValue={professionalFilterValue}
-        setProfessionalFilterValue={setProfessionalFilterValue}
-        handleSetContentProfessionals={handleSetContentProfessionals}
-      />
-    );
-  }
+  // if (props.page === 4) {
+  //   return (
+  //     <ProfessionalsAdmin
+  //       professionalFilterType={professionalFilterType}
+  //       professionalFilterValue={professionalFilterValue}
+  //       setProfessionalFilterValue={setProfessionalFilterValue}
+  //       handleSetContentProfessionals={handleSetContentProfessionals}
+  //     />
+  //   );
+  // }
 
   if (props.page === 5) {
     return (

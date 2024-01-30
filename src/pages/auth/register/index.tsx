@@ -8,7 +8,6 @@ import * as Yup from "yup";
 import { IMaskInput as IMask } from "react-imask";
 import { nameCapitalized } from "@/services/services";
 import { createPartner } from "@/services/requests/auth";
-import { AuthErrors } from "@/services/errors";
 import Loading from "@/components/loading";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -24,22 +23,25 @@ import {
   styled,
 } from "@mui/material";
 import CModal from "@/components/modal";
+import { handleRegister } from "@/axios/auth";
+import { useRecoilState } from "recoil";
+import UserData from "@/atoms/userData";
 
 const roleValues = [
   {
-    value: "admins",
+    value: "ADMIN",
     label: "Administrador",
   },
   {
-    value: "employees",
+    value: "EMPLOYEE",
     label: "Funcionário",
   },
   {
-    value: "dentists",
+    value: "DENTIST",
     label: "Dentista",
   },
   {
-    value: "prosthetics",
+    value: "PROSTHETIC",
     label: "Protético",
   },
 ];
@@ -86,16 +88,19 @@ export const TextPhoneCustom = forwardRef<HTMLInputElement, CustomProps>(
   }
 );
 
-const Page = () => {
+const RegisterPage = () => {
   const router = useRouter();
+  const [userData, setUserData] = useRecoilState(UserData);
   const [code, setCode] = useState("");
   const [chances, setChances] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPartnerModal, setConfirmPartnerModal] = useState(true);
+
   const formik = useFormik({
     initialValues: {
+      username: "",
       email: "",
       name: "",
       password: "",
@@ -107,6 +112,7 @@ const Page = () => {
       submit: null,
     },
     validationSchema: Yup.object({
+      username: Yup.string().required(),
       email: Yup.string()
         .email("Digite um email válido")
         .max(255)
@@ -125,7 +131,7 @@ const Page = () => {
       ),
     }),
     onSubmit: async (values, helpers) => {
-      const { cpf, email, name, phone, rg, password, role } = values;
+      const { cpf, email, name, phone, rg, password, role, username } = values;
       const phoneReplaced = phone!
         .replace("(", "")
         .replace(")", "")
@@ -140,29 +146,25 @@ const Page = () => {
       setLoadingMessage("Verificando informações digitadas.");
 
       const data = {
+        username,
         cpf: cpfReplaced,
         email,
         name: completeName,
         phone: phoneReplaced,
-        rg,
+        rg: rg.toString(),
         password,
         role,
       };
 
       try {
-        return await createPartner(data)
+        return await handleRegister(data)
           .then(() => {
             setIsLoading(false);
-            alert("Parceiro cadastrado com sucesso! Faça o login.");
             return router.push("/auth/login");
           })
           .catch((err) => {
             setIsLoading(false);
-            if (err.code === AuthErrors["01"]) {
-              return alert("Email já está em uso");
-            } else if (err.code === "auth/invalid-email") {
-              return alert("Email inválido. Digite um email válido!");
-            } else return alert(err.code);
+            return alert("Erroooooo");
           });
       } catch (err: any) {
         helpers.setStatus({ success: false });
@@ -239,6 +241,16 @@ const Page = () => {
             </Stack>
             <form noValidate onSubmit={formik.handleSubmit}>
               <Stack spacing={3}>
+                <TextField
+                  error={!!(formik.touched.username && formik.errors.username)}
+                  fullWidth
+                  helperText={formik.touched.username && formik.errors.username}
+                  label="Nickname*"
+                  name="username"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.username}
+                />
                 <TextField
                   error={!!(formik.touched.name && formik.errors.name)}
                   fullWidth
@@ -371,7 +383,7 @@ const Page = () => {
   );
 };
 
-Page.getLayout = (page: any) => <AuthLayout>{page}</AuthLayout>;
+RegisterPage.getLayout = (page: any) => <AuthLayout>{page}</AuthLayout>;
 
 const Container = styled(Box)`
   flex: 1 1 auto;
@@ -385,4 +397,4 @@ const InnerContainer = styled(Box)`
   width: 100%;
 `;
 
-export default Page;
+export default RegisterPage;

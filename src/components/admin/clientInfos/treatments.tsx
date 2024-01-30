@@ -1,23 +1,29 @@
 import React, { useState, useEffect, useCallback } from "react";
 import * as F from "firebase/firestore";
-import Link from "next/link";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import AddTreatment from "./addTreatment";
-import HistoryIcon from "@mui/icons-material/History";
 import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
 import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
 import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
-import { Box, Typography } from "@mui/material";
-import { maskValue } from "@/services/services";
+import { Box } from "@mui/material";
 import { useRecoilValue } from "recoil";
 import { db } from "@/services/firebase";
-import { ClientType, PaymentShape, PaymentTypes } from "types";
+import { maskValue } from "@/services/services";
+import { PatientInterface } from "types/patient";
+import { PaymentShape, PaymentTypes } from "types/payments";
+import {
+  handleGetPatientTreatments,
+  handleUpdatePatient,
+} from "@/axios/admin/patients";
 
 interface ClientTreatmentsInterface {
-  client: ClientType;
+  client: PatientInterface;
+}
+
+interface TreatmentsInterface {
+  screening: any;
+  treatments: any;
 }
 
 export interface PaymentShapesArray {
@@ -37,7 +43,7 @@ type ReceiptType = ReceiptValuesProps | null;
 type PayShapeArr = PaymentShapesArray[];
 
 const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
-  const { client } = props;
+  const { client }: any = props;
   const [vezes, setVezes] = useState("");
   const adminData: any = useRecoilValue(UserData);
   const [discount, setDiscount] = useState(5);
@@ -55,122 +61,57 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
-  const [actualProfessional, setActualProfessional] = useState<any>(null);
-  const refTreats = F.collection(db, "clients_treatments");
-  const queryTreats = F.query(
-    refTreats,
-    F.where("client", "==", client?.id ?? "")
-  );
-  const snapUserTreatments = useOnSnapshotQuery(
-    "clients_treatments",
-    queryTreats,
-    [client]
-  );
-  let clientTreatments = snapUserTreatments[0];
-  let clientAdminTimestamp: F.Timestamp =
-    clientTreatments?.updatedBy?.timestamp;
+
+  const [data, setData] = useState<TreatmentsInterface>({
+    treatments: null,
+    screening: null,
+  });
 
   const getActualProfessional = useCallback(async () => {
-    if (client?.actualProfessional === "") return;
+    return;
+  }, []);
 
-    const ref = F.collection(db, "professionals");
-    const q = F.query(ref, F.where("id", "==", client?.actualProfessional));
+  const handleCloseAddTreatment = () => setAddTreatmentVisible(false);
 
-    const querySnapshot = await F.getDocs(q);
-
-    if (querySnapshot.docs.length > 0) {
-      const document: any = querySnapshot.docs[0].data();
-      return setActualProfessional(document);
-    } else return;
-  }, [client]);
-
-  const handleCloseAddTreatment = () => {
-    setAddTreatmentVisible(false);
-  };
-
-  const handleSubmitTreatment = async (field: string, values: any[]) => {
+  const handleSubmitTreatment = async (values: any[]) => {
     let reduced: any[] = [];
-    setIsLoading(true);
-    if (clientTreatments?.treatment_plan.length > 0) {
+    let treatmentsSaveds = data?.treatments?.toDo;
+
+    return console.log(treatmentsSaveds);
+
+    // setIsLoading(true);
+    if (treatmentsSaveds.length > 0) {
       let newArr = [...values];
       newArr.forEach((item) => {
         var duplicated =
           reduced.findIndex((val) => {
             return (
               item.region === val.region &&
-              item.treatments.cod === val.treatments.cod &&
-              item.treatments.cod !== "00002" &&
-              val.treatments.cod !== "00002"
+              item.treatment.name === val.treatment.name
             );
           }) > -1;
 
-        if (!duplicated) {
-          reduced.push(item);
-        }
+        if (!duplicated) reduced.push(item);
       });
-
-      const ref = F.doc(db, "clients_treatments", clientTreatments!.id);
-
-      return await F.updateDoc(ref, {
-        treatment_plan: [...reduced],
-        "updatedBy.reporter": adminData?.id,
-        "updatedBy.reporterName": adminData?.name,
-        "updatedBy.timestamp": F.Timestamp.now(),
-        "updatedBy.role": adminData?.role,
-      })
-        .then(async () => {
-          const ref = F.doc(db, "clients", client!.id);
-          return await F.updateDoc(ref, { role: "patient" })
-            .then(() => {
-              setIsLoading(false);
-              handleCloseAddTreatment();
-              return alert("Tratamento atualizado!");
-            })
-            .catch(() => setIsLoading(false));
-        })
-        .catch((err) => {
-          setIsLoading(false);
-          return alert("Erro ao atualizar tratamento");
-        });
-    } else {
-      reduced = [...values];
-
-      const ref = F.collection(db, "clients_treatments");
-
-      return await F.addDoc(ref, {
-        treatment_plan: values,
-        negotiateds: {
-          payeds: [],
-          realizeds: [],
-          forwardeds: [],
-          toRealize: [],
-        },
-        client: client!.id,
-        updatedBy: {
-          reporter: adminData?.id,
-          reporterName: adminData?.name,
-          timestamp: F.Timestamp.now(),
-          role: adminData?.role,
-        },
-      })
-        .then(async (queryDoc) => {
-          const clientRef = F.doc(db, "clients", client!.id);
-          await F.updateDoc(F.doc(db, "clients_treatments", queryDoc.id), {
-            id: queryDoc.id,
-          });
-          return await F.updateDoc(clientRef, { role: "patient" })
-            .then(() => {
-              setIsLoading(false);
-              handleCloseAddTreatment();
-              return alert("Tratamento atualizado!");
-            })
-            .catch(() => setIsLoading(false));
-        })
-        .catch((err) => {
-          setIsLoading(false);
-          return alert("Erro ao atualizar tratamento");
-        });
     }
+
+    let patientData = {};
+    let adminInfos = { updated: adminData?.id, updateTimestamp: new Date() };
+
+    if (reduced.length === 0) {
+      patientData = { data: { treatments: { all: values }, adminInfos } };
+    } else {
+      patientData = { data: { treatments: { all: values }, adminInfos } };
+    }
+
+    return await handleUpdatePatient(client!.id, patientData).then(
+      (res) => {
+        setIsLoading(false);
+        handleCloseAddTreatment();
+        return alert("Tratamento atualizado!");
+      },
+      (err) => console.log(err.response)
+    );
   };
 
   const getTotalValue = useCallback(
@@ -230,31 +171,24 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   }, [client?.actualProfessional, getActualProfessional]);
 
   const handleGeneratePayment = () => {
-    if (!clientTreatments) return;
-    const treats = clientTreatments?.treatment_plan;
-    const neg = clientTreatments?.negotiateds?.payeds;
+    if (data?.treatments?.all.length === 0) return;
+    let allTreatments = data?.treatments?.all;
+    let negotiateds = data?.treatments?.negotiateds;
 
     let reduced: any[] = [];
-    treats.forEach((item: any) => {
+    allTreatments.forEach((item: any) => {
       var duplicated =
-        neg.findIndex((val: any) => {
+        negotiateds.findIndex((val: any) => {
           return (
             item.region === val.region &&
             item.treatments.cod === val.treatments.cod
           );
         }) > -1;
-
-      if (!duplicated) {
-        reduced.push(item);
-      }
+      if (!duplicated) reduced.push(item);
     });
-
     setTreatmentsToPay(reduced);
     setPaymentModal(true);
   };
-
-  const hasTreatmentPlan = clientTreatments?.treatment_plan?.length > 0;
-  const hasRealizeds = clientTreatments?.negotiateds?.realizeds?.length > 0;
 
   const onCloseModalPayment = () => {
     setPaymentShapesValues("");
@@ -378,68 +312,82 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       totalStr: totalValueString,
     };
 
-    const clientRef = F.doc(db, "clients", client!.id);
-    const receiptRef = F.collection(db, "receipts");
-    const paymentsRef = F.collection(db, "payments");
-    const clientTreatmentRef = F.doc(
-      db,
-      "clients_treatments",
-      clientTreatments!.id
-    );
+    //getdoc
 
     updateTreatmentsPayeds();
 
     return;
 
-    const receiptDoc = await F.addDoc(receiptRef, receiptData);
-    if (receiptDoc) {
-      const paymentData = {
-        client: client?.id,
-        receipt: receiptDoc.id,
-        shape: paymentShape,
-        total: totalValue,
-        totalStr: totalValueString,
-      };
-      const paymentDoc = await F.addDoc(paymentsRef, paymentData);
+    // const receiptDoc = await F.addDoc(receiptRef, receiptData);
+    // if (receiptDoc) {
+    //   const paymentData = {
+    //     client: client?.id,
+    //     receipt: receiptDoc.id,
+    //     shape: paymentShape,
+    //     total: totalValue,
+    //     totalStr: totalValueString,
+    //   };
+    //   const paymentDoc = await F.addDoc(paymentsRef, paymentData);
 
-      if (paymentDoc) {
-        let refReceipt = F.doc(db, "receipts", receiptDoc.id);
-        return await F.updateDoc(refReceipt, {
-          paymentId: paymentDoc.id,
-        }).then(async () => {
-          return await F.updateDoc(clientRef, { role: "patient" })
-            .then(async () => {
-              return await F.updateDoc(clientTreatmentRef, {
-                "negotiateds.toRealize": F.arrayUnion(...negotiatedsToRealize),
-                "negotiateds.payeds": F.arrayUnion(...negotiateds),
-              })
-                .then(() => {
-                  setIsLoading(false);
-                  onCloseModalPayment();
-                  return;
-                })
-                .catch((err) => {
-                  setIsLoading(false);
-                });
-            })
-            .catch(() => {
-              setIsLoading(false);
-              return alert("Erro ao atualizar o paciente");
-            });
-        });
-      }
-    } else return alert("Deu erro");
+    //   if (paymentDoc) {
+    //     let refReceipt = F.doc(db, "receipts", receiptDoc.id);
+    //     return await F.updateDoc(refReceipt, {
+    //       paymentId: paymentDoc.id,
+    //     }).then(async () => {
+    //       return await F.updateDoc(clientRef, { role: "patient" })
+    //         .then(async () => {
+    //           return await F.updateDoc(clientTreatmentRef, {
+    //             "negotiateds.toRealize": F.arrayUnion(...negotiatedsToRealize),
+    //             "negotiateds.payeds": F.arrayUnion(...negotiateds),
+    //           })
+    //             .then(() => {
+    //               setIsLoading(false);
+    //               onCloseModalPayment();
+    //               return;
+    //             })
+    //             .catch((err) => {
+    //               setIsLoading(false);
+    //             });
+    //         })
+    //         .catch(() => {
+    //           setIsLoading(false);
+    //           return alert("Erro ao atualizar o paciente");
+    //         });
+    //     });
+    //   }
+    // } else return alert("Deu erro");
 
-    return;
+    // return;
   };
+
+  const getInformations = (data: any) => {
+    let treatments = data?.attributes?.treatments;
+    let screening = data?.attributes?.screening?.data;
+    return setData({ treatments, screening });
+  };
+
+  const getTreatments = useCallback(async () => {
+    return await handleGetPatientTreatments(client!.id).then(
+      (res) => getInformations(res.data.data),
+      (err) => console.log(err.response)
+    );
+  }, [client]);
+
+  useEffect(() => {
+    getTreatments();
+  }, [getTreatments]);
 
   return (
     <Box py={2} width="100%">
-      <Modal visible={addTreatmentVisible} closeModal={handleCloseAddTreatment}>
+      <Modal
+        visible={addTreatmentVisible}
+        closeModal={handleCloseAddTreatment}
+        styles={{ height: "95vh", overflow: "auto" }}
+      >
         <TreatmentPlanUpdate
           onSaveTreatments={handleSubmitTreatment}
           setVisible={setAddTreatmentVisible}
-          previousTreatments={clientTreatments?.treatment_plan}
+          previousTreatments={data?.treatments?.all}
         />
       </Modal>
 
@@ -484,7 +432,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         />
       </Modal>
 
-      {clientTreatments !== null && (
+      {/* {clientTreatments !== null && (
         <>
           <Box
             display="flex"
@@ -577,7 +525,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
               Verificar histórico de encaminhamentos
             </Typography>
             <Link
-              passHref
+              passhref="true"
               target="_blank"
               href={`/admin/treatment-history/${client!.id}`}
             >
@@ -585,13 +533,13 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
             </Link>
           </Box>
         </>
-      )}
+      )} */}
 
-      {client?.role !== "pre-register" && (
+      {client?.role !== "PRE-REGISTER" && (
         <AddTreatment
           openModal={() => setAddTreatmentVisible(true)}
           handleGeneratePayment={handleGeneratePayment}
-          treatments={clientTreatments}
+          treatments={data?.treatments?.all}
         />
       )}
     </Box>

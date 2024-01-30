@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { dentalArch } from "data";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-
+import { handleGetTreatments } from "@/axios/admin/treatments";
 import {
   Box,
   Typography,
@@ -18,15 +14,14 @@ import {
 } from "@mui/material";
 
 interface TreatmentPlanUpdateProps {
-  onSaveTreatments: (field: string, value: any[]) => void;
+  onSaveTreatments: (data: any) => void;
   setVisible: any;
   previousTreatments: any[];
 }
 
 interface TreatmentPlan {
   region: string;
-  treatments: {
-    cod: string;
+  treatment: {
     name: string;
     price: string;
   };
@@ -35,10 +30,12 @@ interface TreatmentPlan {
 const buttonStyle = {
   margin: "1px 2px",
   padding: "1.8px",
+  maxWidth: "20px",
+  maxHeight: "24px",
   width: "20px",
   height: "24px",
-  fontWeight: 500,
-  color: "white",
+  fontWeight: 700,
+  fontSize: "14px",
   outline: "none",
   border: "none",
   borderRadius: "4px",
@@ -48,11 +45,11 @@ const buttonStyle = {
 const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
   const { onSaveTreatments, previousTreatments } = props;
   const { lb, lt, rb, rt } = dentalArch;
+  const [treatments, setTreatments] = useState<any[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedTreatments, setSelectedTreatments] = useState<TreatmentPlan[]>(
     []
   );
-  const [treatments, setTreatments] = useState<any[]>([]);
 
   useEffect(() => {
     if (previousTreatments?.length === 0 || previousTreatments === undefined)
@@ -62,32 +59,15 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
     setSelectedRegions((prev) => [...prev, ...previousRegions]);
   }, [previousTreatments]);
 
-  useEffect(() => {
-    const getTreatments = async () => {
-      const ref = collection(db, "treatments");
-      const querySnap = await getDocs(ref);
-      const treats: any[] = [];
-      querySnap.forEach((doc) => {
-        treats.push(doc.data());
-      });
-
-      setTreatments(treats);
-    };
-
-    getTreatments();
-  }, []);
-
   const handleAddRegion = (region: string) => {
     if (selectedTreatments.length === 0) {
       setSelectedRegions([region]);
-      setSelectedTreatments([
-        { region, treatments: { cod: "", name: "", price: "" } },
-      ]);
+      setSelectedTreatments([{ region, treatment: { name: "", price: "" } }]);
     } else {
       setSelectedRegions((prev) => [...prev, region]);
       setSelectedTreatments((prev) => [
         ...prev,
-        { region, treatments: { cod: "", name: "", price: "" } },
+        { region, treatment: { name: "", price: "" } },
       ]);
       return;
     }
@@ -95,20 +75,21 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
 
   const hasSelected = (t: string) => {
     const findRegion = selectedRegions.find((v) => v === t);
-    if (!findRegion) return "var(--dark-blue)";
-    else return "orangered";
+    if (!findRegion) return "primary";
+    else return "warning";
   };
 
   const renderRegions = (tooths: string[]) => {
     return tooths.map((v, i) => (
-      <button
+      <Button
         key={i}
-        className={"opacity0"}
+        variant="contained"
+        color={hasSelected(v)}
         onClick={() => handleAddRegion(v)}
-        style={{ ...buttonStyle, backgroundColor: hasSelected(v) }}
+        sx={{ ...buttonStyle }}
       >
         {v}
-      </button>
+      </Button>
     ));
   };
 
@@ -123,13 +104,29 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
   };
 
   const handleSubmit = async () => {
-    const hasValues = selectedTreatments.filter(
-      (v) => v.treatments.name === ""
-    );
+    const hasValues = selectedTreatments.filter((v) => v.treatment.name === "");
     if (hasValues.length > 0)
       return alert("Adicione os tratamentos para as regiões escolhidas!");
-    return onSaveTreatments("treatment_plan", selectedTreatments);
+    return onSaveTreatments(selectedTreatments);
   };
+
+  useEffect(() => {
+    const getTreatments = async () => {
+      return await handleGetTreatments().then(
+        (res) => {
+          let data = res.data.data;
+          let mapped = data?.map((v: any) => ({
+            name: v.attributes.name,
+            price: v.attributes.price,
+          }));
+          setTreatments(mapped);
+        },
+        (err) => console.log(err.response)
+      );
+    };
+
+    getTreatments();
+  }, []);
 
   return (
     <Box
@@ -140,43 +137,37 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
       sx={{ position: "relative" }}
       minWidth={"450px"}
     >
-      <IconClose onClick={() => props.setVisible(false)}>
-        <HighlightOffIcon />
-      </IconClose>
-      <Typography
-        variant="subtitle1"
-        alignSelf={"center"}
-        textAlign={"center"}
-        mt={5}
-        mb={2}
-      >
+      <Typography variant="h6" alignSelf={"center"} textAlign={"center"} mb={2}>
         Escolha a região e o tratamento necessário!
       </Typography>
 
       <OtherRegions>
         <Box width="100%">
-          <StyledButton
-            sx={{
-              width: "100%",
-              backgroundColor: hasSelected("Superior Total"),
-            }}
+          <Button
+            fullWidth
+            variant="contained"
+            color={hasSelected("Superior Total")}
             onClick={() => handleAddRegion("Superior Total")}
           >
             Superior Total
-          </StyledButton>
-          <Box display="flex" columnGap={1}>
-            <StyledButton
-              sx={{ width: "50%", backgroundColor: hasSelected("Sup. Dir.") }}
+          </Button>
+          <Box display="flex" columnGap={1} mt={1}>
+            <Button
+              fullWidth
+              variant="contained"
+              color={hasSelected("Sup. Dir.")}
               onClick={() => handleAddRegion("Sup. Dir.")}
             >
               Sup. Dir.
-            </StyledButton>
-            <StyledButton
-              sx={{ width: "50%", backgroundColor: hasSelected("Sup. Esq.") }}
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color={hasSelected("Sup. Esq.")}
               onClick={() => handleAddRegion("Sup. Esq.")}
             >
               Sup. Esq.
-            </StyledButton>
+            </Button>
           </Box>
         </Box>
       </OtherRegions>
@@ -190,29 +181,32 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
 
       <OtherRegions>
         <Box width="100%">
-          <Box display="flex" columnGap={1}>
-            <StyledButton
-              sx={{ width: "50%", backgroundColor: hasSelected("Inf. Dir.") }}
+          <Box display="flex" columnGap={1} mb={1}>
+            <Button
+              fullWidth
+              variant="contained"
+              color={hasSelected("Inf. Dir.")}
               onClick={() => handleAddRegion("Inf. Dir.")}
             >
               Inf. Dir.
-            </StyledButton>
-            <StyledButton
-              sx={{ width: "50%", backgroundColor: hasSelected("Inf. Esq.") }}
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color={hasSelected("Inf. Esq.")}
               onClick={() => handleAddRegion("Inf. Esq.")}
             >
               Inf. Esq.
-            </StyledButton>
+            </Button>
           </Box>
-          <StyledButton
-            sx={{
-              width: "100%",
-              backgroundColor: hasSelected("Inferior Total"),
-            }}
+          <Button
+            fullWidth
+            variant="contained"
+            color={hasSelected("Inferior Total")}
             onClick={() => handleAddRegion("Inferior Total")}
           >
             Inferior Total
-          </StyledButton>
+          </Button>
         </Box>
       </OtherRegions>
 
@@ -232,14 +226,15 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
             options={treatments}
             sx={{ width: "85%" }}
             limitTags={2}
-            value={v?.treatments}
+            value={v?.treatment}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) =>
-              option.name === value?.name
+              option.name === value?.name && option.price === value.price
             }
             onChange={(e, v) => {
               const clone = [...selectedTreatments];
-              clone[i].treatments = v;
+              let value = { name: v.name, price: v.price };
+              clone[i].treatment = value;
               setSelectedTreatments(clone);
             }}
             renderInput={(params) => (
@@ -254,14 +249,15 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
       ))}
 
       {selectedTreatments.length > 0 && (
-        <SaveButton
+        <Button
           variant="contained"
-          sx={{ backgroundColor: "var(--dark-blue)", color: "white" }}
+          color="primary"
+          sx={{ mt: 1 }}
           endIcon={<SaveIcon />}
           onClick={handleSubmit}
         >
           Salvar
-        </SaveButton>
+        </Button>
       )}
     </Box>
   );

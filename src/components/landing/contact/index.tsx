@@ -4,8 +4,8 @@ import { nameCapitalized } from "@/services/services";
 import { createUserLanding } from "@/services/requests/auth";
 import { Box } from "@mui/material";
 import styles from "../../styles/Landing.module.css";
-import { AuthErrors } from "@/services/errors";
 import Loading from "@/components/loading";
+import { AuthErrorCodes } from "firebase/auth";
 
 const ContactForm = () => {
   const router = useRouter();
@@ -73,7 +73,7 @@ const ContactForm = () => {
       })
       .catch((err) => {
         setIsLoading(false);
-        if (err.code === AuthErrors["01"]) {
+        if (err.code === AuthErrorCodes.EMAIL_EXISTS) {
           setModalError(true);
           setErrorMessage("Email já está em uso");
           return;

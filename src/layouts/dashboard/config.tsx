@@ -5,6 +5,7 @@ import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import ContactsIcon from "@mui/icons-material/Contacts";
 import HealingIcon from "@mui/icons-material/Healing";
 import { SvgIcon } from "@mui/material";
 
@@ -24,6 +25,15 @@ export const items = [
     icon: (
       <SvgIcon fontSize="small">
         <UsersIcon />
+      </SvgIcon>
+    ),
+  },
+  {
+    title: "Triagens",
+    path: "/admin/screenings",
+    icon: (
+      <SvgIcon fontSize="small">
+        <ContactsIcon />
       </SvgIcon>
     ),
   },

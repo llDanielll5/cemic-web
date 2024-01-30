@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { styled } from "@mui/material/styles";
@@ -5,12 +6,14 @@ import { SideNav } from "./side-nav";
 import { TopNav } from "./top-nav";
 import { useRecoilState } from "recoil";
 import UserData from "@/atoms/userData";
-import { handlePersistLogin } from "@/services/requests/auth";
 import { auth } from "@/services/firebase";
-import { setCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/router";
 import Loading from "@/components/loading";
 import LoadingServer from "@/atoms/components/loading";
+import { handlePersistLogin } from "@/axios/auth";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { Fab } from "@mui/material";
 
 const SIDE_NAV_WIDTH = 280;
 
@@ -36,40 +39,35 @@ export const DashboardLayout = (props: any) => {
   const [openNav, setOpenNav] = useState(false);
   const [userData, setUserData] = useRecoilState(UserData);
   const [loading, setLoading] = useRecoilState(LoadingServer);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const setNotUserCookie = setCookie("useruid", undefined);
   const router = useRouter();
 
+  const handleAddPatient = () => {
+    if (router.pathname !== "/admin/patients")
+      return router.push("/admin/patients");
+  };
+
   const handlePathnameChange = useCallback(() => {
-    if (openNav) {
-      setOpenNav(false);
-    }
+    if (openNav) setOpenNav(false);
   }, [openNav]);
+
   const handleLogout = async () => {
     setLoading((prev) => ({
       isLoading: true,
-      loadingMessage: '"Estamos deslogando sua conta!"',
+      loadingMessage: "Estamos deslogando sua conta!",
     }));
-    await auth.signOut().then(
-      () => {
-        setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
-        setNotUserCookie;
-        setUserData({});
-        router.push("/auth/login");
-      },
-      (err: any) => {
-        setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
-        return alert("Erro ao sair");
-      }
-    );
+
+    setCookie("jwt", undefined);
+    setCookie("user", undefined);
+
+    return await router.push("/auth/login").then((res) => {
+      if (res) setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
+    });
   };
 
-  const PersistLogin = async (user: any) => {
-    return await handlePersistLogin(user).then((finalUser) => {
-      if (finalUser === undefined) return handleLogout();
-      setUserData(finalUser);
-    });
+  const PersistLogin = async () => {
+    let persistance = handlePersistLogin();
+    if (persistance === null) return await handleLogout();
+    return setUserData(persistance);
   };
 
   useEffect(() => {
@@ -77,21 +75,12 @@ export const DashboardLayout = (props: any) => {
     setCookie("cashierType", null);
   }, []);
 
-  useEffect(
-    () => {
-      handlePathnameChange();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pathname]
-  );
+  useEffect(() => {
+    handlePathnameChange();
+  }, [pathname]);
 
   useEffect(() => {
-    const Unsubscribe = auth.onAuthStateChanged(async (User) => {
-      if (!User) return handleLogout();
-      await PersistLogin(User);
-    });
-
-    return () => Unsubscribe();
+    PersistLogin();
   }, []);
 
   if (loading.isLoading === true)
@@ -101,7 +90,15 @@ export const DashboardLayout = (props: any) => {
     <>
       <TopNav onNavOpen={() => setOpenNav(true)} logout={handleLogout} />
       <SideNav onClose={() => setOpenNav(false)} open={openNav} />
-
+      <Fab
+        color="primary"
+        aria-label="add"
+        title="Adicionar Paciente"
+        onClick={handleAddPatient}
+        sx={{ position: "fixed", bottom: "1rem", right: "1rem" }}
+      >
+        <PersonAddIcon />
+      </Fab>
       <LayoutRoot>
         <LayoutContainer>{children}</LayoutContainer>
       </LayoutRoot>

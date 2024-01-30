@@ -1,6 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
@@ -11,30 +10,31 @@ interface AddTreatmentProps {
 }
 
 const AddTreatment = (props: AddTreatmentProps) => {
-  const { handleGeneratePayment, openModal } = props;
+  const { handleGeneratePayment, openModal, treatments } = props;
   return (
-    <>
+    <Stack direction="row" justifyContent="center" columnGap={2}>
       <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-        <Typography variant="subtitle1">Adicionar tratamentos</Typography>
-
-        <StyledButton onClick={openModal} endIcon={<PostAddIcon />}>
+        <Button
+          variant="contained"
+          onClick={openModal}
+          startIcon={<PostAddIcon />}
+        >
           Adicionar Tratamento
-        </StyledButton>
+        </Button>
       </Box>
 
-      {props.treatments !== null && (
+      {treatments !== null && (
         <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
-          <Typography variant="subtitle1">Adicionar Pagamento</Typography>
-
-          <StyledButton
+          <Button
+            variant="contained"
             onClick={handleGeneratePayment}
-            endIcon={<AttachMoneyIcon />}
+            startIcon={<AttachMoneyIcon />}
           >
             Adicionar Pagamento
-          </StyledButton>
+          </Button>
         </Box>
       )}
-    </>
+    </Stack>
   );
 };
 

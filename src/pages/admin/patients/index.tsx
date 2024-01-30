@@ -1,96 +1,114 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-//@ts-nocheck
 import Head from "next/head";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import ArrowDownOnSquareIcon from "@heroicons/react/24/solid/ArrowDownOnSquareIcon";
-import ArrowUpOnSquareIcon from "@heroicons/react/24/solid/ArrowUpOnSquareIcon";
-import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
-import { useSelection } from "@/hooks/useSelection";
+import { useEffect, useState, useCallback } from "react";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
-import { CustomersTable } from "src/components/new-admin/customer/customers-table";
-import { CustomersSearch } from "src/components/new-admin/customer/customers-search";
-import { applyPagination } from "@/services/apply-pagination";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
+import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
+import CModal from "@/components/modal";
+import UserData from "@/atoms/userData";
+import NewPatientForm from "@/components/new-admin/patient/newPatient";
+import PatientsSort from "@/components/new-admin/patient/patients-sort";
+import { CustomersTable } from "@/components/new-admin/patient/customers-table";
+import { useRecoilValue } from "recoil";
+import { useRouter } from "next/router";
+import { PaginationProps } from "types";
 import {
+  handleGetPatientByCPF,
+  handleGetPatients,
+} from "@/axios/admin/patients";
+import {
+  Autocomplete,
   Box,
   Button,
   Container,
+  Pagination,
   Stack,
-  SvgIcon,
+  TextField,
   Typography,
 } from "@mui/material";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import CModal from "@/components/modal";
-import ClientInfos from "@/components/admin/clientInfos";
+import { PatientRole } from "types/patient";
 
-const useCustomerIds = (customers: any) => {
-  return useMemo(() => {
-    return customers.map((customer: any) => customer.id);
-  }, [customers]);
-};
-
-const clientRef = collection(db, "clients");
+export type SortType = "asc" | "desc";
+const pageSizeOptions = [5, 10, 20, 50, 100];
+export interface SortInterface {
+  [q: string]: SortType;
+}
 
 const PatientsPage = () => {
-  const orderByName = query(clientRef, orderBy("name"));
-  const snapshotPatients = useOnSnapshotQuery("clients", orderByName, []);
-  const [data, setData] = useState(snapshotPatients);
-
+  const router = useRouter();
+  const [data, setData] = useState([]);
+  const adminData: any = useRecoilValue(UserData);
+  const [currPage, setCurrPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [sort, setSort] = useState<SortType>("asc");
+  const [statusFilter, setStatusFilter] = useState<PatientRole | null>(null);
   const [searchPatientValue, setSearchPatientValue] = useState("");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [patientInfo, setPatientInfo] = useState({});
-  const [patientID, setPatientID] = useState(null);
-  const [patientDetailsVisible, setPatientDetailsVisible] = useState(false);
+  const [newPatientVisible, setNewPatientVisible] = useState(false);
+  const [dbPagination, setDbPagination] = useState<PaginationProps>({
+    page: 0,
+    pageCount: 0,
+    pageSize: 0,
+    total: 0,
+  });
 
-  const useCustomers = (page: any, rowsPerPage: any) => {
-    return useMemo(() => {
-      return applyPagination(data, page, rowsPerPage);
-    }, [page, rowsPerPage, data]);
+  const getPatients = async (
+    currPage?: number,
+    pageSize?: number,
+    sort?: string
+  ) => {
+    return await handleGetPatients(currPage, pageSize, sort).then(
+      (res: any) => {
+        let pagination = res.data.meta.pagination;
+        setData(res.data.data);
+        setDbPagination(pagination);
+        setCurrPage(pagination.page);
+        return;
+      },
+      (error) => console.log(error.response.data.error.details)
+    );
   };
 
-  const customers = useCustomers(page, rowsPerPage);
-  const customersIds = useCustomerIds(customers);
-  const customersSelection = useSelection(customersIds);
+  const handleChangePage = (e: any, value: number) => {
+    setCurrPage(value);
+    getPatients(value, pageSize, sort);
+  };
 
-  const handlePageChange = useCallback((event: any, value: any) => {
-    setPage(value);
-  }, []);
-
-  const handleRowsPerPageChange = useCallback((event: any) => {
-    setRowsPerPage(event.target.value);
-  }, []);
+  const handleChangeSort = (sort: SortType) => {
+    setSort(sort);
+    getPatients(currPage, pageSize, sort);
+  };
 
   const getPatientByCPF = async () => {
-    const q = query(clientRef, where("cpf", "==", searchPatientValue));
-    const snapshot = await getDocs(q);
-    if (snapshot.docs[0] === undefined)
-      return alert("Paciente não encontrado ou não existe!");
-    else {
-      let arr: any[] = [];
-      snapshot.docs.forEach((doc) => {
-        arr.push(doc.data());
-      });
-      setData(arr);
-    }
+    return await handleGetPatientByCPF(searchPatientValue).then(
+      (res) => {
+        let pagination = res.data.meta.pagination;
+        setData(res.data.data);
+        setDbPagination(pagination);
+        setCurrPage(pagination.page);
+      },
+      (err) => console.log(err.response)
+    );
   };
 
-  const handleClosePatientSingle = () => {
-    setPatientID(null);
-    setPatientInfo({});
-    setPatientDetailsVisible(false);
+  const handlePatientAdded = async () => {
+    setNewPatientVisible(!newPatientVisible);
+    return await getPatients();
   };
 
-  const handleGetPatientInfo = (patient: any) => {
-    setPatientID(patient.id);
-    setPatientInfo(patient);
-    setPatientDetailsVisible(true);
-  };
+  const handleClickPatient = (id: string) =>
+    router.push("/admin/patients/" + id);
+
+  const handleChangePatientVisible = () =>
+    setNewPatientVisible(!newPatientVisible);
 
   useEffect(() => {
-    if (searchPatientValue.length < 11) setData(snapshotPatients);
-  }, [searchPatientValue, snapshotPatients]);
+    if (searchPatientValue.length < 11) getPatients(currPage, pageSize, sort);
+    else getPatientByCPF();
+  }, [searchPatientValue]);
+
+  useEffect(() => {
+    getPatients(1, pageSize, sort);
+  }, [pageSize]);
 
   return (
     <>
@@ -98,33 +116,29 @@ const PatientsPage = () => {
         <title>Pacientes · CEMIC</title>
       </Head>
       <CModal
-        styles={{ width: "80%", overflow: "auto" }}
-        visible={patientDetailsVisible}
-        closeModal={handleClosePatientSingle}
+        styles={{ width: "90%", overflow: "auto", height: "95vh" }}
+        visible={newPatientVisible}
+        closeModal={handleChangePatientVisible}
       >
-        <ClientInfos client={patientInfo} />
+        <NewPatientForm onClose={handlePatientAdded} />
       </CModal>
 
       <Box component="main" sx={{ py: 8, overflow: "auto" }}>
         <Container maxWidth="xl">
           <Stack spacing={3}>
-            <Stack direction="row" justifyContent="space-between" spacing={4}>
+            <Stack direction="row" justifyContent="space-between" spacing={2}>
               <Stack spacing={1}>
                 <Typography variant="h4">Pacientes</Typography>
               </Stack>
-              <div>
-                <Button
-                  startIcon={
-                    <SvgIcon fontSize="small">
-                      <PlusIcon />
-                    </SvgIcon>
-                  }
-                  variant="contained"
-                >
-                  Add
-                </Button>
-              </div>
+              <Button
+                startIcon={<PersonAddAltIcon />}
+                onClick={handleChangePatientVisible}
+                variant="contained"
+              >
+                Add
+              </Button>
             </Stack>
+
             <CustomersSearch
               value={searchPatientValue}
               onChange={(e: any) => setSearchPatientValue(e.target.value)}
@@ -133,20 +147,48 @@ const PatientsPage = () => {
                 if (key === "Enter") getPatientByCPF();
               }}
             />
-            <CustomersTable
-              count={data.length}
-              items={customers}
-              onClick={handleGetPatientInfo}
-              onDeselectAll={customersSelection.handleDeselectAll}
-              onDeselectOne={customersSelection.handleDeselectOne}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              onSelectAll={customersSelection.handleSelectAll}
-              onSelectOne={customersSelection.handleSelectOne}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              selected={customersSelection.selected}
+
+            <PatientsSort
+              handleChangeSort={handleChangeSort}
+              sort={sort}
+              filterStatus={statusFilter}
+              setFilterStatus={setStatusFilter}
             />
+
+            <CustomersTable items={data} onClick={handleClickPatient} />
+
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-around"
+              mb={2}
+            >
+              <Box />
+              {dbPagination.page !== 0 && (
+                <Pagination
+                  page={currPage}
+                  size="small"
+                  onChange={handleChangePage}
+                  count={dbPagination.pageCount}
+                />
+              )}
+
+              <Autocomplete
+                options={pageSizeOptions}
+                value={pageSize}
+                getOptionLabel={(option: number) => option.toString()}
+                onChange={(e, v) => setPageSize(v!)}
+                clearIcon={false}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="P/ Pagina"
+                    variant="outlined"
+                    sx={{ backgroundColor: "white" }}
+                  />
+                )}
+              />
+            </Box>
           </Stack>
         </Container>
       </Box>
