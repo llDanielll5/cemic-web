@@ -164,6 +164,7 @@ const RegisterPage = () => {
           })
           .catch((error) => {
             if (error.response) console.log(error.response.data.error.details);
+            console.log(error.response);
             setIsLoading(false);
             return alert("Erroooooo");
           });
