@@ -158,7 +158,7 @@ const RegisterPage = () => {
 
       try {
         return await handleRegister(data)
-          .then((res) => {
+          .then(() => {
             setIsLoading(false);
             return router.push("/auth/login");
           })
