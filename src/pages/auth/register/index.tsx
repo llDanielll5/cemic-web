@@ -158,11 +158,12 @@ const RegisterPage = () => {
 
       try {
         return await handleRegister(data)
-          .then(() => {
+          .then((res) => {
             setIsLoading(false);
             return router.push("/auth/login");
           })
-          .catch((err) => {
+          .catch((error) => {
+            if (error.response) console.log(error.response.data.error.details);
             setIsLoading(false);
             return alert("Erroooooo");
           });

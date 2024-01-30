@@ -5,23 +5,18 @@ import { serverUrl } from "..";
 export const handleRegister = async (data: any) => {
   const { role, password, email, phone, rg, cpf, dateBorn, name, username } =
     data;
-  return axios
-    .post(`${serverUrl}/auth/local/register`, {
-      email,
-      password,
-      name,
-      phone,
-      cpf,
-      rg,
-      userType: role,
-      firstLetter: name.charAt(0).toUpperCase(),
-      dateBorn,
-      username,
-    })
-    .then((response) => alert("Parceiro cadastrado com sucesso!"))
-    .catch((error) => {
-      if (error.response) console.log(error.response.data.error.details);
-    });
+  return axios.post(`${serverUrl}/auth/local/register`, {
+    email,
+    password,
+    name,
+    phone,
+    cpf,
+    rg,
+    userType: role,
+    firstLetter: name.charAt(0).toUpperCase(),
+    dateBorn,
+    username,
+  });
 };
 
 export const handleLogin = async (data: any) => {
