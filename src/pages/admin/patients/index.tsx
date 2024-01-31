@@ -145,7 +145,9 @@ const PatientsPage = () => {
               onChange={(e: any) => setSearchPatientValue(e.target.value)}
               onClick={() => getPatientByCPF()}
               onKeyDown={({ key }: any) => {
-                if (key === "Enter") getPatientByCPF();
+                if (key === "Enter") {
+                  return getPatientByCPF();
+                }
               }}
             />
 
