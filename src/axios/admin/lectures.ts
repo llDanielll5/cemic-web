@@ -1,35 +1,25 @@
 import axios from "axios";
-import { serverUrl, headerAuth } from "..";
+import axiosInstance, { serverUrl } from "..";
 
 export const getActualLectureDetails = async (dateString: string) => {
   let data = { dateString };
 
-  return await axios.post(
-    `${serverUrl}/lectures/getLecturesByDay`,
-    data,
-    headerAuth
-  );
+  return await axiosInstance.post(`/lectures/getLecturesByDay`, data);
 };
 
 export const schedulePatientLecture = async (data: any) => {
   let { date, participant, hour, admin } = data;
-
   let dataCreate = { dateString: date, participant, hour, admin };
 
-  return await axios.post(
-    `${serverUrl}/lectures/scheduleLecture`,
-    dataCreate,
-    headerAuth
-  );
+  return await axiosInstance.post(`/lectures/scheduleLecture`, dataCreate);
 };
 
 export const getLectureDetails = async (id: string) => {
-  return await axios.get(`${serverUrl}/lectures/${id}?populate=*`, headerAuth);
+  return await axiosInstance.get(`/lectures/${id}?populate=*`);
 };
 
 export const updateSingleLecture = async (id: string, data: any) => {
   let { admin, examRequest, isMissed } = data;
-
   let dataCreate = {
     data: {
       adminInfos: { updated: admin, updateTimestamp: new Date() },
@@ -38,9 +28,5 @@ export const updateSingleLecture = async (id: string, data: any) => {
     },
   };
 
-  return await axios.put(
-    `${serverUrl}/lectures/${id}?populate=*`,
-    dataCreate,
-    headerAuth
-  );
+  return await axiosInstance.put(`/lectures/${id}?populate=*`, dataCreate);
 };

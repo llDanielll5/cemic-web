@@ -27,6 +27,7 @@ import {
   Typography,
 } from "@mui/material";
 import { PatientRole } from "types/patient";
+import { getCookie } from "cookies-next";
 
 export type SortType = "asc" | "desc";
 const pageSizeOptions = [5, 10, 20, 50, 100];

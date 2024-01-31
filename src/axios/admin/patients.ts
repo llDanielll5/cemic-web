@@ -1,6 +1,6 @@
 import axios from "axios";
 import { nameCapitalized } from "@/services/services";
-import { serverUrl, headerAuth } from "..";
+import axiosInstance, { serverUrl } from "..";
 
 export const handleCreatePatient = async (data: any) => {
   const {
@@ -31,8 +31,7 @@ export const handleCreatePatient = async (data: any) => {
   const completeName = nameCapitalized(name!);
 
   let hasRegistered = await axios.get(
-    `${serverUrl}/patients?filters[cpf][$eq]=${cpfReplaced}`,
-    headerAuth
+    `${serverUrl}/patients?filters[cpf][$eq]=${cpfReplaced}`
   );
 
   if (hasRegistered.data.data.length > 0)
@@ -64,7 +63,7 @@ export const handleCreatePatient = async (data: any) => {
       },
     },
   };
-  return await axios.post(`${serverUrl}/patients`, dataCreate, headerAuth);
+  return await axiosInstance.post(`/patients`, dataCreate);
 };
 
 export const handleGetPatients = async (
@@ -78,48 +77,33 @@ export const handleGetPatients = async (
   if (page === 0) page = 1;
   if (size === undefined) size = 10;
   if (!ord || ord === undefined) sort = "asc";
-  // let hasFilter =
-  //   filters !== null
-  //     ? `&filters[role][$eq]=${filters}`
-  //     : filters === undefined
-  //     ? ""
-  //     : "";
 
-  return await axios.get(
-    `${serverUrl}/patients?pagination[page]=${page}&pagination[pageSize]=${size}&populate=*&sort[0]=name:${sort}`,
-    headerAuth
+  return await axiosInstance.get(
+    `/patients?pagination[page]=${page}&pagination[pageSize]=${size}&populate=*&sort[0]=name:${sort}`
   );
 };
 
 export const handleGetPatientByCPF = async (cpf: string) => {
-  return await axios.get(
-    `${serverUrl}/patients?filters[cpf]=${cpf}`,
-    headerAuth
-  );
+  return await axiosInstance.get(`/patients?filters[cpf]=${cpf}`);
 };
 
 export const handleGetSinglePatient = async (id: string) => {
   //TODO AUMENTAR OS POPULATES DE ACORDO COM O AUMENTO DE INFORMAÇÕES DO PACIENTE NO DB
-  return await axios.get(
-    `${serverUrl}/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*`,
-    headerAuth
+  return await axiosInstance.get(
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*`
   );
 };
 
 export const handleUpdatePatient = async (id: string, data: any) => {
-  return await axios.put(`${serverUrl}/patients/${id}`, data, headerAuth);
+  return await axiosInstance.put(`/patients/${id}`, data);
 };
 
 export const handleGetPatientTreatments = async (id: string) => {
-  return await axios.get(
-    `${serverUrl}/patients/${id}?populate[treatments][populate]=*&populate[screening][populate]=*`,
-    headerAuth
+  return await axiosInstance.get(
+    `/patients/${id}?populate[treatments][populate]=*&populate[screening][populate]=*`
   );
 };
 
 export const getPatientWithSameCardId = async (cardId: string) => {
-  return await axios.get(
-    `${serverUrl}/patients/?filters[cardId]=${cardId}`,
-    headerAuth
-  );
+  return await axiosInstance.get(`/patients/?filters[cardId]=${cardId}`);
 };

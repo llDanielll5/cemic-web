@@ -1,13 +1,10 @@
 import axios from "axios";
-import { headerAuth, serverUrl } from "..";
+import axiosInstance from "..";
 
 export const handleGetAllDentists = async () => {
-  return await axios.post(`${serverUrl}/lectures/?populate=*`, headerAuth);
+  return await axiosInstance.post(`/lectures/?populate=*`);
 };
 
 export const getListOfDentists = async () => {
-  return await axios.get(
-    `${serverUrl}/users-permissions/getDentists`,
-    headerAuth
-  );
+  return await axiosInstance.get(`/users-permissions/getDentists`);
 };
