@@ -77,7 +77,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     let reduced: any[] = [];
     let treatmentsSaveds = data?.treatments?.toDo;
 
-    return console.log(treatmentsSaveds);
+    return console.log(values);
 
     // setIsLoading(true);
     if (treatmentsSaveds.length > 0) {

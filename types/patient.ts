@@ -59,6 +59,7 @@ export interface PatientInterface {
   payments: any;
   treatmentPlan: TreatmentPlanInterface[];
   forwardedTreatment: any;
+  exams: Exam;
 }
 
 interface PatientPaymentsHistoryInterface {
@@ -76,4 +77,8 @@ export interface ReceiptsInterface {
   treatments: [];
   value: number;
   asign: any;
+}
+export interface Exam {
+  name: string;
+  file: any;
 }

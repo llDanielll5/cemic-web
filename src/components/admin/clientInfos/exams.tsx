@@ -9,12 +9,12 @@ import {
   Avatar,
   styled,
   TextField,
+  Button,
 } from "@mui/material";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
-import uploadFile from "@/services/uploadFile";
 import Loading from "@/components/loading";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,8 +29,11 @@ import {
 } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 import Link from "next/link";
+import { handleUpdatePatient, uploadFile } from "@/axios/admin/patients";
+import { Exam } from "types/patient";
 
 interface ClientExamsProps {
   client: any;
@@ -105,6 +108,33 @@ const ClientExams = (props: ClientExamsProps) => {
       return alert("Erro ao realizar upload de imagem");
     }
   };
+  console.log(client);
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!event.target.files || event.target.files.length === 0) {
+      return; // User canceled file selection
+    }
+    const file = event.target.files[0];
+    const data = new FormData();
+    data.append("files", file);
+
+    await uploadFile(data, file.type)
+      .then(async (res) => {
+        const { name, id } = res.data[0];
+        const newExam: Exam = { file: id, name };
+        const patientId = client!.id;
+        const clientExams = [...(client.attributes?.exams ?? [])];
+        const updateData = {
+          data: {
+            exams: [...clientExams, newExam],
+          },
+        };
+
+        await handleUpdatePatient(patientId, updateData)
+          .then((e) => console.log(e))
+          .catch((e) => console.log(e));
+      })
+      .catch((error) => console.log("Err: ", error));
+  }
 
   const handleSeeExam = (media: string) => {
     setDocument({ file: media });
@@ -210,9 +240,23 @@ const ClientExams = (props: ClientExamsProps) => {
           Exames do paciente
         </Typography>
       </Box>
+
       {snapExams.length === 0 && (
-        <Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          gap={"12px"}
+        >
           <h5>Não há exames salvos</h5>
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+          >
+            Upload de arquivo
+            <VisuallyHiddenInput onChange={handleFileUpload} type="file" />
+          </Button>
         </Box>
       )}
       {snapExams.length > 0 &&
@@ -263,6 +307,18 @@ const IconBack = styled(IconButton)`
   background-color: white;
   border-radius: 50%;
   z-index: 5000;
+`;
+
+const VisuallyHiddenInput = styled("input")`
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+  width: 1;
 `;
 
 export default ClientExams;

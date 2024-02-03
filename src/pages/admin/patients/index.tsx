@@ -65,7 +65,7 @@ const PatientsPage = () => {
         setCurrPage(pagination.page);
         return;
       },
-      (error) => console.log(error.response.data.error.details)
+      (error) => console.log(error.response)
     );
   };
 

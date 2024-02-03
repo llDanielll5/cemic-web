@@ -30,8 +30,8 @@ export const handleCreatePatient = async (data: any) => {
 
   const completeName = nameCapitalized(name!);
 
-  let hasRegistered = await axios.get(
-    `${serverUrl}/patients?filters[cpf][$eq]=${cpfReplaced}`
+  let hasRegistered = await axiosInstance.get(
+    `/patients?filters[cpf][$eq]=${cpfReplaced}`
   );
 
   if (hasRegistered.data.data.length > 0)
@@ -90,7 +90,7 @@ export const handleGetPatientByCPF = async (cpf: string) => {
 export const handleGetSinglePatient = async (id: string) => {
   //TODO AUMENTAR OS POPULATES DE ACORDO COM O AUMENTO DE INFORMAÇÕES DO PACIENTE NO DB
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*`
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[exams]=*`
   );
 };
 
@@ -106,4 +106,12 @@ export const handleGetPatientTreatments = async (id: string) => {
 
 export const getPatientWithSameCardId = async (cardId: string) => {
   return await axiosInstance.get(`/patients/?filters[cardId]=${cardId}`);
+};
+
+export const uploadFile = async (file: FormData, type?: string) => {
+  return await axiosInstance.post("/upload/", file, {
+    headers: {
+      "Content-Type": type ?? "application/pdf",
+    },
+  });
 };

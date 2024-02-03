@@ -203,10 +203,10 @@ const NewPatientForm = (props: AnamneseProps) => {
       createdBy: adminData?.id,
       cardId,
     };
-
+    console.log(clientData);
     return await handleCreatePatient(clientData).then(
       (res: any) => {
-        if (!!res.alert) return alert(res.alert);
+        if (!!res.alert) return alert(res);
         props.onClose();
       },
       (err) => console.log(err.response)
