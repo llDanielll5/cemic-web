@@ -44,22 +44,38 @@ const ClientInformationsAdmin = (props: ClientInformationsProps) => {
     handleGetPatient();
   }, []);
 
-  if (notHasClient) return <Typography my={2}>Não há cliente</Typography>;
-  if (hasAnamnese)
+  if (notHasClient) return <></>;
+  if (tabIndex === 0) return <Box />;
+  if (tabIndex === 1)
     return (
-      <ClientAnamneseInfos
-        anamneseValues={anamneseValues}
-        anamneseKeys={anamneseKeys}
+      <Box width="100%">
+        <Typography
+          textAlign={"center"}
+          variant="h4"
+          color={(theme: any) => theme.palette.primary}
+        >
+          Anamnese
+        </Typography>
+        <ClientAnamneseInfos
+          anamneseValues={anamneseValues}
+          anamneseKeys={anamneseKeys}
+          client={patientData}
+          onUpdate={handleGetPatient}
+        />
+      </Box>
+    );
+  if (tabIndex === 2) return <Receipt client={patientData} />;
+  if (tabIndex === 3)
+    return (
+      <ClientInfosTreatments
         client={patientData}
-        onUpdate={handleGetPatient}
+        onUpdatePatient={handleGetPatient}
       />
     );
-  if (tabIndex === 1) return <Receipt client={patientData} />;
-  if (tabIndex === 2) return <ClientInfosTreatments client={patientData} />;
-  if (tabIndex === 3) return <ClientExams client={patientData} />;
-  if (tabIndex === 4) return <SchedulesPatient client={patientData} />;
-  if (tabIndex === 5) return <ClientProblems client={patientData} />;
-  if (tabIndex === 6) return <ClientDocuments client={patientData} />;
+  if (tabIndex === 4) return <ClientExams client={patientData} />;
+  if (tabIndex === 5) return <SchedulesPatient client={patientData} />;
+  if (tabIndex === 6) return <ClientProblems client={patientData} />;
+  if (tabIndex === 7) return <ClientDocuments client={patientData} />;
 
   return (
     <Box p={2}>

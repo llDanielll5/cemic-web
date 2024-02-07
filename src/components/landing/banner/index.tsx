@@ -12,6 +12,7 @@ const BannerLanding = (props: { aboutRef: any }) => {
   const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
     msg
   )}`;
+
   const renderImageBanner = () => (
     <Box position="relative">
       <BannerContainer>

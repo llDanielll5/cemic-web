@@ -450,7 +450,7 @@ const CashAdmin = () => {
     getMonthTotal();
   }, [handleGetMonthValue, getMonthTotal]);
 
-  if (userData?.role !== "admin") return;
+  if (userData?.userType !== "ADMIN") return;
 
   const handleSelectCashierType = (type: number) => {
     setCashierType(type);

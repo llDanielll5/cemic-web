@@ -4,7 +4,6 @@ import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { parseDateBr } from "@/services/services";
 import { ResultBox } from "@/components/dynamicAdminBody/lectures/addPatient";
 import { getListOfDentists } from "@/axios/admin/dentists";
-import { headerAuth } from "@/axios/admin/treatments";
 import { TextCPFCustom } from "@/pages/auth/register";
 import { formatISO } from "date-fns";
 import { useRecoilValue } from "recoil";
@@ -43,6 +42,7 @@ import {
   schedulePatientScreening,
   updateScreeningTreatment,
 } from "@/axios/admin/screenings";
+import axiosInstance from "@/axios";
 
 const ScreeningsPage = () => {
   const [data, setData] = useState<any | null>(null);
@@ -156,18 +156,17 @@ const ScreeningsPage = () => {
   }, [dateSelected]);
 
   async function handleDeleteScreening(id: string) {
-    return await axios
-      .delete(`${process.env.DEV_SERVER_URL}/screenings/${id}`, headerAuth)
+    return await axiosInstance
+      .delete(`${process.env.DEV_SERVER_URL}/screenings/${id}`)
       .then(
         (res) => getScheduleds(),
         (err) => console.log(err.response)
       );
   }
   async function handleEditScreening(id: any) {
-    return await axios
+    return await axiosInstance
       .get(
-        `${process.env.DEV_SERVER_URL}/screenings/${id}?populate[patient]=*&populate[dentist]=*&populate[treatmentPlan]=*`,
-        headerAuth
+        `${process.env.DEV_SERVER_URL}/screenings/${id}?populate[patient]=*&populate[dentist]=*&populate[treatmentPlan]=*`
       )
       .then(
         (res) => setEditModal({ visible: true, data: res.data.data }),

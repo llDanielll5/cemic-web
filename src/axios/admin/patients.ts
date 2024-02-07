@@ -1,6 +1,7 @@
 import axios from "axios";
 import { nameCapitalized } from "@/services/services";
 import axiosInstance, { serverUrl } from "..";
+import { defaultOdontogram } from "types/odontogram";
 
 export const handleCreatePatient = async (data: any) => {
   const {
@@ -30,8 +31,8 @@ export const handleCreatePatient = async (data: any) => {
 
   const completeName = nameCapitalized(name!);
 
-  let hasRegistered = await axios.get(
-    `${serverUrl}/patients?filters[cpf][$eq]=${cpfReplaced}`
+  let hasRegistered = await axiosInstance.get(
+    `/patients?filters[cpf][$eq]=${cpfReplaced}`
   );
 
   if (hasRegistered.data.data.length > 0)
@@ -54,13 +55,6 @@ export const handleCreatePatient = async (data: any) => {
       cpf: cpfReplaced,
       phone: phoneReplaced,
       adminInfos: { created: createdBy, createTimestamp: new Date() },
-      treatments: {
-        all: [],
-        toDo: [],
-        inProgress: [],
-        negotiateds: [],
-        forwardeds: [],
-      },
     },
   };
   return await axiosInstance.post(`/patients`, dataCreate);
@@ -90,7 +84,7 @@ export const handleGetPatientByCPF = async (cpf: string) => {
 export const handleGetSinglePatient = async (id: string) => {
   //TODO AUMENTAR OS POPULATES DE ACORDO COM O AUMENTO DE INFORMAÇÕES DO PACIENTE NO DB
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*`
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram]=*`
   );
 };
 

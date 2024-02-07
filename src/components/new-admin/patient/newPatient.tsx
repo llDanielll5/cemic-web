@@ -215,9 +215,6 @@ const NewPatientForm = (props: AnamneseProps) => {
 
   return (
     <Container>
-      <IconButton sx={{ alignSelf: "flex-end" }} onClick={props.onClose}>
-        <CancelIcon />
-      </IconButton>
       {page === 0 && (
         <UserForm
           handleChange={handleChange}

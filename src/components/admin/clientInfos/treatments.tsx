@@ -16,9 +16,16 @@ import {
   handleGetPatientTreatments,
   handleUpdatePatient,
 } from "@/axios/admin/patients";
+import { defaultOdontogram } from "types/odontogram";
+import {
+  handleCreateOdontogram,
+  updateToothOfPatient,
+} from "@/axios/admin/odontogram";
+import { formatISO } from "date-fns";
 
 interface ClientTreatmentsInterface {
   client: PatientInterface;
+  onUpdatePatient: any;
 }
 
 interface TreatmentsInterface {
@@ -43,7 +50,7 @@ type ReceiptType = ReceiptValuesProps | null;
 type PayShapeArr = PaymentShapesArray[];
 
 const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
-  const { client }: any = props;
+  const { client, onUpdatePatient }: any = props;
   const [vezes, setVezes] = useState("");
   const adminData: any = useRecoilValue(UserData);
   const [discount, setDiscount] = useState(5);
@@ -61,6 +68,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
+  let clientOdontogram = client?.attributes?.odontogram?.data;
 
   const [data, setData] = useState<TreatmentsInterface>({
     treatments: null,
@@ -71,46 +79,30 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     return;
   }, []);
 
-  const handleCloseAddTreatment = () => setAddTreatmentVisible(false);
+  const handleCloseAddTreatment = async () => {
+    setAddTreatmentVisible(false);
+    return await getTreatments();
+  };
 
-  const handleSubmitTreatment = async (values: any[]) => {
-    let reduced: any[] = [];
-    let treatmentsSaveds = data?.treatments?.toDo;
+  const handleSubmitTreatment = async (values: any, odontogramId: any) => {
+    //Aqui ele pega o histórico da atualização criada naquela data para o odontograma do paciente
+    let newDate = formatISO(new Date()).substring(0, 19);
+    let odontogram = { ...clientOdontogram };
+    let { attributes } = odontogram;
+    let { tooths } = attributes;
+    let adminInfos = {
+      updated: adminData?.id,
+      updateTimestamp: new Date(),
+      history: { [newDate]: tooths },
+    };
 
-    return console.log(treatmentsSaveds);
-
-    // setIsLoading(true);
-    if (treatmentsSaveds.length > 0) {
-      let newArr = [...values];
-      newArr.forEach((item) => {
-        var duplicated =
-          reduced.findIndex((val) => {
-            return (
-              item.region === val.region &&
-              item.treatment.name === val.treatment.name
-            );
-          }) > -1;
-
-        if (!duplicated) reduced.push(item);
-      });
-    }
-
-    let patientData = {};
-    let adminInfos = { updated: adminData?.id, updateTimestamp: new Date() };
-
-    if (reduced.length === 0) {
-      patientData = { data: { treatments: { all: values }, adminInfos } };
-    } else {
-      patientData = { data: { treatments: { all: values }, adminInfos } };
-    }
-
-    return await handleUpdatePatient(client!.id, patientData).then(
-      (res) => {
-        setIsLoading(false);
+    return await updateToothOfPatient(odontogramId, values, adminInfos).then(
+      async (res) => {
+        onUpdatePatient();
         handleCloseAddTreatment();
         return alert("Tratamento atualizado!");
       },
-      (err) => console.log(err.response)
+      (err) => console.log(err)
     );
   };
 
@@ -118,62 +110,42 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     (
       arr: {
         region: string;
-        treatments: { cod: string; name: string; price: string };
+        treatment: { name: string; price: number; id: string };
       }[]
     ) => {
       const prices: number[] = [];
 
       const arrMap = arr?.map((v) => {
-        let hasPoint = v?.treatments?.price?.includes(".");
-        if (hasPoint)
-          prices.push(parseFloat(v?.treatments?.price.replaceAll(".", "")));
-        else prices.push(parseFloat(v?.treatments?.price));
+        let hasPoint = v?.treatment?.price;
+        if (hasPoint) prices.push(v?.treatment?.price);
+        else prices.push(v?.treatment?.price);
       });
 
       if (arrMap.length > 0) {
-        let reduced = prices?.reduce(
-          (prev, curr) =>
-            parseFloat(prev.toFixed(2)) + parseFloat(curr.toFixed(2))
-        );
+        let reduced = prices?.reduce((prev, curr) => prev + curr);
 
         if (paymentType === "pix/cash") {
           let discounted = (reduced * discount) / 100;
           if (!discount) {
             reduced = reduced;
           } else reduced -= discounted;
-
-          setTotalValue(parseFloat(reduced.toFixed(2)));
-          setTotalValueString(reduced.toFixed(2));
+          setTotalValue(reduced);
           return;
         } else if (paymentType === "credit") {
           let percent = (reduced * 10) / 100;
           reduced += percent;
-          setTotalValue(parseFloat(reduced.toFixed(2)));
-          setTotalValueString(reduced.toFixed(2));
+          setTotalValue(reduced);
           return;
-        } else {
-          setTotalValue(parseFloat(reduced.toFixed(2)));
-          setTotalValueString(reduced.toFixed(2));
-          return;
-        }
+        } else return setTotalValue(reduced);
       } else return;
     },
     [paymentType, discount]
   );
 
-  useEffect(() => {
-    getTotalValue(negotiateds);
-  }, [getTotalValue, negotiateds]);
-
-  useEffect(() => {
-    if (client?.actualProfessional !== "") return;
-    getActualProfessional();
-  }, [client?.actualProfessional, getActualProfessional]);
-
   const handleGeneratePayment = () => {
     if (data?.treatments?.all.length === 0) return;
-    let allTreatments = data?.treatments?.all;
-    let negotiateds = data?.treatments?.negotiateds;
+    let allTreatments = data?.treatments?.all ?? [];
+    let negotiateds = data?.treatments?.negotiateds ?? [];
 
     let reduced: any[] = [];
     allTreatments.forEach((item: any) => {
@@ -181,11 +153,13 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         negotiateds.findIndex((val: any) => {
           return (
             item.region === val.region &&
-            item.treatments.cod === val.treatments.cod
+            item.treatment.cod === val.treatment.cod &&
+            item.treatment.id === val.treatment.id
           );
         }) > -1;
       if (!duplicated) reduced.push(item);
     });
+
     setTreatmentsToPay(reduced);
     setPaymentModal(true);
   };
@@ -209,14 +183,11 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     return;
   };
 
-  const money = totalValueString.replace(".", "");
-  const masked = maskValue(money);
-
   const handleViewPayment = async () => {
     if (discount > 8 || discount < 5)
       return alert("Desconto não liberado no sistema");
 
-    const totalValue = masked;
+    const totalValue = "";
     const patientName = client?.name;
     const dateNow = new Date().toLocaleDateString("pt-br");
     const treatmentsString = negotiateds.flatMap(
@@ -317,47 +288,18 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     updateTreatmentsPayeds();
 
     return;
+  };
 
-    // const receiptDoc = await F.addDoc(receiptRef, receiptData);
-    // if (receiptDoc) {
-    //   const paymentData = {
-    //     client: client?.id,
-    //     receipt: receiptDoc.id,
-    //     shape: paymentShape,
-    //     total: totalValue,
-    //     totalStr: totalValueString,
-    //   };
-    //   const paymentDoc = await F.addDoc(paymentsRef, paymentData);
-
-    //   if (paymentDoc) {
-    //     let refReceipt = F.doc(db, "receipts", receiptDoc.id);
-    //     return await F.updateDoc(refReceipt, {
-    //       paymentId: paymentDoc.id,
-    //     }).then(async () => {
-    //       return await F.updateDoc(clientRef, { role: "patient" })
-    //         .then(async () => {
-    //           return await F.updateDoc(clientTreatmentRef, {
-    //             "negotiateds.toRealize": F.arrayUnion(...negotiatedsToRealize),
-    //             "negotiateds.payeds": F.arrayUnion(...negotiateds),
-    //           })
-    //             .then(() => {
-    //               setIsLoading(false);
-    //               onCloseModalPayment();
-    //               return;
-    //             })
-    //             .catch((err) => {
-    //               setIsLoading(false);
-    //             });
-    //         })
-    //         .catch(() => {
-    //           setIsLoading(false);
-    //           return alert("Erro ao atualizar o paciente");
-    //         });
-    //     });
-    //   }
-    // } else return alert("Deu erro");
-
-    // return;
+  const openAddTreatment = async () => {
+    if (clientOdontogram === null) {
+      return await handleCreateOdontogram(client?.id!).then(
+        (res) => {
+          alert("Odontograma do paciente criado!");
+          onUpdatePatient();
+        },
+        (err) => console.log(err.response)
+      );
+    } else setAddTreatmentVisible(true);
   };
 
   const getInformations = (data: any) => {
@@ -377,20 +319,17 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     getTreatments();
   }, [getTreatments]);
 
+  useEffect(() => {
+    getTotalValue(negotiateds);
+  }, [getTotalValue, negotiateds]);
+
+  useEffect(() => {
+    if (client?.actualProfessional !== "") return;
+    getActualProfessional();
+  }, [client?.actualProfessional, getActualProfessional]);
+
   return (
     <Box py={2} width="100%">
-      <Modal
-        visible={addTreatmentVisible}
-        closeModal={handleCloseAddTreatment}
-        styles={{ height: "95vh", overflow: "auto" }}
-      >
-        <TreatmentPlanUpdate
-          onSaveTreatments={handleSubmitTreatment}
-          setVisible={setAddTreatmentVisible}
-          previousTreatments={data?.treatments?.all}
-        />
-      </Modal>
-
       <Modal visible={paymentModal} closeModal={onCloseModalPayment}>
         <ModalPaymentAdmin
           vezes={vezes}
@@ -537,9 +476,15 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
       {client?.role !== "PRE-REGISTER" && (
         <AddTreatment
-          openModal={() => setAddTreatmentVisible(true)}
+          openModal={openAddTreatment}
           handleGeneratePayment={handleGeneratePayment}
           treatments={data?.treatments?.all}
+        />
+      )}
+      {clientOdontogram !== undefined && (
+        <TreatmentPlanUpdate
+          patientOdontogram={clientOdontogram ?? undefined}
+          onSaveTreatments={handleSubmitTreatment}
         />
       )}
     </Box>

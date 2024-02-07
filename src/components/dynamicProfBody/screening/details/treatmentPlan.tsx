@@ -8,32 +8,31 @@ import {
   Typography,
   styled,
   Button,
-  Autocomplete,
   TextField,
-  IconButton,
+  Menu,
+  MenuItem,
+  Divider,
+  Autocomplete,
 } from "@mui/material";
+import { getOdontogramDetails } from "@/axios/admin/odontogram";
+import CModal from "@/components/modal";
+import { ToothsInterface } from "types/odontogram";
+import { formatISO } from "date-fns";
+import IconButton from "@/components/iconButton";
+import ToothHistoryTable from "@/components/table/toothHistory";
 
 interface TreatmentPlanUpdateProps {
-  onSaveTreatments: (data: any) => void;
-  setVisible: any;
-  previousTreatments: any[];
-}
-
-interface TreatmentPlan {
-  region: string;
-  treatment: {
-    name: string;
-    price: string;
-  };
+  onSaveTreatments: (data: any, odontogramId: any) => Promise<any>;
+  patientOdontogram: any;
 }
 
 const buttonStyle = {
-  margin: "1px 2px",
+  margin: "1px 2.8px",
   padding: "1.8px",
-  maxWidth: "20px",
-  maxHeight: "24px",
-  width: "20px",
-  height: "24px",
+  maxWidth: "35px",
+  maxHeight: "34px",
+  width: "35px",
+  height: "34px",
   fontWeight: 700,
   fontSize: "14px",
   outline: "none",
@@ -43,34 +42,50 @@ const buttonStyle = {
 };
 
 const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
-  const { onSaveTreatments, previousTreatments } = props;
+  const { onSaveTreatments, patientOdontogram } = props;
   const { lb, lt, rb, rt } = dentalArch;
   const [treatments, setTreatments] = useState<any[]>([]);
+  const [toothDetails, setToothDetails] = useState<any>([]);
+  const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
+  const [treatmentToAdd, setTreatmentToAdd] = useState(null);
+
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [selectedTreatments, setSelectedTreatments] = useState<TreatmentPlan[]>(
-    []
-  );
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (previousTreatments?.length === 0 || previousTreatments === undefined)
-      return;
-    setSelectedTreatments((prev) => [...previousTreatments]);
-    let previousRegions: any[] = previousTreatments?.map((v) => v?.region);
-    setSelectedRegions((prev) => [...prev, ...previousRegions]);
-  }, [previousTreatments]);
+  // Tooth Menu #
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setAnchorEl(event.currentTarget);
+  const handleClose = () => {
+    setSelectedRegion(null);
+    setAnchorEl(null);
+  };
+  // END Tooth Menu #
 
-  const handleAddRegion = (region: string) => {
-    if (selectedTreatments.length === 0) {
-      setSelectedRegions([region]);
-      setSelectedTreatments([{ region, treatment: { name: "", price: "" } }]);
-    } else {
-      setSelectedRegions((prev) => [...prev, region]);
-      setSelectedTreatments((prev) => [
-        ...prev,
-        { region, treatment: { name: "", price: "" } },
-      ]);
-      return;
-    }
+  // useEffect(() => {
+  //   if (previousTreatments?.length === 0 || previousTreatments === undefined)
+  //     return;
+  //   setSelectedTreatments([...previousTreatments]);
+  //   let previousRegions: any[] = previousTreatments?.map((v) => v?.region);
+  //   setSelectedRegions((prev) => [...prev, ...previousRegions]);
+  // }, [previousTreatments]);
+
+  const handleGetRegionDetails = async (region: string, e: any) => {
+    handleClick(e);
+    setSelectedRegion(region);
+    return await getOdontogramDetails(patientOdontogram?.id).then(
+      ({ data }) => {
+        let actualTooth = data?.data?.attributes?.tooths[region];
+        setToothDetails(actualTooth);
+      },
+      (err) => console.log(err)
+    );
+  };
+
+  const openAddTreatmentModal = async () => {
+    setAddTreatmentVisible(true);
+    // handleClose();
   };
 
   const hasSelected = (t: string) => {
@@ -85,7 +100,7 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
         key={i}
         variant="contained"
         color={hasSelected(v)}
-        onClick={() => handleAddRegion(v)}
+        onClick={(e) => handleGetRegionDetails(v, e)}
         sx={{ ...buttonStyle }}
       >
         {v}
@@ -93,38 +108,68 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
     ));
   };
 
-  const handleDeleteRegion = (i: number, region: string) => {
-    const clone = [...selectedTreatments];
-    const cloneReg = [...selectedRegions];
-    const filter = clone.filter((v, index) => index !== i);
-    const filterReg = cloneReg.filter((v) => v !== region);
-    setSelectedTreatments(filter);
-    setSelectedRegions(filterReg);
-    return;
+  const handleConfirmDelete = (i: number) => {};
+
+  const handleDeleteRegion = async (i: number) => {
+    let odontogram = { ...patientOdontogram };
+    let { attributes } = odontogram;
+    let { tooths } = attributes;
+
+    let clone = tooths[selectedRegion!];
+    let filter = clone.filter((v: any, index: number) => index !== i);
+    tooths[selectedRegion!] = filter;
+
+    return await onSaveTreatments(tooths, patientOdontogram?.id);
   };
 
   const handleSubmit = async () => {
-    const hasValues = selectedTreatments.filter((v) => v.treatment.name === "");
-    if (hasValues.length > 0)
-      return alert("Adicione os tratamentos para as regiões escolhidas!");
-    return onSaveTreatments(selectedTreatments);
+    if (selectedRegion === null) return;
+
+    let newDate = formatISO(new Date()).substring(0, 19);
+    let { name, price }: any = treatmentToAdd;
+    let toothData: ToothsInterface = {
+      name,
+      price,
+      obs: "",
+      finishedAt: null,
+      finishedBy: null,
+      hasAbsent: null,
+      hasFinished: null,
+      hasPayed: null,
+      createdAt: newDate,
+    };
+
+    let data = { ...patientOdontogram };
+
+    let { attributes } = data;
+    let { tooths } = attributes;
+
+    if (tooths[selectedRegion!].length > 0) {
+      let olds = tooths[selectedRegion!];
+      let newData = [...olds, toothData];
+      tooths[selectedRegion!] = newData;
+    } else {
+      tooths[selectedRegion!] = [toothData];
+    }
+
+    return await onSaveTreatments(tooths, patientOdontogram?.id);
+  };
+
+  const getTreatments = async () => {
+    return await handleGetTreatments().then(
+      (res) => {
+        let data = res.data.data;
+        let mapped = data?.map((v: any) => ({
+          name: v.attributes.name,
+          price: v.attributes.price,
+        }));
+        setTreatments(mapped);
+      },
+      (err) => console.log(err.response)
+    );
   };
 
   useEffect(() => {
-    const getTreatments = async () => {
-      return await handleGetTreatments().then(
-        (res) => {
-          let data = res.data.data;
-          let mapped = data?.map((v: any) => ({
-            name: v.attributes.name,
-            price: v.attributes.price,
-          }));
-          setTreatments(mapped);
-        },
-        (err) => console.log(err.response)
-      );
-    };
-
     getTreatments();
   }, []);
 
@@ -137,6 +182,54 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
       sx={{ position: "relative" }}
       minWidth={"450px"}
     >
+      <CModal
+        visible={addTreatmentVisible}
+        closeModal={() => setAddTreatmentVisible(false)}
+        styles={{ width: "50vw" }}
+      >
+        <Box
+          p={2}
+          display="flex"
+          width={"100%"}
+          alignItems={"center"}
+          flexDirection={"column"}
+          rowGap={2}
+        >
+          <Typography variant="subtitle1">Escolha o Tratamento</Typography>
+          <Autocomplete
+            options={treatments}
+            sx={{ width: "100%" }}
+            limitTags={2}
+            value={treatmentToAdd}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) =>
+              option.name === value?.name && option.price === value.price
+            }
+            onChange={(e, v) => setTreatmentToAdd(v)}
+            renderInput={(params) => (
+              <TextInput
+                {...params}
+                placeholder="Selecione o tratamento."
+                variant="standard"
+              />
+            )}
+          />
+
+          {treatmentToAdd !== null && (
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 1 }}
+              endIcon={<SaveIcon />}
+              onClick={handleSubmit}
+            >
+              Salvar
+            </Button>
+          )}
+        </Box>
+      </CModal>
+
       <Typography variant="h6" alignSelf={"center"} textAlign={"center"} mb={2}>
         Escolha a região e o tratamento necessário!
       </Typography>
@@ -147,33 +240,28 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
             fullWidth
             variant="contained"
             color={hasSelected("Superior Total")}
-            onClick={() => handleAddRegion("Superior Total")}
+            onClick={(e) => handleGetRegionDetails("Superior Total", e)}
           >
             Superior Total
           </Button>
           <Box display="flex" columnGap={1} mt={1}>
-            <Button
-              fullWidth
-              variant="contained"
-              color={hasSelected("Sup. Dir.")}
-              onClick={() => handleAddRegion("Sup. Dir.")}
-            >
-              Sup. Dir.
-            </Button>
-            <Button
-              fullWidth
-              variant="contained"
-              color={hasSelected("Sup. Esq.")}
-              onClick={() => handleAddRegion("Sup. Esq.")}
-            >
-              Sup. Esq.
-            </Button>
+            {["Sup. Dir.", "Sup. Esq."].map((v, i) => (
+              <Button
+                key={i}
+                fullWidth
+                variant="contained"
+                color={hasSelected(v)}
+                onClick={(e) => handleGetRegionDetails(v, e)}
+              >
+                {v}
+              </Button>
+            ))}
           </Box>
         </Box>
       </OtherRegions>
 
       <GridColumns>
-        <Div1>{renderRegions(lt)}</Div1>
+        <div className="div1">{renderRegions(lt)}</div>
         <div className="div2">{renderRegions(rt)}</div>
         <div className="div3">{renderRegions(lb)}</div>
         <div className="div4">{renderRegions(rb)}</div>
@@ -182,83 +270,53 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
       <OtherRegions>
         <Box width="100%">
           <Box display="flex" columnGap={1} mb={1}>
-            <Button
-              fullWidth
-              variant="contained"
-              color={hasSelected("Inf. Dir.")}
-              onClick={() => handleAddRegion("Inf. Dir.")}
-            >
-              Inf. Dir.
-            </Button>
-            <Button
-              fullWidth
-              variant="contained"
-              color={hasSelected("Inf. Esq.")}
-              onClick={() => handleAddRegion("Inf. Esq.")}
-            >
-              Inf. Esq.
-            </Button>
+            {["Inf. Dir.", "Inf. Esq."].map((v, i) => (
+              <Button
+                key={i}
+                fullWidth
+                variant="contained"
+                color={hasSelected(v)}
+                onClick={(e) => handleGetRegionDetails(v, e)}
+              >
+                {v}
+              </Button>
+            ))}
           </Box>
           <Button
             fullWidth
             variant="contained"
             color={hasSelected("Inferior Total")}
-            onClick={() => handleAddRegion("Inferior Total")}
+            onClick={(e) => handleGetRegionDetails("Inferior Total", e)}
           >
             Inferior Total
           </Button>
         </Box>
       </OtherRegions>
 
-      {selectedTreatments?.map((v, i) => (
-        <AddedRegion key={i} my={1}>
-          <IconButton
-            title={"Deletar a região " + v?.region}
-            onClick={() => handleDeleteRegion(i, v?.region)}
-          >
-            <DeleteIcon color="warning" />
-          </IconButton>
-          <Typography variant="subtitle1" width={"10%"} mx={"2%"}>
-            {v.region} -{" "}
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        elevation={12}
+      >
+        <Box display="flex" alignItems="center" flexDirection="column" p={2}>
+          <Typography variant="subtitle1">
+            Histórico do Dente {selectedRegion}
           </Typography>
 
-          <Autocomplete
-            options={treatments}
-            sx={{ width: "85%" }}
-            limitTags={2}
-            value={v?.treatment}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) =>
-              option.name === value?.name && option.price === value.price
-            }
-            onChange={(e, v) => {
-              const clone = [...selectedTreatments];
-              let value = { name: v.name, price: v.price };
-              clone[i].treatment = value;
-              setSelectedTreatments(clone);
-            }}
-            renderInput={(params) => (
-              <TextInput
-                {...params}
-                placeholder="Selecione o tratamento."
-                variant="standard"
-              />
-            )}
+          <ToothHistoryTable
+            data={toothDetails}
+            onDelete={(i: number) => handleDeleteRegion(i)}
+            messageNothing="Sem Histórico do Dente"
           />
-        </AddedRegion>
-      ))}
+        </Box>
 
-      {selectedTreatments.length > 0 && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 1 }}
-          endIcon={<SaveIcon />}
-          onClick={handleSubmit}
-        >
-          Salvar
-        </Button>
-      )}
+        <Box sx={{ p: 2 }}>
+          <Button onClick={openAddTreatmentModal} variant="contained" fullWidth>
+            Adicionar Tratamento
+          </Button>
+        </Box>
+      </Menu>
     </Box>
   );
 };
@@ -268,8 +326,8 @@ const OtherRegions = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 415px;
-  min-width: 415px;
+  max-width: 700px;
+  min-width: 700px;
   margin: 8px auto;
   column-gap: 8px;
 `;
@@ -277,9 +335,9 @@ const OtherRegions = styled(Box)`
 const GridColumns = styled(Box)`
   display: grid;
   width: 100%;
-  min-height: 300px;
-  max-width: 415px;
-  min-width: 415px;
+  min-height: 380px;
+  max-width: 700px;
+  min-width: 700px;
   background-image: url("/images/arcada.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
@@ -288,6 +346,13 @@ const GridColumns = styled(Box)`
   grid-row-gap: 8px;
   position: relative;
   margin: 8px auto;
+  .div1 {
+    display: flex;
+    grid-area: 1 / 1 / 2 / 2;
+    position: absolute;
+    bottom: 0;
+    right: 4px;
+  }
   .div2 {
     display: flex;
     grid-area: 1 / 2 / 2 / 3;
@@ -311,14 +376,6 @@ const GridColumns = styled(Box)`
   }
 `;
 
-const Div1 = styled(Box)`
-  display: flex;
-  grid-area: 1 / 1 / 2 / 2;
-  position: absolute;
-  bottom: 0;
-  right: 4px;
-`;
-
 const AddedRegion = styled(Box)`
   display: flex;
   align-items: center;
@@ -339,12 +396,6 @@ const TextInput = styled(TextField)`
     border: none;
     outline: none;
   }
-`;
-
-export const IconClose = styled(IconButton)`
-  position: absolute;
-  top: 8px;
-  right: 8px;
 `;
 
 export default TreatmentPlanUpdate;

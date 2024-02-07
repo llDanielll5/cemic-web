@@ -11,7 +11,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
-import { IconClose } from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import { StyledButton } from "../receipts";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -478,10 +477,6 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
 
   return (
     <Container>
-      <IconClose title={"Sair de pagamento"} onClick={onClose}>
-        <HighlightOffIcon />
-      </IconClose>
-
       <Modal visible={paymentModal} closeModal={onCloseModalPayment}>
         <ModalPaymentAdmin
           vezes={vezes}

@@ -14,7 +14,6 @@ import {
   TextField,
   RadioGroup,
 } from "@mui/material";
-import { IconClose } from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import RenderPaymentTypes from "./paymentTypes";
@@ -82,6 +81,11 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
     if (paymentType === "pix/cash") return "Pix ou Dinheiro";
     if (paymentType === "debit") return "No Débito";
   };
+
+  const getTotal = totalValue.toLocaleString("pt-br", {
+    style: "currency",
+    currency: "BRL",
+  });
 
   const handleAddToPay = (value: any) => {
     const filter = treatmentsToPay.filter((v) => v !== value);
@@ -237,38 +241,55 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
       sx={{ position: "relative" }}
       pt={1}
     >
-      <IconClose title={"Sair de pagamento"} onClick={onCloseModalPayment}>
-        <HighlightOffIcon />
-      </IconClose>
       <Typography variant="subtitle1">Gerar Pagamento</Typography>
 
       {treatmentsToPay.length > 0 && (
-        <Typography variant="subtitle1" color="green" my={1}>
-          Escolha os tratamentos que serão pagos:
-        </Typography>
+        <Box sx={{ background: "#f4f4f4" }} p={2} borderRadius={2} width="100%">
+          <Typography variant="subtitle1" color="green" my={1}>
+            Escolha os tratamentos que serão pagos:
+          </Typography>
+          {treatmentsToPay.map((v, i) => (
+            <TreatmentsToChoice
+              key={i}
+              variant="contained"
+              onClick={() => handleAddToPay(v)}
+            >
+              <Typography variant="subtitle1">{v?.region} - </Typography>
+              <Typography variant="subtitle1">{v?.treatment?.name}</Typography>
+            </TreatmentsToChoice>
+          ))}
+        </Box>
       )}
-
-      {treatmentsToPay.map((v, i) => (
-        <TreatmentsChoice key={i} onClick={() => handleAddToPay(v)}>
-          <Typography variant="subtitle1">{v?.region} - </Typography>
-          <Typography variant="subtitle1">{v?.treatment?.name}</Typography>
-        </TreatmentsChoice>
-      ))}
 
       {negotiateds?.length > 0 && (
-        <Typography variant="subtitle1" my={1} color="orangered">
-          Os tratamentos a pagar serão:
-        </Typography>
+        <Box
+          p={2}
+          sx={{ background: "#f3f3f3" }}
+          width="100%"
+          my={2}
+          borderRadius={2}
+        >
+          <Typography variant="subtitle1" my={1} color="orangered">
+            Os tratamentos a pagar serão:
+          </Typography>
+          {negotiateds?.length > 0 &&
+            negotiateds?.map((v, i) => (
+              <TreatmentsChoiceds
+                key={i}
+                variant="contained"
+                color={"warning"}
+                onClick={() => handleDeleteToPay(i)}
+              >
+                <Typography variant="subtitle1">{v?.region} - </Typography>
+                <Typography variant="subtitle1">
+                  {v?.treatment?.name}
+                </Typography>
+              </TreatmentsChoiceds>
+            ))}
+        </Box>
       )}
-      {negotiateds?.length > 0 &&
-        negotiateds?.map((v, i) => (
-          <TreatmentsChoice key={i} onClick={() => handleDeleteToPay(i)}>
-            <Typography variant="subtitle1">{v?.region} - </Typography>
-            <Typography variant="subtitle1">{v?.treatment?.name}</Typography>
-          </TreatmentsChoice>
-        ))}
 
-      {negotiateds.length > 0 && <h3>Total: {totalValueString}</h3>}
+      {negotiateds.length > 0 && <h3>Total: {getTotal}</h3>}
 
       {negotiateds.length > 0 && (
         <Box>
@@ -276,7 +297,14 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
             <FormLabel color="warning" id="demo-radio-buttons-group-label">
               Será o valor todo no mesmo tipo de pagamento?
             </FormLabel>
-            <RadioGroup>
+            <RadioGroup
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "100%",
+              }}
+            >
               <FormControlLabel
                 value={"Sim"}
                 checked={allValue === "Sim"}
@@ -446,13 +474,24 @@ const ModalPaymentAdmin = (props: ModalPaymentProps) => {
   );
 };
 
-const TreatmentsChoice = styled(Button)`
+const TreatmentsToChoice = styled(Button)`
   display: flex;
   align-items: center;
   column-gap: 4px;
   width: 100%;
   padding: 4px;
-  border: 1.2px solid var(--dark-blue);
+  color: white;
+  margin-bottom: 8px;
+  :hover {
+    opacity: 0.8;
+  }
+`;
+const TreatmentsChoiceds = styled(Button)`
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+  width: 100%;
+  padding: 4px;
   margin-bottom: 8px;
 `;
 

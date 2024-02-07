@@ -77,3 +77,14 @@ export interface ReceiptsInterface {
   value: number;
   asign: any;
 }
+
+export interface PatientAttributes {
+  name: string;
+  email: string;
+  dateBorn: string;
+  phone: string;
+  cpf: string;
+  rg: string;
+  role: string;
+  address: string;
+}

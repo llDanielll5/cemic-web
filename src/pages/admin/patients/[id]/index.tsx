@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { handleGetSinglePatient } from "@/axios/admin/patients";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useRouter } from "next/router";
 import ClientInfos from "@/components/admin/clientInfos";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
-import IconButton from "@/components/iconButton";
 
 const PatientSingle = (props: any) => {
   const router = useRouter();

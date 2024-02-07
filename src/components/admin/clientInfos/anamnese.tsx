@@ -137,6 +137,7 @@ const Container = styled(Box)`
   background-color: #f1f1f1;
   padding: 1rem;
   border-radius: 1rem;
+  margin-top: 2rem;
   -webkit-box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
   -moz-box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);
   box-shadow: 4px 5px 13px -7px rgba(0, 0, 0, 0.75);

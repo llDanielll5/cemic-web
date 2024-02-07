@@ -65,7 +65,7 @@ const PatientsPage = () => {
         setCurrPage(pagination.page);
         return;
       },
-      (error) => console.log(error.response.data.error.details)
+      (error) => console.log(error.response)
     );
   };
 
@@ -117,7 +117,7 @@ const PatientsPage = () => {
         <title>Pacientes · CEMIC</title>
       </Head>
       <CModal
-        styles={{ width: "90%", overflow: "auto", height: "95vh" }}
+        styles={{ width: "85vw", overflow: "auto", height: "95vh" }}
         visible={newPatientVisible}
         closeModal={handleChangePatientVisible}
       >

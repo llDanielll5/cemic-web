@@ -3,6 +3,23 @@ import { AnamneseQuestions } from "types/patient";
 
 const now = new Date();
 
+export const professionalTabs = [
+  "Anamnese",
+  "Problemas",
+  "Exames",
+  "Agendamentos",
+];
+export const adminTabs = [
+  "Informações",
+  "Anamnese",
+  "Financeiro",
+  "Tratamentos",
+  "Exames",
+  "Agendamentos",
+  "Problemas",
+  "Anexos",
+];
+
 export const defaultLectures = { "11:00": [], "17:00": [] };
 export const headerData = [
   { path: "/", title: "Inicio" },
@@ -233,3 +250,24 @@ export const anamsVal = [
   "Tem ansiedade?",
   "Faz uso de AAS?",
 ];
+
+export const defaultClientData = {
+  name: "",
+  email: "",
+  dateBorn: "",
+  phone: "",
+  cpf: "",
+  rg: "",
+  role: "",
+  address: "",
+};
+export const defaultAddress = {
+  address: "",
+  cep: "",
+  city: "",
+  complement: "",
+  line1: "",
+  neighbor: "",
+  number: "",
+  uf: "",
+};
