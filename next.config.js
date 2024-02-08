@@ -27,6 +27,7 @@ const nextConfig = {
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     DEV_SERVER_URL: process.env.DEV_SERVER_URL,
     PRODUCTION_SERVER_URL: process.env.PRODUCTION_SERVER_URL,
+    CEMIC_PUBLIC_IP: process.env.CEMIC_PUBLIC_IP,
   },
 };
 

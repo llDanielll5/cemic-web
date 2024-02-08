@@ -67,14 +67,12 @@ const UserForm = (props: UserFormProps) => {
         value={userData?.name!}
         sx={{ width: "100%" }}
         onChange={(e) => handleChange(e.target.value, "name", setUserData)}
-        margin="dense"
       />
       <TextField
         label="Email:"
         value={userData?.email!}
         sx={{ width: "100%" }}
         onChange={(e) => handleChange(e.target.value, "email", setUserData)}
-        margin="dense"
       />
       <InputsContainer>
         <TextField
@@ -219,7 +217,7 @@ export const InputsContainer = styled(Box)`
   align-items: center;
   justify-content: space-between;
   column-gap: 16px;
-  margin: 16px 0;
+  margin: 8px 0;
 `;
 
 export default UserForm;

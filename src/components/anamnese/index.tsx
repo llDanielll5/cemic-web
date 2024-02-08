@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import styles from "../../styles/Selected.module.css";
 import { AddressType } from "types";
 import UserForm from "../userForm";
-import AnamneseForm from "../anamneseForm";
-import ImplanteTerm from "../terms/implant";
 import CrownTerm from "../terms/crown";
 import { updateUserData } from "@/services/requests/firestore";
 import { nameCapitalized } from "@/services/services";
 import { AnamneseQuestions, AnswerType, PatientInterface } from "types/patient";
 import { anamneseQuestions } from "data";
+import ImplanteTerm from "../terms/implant";
+import AnamneseForm from "../admin/patient/components/anamnese-form";
 
 const defaultValues = {
   bornDate: "",

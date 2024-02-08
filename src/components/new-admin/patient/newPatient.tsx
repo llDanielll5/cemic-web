@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Box, styled, IconButton } from "@mui/material";
 import { AddressType } from "types";
 import UserForm from "@/components/userForm";
-import AnamneseForm from "@/components/anamneseForm";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
@@ -14,6 +13,7 @@ import {
 import { cpfMask, makeid, phoneMask } from "@/services/services";
 import { AnamneseQuestions, AnswerType } from "types/patient";
 import { anamneseQuestions } from "data";
+import AnamneseForm from "@/components/admin/patient/components/anamnese-form";
 
 interface UserDefaultEdit {
   bornDate: string;

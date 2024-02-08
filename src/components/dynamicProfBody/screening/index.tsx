@@ -4,7 +4,6 @@ import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import ScreeningDetailsProfessional from "./details";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import ClientInfos from "@/components/admin/clientInfos";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import "react-calendar/dist/Calendar.css";
 import { useRecoilValue } from "recoil";

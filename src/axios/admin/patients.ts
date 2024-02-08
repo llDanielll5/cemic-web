@@ -84,7 +84,7 @@ export const handleGetPatientByCPF = async (cpf: string) => {
 export const handleGetSinglePatient = async (id: string) => {
   //TODO AUMENTAR OS POPULATES DE ACORDO COM O AUMENTO DE INFORMAÇÕES DO PACIENTE NO DB
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram]=*`
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram]=*&populate[actualProfessional]=*&populate[screening][populate]=*`
   );
 };
 

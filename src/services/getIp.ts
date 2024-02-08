@@ -1,7 +1,7 @@
+import axios from "axios";
+
 export const getIP = async () => {
-  const response = await fetch("https://api.ipify.org?format=json")
-    .then((response) => response.json())
-    .then((data) => data)
-    .catch((error) => {});
-  return response.ip;
+  const response = await axios.get("https://api.ipify.org?format=json");
+  if (response.data.ip) return response.data.ip;
+  else return null;
 };

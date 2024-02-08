@@ -1,23 +1,26 @@
 import React from "react";
-import CModal from "@/components/modal";
 import { InputsContainer } from "@/components/userForm";
-import { Button, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import axios from "axios";
 
-interface EditPatientAddressInterface {
-  visible: any;
-  closeModal: any;
+interface PatientAddressInterface {
   clientAddress?: any;
   handleChangeAddress: any;
   handleEditAddress: any;
   setClientAddress: any;
 }
 
-const EditPatientAddressModal = (props: EditPatientAddressInterface) => {
+const PatientAddress = (props: PatientAddressInterface) => {
   const {
-    closeModal,
     handleChangeAddress,
     handleEditAddress,
-    visible,
     clientAddress,
     setClientAddress,
   } = props;
@@ -29,8 +32,8 @@ const EditPatientAddressModal = (props: EditPatientAddressInterface) => {
       //   setIsLoading(true);
       //   setLoadingMessage("Carregando informações de CEP");
       try {
-        const res = await fetch(`https://viacep.com.br/ws/${val}/json/`);
-        const json: any = await res.json();
+        const res = await axios.get(`https://viacep.com.br/ws/${val}/json/`);
+        let json = res.data;
         if (json) {
           setClientAddress((prev: any) => ({
             neighbor: json.bairro,
@@ -51,10 +54,14 @@ const EditPatientAddressModal = (props: EditPatientAddressInterface) => {
   };
 
   return (
-    <CModal visible={visible} closeModal={closeModal}>
-      <Typography variant="h5" fontSize={"1rem"} textAlign={"center"}>
-        Alterar Endereço
-      </Typography>
+    <Box display="flex" flexDirection="column">
+      <Stack alignItems="center">
+        <Typography variant="h6" mb={1}>
+          Endereço
+        </Typography>
+      </Stack>
+      <Divider variant="middle" />
+
       <InputsContainer>
         <TextField
           label="CEP*:"
@@ -123,8 +130,8 @@ const EditPatientAddressModal = (props: EditPatientAddressInterface) => {
       >
         Salvar
       </Button>
-    </CModal>
+    </Box>
   );
 };
 
-export default EditPatientAddressModal;
+export default PatientAddress;

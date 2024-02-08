@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { handleGetSinglePatient } from "@/axios/admin/patients";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import ClientInfos from "@/components/admin/clientInfos";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import UserData from "@/atoms/userData";
+import PatientDetails from "@/components/admin/patient";
+import PatientData from "@/atoms/patient";
 
 const PatientSingle = (props: any) => {
   const router = useRouter();
   const patientId: any = router?.query?.id;
   const adminData: any = useRecoilValue(UserData);
-  const [patientData, setPatientData] = useState<any | null>(null);
+  const [patientData, setPatientData] = useRecoilState(PatientData);
 
+  const getBack = () => router.push("/admin/patients");
   const handleGetPatientInfo = useCallback(async () => {
     if (!patientId || patientId === undefined) return;
     return await handleGetSinglePatient(patientId!).then(
@@ -21,24 +23,16 @@ const PatientSingle = (props: any) => {
     );
   }, [patientId]);
 
-  const getBack = () => router.push("/admin/patients");
-
   useEffect(() => {
     handleGetPatientInfo();
   }, [handleGetPatientInfo]);
 
   return (
     <Box p={4}>
-      <Button onClick={getBack} variant="text">
-        {`< Voltar`}
-      </Button>
       {patientData !== null && (
-        <ClientInfos
-          client={patientData}
-          onUpdate={handleGetPatientInfo}
-          adminData={adminData}
-        />
+        <Typography variant="h5">{patientData?.attributes?.name}</Typography>
       )}
+      {patientData !== null && <PatientDetails />}
     </Box>
   );
 };

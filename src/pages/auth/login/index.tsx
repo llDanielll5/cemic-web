@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,9 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/services/firebase";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import { getCookie, setCookie } from "cookies-next";
+import { useSetRecoilState } from "recoil";
+import UserData from "@/atoms/userData";
 import {
   Box,
   Button,
@@ -24,9 +27,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { getCookie, setCookie } from "cookies-next";
-import { useSetRecoilState } from "recoil";
-import UserData from "@/atoms/userData";
+import { getIP } from "@/services/getIp";
 
 const Page = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -106,6 +107,16 @@ const Page = () => {
   };
   const handleTogglePasswordVisible = (e: any) =>
     setPasswordVisible(!passwordVisible);
+
+  const handleGetCemicIp = useCallback(async () => {
+    await getIP().then((ip) => {
+      if (ip !== process.env.CEMIC_PUBLIC_IP) router.push("/");
+    });
+  }, []);
+
+  useEffect(() => {
+    handleGetCemicIp();
+  }, [handleGetCemicIp]);
 
   if (!!userCookie) return router.push("/admin");
 

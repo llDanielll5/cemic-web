@@ -14,6 +14,7 @@ import LoadingServer from "@/atoms/components/loading";
 import { handlePersistLogin } from "@/axios/auth";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Fab } from "@mui/material";
+import { getIP } from "@/services/getIp";
 
 const SIDE_NAV_WIDTH = 280;
 
@@ -69,6 +70,16 @@ export const DashboardLayout = (props: any) => {
     if (persistance === null) return await handleLogout();
     return setUserData(persistance);
   };
+
+  const handleGetCemicIp = useCallback(async () => {
+    await getIP().then((ip) => {
+      if (ip !== process.env.CEMIC_PUBLIC_IP) router.push("/");
+    });
+  }, []);
+
+  useEffect(() => {
+    handleGetCemicIp();
+  }, [handleGetCemicIp]);
 
   useEffect(() => {
     setCookie("oldDate", undefined);
