@@ -57,6 +57,25 @@ const PatientInformations = (props: PatientInformationsInterface) => {
         <Typography variant="h6">Dados Gerais</Typography>
       </Stack>
       <Divider variant="middle" />
+
+      <TextField
+        value={clientData?.name}
+        label="Nome Completo"
+        margin="dense"
+        placeholder="Nome do Paciente"
+        InputLabelProps={{ shrink: true }}
+        onChange={(e) => handleChange(e.target.value, "name")}
+        fullWidth
+      />
+      <TextField
+        label="Email"
+        margin="dense"
+        value={clientData?.email}
+        placeholder="Email do Paciente"
+        InputLabelProps={{ shrink: true }}
+        fullWidth
+        onChange={(e) => handleChange(e.target.value, "email")}
+      />
       {adminData?.userType === "ADMIN" && (
         <Double>
           <TextField

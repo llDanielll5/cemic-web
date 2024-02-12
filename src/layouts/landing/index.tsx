@@ -1,8 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import Head from "next/head";
 import PropTypes from "prop-types";
-import NextLink from "next/link";
-import { Box, Typography, Unstable_Grid2 as Grid, styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import HeadLanding from "@/components/landing/head";
 import HeaderLanding from "@/components/landing/header";
 import useWindowSize from "@/hooks/useWindowSize";

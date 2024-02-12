@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { dentalArch } from "data";
+import CModal from "@/components/modal";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ToothHistoryTable from "@/components/table/toothHistory";
+import { dentalArch } from "data";
 import { handleGetTreatments } from "@/axios/admin/treatments";
+import { getOdontogramDetails } from "@/axios/admin/odontogram";
+import { ToothsInterface } from "types/odontogram";
+import { formatISO } from "date-fns";
 import {
   Box,
   Typography,
@@ -10,18 +15,10 @@ import {
   Button,
   TextField,
   Menu,
-  MenuItem,
-  Divider,
   Autocomplete,
 } from "@mui/material";
-import { getOdontogramDetails } from "@/axios/admin/odontogram";
-import CModal from "@/components/modal";
-import { ToothsInterface } from "types/odontogram";
-import { formatISO } from "date-fns";
-import IconButton from "@/components/iconButton";
-import ToothHistoryTable from "@/components/table/toothHistory";
 
-interface TreatmentPlanUpdateProps {
+interface OdontogramPatientDetailsInterface {
   onSaveTreatments: (data: any, odontogramId: any) => Promise<any>;
   patientOdontogram: any;
 }
@@ -41,7 +38,17 @@ const buttonStyle = {
   cursor: "pointer",
 };
 
-const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
+const toothRegions = [
+  "Superior Total",
+  "Sup. Dir.",
+  "Sup. Esq.",
+  "Inferior Total",
+  "Inf. Dir.",
+  "Inf. Esq.",
+];
+const buttonProps = { fullWidth: true, variant: "contained" };
+
+const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
   const { onSaveTreatments, patientOdontogram } = props;
   const { lb, lt, rb, rt } = dentalArch;
   const [treatments, setTreatments] = useState<any[]>([]);
@@ -49,7 +56,6 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
   const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
   const [treatmentToAdd, setTreatmentToAdd] = useState(null);
 
-  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
   // Tooth Menu #
@@ -88,18 +94,17 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
     // handleClose();
   };
 
-  const hasSelected = (t: string) => {
-    const findRegion = selectedRegions.find((v) => v === t);
-    if (!findRegion) return "primary";
-    else return "warning";
-  };
+  //   const hasSelected = (t: string) => {
+  //     const findRegion = selectedRegions.find((v) => v === t);
+  //     if (!findRegion) return "primary";
+  //     else return "warning";
+  //   };
 
   const renderRegions = (tooths: string[]) => {
     return tooths.map((v, i) => (
       <Button
         key={i}
         variant="contained"
-        color={hasSelected(v)}
         onClick={(e) => handleGetRegionDetails(v, e)}
         sx={{ ...buttonStyle }}
       >
@@ -174,14 +179,7 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
   }, []);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      width={"100%"}
-      mx={"auto"}
-      sx={{ position: "relative" }}
-      minWidth={"450px"}
-    >
+    <Container>
       <CModal
         visible={addTreatmentVisible}
         closeModal={() => setAddTreatmentVisible(false)}
@@ -230,69 +228,6 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
         </Box>
       </CModal>
 
-      <Typography variant="h6" alignSelf={"center"} textAlign={"center"} mb={2}>
-        Escolha a região e o tratamento necessário!
-      </Typography>
-
-      <OtherRegions>
-        <Box width="100%">
-          <Button
-            fullWidth
-            variant="contained"
-            color={hasSelected("Superior Total")}
-            onClick={(e) => handleGetRegionDetails("Superior Total", e)}
-          >
-            Superior Total
-          </Button>
-          <Box display="flex" columnGap={1} mt={1}>
-            {["Sup. Dir.", "Sup. Esq."].map((v, i) => (
-              <Button
-                key={i}
-                fullWidth
-                variant="contained"
-                color={hasSelected(v)}
-                onClick={(e) => handleGetRegionDetails(v, e)}
-              >
-                {v}
-              </Button>
-            ))}
-          </Box>
-        </Box>
-      </OtherRegions>
-
-      <GridColumns>
-        <div className="div1">{renderRegions(lt)}</div>
-        <div className="div2">{renderRegions(rt)}</div>
-        <div className="div3">{renderRegions(lb)}</div>
-        <div className="div4">{renderRegions(rb)}</div>
-      </GridColumns>
-
-      <OtherRegions>
-        <Box width="100%">
-          <Box display="flex" columnGap={1} mb={1}>
-            {["Inf. Dir.", "Inf. Esq."].map((v, i) => (
-              <Button
-                key={i}
-                fullWidth
-                variant="contained"
-                color={hasSelected(v)}
-                onClick={(e) => handleGetRegionDetails(v, e)}
-              >
-                {v}
-              </Button>
-            ))}
-          </Box>
-          <Button
-            fullWidth
-            variant="contained"
-            color={hasSelected("Inferior Total")}
-            onClick={(e) => handleGetRegionDetails("Inferior Total", e)}
-          >
-            Inferior Total
-          </Button>
-        </Box>
-      </OtherRegions>
-
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -317,19 +252,53 @@ const TreatmentPlanUpdate = (props: TreatmentPlanUpdateProps) => {
           </Button>
         </Box>
       </Menu>
-    </Box>
+
+      <TitleOdontogram variant="h5">Odontograma do Paciente</TitleOdontogram>
+
+      <OtherRegions>
+        {toothRegions.map((v, i) => (
+          <Button
+            key={i}
+            fullWidth
+            variant="contained"
+            onClick={(e) => handleGetRegionDetails(v, e)}
+          >
+            {v}
+          </Button>
+        ))}
+      </OtherRegions>
+
+      <GridColumns>
+        <div className="div1">{renderRegions(lt)}</div>
+        <div className="div2">{renderRegions(rt)}</div>
+        <div className="div3">{renderRegions(lb)}</div>
+        <div className="div4">{renderRegions(rb)}</div>
+      </GridColumns>
+    </Container>
   );
 };
 
+const Container = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: auto;
+`;
+
 const OtherRegions = styled(Box)`
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 700px;
+  display: grid;
+  padding: 0.5rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: 0.5rem;
+  grid-row-gap: 0.5rem;
+  margin: 0 auto;
   min-width: 700px;
-  margin: 8px auto;
-  column-gap: 8px;
+  max-width: 700px;
 `;
 
 const GridColumns = styled(Box)`
@@ -376,18 +345,12 @@ const GridColumns = styled(Box)`
   }
 `;
 
-const AddedRegion = styled(Box)`
-  display: flex;
-  align-items: center;
-  border: 1.2px solid #bbb;
-  padding: 2px;
-  border-radius: 4px;
-`;
-
-const SaveButton = styled(Button)`
-  :hover {
-    color: var(--dark-blue);
-  }
+const TitleOdontogram = styled(Typography)`
+  text-align: center;
+  min-width: 700px;
+  max-width: 700px;
+  padding: 1rem 0;
+  margin: 0 auto;
 `;
 
 const TextInput = styled(TextField)`
@@ -398,4 +361,4 @@ const TextInput = styled(TextField)`
   }
 `;
 
-export default TreatmentPlanUpdate;
+export default OdontogramPatientDetails;

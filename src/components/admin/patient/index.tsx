@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { PatientAttributes } from "types/patient";
 import { AddressType } from "types";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Divider } from "@mui/material";
 import Tab from "@mui/material/Tab";
 import TabList from "@mui/lab/TabList";
 import Loading from "@/components/loading";
@@ -15,10 +15,8 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import PatientData from "@/atoms/patient";
 import HeaderPatientInformations from "./components/header-informations";
-import IconButton from "@/components/iconButton";
 import AnamneseTab from "./tabs/anamnese";
 import Receipt from "../clientInfos/receipt";
-import ClientInfosTreatments from "../clientInfos/treatments";
 import ClientExams from "../clientInfos/exams";
 import SchedulesPatient from "../clientInfos/schedules";
 import ClientProblems from "../clientInfos/problems";
@@ -33,6 +31,8 @@ import {
   defaultClientData,
   professionalTabs,
 } from "data";
+import PatientTreatmentsTab from "./tabs/treatments";
+import PatientFinanceTab from "./tabs/finance";
 
 const PatientDetails = () => {
   const adminData: any = useRecoilValue(UserData);
@@ -175,14 +175,9 @@ const PatientDetails = () => {
       case "1":
         return <AnamneseTab />;
       case "2":
-        return <Receipt client={patientData} />;
+        return <PatientFinanceTab onUpdatePatient={handleGetPatient} />;
       case "3":
-        return (
-          <ClientInfosTreatments
-            client={patientData}
-            onUpdatePatient={handleGetPatient}
-          />
-        );
+        return <PatientTreatmentsTab onUpdatePatient={handleGetPatient} />;
       case "4":
         return <ClientExams client={patientData} />;
       case "5":
@@ -201,16 +196,7 @@ const PatientDetails = () => {
         handleChange={handleChange}
       />
 
-      <Box display="flex" justifyContent="flex-end" columnGap={1} mt={1}>
-        <Button
-          variant="contained"
-          endIcon={<SaveIcon />}
-          onClick={handleSubmit}
-        >
-          Salvar Informações
-        </Button>
-      </Box>
-
+      <Divider sx={{ mt: 2 }} />
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <TabList onChange={handleChangeTab}>
           {currTabs.map((v, i) => (
@@ -219,7 +205,6 @@ const PatientDetails = () => {
         </TabList>
       </Box>
 
-      {/* <ClientInformationsAdmin tabIndex={tabIndex} client={client} /> */}
       {renderPatientTabs(tabIndex.toString())}
     </TabContext>
   );

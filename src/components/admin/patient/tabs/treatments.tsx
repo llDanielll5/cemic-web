@@ -2,29 +2,21 @@ import React, { useState, useEffect, useCallback } from "react";
 import * as F from "firebase/firestore";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
-import AddTreatment from "./addTreatment";
 import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
 import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
-import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import { Box } from "@mui/material";
-import { useRecoilValue } from "recoil";
-import { db } from "@/services/firebase";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { maskValue } from "@/services/services";
 import { PatientInterface } from "types/patient";
 import { PaymentShape, PaymentTypes } from "types/payments";
-import {
-  handleGetPatientTreatments,
-  handleUpdatePatient,
-} from "@/axios/admin/patients";
-import { defaultOdontogram } from "types/odontogram";
-import {
-  handleCreateOdontogram,
-  updateToothOfPatient,
-} from "@/axios/admin/odontogram";
 import { formatISO } from "date-fns";
+import { handleGetPatientTreatments } from "@/axios/admin/patients";
+import { updateToothOfPatient } from "@/axios/admin/odontogram";
+import PatientData from "@/atoms/patient";
+import OdontogramPatientDetails from "../components/odontogram-details";
 
 interface ClientTreatmentsInterface {
-  client: PatientInterface;
+  client?: PatientInterface;
   onUpdatePatient: any;
 }
 
@@ -49,8 +41,10 @@ interface ReceiptValuesProps {
 type ReceiptType = ReceiptValuesProps | null;
 type PayShapeArr = PaymentShapesArray[];
 
-const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
-  const { client, onUpdatePatient }: any = props;
+const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
+  const { onUpdatePatient } = props;
+  const [patientData, setPatientData] = useRecoilState(PatientData);
+  const client = patientData?.attributes;
   const [vezes, setVezes] = useState("");
   const adminData: any = useRecoilValue(UserData);
   const [discount, setDiscount] = useState(5);
@@ -68,16 +62,12 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
-  let clientOdontogram = client?.attributes?.odontogram?.data;
+  let clientOdontogram = client?.odontogram?.data;
 
   const [data, setData] = useState<TreatmentsInterface>({
     treatments: null,
     screening: null,
   });
-
-  const getActualProfessional = useCallback(async () => {
-    return;
-  }, []);
 
   const handleCloseAddTreatment = async () => {
     setAddTreatmentVisible(false);
@@ -89,7 +79,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     let newDate = formatISO(new Date()).substring(0, 19);
     let odontogram = { ...clientOdontogram };
     let { attributes } = odontogram;
-    let { tooths } = attributes;
+    let tooths = attributes?.tooths;
     let adminInfos = {
       updated: adminData?.id,
       updateTimestamp: new Date(),
@@ -142,28 +132,6 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     [paymentType, discount]
   );
 
-  const handleGeneratePayment = () => {
-    if (data?.treatments?.all.length === 0) return;
-    let allTreatments = data?.treatments?.all ?? [];
-    let negotiateds = data?.treatments?.negotiateds ?? [];
-
-    let reduced: any[] = [];
-    allTreatments.forEach((item: any) => {
-      var duplicated =
-        negotiateds.findIndex((val: any) => {
-          return (
-            item.region === val.region &&
-            item.treatment.cod === val.treatment.cod &&
-            item.treatment.id === val.treatment.id
-          );
-        }) > -1;
-      if (!duplicated) reduced.push(item);
-    });
-
-    setTreatmentsToPay(reduced);
-    setPaymentModal(true);
-  };
-
   const onCloseModalPayment = () => {
     setPaymentShapesValues("");
     setPaymentsShapesArr([]);
@@ -206,7 +174,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
 
     setReceiptValues({
       total: totalValue,
-      patientName,
+      patientName: patientName!,
       date: dateNow,
       treatments: treatmentsString,
     });
@@ -278,7 +246,7 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
       negotiateds,
       paymentShape,
       timestamp: dateNow,
-      client: client?.id,
+      client: patientData?.id,
       total: totalValue,
       totalStr: totalValueString,
     };
@@ -290,18 +258,6 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
     return;
   };
 
-  const openAddTreatment = async () => {
-    if (clientOdontogram === null) {
-      return await handleCreateOdontogram(client?.id!).then(
-        (res) => {
-          alert("Odontograma do paciente criado!");
-          onUpdatePatient();
-        },
-        (err) => console.log(err.response)
-      );
-    } else setAddTreatmentVisible(true);
-  };
-
   const getInformations = (data: any) => {
     let treatments = data?.attributes?.treatments;
     let screening = data?.attributes?.screening?.data;
@@ -309,11 +265,11 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   };
 
   const getTreatments = useCallback(async () => {
-    return await handleGetPatientTreatments(client!.id).then(
+    return await handleGetPatientTreatments(patientData?.id!).then(
       (res) => getInformations(res.data.data),
       (err) => console.log(err.response)
     );
-  }, [client]);
+  }, [patientData]);
 
   useEffect(() => {
     getTreatments();
@@ -322,11 +278,6 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   useEffect(() => {
     getTotalValue(negotiateds);
   }, [getTotalValue, negotiateds]);
-
-  useEffect(() => {
-    if (client?.actualProfessional !== "") return;
-    getActualProfessional();
-  }, [client?.actualProfessional, getActualProfessional]);
 
   return (
     <Box py={2} width="100%">
@@ -474,15 +425,8 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
         </>
       )} */}
 
-      {client?.role !== "PRE-REGISTER" && (
-        <AddTreatment
-          openModal={openAddTreatment}
-          handleGeneratePayment={handleGeneratePayment}
-          treatments={data?.treatments?.all}
-        />
-      )}
       {clientOdontogram !== undefined && (
-        <TreatmentPlanUpdate
+        <OdontogramPatientDetails
           patientOdontogram={clientOdontogram ?? undefined}
           onSaveTreatments={handleSubmitTreatment}
         />
@@ -491,4 +435,4 @@ const ClientInfosTreatments = (props: ClientTreatmentsInterface) => {
   );
 };
 
-export default ClientInfosTreatments;
+export default PatientTreatmentsTab;

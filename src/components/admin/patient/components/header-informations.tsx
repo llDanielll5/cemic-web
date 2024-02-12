@@ -4,15 +4,15 @@ import { Box, TextField, Typography, styled } from "@mui/material";
 import { useRecoilState, useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import PatientData from "@/atoms/patient";
-import { parseDateIso } from "@/services/services";
+import { parseDateIso, phoneMask } from "@/services/services";
+import HeaderTopPatientInformations from "./header-top-informations";
 
 interface HeaderPatientInterface {
   clientData: any;
-  handleChange: any;
 }
 
 const HeaderPatientInformations = (props: HeaderPatientInterface) => {
-  const { clientData, handleChange } = props;
+  const { clientData } = props;
 
   const adminData: any = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
@@ -20,27 +20,7 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
 
   return (
     <Container>
-      <Double>
-        <TextField
-          value={clientData?.name}
-          label="Paciente"
-          margin="dense"
-          placeholder="Nome do Paciente"
-          InputLabelProps={{ shrink: true }}
-          onChange={(e) => handleChange(e.target.value, "name")}
-          fullWidth
-        />
-      </Double>
-      <TextField
-        label="Email"
-        margin="dense"
-        value={clientData?.email}
-        placeholder="Email do Paciente"
-        InputLabelProps={{ shrink: true }}
-        fullWidth
-        onChange={(e) => handleChange(e.target.value, "email")}
-      />
-
+      <HeaderTopPatientInformations patient={clientData} />
       <Box
         columnGap={1}
         display="flex"
@@ -62,14 +42,6 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
     </Container>
   );
 };
-
-const Double = styled(Box)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  column-gap: 12px;
-`;
 
 const Container = styled(Box)`
   display: flex;
