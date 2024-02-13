@@ -4,19 +4,22 @@ import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
 import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { maskValue } from "@/services/services";
 import { PatientInterface } from "types/patient";
 import { PaymentShape, PaymentTypes } from "types/payments";
 import { formatISO } from "date-fns";
 import { handleGetPatientTreatments } from "@/axios/admin/patients";
-import { updateToothOfPatient } from "@/axios/admin/odontogram";
 import PatientData from "@/atoms/patient";
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import OdontogramPatientDetails from "../components/odontogram-details";
+import {
+  handleCreateOdontogram,
+  updateToothOfPatient,
+} from "@/axios/admin/odontogram";
 
 interface ClientTreatmentsInterface {
-  client?: PatientInterface;
   onUpdatePatient: any;
 }
 
@@ -57,44 +60,16 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   const [paymentModal, setPaymentModal] = useState<boolean>(false);
   const [treatmentsToPay, setTreatmentsToPay] = useState<any[]>([]);
   const [paymentShapesValues, setPaymentShapesValues] = useState("");
-  const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
   const [paymentType, setPaymentType] = useState<PaymentTypes | null>(null);
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
-  let clientOdontogram = client?.odontogram?.data;
+  let patientOdontogram = client?.odontogram?.data;
 
   const [data, setData] = useState<TreatmentsInterface>({
     treatments: null,
     screening: null,
   });
-
-  const handleCloseAddTreatment = async () => {
-    setAddTreatmentVisible(false);
-    return await getTreatments();
-  };
-
-  const handleSubmitTreatment = async (values: any, odontogramId: any) => {
-    //Aqui ele pega o histórico da atualização criada naquela data para o odontograma do paciente
-    let newDate = formatISO(new Date()).substring(0, 19);
-    let odontogram = { ...clientOdontogram };
-    let { attributes } = odontogram;
-    let tooths = attributes?.tooths;
-    let adminInfos = {
-      updated: adminData?.id,
-      updateTimestamp: new Date(),
-      history: { [newDate]: tooths },
-    };
-
-    return await updateToothOfPatient(odontogramId, values, adminInfos).then(
-      async (res) => {
-        onUpdatePatient();
-        handleCloseAddTreatment();
-        return alert("Tratamento atualizado!");
-      },
-      (err) => console.log(err)
-    );
-  };
 
   const getTotalValue = useCallback(
     (
@@ -256,6 +231,18 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     updateTreatmentsPayeds();
 
     return;
+  };
+
+  const openAddTreatment = async () => {
+    if (patientOdontogram === null) {
+      return await handleCreateOdontogram(patientData?.id, adminData?.id!).then(
+        (res) => {
+          alert("Odontograma do paciente criado!");
+          onUpdatePatient();
+        },
+        (err) => console.log(err.response)
+      );
+    }
   };
 
   const getInformations = (data: any) => {
@@ -425,11 +412,23 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
         </>
       )} */}
 
-      {clientOdontogram !== undefined && (
+      {patientOdontogram !== null ? (
         <OdontogramPatientDetails
-          patientOdontogram={clientOdontogram ?? undefined}
-          onSaveTreatments={handleSubmitTreatment}
+          patientOdontogram={patientOdontogram ?? undefined}
+          onUpdatePatient={onUpdatePatient}
         />
+      ) : (
+        <Box display="flex" alignItems="center" justifyContent="center" p={2}>
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{ width: "max-content" }}
+            onClick={openAddTreatment}
+            endIcon={<EmojiEmotionsIcon />}
+          >
+            Criar Odontograma do Paciente
+          </Button>
+        </Box>
       )}
     </Box>
   );

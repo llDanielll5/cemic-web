@@ -1,20 +1,33 @@
 import { defaultOdontogram } from "types/odontogram";
+import { AdminInfosInterface } from "types/admin";
 import axiosInstance from "..";
 
-export const getOdontogramDetails = async (odontogramId: any) => {
-  return await axiosInstance.get(`/odontograms/${odontogramId}`);
+export const getOdontogramDetails = async (
+  odontogramId: any,
+  region: string
+) => {
+  let params = `&populate[tooths][populate][${region}][populate]=*`;
+  return await axiosInstance.get(`/odontograms/${odontogramId}/?${params}`);
 };
 
-export const handleCreateOdontogram = async (patientId: any) => {
-  let data = { data: defaultOdontogram(patientId) };
+export const handleCreateOdontogram = async (patientId: any, adminId: any) => {
+  let adminInfos = { created: adminId, createTimestamp: new Date() };
+  let data = { data: { patient: patientId, adminInfos } };
   return await axiosInstance.post(`/odontograms`, data);
 };
 
 export const updateToothOfPatient = async (
   odontogramId: string,
-  values: any,
+  data: any,
   adminInfos: any
 ) => {
-  let data = { data: { tooths: values, adminInfos } };
-  return await axiosInstance.put(`/odontograms/${odontogramId}`, data);
+  let dataUpdate = {
+    data: {
+      region: data.region,
+      valuesToAdd: data.values,
+      adminInfos,
+      odontogramId,
+    },
+  };
+  return await axiosInstance.post(`/odontograms/updateTooth`, dataUpdate);
 };

@@ -6,7 +6,7 @@ export interface ToothsInterface {
   finishedBy?: any | null; //dentista
   finishedAt?: string | null;
   hasAbsent?: boolean | null; //dente ausente
-  createdAt?: string | null;
+  createdIn?: string | Date;
   obs: string;
 }
 

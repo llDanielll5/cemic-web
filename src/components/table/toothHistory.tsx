@@ -1,23 +1,25 @@
+//@ts-nocheck
 import * as React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import { Box, Card, IconButton, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useRecoilValue } from "recoil";
+import TableRow from "@mui/material/TableRow";
+import AddIcon from "@mui/icons-material/Add";
 import UserData from "@/atoms/userData";
-import SimpleBar from "simplebar-react";
+import { useRecoilValue } from "recoil";
+import { Box, Button, Card, IconButton, Typography } from "@mui/material";
 
 interface TableProps {
   data: any[];
   onDelete: (e: any) => void;
+  onGetDetails?: (id: string) => void;
   messageNothing?: string;
 }
 
 export default function ToothHistoryTable(props: TableProps) {
-  const { data, onDelete, messageNothing } = props;
+  const { data, onDelete, messageNothing, onGetDetails } = props;
   const userData: any = useRecoilValue(UserData);
 
   return (
@@ -28,7 +30,7 @@ export default function ToothHistoryTable(props: TableProps) {
             <TableRow>
               <TableCell>Tratamento</TableCell>
               <TableCell>Pagou?</TableCell>
-              <TableCell>Data de Lançamento</TableCell>
+              <TableCell>Concluido?</TableCell>
               {userData?.userType === "ADMIN" && <TableCell>Deletar</TableCell>}
             </TableRow>
           </TableHead>
@@ -38,14 +40,12 @@ export default function ToothHistoryTable(props: TableProps) {
               let hasPayText = val?.hasPayed ? "Pagou" : "Não Pagou";
 
               return (
-                <TableRow hover key={i}>
+                <TableRow hover key={i} onClick={() => onGetDetails(val?.id!)}>
                   <TableCell>
                     <Typography variant="subtitle2">{val?.name}</Typography>
                   </TableCell>
                   <TableCell>{hasPayText}</TableCell>
-                  <TableCell>
-                    {new Date(val.createdAt).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell>{val.hasFinished ? "Sim" : "Não"}</TableCell>
                   {userData?.userType === "ADMIN" && (
                     <TableCell>
                       <IconButton onClick={() => onDelete(i)}>

@@ -3,13 +3,12 @@ import Link from "next/link";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
 import PatientData from "@/atoms/patient";
-import AddTreatment from "../modals/add-treatments";
+import AddTreatment from "../modals/add-payment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { parseDateIso } from "@/services/services";
 import { useRecoilState } from "recoil";
-import { handleCreateOdontogram } from "@/axios/admin/odontogram";
 import {
   Box,
   Typography,
@@ -95,18 +94,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     //   return alert("Erro ao realizar upload de documento");
     // }
     //Criar pagamento!!!
-  };
-
-  const openAddTreatment = async () => {
-    if (clientOdontogram === null) {
-      return await handleCreateOdontogram(patientData?.id).then(
-        (res) => {
-          alert("Odontograma do paciente criado!");
-          onUpdatePatient();
-        },
-        (err) => console.log(err.response)
-      );
-    } else setAddTreatmentVisible(true);
   };
 
   const handleGeneratePayment = () => {
@@ -202,7 +189,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           </Button>
           {client?.role === "PRE-REGISTER" && (
             <AddTreatment
-              openModal={openAddTreatment}
               handleGeneratePayment={handleGeneratePayment}
               treatments={null}
             />

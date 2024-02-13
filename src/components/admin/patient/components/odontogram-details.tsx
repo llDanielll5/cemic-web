@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import CModal from "@/components/modal";
-import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ToothHistoryTable from "@/components/table/toothHistory";
-import { dentalArch } from "data";
-import { handleGetTreatments } from "@/axios/admin/treatments";
-import { getOdontogramDetails } from "@/axios/admin/odontogram";
-import { ToothsInterface } from "types/odontogram";
+import AddPatientTreatmentModal from "../modals/add-treatments";
 import { formatISO } from "date-fns";
+import { dentalArch } from "data";
+import {
+  getOdontogramDetails,
+  updateToothOfPatient,
+} from "@/axios/admin/odontogram";
 import {
   Box,
   Typography,
@@ -15,12 +15,13 @@ import {
   Button,
   TextField,
   Menu,
-  Autocomplete,
 } from "@mui/material";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 interface OdontogramPatientDetailsInterface {
-  onSaveTreatments: (data: any, odontogramId: any) => Promise<any>;
   patientOdontogram: any;
+  onUpdatePatient: any;
 }
 
 const buttonStyle = {
@@ -46,17 +47,18 @@ const toothRegions = [
   "Inf. Dir.",
   "Inf. Esq.",
 ];
-const buttonProps = { fullWidth: true, variant: "contained" };
 
 const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
-  const { onSaveTreatments, patientOdontogram } = props;
+  const { patientOdontogram, onUpdatePatient } = props;
   const { lb, lt, rb, rt } = dentalArch;
-  const [treatments, setTreatments] = useState<any[]>([]);
+  const adminData: any = useRecoilValue(UserData);
   const [toothDetails, setToothDetails] = useState<any>([]);
   const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
-  const [treatmentToAdd, setTreatmentToAdd] = useState(null);
 
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [toothSingleTreatment, setToothSingleTreatment] = useState<any | null>(
+    null
+  );
 
   // Tooth Menu #
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -67,31 +69,42 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     setSelectedRegion(null);
     setAnchorEl(null);
   };
-  // END Tooth Menu #
-
-  // useEffect(() => {
-  //   if (previousTreatments?.length === 0 || previousTreatments === undefined)
-  //     return;
-  //   setSelectedTreatments([...previousTreatments]);
-  //   let previousRegions: any[] = previousTreatments?.map((v) => v?.region);
-  //   setSelectedRegions((prev) => [...prev, ...previousRegions]);
-  // }, [previousTreatments]);
 
   const handleGetRegionDetails = async (region: string, e: any) => {
     handleClick(e);
+    let rg = "";
+    if (
+      region === "Superior Total" ||
+      region === "Sup. Dir." ||
+      region === "Sup. Esq." ||
+      region === "Inferior Total" ||
+      region === "Inf. Dir." ||
+      region === "Inf. Esq."
+    ) {
+      rg = region.replaceAll(".", "").replaceAll(" ", "_").toLowerCase();
+    } else {
+      rg = `t${region}`;
+    }
     setSelectedRegion(region);
-    return await getOdontogramDetails(patientOdontogram?.id).then(
-      ({ data }) => {
-        let actualTooth = data?.data?.attributes?.tooths[region];
-        setToothDetails(actualTooth);
+    return await getOdontogramDetails(patientOdontogram?.id, rg).then(
+      ({ data }: any) => {
+        if (data?.data?.attributes?.tooths === null) {
+          setToothDetails([]);
+        } else {
+          let actualTooth = data?.data?.attributes?.tooths[rg];
+          setToothDetails(actualTooth);
+        }
       },
       (err) => console.log(err)
     );
   };
 
-  const openAddTreatmentModal = async () => {
-    setAddTreatmentVisible(true);
-    // handleClose();
+  const openAddTreatmentModal = async () => setAddTreatmentVisible(true);
+  const handleCloseAddTreatment = () => setAddTreatmentVisible(false);
+
+  const getToothSingleDetailsTreatment = (id: any) => {
+    let filter = toothDetails.find((v: any) => v.id === id);
+    setToothSingleTreatment(filter);
   };
 
   //   const hasSelected = (t: string) => {
@@ -124,109 +137,65 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     let filter = clone.filter((v: any, index: number) => index !== i);
     tooths[selectedRegion!] = filter;
 
-    return await onSaveTreatments(tooths, patientOdontogram?.id);
+    // return await onSaveTreatments(tooths, patientOdontogram?.id);
   };
 
-  const handleSubmit = async () => {
-    if (selectedRegion === null) return;
+  const handleSubmitTreatment = async (data: any, odontogramId: any) => {
+    //Aqui ele pega o histórico da atualização criada naquela data para o odontograma do paciente
+    const toothValues: any[] = [];
 
-    let newDate = formatISO(new Date()).substring(0, 19);
-    let { name, price }: any = treatmentToAdd;
-    let toothData: ToothsInterface = {
-      name,
-      price,
-      obs: "",
-      finishedAt: null,
-      finishedBy: null,
-      hasAbsent: null,
-      hasFinished: null,
-      hasPayed: null,
-      createdAt: newDate,
-    };
-
-    let data = { ...patientOdontogram };
-
-    let { attributes } = data;
-    let { tooths } = attributes;
-
-    if (tooths[selectedRegion!].length > 0) {
-      let olds = tooths[selectedRegion!];
+    const { region, tooths, toothData } = data;
+    if (tooths === null) {
+      toothValues.push(toothData);
+    } else if (tooths[region!] === null) {
+      toothValues.push(toothData);
+    } else if (tooths[region!].length > 0) {
+      let olds = tooths[region!];
       let newData = [...olds, toothData];
-      tooths[selectedRegion!] = newData;
+      toothValues.push(...newData);
     } else {
-      tooths[selectedRegion!] = [toothData];
+      toothValues.push(toothData);
     }
 
-    return await onSaveTreatments(tooths, patientOdontogram?.id);
-  };
+    let newDate = formatISO(new Date()).substring(0, 19);
+    let hasHistory =
+      patientOdontogram?.attributes?.adminInfos?.history !== null;
+    let history = {};
 
-  const getTreatments = async () => {
-    return await handleGetTreatments().then(
-      (res) => {
-        let data = res.data.data;
-        let mapped = data?.map((v: any) => ({
-          name: v.attributes.name,
-          price: v.attributes.price,
-        }));
-        setTreatments(mapped);
+    if (!hasHistory) {
+      history = { [newDate]: tooths };
+    } else {
+      let oldHistories = patientOdontogram?.attributes?.adminInfos?.history;
+      history = { ...oldHistories, [newDate]: tooths };
+    }
+
+    let adminInfos = {
+      updated: adminData?.id,
+      updateTimestamp: new Date(),
+      history,
+    };
+    let values = { region, values: toothValues };
+
+    return await updateToothOfPatient(odontogramId, values, adminInfos).then(
+      async (res) => {
+        onUpdatePatient();
+        handleCloseAddTreatment();
+        handleClose();
+        return alert("Tratamento atualizado!");
       },
-      (err) => console.log(err.response)
+      (err) => console.log(err)
     );
   };
 
-  useEffect(() => {
-    getTreatments();
-  }, []);
-
   return (
     <Container>
-      <CModal
+      <AddPatientTreatmentModal
+        closeModal={handleCloseAddTreatment}
+        onSaveTreatments={handleSubmitTreatment}
+        patientOdontogram={patientOdontogram}
+        selectedRegion={selectedRegion}
         visible={addTreatmentVisible}
-        closeModal={() => setAddTreatmentVisible(false)}
-        styles={{ width: "50vw" }}
-      >
-        <Box
-          p={2}
-          display="flex"
-          width={"100%"}
-          alignItems={"center"}
-          flexDirection={"column"}
-          rowGap={2}
-        >
-          <Typography variant="subtitle1">Escolha o Tratamento</Typography>
-          <Autocomplete
-            options={treatments}
-            sx={{ width: "100%" }}
-            limitTags={2}
-            value={treatmentToAdd}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) =>
-              option.name === value?.name && option.price === value.price
-            }
-            onChange={(e, v) => setTreatmentToAdd(v)}
-            renderInput={(params) => (
-              <TextInput
-                {...params}
-                placeholder="Selecione o tratamento."
-                variant="standard"
-              />
-            )}
-          />
-
-          {treatmentToAdd !== null && (
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 1 }}
-              endIcon={<SaveIcon />}
-              onClick={handleSubmit}
-            >
-              Salvar
-            </Button>
-          )}
-        </Box>
-      </CModal>
+      />
 
       <Menu
         anchorEl={anchorEl}
@@ -243,6 +212,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
             data={toothDetails}
             onDelete={(i: number) => handleDeleteRegion(i)}
             messageNothing="Sem Histórico do Dente"
+            onGetDetails={getToothSingleDetailsTreatment}
           />
         </Box>
 

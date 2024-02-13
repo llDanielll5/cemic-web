@@ -83,8 +83,52 @@ export const handleGetPatientByCPF = async (cpf: string) => {
 
 export const handleGetSinglePatient = async (id: string) => {
   //TODO AUMENTAR OS POPULATES DE ACORDO COM O AUMENTO DE INFORMAÇÕES DO PACIENTE NO DB
+  let tooths = [
+    "t18",
+    "t17",
+    "t16",
+    "t15",
+    "t14",
+    "t13",
+    "t12",
+    "t11",
+    "t21",
+    "t22",
+    "t23",
+    "t24",
+    "t25",
+    "t26",
+    "t27",
+    "t28",
+    "t31",
+    "t32",
+    "t33",
+    "t34",
+    "t35",
+    "t36",
+    "t37",
+    "t38",
+    "t48",
+    "t47",
+    "t46",
+    "t45",
+    "t44",
+    "t43",
+    "t42",
+    "t41",
+    "superior_total",
+    "inferior_total",
+    "inf_dir",
+    "inf_esq",
+    "sup_esq",
+    "sup_dir",
+  ];
+  let toothsMapped = tooths.map((t) => {
+    return `populate[odontogram][populate][tooths][populate][${t}][populate]=*`;
+  });
+  let paramsTooths = toothsMapped.join("&");
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram]=*&populate[actualProfessional]=*&populate[screening][populate]=*`
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram][populate][tooths][populate]=*&populate[actualProfessional]=*&populate[screening][populate]=*&${paramsTooths}&populate[odontogram][populate][adminInfos]=*`
   );
 };
 

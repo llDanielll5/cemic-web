@@ -19,7 +19,6 @@ import IconButton from "@/components/iconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import ScreeningTable from "@/components/table/screening";
 import UserData from "@/atoms/userData";
-import TreatmentPlanUpdate from "@/components/dynamicProfBody/screening/details/treatmentPlan";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
@@ -291,11 +290,11 @@ const ScreeningsPage = () => {
               </Box>
             ) : null}
 
-            <TreatmentPlanUpdate
+            {/* <TreatmentPlanUpdate
               onSaveTreatments={handleSaveTreatments}
               previousTreatments={editModal.data?.attributes?.treatmentPlan}
               setVisible={handleCloseEditScreening}
-            />
+            /> */}
           </Box>
         )}
       </CModal>
