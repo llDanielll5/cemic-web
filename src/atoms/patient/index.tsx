@@ -99,6 +99,12 @@ export interface Problem {
   date: string;
 }
 
+export interface Attachment {
+  id?: any;
+  file: any;
+  name: String;
+}
+
 interface PatientStrapiSingle {
   id: string;
   attributes: {
@@ -131,6 +137,7 @@ interface PatientStrapiSingle {
     forwardedTreatment: any;
     exams: Exam[];
     problems: Problem[];
+    attachments: Attachment[];
   };
 }
 

@@ -128,7 +128,7 @@ export const handleGetSinglePatient = async (id: string) => {
   });
   let paramsTooths = toothsMapped.join("&");
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram][populate][tooths][populate]=*&populate[actualProfessional]=*&populate[screening][populate]=*&${paramsTooths}&populate[odontogram][populate][adminInfos]=*&populate[exams][populate]=*&populate[problems][populate]=*`
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram][populate][tooths][populate]=*&populate[actualProfessional]=*&populate[screening][populate]=*&${paramsTooths}&populate[odontogram][populate][adminInfos]=*&populate[exams][populate]=*&populate[problems][populate]=*&populate[attachments][populate]=*`
   );
 };
 

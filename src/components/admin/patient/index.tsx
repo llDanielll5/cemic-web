@@ -33,8 +33,9 @@ import {
 } from "data";
 import PatientTreatmentsTab from "./tabs/treatments";
 import PatientFinanceTab from "./tabs/finance";
-import ClientExams from "./tabs/exams";
+import PatientExams from "./tabs/exams";
 import PatientProblems from "./tabs/problems";
+import PatientAttachments from "./tabs/attachments";
 
 const PatientDetails = () => {
   const adminData: any = useRecoilValue(UserData);
@@ -181,13 +182,13 @@ const PatientDetails = () => {
       case "3":
         return <PatientTreatmentsTab onUpdatePatient={handleGetPatient} />;
       case "4":
-        return <ClientExams />;
+        return <PatientExams />;
       case "5":
         return <SchedulesPatient client={patientData} />;
       case "6":
         return <PatientProblems />;
       case "7":
-        return <ClientDocuments client={patientData} />;
+        return <PatientAttachments />;
     }
   };
 
