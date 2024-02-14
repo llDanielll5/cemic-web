@@ -128,7 +128,7 @@ export const handleGetSinglePatient = async (id: string) => {
   });
   let paramsTooths = toothsMapped.join("&");
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram][populate][tooths][populate]=*&populate[actualProfessional]=*&populate[screening][populate]=*&${paramsTooths}&populate[odontogram][populate][adminInfos]=*`
+    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram][populate][tooths][populate]=*&populate[actualProfessional]=*&populate[screening][populate]=*&${paramsTooths}&populate[odontogram][populate][adminInfos]=*&populate[exams][populate]=*&populate[problems][populate]=*`
   );
 };
 
@@ -144,4 +144,24 @@ export const handleGetPatientTreatments = async (id: string) => {
 
 export const getPatientWithSameCardId = async (cardId: string) => {
   return await axiosInstance.get(`/patients/?filters[cardId]=${cardId}`);
+};
+
+export const uploadFile = async (file: FormData, type?: string) => {
+  return await axiosInstance.post("/upload/", file, {
+    headers: {
+      "Content-Type": type ?? "application/pdf",
+    },
+  });
+};
+
+export const getFiles = async () => {
+  return await axiosInstance.get(`/upload/files/`);
+};
+
+export const getSingleFile = async (id: string) => {
+  return await axiosInstance.get(`/upload/files/${id}`);
+};
+
+export const deleteFile = async (id: string) => {
+  return await axiosInstance.delete(`/upload/files/${id}`);
 };

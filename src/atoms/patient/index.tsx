@@ -85,6 +85,20 @@ interface OdontogramInterface {
   };
 }
 
+export interface Exam {
+  id?: any;
+  file: any;
+  name: String;
+}
+
+export interface Problem {
+  id?: any;
+  file: any;
+  title: string;
+  description: string;
+  date: string;
+}
+
 interface PatientStrapiSingle {
   id: string;
   attributes: {
@@ -115,6 +129,8 @@ interface PatientStrapiSingle {
     screening: any;
     actualProfessional: any;
     forwardedTreatment: any;
+    exams: Exam[];
+    problems: Problem[];
   };
 }
 

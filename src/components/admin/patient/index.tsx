@@ -17,9 +17,9 @@ import PatientData from "@/atoms/patient";
 import HeaderPatientInformations from "./components/header-informations";
 import AnamneseTab from "./tabs/anamnese";
 import Receipt from "../clientInfos/receipt";
-import ClientExams from "../clientInfos/exams";
+
 import SchedulesPatient from "../clientInfos/schedules";
-import ClientProblems from "../clientInfos/problems";
+
 import ClientDocuments from "../clientInfos/docs";
 import {
   handleGetSinglePatient,
@@ -33,6 +33,8 @@ import {
 } from "data";
 import PatientTreatmentsTab from "./tabs/treatments";
 import PatientFinanceTab from "./tabs/finance";
+import ClientExams from "./tabs/exams";
+import PatientProblems from "./tabs/problems";
 
 const PatientDetails = () => {
   const adminData: any = useRecoilValue(UserData);
@@ -179,11 +181,11 @@ const PatientDetails = () => {
       case "3":
         return <PatientTreatmentsTab onUpdatePatient={handleGetPatient} />;
       case "4":
-        return <ClientExams client={patientData} />;
+        return <ClientExams />;
       case "5":
         return <SchedulesPatient client={patientData} />;
       case "6":
-        return <ClientProblems client={patientData} />;
+        return <PatientProblems />;
       case "7":
         return <ClientDocuments client={patientData} />;
     }
