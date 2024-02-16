@@ -134,7 +134,6 @@ const Container = styled(Card)`
   justify-content: space-between;
   padding: 1rem;
   border-radius: 1rem;
-  margin-top: 2rem;
 `;
 
 const AnamneseKey = styled(Typography)`

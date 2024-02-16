@@ -12,7 +12,6 @@ import { RecoilRoot } from "recoil";
 import "@/styles/globals.css";
 
 const clientSideEmotionCache = createEmotionCache();
-const SplashScreen = () => null;
 
 export default function App(props: any) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;

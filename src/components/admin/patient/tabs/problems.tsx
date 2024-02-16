@@ -4,20 +4,18 @@ import {
   Button,
   Checkbox,
   IconButton,
+  Paper,
   styled,
   TextField,
   Typography,
 } from "@mui/material";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import Modal from "@/components/modal";
-import { db } from "@/services/firebase";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { parseDateIso } from "@/services/services";
 import Loading from "@/components/loading";
 import Link from "next/link";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import PatientData, { Problem } from "@/atoms/patient";
 import {
   deleteFile,
@@ -25,6 +23,7 @@ import {
   uploadFile,
 } from "@/axios/admin/patients";
 import DeleteIcon from "@mui/icons-material/Delete";
+import UserData from "@/atoms/userData";
 
 interface ClientDocumentsProps {
   client: any;
@@ -40,6 +39,7 @@ const PatientProblems = (props: ClientDocumentsProps) => {
   const [problemDate, setProblemDate] = useState("");
   const [document, setDocument] = useState<any | null>(null);
   const [deleteModal, setDeleteModal] = useState(false);
+  const adminData: any = useRecoilValue(UserData);
 
   const problems = patientData?.attributes?.problems;
   const isDisabled = checkBoxList.every((e) => e === false);
@@ -75,11 +75,7 @@ const PatientProblems = (props: ClientDocumentsProps) => {
       date: new Date(e.date).toISOString(),
     }));
 
-    const updateData = {
-      data: {
-        problems: dataUpdate,
-      },
-    };
+    const updateData = { data: { problems: dataUpdate } };
 
     // DELETE FILE IN UPLOAD FOLDER
     for (const data of listDeleteData ?? []) {
@@ -117,11 +113,7 @@ const PatientProblems = (props: ClientDocumentsProps) => {
     const url = URL.createObjectURL(file);
     data.append("files", file);
 
-    return setDocument({
-      file,
-      url,
-      data,
-    });
+    return setDocument({ file, url, data });
   };
 
   const addProblemFile = async () => {
@@ -154,11 +146,7 @@ const PatientProblems = (props: ClientDocumentsProps) => {
               })
             : [];
 
-        const updateData = {
-          data: {
-            problems: [...clientExams, newProblem],
-          },
-        };
+        const updateData = { data: { problems: [...clientExams, newProblem] } };
 
         const problemsData = [
           ...(problems ?? []),
@@ -243,6 +231,7 @@ const PatientProblems = (props: ClientDocumentsProps) => {
             type={"date"}
             margin="dense"
             value={problemDate}
+            fullWidth
             label="Data do Acontecimento*:"
             InputLabelProps={{ shrink: true }}
             onChange={(e) => setProblemDate(e.target.value)}
@@ -270,9 +259,13 @@ const PatientProblems = (props: ClientDocumentsProps) => {
               </Typography>
             )}
           </Box>
-          <StyledButton sx={{ marginTop: "12px" }} onClick={addProblemFile}>
+          <Button
+            variant="contained"
+            sx={{ marginTop: "12px" }}
+            onClick={addProblemFile}
+          >
             Salvar
-          </StyledButton>
+          </Button>
         </Box>
       </Modal>
 
@@ -287,8 +280,12 @@ const PatientProblems = (props: ClientDocumentsProps) => {
             justifyContent="center"
             columnGap={2}
           >
-            <StyledButton onClick={handleDeleteDoc}>Sim</StyledButton>
-            <StyledButton onClick={handleCloseModalDelete}>Não</StyledButton>
+            <Button variant="contained" onClick={handleDeleteDoc}>
+              Sim
+            </Button>
+            <Button variant="contained" onClick={handleCloseModalDelete}>
+              Não
+            </Button>
           </Box>
         </Box>
       </Modal>
@@ -315,41 +312,39 @@ const PatientProblems = (props: ClientDocumentsProps) => {
 
       <ListTitle variant="h5">Relatórios de problemas</ListTitle>
 
-      <Box display={"flex"} flexDirection={"row"} marginLeft={3.6}>
-        <Checkbox
-          sx={{ marginRight: 0 }}
-          checked={checkBoxList.every((e) => e === true)}
-          indeterminate={checkBoxList.every((e) => e === true)}
-          onChange={changeAllItems}
-        />
+      {adminData?.userType === "ADMIN" && (
+        <Box display={"flex"} flexDirection={"row"} marginLeft={3.6}>
+          <Checkbox
+            sx={{ marginRight: 0 }}
+            checked={checkBoxList.every((e) => e === true)}
+            indeterminate={checkBoxList.every((e) => e === true)}
+            onChange={changeAllItems}
+          />
 
-        <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
-          <DeleteIcon color={isDisabled ? "disabled" : "error"} />
-        </IconButton>
-      </Box>
+          <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
+            <DeleteIcon color={isDisabled ? "disabled" : "error"} />
+          </IconButton>
+        </Box>
+      )}
 
-      <ListBox>
+      <ListBox elevation={15}>
         {checkBoxList?.length > 0 ? (
           checkBoxList?.map((v: any, i) => (
-            <Box
-              px={2}
-              key={i}
-              width="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-            >
+            <ListItem key={i}>
               <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
-                <Checkbox
-                  sx={{ marginRight: "16px" }}
-                  checked={v}
-                  onChange={(check) => changeCheckBox(i, check)}
-                />
-
-                <Typography variant="h5">{problems?.[i]?.title}</Typography>
+                {adminData?.userType === "ADMIN" && (
+                  <Checkbox
+                    sx={{ marginRight: "16px" }}
+                    checked={v}
+                    onChange={(check) => changeCheckBox(i, check)}
+                  />
+                )}
+                <Typography variant="subtitle1">
+                  {problems?.[i]?.title}
+                </Typography>
               </Box>
 
-              <Typography variant="h5">
+              <Typography variant="subtitle1">
                 {parseDateIso(problems?.[i]?.date?.substring(0, 10))}
               </Typography>
               <Link
@@ -357,11 +352,9 @@ const PatientProblems = (props: ClientDocumentsProps) => {
                 href={`http://localhost:17000${problems?.[i]?.file?.data?.attributes?.url}`}
                 target="_blank"
               >
-                <StyledButton variant="text" color="info">
-                  Visualizar
-                </StyledButton>
+                <Button variant="contained">Visualizar</Button>
               </Link>
-            </Box>
+            </ListItem>
           ))
         ) : (
           <Typography variant="body1">Lista vazia</Typography>
@@ -374,11 +367,10 @@ const PatientProblems = (props: ClientDocumentsProps) => {
 const ListTitle = styled(Typography)`
   margin: 0 auto;
 `;
-const ListBox = styled(Box)`
-  padding: 4px;
-  border: 1px solid var(--dark-blue);
-  border-radius: 8px;
-  margin: 8px;
+const ListBox = styled(Paper)`
+  padding: 0.5rem;
+  border-radius: 2rem;
+  margin: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,6 +387,19 @@ const VisuallyHiddenInput = styled("input")`
   left: 0;
   white-space: nowrap;
   width: 1;
+`;
+
+const ListItem = styled(Box)`
+  padding: 0.5rem 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #f4f4f4;
+  :last-child {
+    margin: 0;
+    border-bottom: none;
+  }
 `;
 
 export default PatientProblems;

@@ -8,9 +8,9 @@ import {
   IconButton,
   TextField,
   Checkbox,
+  Paper,
+  Divider,
 } from "@mui/material";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { db } from "@/services/firebase";
 import { useRecoilState, useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import Loading from "@/components/loading";
@@ -35,7 +35,7 @@ const PatientAttachments = () => {
   const [document, setDocument] = useState<any | null>(null);
   const [documentName, setDocumentName] = useState<string>("");
   const [loadingMessage, setLoadingMessage] = useState<string>("");
-  const userData = useRecoilValue(UserData);
+  const adminData: any = useRecoilValue(UserData);
 
   const attachments = patientData?.attributes?.attachments;
   const isDisabled = checkBoxList.every((e) => e === false);
@@ -63,11 +63,7 @@ const PatientAttachments = () => {
     const url = URL.createObjectURL(file);
     data.append("files", file);
 
-    return setDocument({
-      file,
-      url,
-      data,
-    });
+    return setDocument({ file, url, data });
   };
 
   const handleChangeUserImage = async () => {
@@ -78,13 +74,10 @@ const PatientAttachments = () => {
     setIsLoading(true);
     setLoadingMessage("Realizando upload da imagem");
 
-    await uploadFile(document.data, document.file.type)
-      .then(async (res) => {
+    await uploadFile(document.data, document.file.type).then(
+      async (res) => {
         const { id } = res.data[0];
-        const newAttachment: Attachment = {
-          file: id,
-          name: documentName,
-        };
+        const newAttachment: Attachment = { file: id, name: documentName };
         const patientId = patientData!.id;
         const clientAttachment =
           attachments && attachments?.length > 0
@@ -97,9 +90,7 @@ const PatientAttachments = () => {
             : [];
 
         const updateData = {
-          data: {
-            attachments: [...clientAttachment, newAttachment],
-          },
+          data: { attachments: [...clientAttachment, newAttachment] },
         };
 
         const attachmentData = [
@@ -110,8 +101,8 @@ const PatientAttachments = () => {
           },
         ];
 
-        await handleUpdatePatient(patientId, updateData)
-          .then((e) => {
+        await handleUpdatePatient(patientId, updateData).then(
+          (e) => {
             setPatientData((e: any) => ({
               ...e,
               attributes: {
@@ -120,14 +111,12 @@ const PatientAttachments = () => {
               },
             }));
             console.log({ success: e.data });
-          })
-          .catch((e) => {
-            console.log("err: ", e);
-          });
-      })
-      .catch((error) => {
-        console.log("Err: ", error);
-      });
+          },
+          (e) => console.log("err: ", e)
+        );
+      },
+      (error) => console.log("Err: ", error)
+    );
     handleCloseAttachment();
   };
 
@@ -155,9 +144,7 @@ const PatientAttachments = () => {
     }));
 
     const updateData = {
-      data: {
-        attachments: dataUpdate,
-      },
+      data: { attachments: dataUpdate },
     };
 
     // DELETE FILE IN UPLOAD FOLDER
@@ -246,27 +233,34 @@ const PatientAttachments = () => {
             </Typography>
           )}
 
-          <StyledButton
+          <Button
+            variant="contained"
             sx={{ marginTop: "12px" }}
             onClick={handleChangeUserImage}
           >
             Salvar
-          </StyledButton>
+          </Button>
         </Box>
       </Modal>
+
       <Modal visible={deleteModal} closeModal={handleCloseModalDelete}>
         <Box display="flex" flexDirection="column" alignItems="center">
           <Typography variant="h5">
             Deseja realmente apagar este arquivo?
           </Typography>
           <Box
+            pt={2}
             display="flex"
             alignItems="center"
             justifyContent="center"
             columnGap={2}
           >
-            <StyledButton onClick={handleDeleteDoc}>Sim</StyledButton>
-            <StyledButton onClick={handleCloseModalDelete}>Não</StyledButton>
+            <Button variant="contained" onClick={handleDeleteDoc}>
+              Sim
+            </Button>
+            <Button variant="contained" onClick={handleCloseModalDelete}>
+              Não
+            </Button>
           </Box>
         </Box>
       </Modal>
@@ -286,27 +280,28 @@ const PatientAttachments = () => {
       </Button>
 
       <ListTitle variant="h5">Lista de documentos</ListTitle>
+      {adminData?.userType === "ADMIN" && (
+        <Box display={"flex"} flexDirection={"row"} marginLeft={3.6}>
+          <Checkbox
+            sx={{ marginRight: 0 }}
+            checked={checkBoxList.every((e) => e === true)}
+            indeterminate={checkBoxList.every((e) => e === true)}
+            onChange={changeAllItems}
+          />
 
-      <Box display={"flex"} flexDirection={"row"} marginLeft={3.6}>
-        <Checkbox
-          sx={{ marginRight: 0 }}
-          checked={checkBoxList.every((e) => e === true)}
-          indeterminate={checkBoxList.every((e) => e === true)}
-          onChange={changeAllItems}
-        />
+          <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
+            <DeleteIcon color={isDisabled ? "disabled" : "error"} />
+          </IconButton>
+        </Box>
+      )}
 
-        <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
-          <DeleteIcon color={isDisabled ? "disabled" : "error"} />
-        </IconButton>
-      </Box>
-
-      <ListBox>
+      <ListBox elevation={15}>
         {checkBoxList?.length === 0 && (
           <Typography variant="body1">Lista vazia</Typography>
         )}
         {checkBoxList.length > 0 &&
           checkBoxList.map((v, i) => (
-            <ListItems key={i}>
+            <ListItems key={i} my={1}>
               <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
                 <Checkbox
                   sx={{ marginRight: "16px" }}
@@ -314,7 +309,7 @@ const PatientAttachments = () => {
                   onChange={(check) => changeCheckBox(i, check)}
                 />
 
-                <Typography variant="h5">{attachments?.[i]?.name}</Typography>
+                <Typography variant="h6">{attachments?.[i]?.name}</Typography>
               </Box>
 
               <Link
@@ -322,16 +317,8 @@ const PatientAttachments = () => {
                 href={`http://localhost:17000${attachments?.[i]?.file?.data?.attributes?.url}`}
                 target="_blank"
               >
-                <StyledButton variant="text" color="info">
-                  Visualizar
-                </StyledButton>
+                <Button variant="contained">Visualizar</Button>
               </Link>
-
-              {userData?.role === "admin" && (
-                <IconButton onClick={() => handleDeleteModal(v?.id)}>
-                  <DeleteIcon color="error" fontSize="medium" />
-                </IconButton>
-              )}
             </ListItems>
           ))}
       </ListBox>
@@ -342,10 +329,9 @@ const PatientAttachments = () => {
 const ListTitle = styled(Typography)`
   margin: 0 auto;
 `;
-const ListBox = styled(Box)`
+const ListBox = styled(Paper)`
   padding: 16px 8px;
-  border: 1px solid var(--dark-blue);
-  border-radius: 8px;
+  border-radius: 2rem;
   margin: 8px;
   display: flex;
   align-items: center;
@@ -356,11 +342,15 @@ const ListBox = styled(Box)`
 const ListItems = styled(Box)`
   display: flex;
   width: 100%;
-  padding: 8px;
-  height: 40px;
+  padding: 0.5rem;
   column-gap: 6px;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px solid #f4f4f4;
+  :last-child {
+    padding: 0.5rem 0.5rem 0 0.5rem;
+    border-bottom: none;
+  }
 `;
 
 const VisuallyHiddenInput = styled("input")`

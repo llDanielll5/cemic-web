@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Head from "next/head";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
@@ -12,6 +12,7 @@ import { CustomersTable } from "@/components/new-admin/patient/customers-table";
 import { useRecoilValue } from "recoil";
 import { useRouter } from "next/router";
 import { PaginationProps } from "types";
+import { PatientRole } from "types/patient";
 import {
   handleGetPatientByCPF,
   handleGetPatients,
@@ -26,7 +27,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { PatientRole } from "types/patient";
 import { getCookie } from "cookies-next";
 
 export type SortType = "asc" | "desc";

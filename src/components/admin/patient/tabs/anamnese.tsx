@@ -21,10 +21,10 @@ const AnamneseTab = () => {
   }, [patientData]);
 
   return (
-    <Box width="100%">
+    <Box width="100%" pt={2}>
       <Typography
         textAlign={"center"}
-        variant="h4"
+        variant="h5"
         color={(theme: any) => theme.palette.primary}
       >
         Anamnese
