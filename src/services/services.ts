@@ -153,3 +153,25 @@ export const defaultErrorFunction = (err: any, setLoading: any) => {
   setLoading({ isLoading: false, loadingMessage: "" });
   if (err.response) console.log(err.response.data.error.details);
 };
+
+export const parseToothRegion = (rg: string) => {
+  let replaced = "";
+
+  if (rg === "sup_dir") {
+    replaced = "Superior Direito";
+  } else if (rg === "sup_esq") {
+    replaced = "Superior Esquerdo";
+  } else if (rg === "superior_total") {
+    replaced = "Superior Total";
+  } else if (rg === "inferior_total") {
+    replaced = "Inferior Total";
+  } else if (rg === "inf_dir") {
+    replaced = "Inferior Direito";
+  } else if (rg === "inf_esq") {
+    replaced = "Inferior Esquerdo";
+  } else {
+    replaced = rg.replaceAll("t", "");
+  }
+
+  return replaced;
+};

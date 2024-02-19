@@ -1,4 +1,5 @@
 export interface ToothsInterface {
+  id?: string;
   name: string;
   price: number;
   hasPayed?: boolean | null;
@@ -8,54 +9,52 @@ export interface ToothsInterface {
   hasAbsent?: boolean | null; //dente ausente
   createdIn?: string | Date;
   obs: string;
+  region: OdontogramRegions;
 }
+
+export type OdontogramRegions =
+  | "t18"
+  | "t17"
+  | "t16"
+  | "t15"
+  | "t14"
+  | "t13"
+  | "t12"
+  | "t11"
+  | "t21"
+  | "t22"
+  | "t23"
+  | "t24"
+  | "t25"
+  | "t26"
+  | "t27"
+  | "t28"
+  | "t31"
+  | "t32"
+  | "t33"
+  | "t34"
+  | "t35"
+  | "t36"
+  | "t37"
+  | "t38"
+  | "t48"
+  | "t47"
+  | "t46"
+  | "t45"
+  | "t44"
+  | "t43"
+  | "t42"
+  | "t41"
+  | "superior_total"
+  | "inferior_total"
+  | "inf_dir"
+  | "inf_esq"
+  | "sup_esq"
+  | "sup_dir";
 
 export interface OdontogramInterface {
   patient: any;
-  tooths: {
-    "11": ToothsInterface[] | [];
-    "12": ToothsInterface[] | [];
-    "13": ToothsInterface[] | [];
-    "14": ToothsInterface[] | [];
-    "15": ToothsInterface[] | [];
-    "16": ToothsInterface[] | [];
-    "17": ToothsInterface[] | [];
-    "18": ToothsInterface[] | [];
-
-    "21": ToothsInterface[] | [];
-    "22": ToothsInterface[] | [];
-    "23": ToothsInterface[] | [];
-    "24": ToothsInterface[] | [];
-    "25": ToothsInterface[] | [];
-    "26": ToothsInterface[] | [];
-    "27": ToothsInterface[] | [];
-    "28": ToothsInterface[] | [];
-
-    "31": ToothsInterface[] | [];
-    "32": ToothsInterface[] | [];
-    "33": ToothsInterface[] | [];
-    "34": ToothsInterface[] | [];
-    "35": ToothsInterface[] | [];
-    "36": ToothsInterface[] | [];
-    "37": ToothsInterface[] | [];
-    "38": ToothsInterface[] | [];
-
-    "41": ToothsInterface[] | [];
-    "42": ToothsInterface[] | [];
-    "43": ToothsInterface[] | [];
-    "44": ToothsInterface[] | [];
-    "45": ToothsInterface[] | [];
-    "46": ToothsInterface[] | [];
-    "47": ToothsInterface[] | [];
-    "48": ToothsInterface[] | [];
-
-    "Sup. Dir.": ToothsInterface[] | [];
-    "Sup. Esq.": ToothsInterface[] | [];
-    "Inf. Esq.": ToothsInterface[] | [];
-    "Inf. Dir.": ToothsInterface[] | [];
-    "Superior Total": ToothsInterface[] | [];
-    "Inferior Total": ToothsInterface[] | [];
-  };
+  tooths: ToothsInterface[];
 }
 
 export const defaultOdontogram = (patientId?: string) => {

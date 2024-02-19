@@ -1,10 +1,11 @@
 //@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
+
 import React, { useState, useEffect, useCallback } from "react";
 import ReceiptAdmin from "./receipt";
 import Modal from "@/components/modal";
 import { db } from "@/services/firebase";
-import ModalPaymentAdmin from "./modalPayment";
+// import ModalPaymentAdmin from "./modalPayment";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -14,14 +15,7 @@ import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStati
 import { StyledButton } from "../receipts";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import {
-  ClientTreatmentsProps,
-  ForwardingHistoryInterface,
-  PaymentShape,
-  PaymentTypes,
-  ReceiptProps,
-  ScreeningInformations,
-} from "types";
+import { ScreeningInformations } from "types";
 import {
   Autocomplete,
   Box,
@@ -67,7 +61,7 @@ export const closeIcon = (props: any) => (
 );
 
 export interface PaymentShapesArray {
-  paymentType: PaymentTypes | null;
+  paymentType: null;
   value: number;
   valueStr: string;
 }
@@ -99,7 +93,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
   const [paymentShapesValues, setPaymentShapesValues] = useState("");
   const [data, setData] = useState<ScreeningInformations | null>(null);
   const [forwardModalVisible, setForwardModalVisible] = useState(false);
-  const [paymentType, setPaymentType] = useState<PaymentTypes | null>(null);
+  const [paymentType, setPaymentType] = useState<null>(null);
   const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
   const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [selectedProfessional, setSelectedProfessional] = useState<any | null>(
@@ -318,7 +312,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
   const handleFinishPayment = async () => {
     setIsGeneratePayment(true);
     const dateNow = Timestamp.now();
-    let paymentShape: PaymentShape[] = [];
+    let paymentShape = [];
 
     if (paymentType !== null) {
       paymentShape = [
@@ -431,7 +425,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
       .then(async () => {
         const timeNow = Timestamp.now().seconds;
         const idF = `${infos?.patientId}-${timeNow}`;
-        const forwardInformations: ForwardingHistoryInterface = {
+        const forwardInformations = {
           timestamp: Timestamp.now(),
           reporter: userData?.id,
           client: infos?.patientId,
@@ -477,7 +471,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
 
   return (
     <Container>
-      <Modal visible={paymentModal} closeModal={onCloseModalPayment}>
+      {/* <Modal visible={paymentModal} closeModal={onCloseModalPayment}>
         <ModalPaymentAdmin
           vezes={vezes}
           allValue={allValue}
@@ -502,7 +496,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
           paymentShapesValues={paymentShapesValues}
           setPaymentShapesValues={setPaymentShapesValues}
         />
-      </Modal>
+      </Modal> */}
 
       <Modal visible={receiptVisible} closeModal={handleCloseReceiptVisible}>
         <ReceiptAdmin

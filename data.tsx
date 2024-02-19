@@ -44,6 +44,7 @@ export const specialties = [
 ];
 
 export const parcelado = [
+  "",
   "1x",
   "2x",
   "3x",

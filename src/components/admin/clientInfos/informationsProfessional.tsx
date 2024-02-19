@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/ClientDetails.module.css";
-import SchedulesPatient from "./schedules";
+import SchedulesPatient from "../patient/tabs/schedules";
 
 interface ClientInformationsProps {
   tabIndex: number;

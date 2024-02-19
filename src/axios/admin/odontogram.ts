@@ -23,11 +23,16 @@ export const updateToothOfPatient = async (
 ) => {
   let dataUpdate = {
     data: {
-      region: data.region,
       valuesToAdd: data.values,
       adminInfos,
       odontogramId,
     },
   };
   return await axiosInstance.post(`/odontograms/updateTooth`, dataUpdate);
+};
+
+export const handleGetTreatmentsToPay = async (odontogramId: string) => {
+  return await axiosInstance.post(`/odontograms/getTreatmentsToPay`, {
+    data: { odontogramId },
+  });
 };

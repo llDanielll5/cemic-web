@@ -71,15 +71,15 @@ export const DashboardLayout = (props: any) => {
     return setUserData(persistance);
   };
 
-  const handleGetCemicIp = useCallback(async () => {
-    await getIP().then((ip) => {
-      if (ip !== process.env.CEMIC_PUBLIC_IP) router.push("/");
-    });
-  }, []);
+  // const handleGetCemicIp = useCallback(async () => {
+  //   await getIP().then((ip) => {
+  //     if (ip !== process.env.CEMIC_PUBLIC_IP) router.push("/");
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    handleGetCemicIp();
-  }, [handleGetCemicIp]);
+  // useEffect(() => {
+  //   handleGetCemicIp();
+  // }, [handleGetCemicIp]);
 
   useEffect(() => {
     setCookie("oldDate", undefined);

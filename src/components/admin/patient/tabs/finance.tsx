@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
@@ -6,6 +6,7 @@ import PatientData from "@/atoms/patient";
 import AddTreatment from "../modals/add-payment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PostAddIcon from "@mui/icons-material/PostAdd";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { parseDateIso } from "@/services/services";
 import { useRecoilState } from "recoil";
@@ -14,9 +15,11 @@ import {
   Typography,
   IconButton,
   styled,
-  TextField,
   Button,
+  Paper,
 } from "@mui/material";
+import AddPaymentPatientModal from "../modals/add-payment";
+import { handleGetTreatmentsToPay } from "@/axios/admin/odontogram";
 
 interface PatientFinaceTabProps {
   onUpdatePatient: any;
@@ -25,38 +28,29 @@ interface PatientFinaceTabProps {
 const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const { onUpdatePatient } = props;
   const [patientData, setPatientData] = useRecoilState(PatientData);
-  const client = patientData?.attributes;
-  const [addReceiptVisible, setAddReceiptVisible] = useState(false);
-  const [receiptDate, setReceiptDate] = useState<string>("");
-  const [document, setDocument] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [deleteVisible, setDeleteVisible] = useState(false);
-  const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
+  const [treatmentsToPay, setTreatmentsToPay] = useState<any>([]);
   const [idReceipt, setIdReceipt] = useState("");
-  let clientOdontogram = client?.odontogram?.data;
 
-  const closeAddReceipt = () => {
-    setDocument(null);
-    setReceiptDate("");
-    setAddReceiptVisible(false);
-  };
+  const client = patientData?.attributes;
+
   const handleCloseModalDelete = () => {
     setIdReceipt("");
     setDeleteVisible(false);
-  };
-
-  const handleChangeFile = async (e: any) => {
-    const targetImg = e.target.files[0];
-    return setDocument({
-      file: URL.createObjectURL(targetImg),
-      img: e.target.files[0],
-    });
   };
 
   const getReceiptId = (id: string) => {
     setIdReceipt(id);
     setDeleteVisible(true);
   };
+
+  const handleCloseAddPayment = () => setTreatmentsToPay([]);
+  const handleGeneratePayment = async () => {
+    const res = await handleGetTreatmentsToPay(client?.odontogram?.data?.id!);
+    setTreatmentsToPay(res.data);
+  };
+
   const handleDeleteReceipt = async () => {
     // setIsLoading(true);
     //deletar documento
@@ -96,26 +90,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     //Criar pagamento!!!
   };
 
-  const handleGeneratePayment = () => {
-    // if (data?.treatments?.all.length === 0) return;
-    // let allTreatments = data?.treatments?.all ?? [];
-    // let negotiateds = data?.treatments?.negotiateds ?? [];
-    // let reduced: any[] = [];
-    // allTreatments.forEach((item: any) => {
-    //   var duplicated =
-    //     negotiateds.findIndex((val: any) => {
-    //       return (
-    //         item.region === val.region &&
-    //         item.treatment.cod === val.treatment.cod &&
-    //         item.treatment.id === val.treatment.id
-    //       );
-    //     }) > -1;
-    //   if (!duplicated) reduced.push(item);
-    // });
-    // setTreatmentsToPay(reduced);
-    // setPaymentModal(true);
-  };
-
   if (isLoading)
     return (
       <Box position="fixed" top={0} left={0} zIndex={999999}>
@@ -124,7 +98,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     );
   else
     return (
-      <Box p={2}>
+      <Box>
         <Modal visible={deleteVisible} closeModal={handleCloseModalDelete}>
           <Box display="flex" flexDirection="column" alignItems="center">
             <Typography variant="h5">
@@ -142,60 +116,27 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           </Box>
         </Modal>
 
-        <Modal visible={addReceiptVisible} closeModal={closeAddReceipt}>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent={"center"}
-            flexDirection="column"
-          >
-            <TextField
-              type={"date"}
-              margin="dense"
-              value={receiptDate}
-              label="Data do Recibo*:"
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setReceiptDate(e.target.value)}
-            />
-            <Typography mt={1}>
-              Adicione a Imagem do recibo aqui (Foto ou PDF)
-            </Typography>
-            <Box
-              position="relative"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <input
-                type={"file"}
-                onChange={handleChangeFile}
-                title="Adicionar imagem"
-              />
-            </Box>
-            <StyledButton sx={{ marginTop: "12px" }} onClick={handleSubmit}>
-              Salvar
-            </StyledButton>
-          </Box>
-        </Modal>
+        <AddPaymentPatientModal
+          visible={treatmentsToPay.length > 0}
+          closeModal={handleCloseAddPayment}
+          treatmentsToPay={treatmentsToPay}
+        />
 
-        <HeaderContainer>
+        <HeaderContainer elevation={10}>
           <Typography variant="h5">Histórico Financeiro</Typography>
-          <Button
-            variant="contained"
-            endIcon={<PostAddIcon sx={{ color: "white" }} />}
-            onClick={() => setAddReceiptVisible(true)}
-          >
-            Gerar Recibo
-          </Button>
-          {client?.role === "PRE-REGISTER" && (
-            <AddTreatment
-              handleGeneratePayment={handleGeneratePayment}
-              treatments={null}
-            />
-          )}
+          <Box display={"flex"} alignItems="center" columnGap={2}>
+            <Button
+              title={"Adicionar Pagamento"}
+              variant="contained"
+              onClick={handleGeneratePayment}
+              startIcon={<AttachMoneyIcon />}
+            >
+              Add
+            </Button>
+          </Box>
         </HeaderContainer>
 
-        <Box p={2} width="100%">
+        {/* <Box p={2} width="100%">
           <ReceiptTableContainer>
             <TextId variant="subtitle1">ID Recibo</TextId>
             <Typography variant="subtitle1">Data do Recibo</Typography>
@@ -209,7 +150,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
               </Typography>
               <Box display="flex" columnGap={1}>
                 <Link passHref href={"#"} target="_blank">
-                  <Button variant="contained">Visualizar</Button>
+                  <Button variant="text">Visualizar</Button>
                 </Link>
                 <IconButton
                   title={`Excluir recibo ${v?.id}`}
@@ -220,17 +161,17 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
               </Box>
             </ReceiptSingle>
           ))}
-        </Box>
+        </Box> */}
       </Box>
     );
 };
 
-const HeaderContainer = styled(Box)`
+const HeaderContainer = styled(Paper)`
   display: flex;
   align-items: center;
   width: 100%;
   justify-content: space-between;
-  padding: 1rem 0;
+  padding: 1rem 1rem;
 `;
 const ReceiptTableContainer = styled(Box)`
   padding: 0 1rem;

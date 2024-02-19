@@ -88,11 +88,12 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     setSelectedRegion(region);
     return await getOdontogramDetails(patientOdontogram?.id, rg).then(
       ({ data }: any) => {
-        if (data?.data?.attributes?.tooths === null) {
+        if (data?.data?.attributes?.tooths.length === 0) {
           setToothDetails([]);
         } else {
-          let actualTooth = data?.data?.attributes?.tooths[rg];
-          setToothDetails(actualTooth);
+          let tRegion = data?.data?.attributes?.tooths;
+          let filterRegion = tRegion.filter((v: any) => v.region === rg);
+          setToothDetails(filterRegion);
         }
       },
       (err) => console.log(err)
@@ -141,41 +142,32 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
   };
 
   const handleSubmitTreatment = async (data: any, odontogramId: any) => {
-    //Aqui ele pega o histórico da atualização criada naquela data para o odontograma do paciente
     const toothValues: any[] = [];
 
-    const { region, tooths, toothData } = data;
-    if (tooths === null) {
-      toothValues.push(toothData);
-    } else if (tooths[region!] === null) {
-      toothValues.push(toothData);
-    } else if (tooths[region!].length > 0) {
-      let olds = tooths[region!];
-      let newData = [...olds, toothData];
-      toothValues.push(...newData);
-    } else {
-      toothValues.push(toothData);
-    }
+    const { tooths, toothData } = data;
 
+    toothValues.push(toothData);
     let newDate = formatISO(new Date()).substring(0, 19);
-    let hasHistory =
-      patientOdontogram?.attributes?.adminInfos?.history !== null;
     let history = {};
-
-    if (!hasHistory) {
-      history = { [newDate]: tooths };
-    } else {
-      let oldHistories = patientOdontogram?.attributes?.adminInfos?.history;
-      history = { ...oldHistories, [newDate]: tooths };
-    }
+    let oldHistories = patientOdontogram?.attributes?.adminInfos?.history;
+    history = {
+      ...(oldHistories ?? {}),
+      [newDate]: {
+        admin: {
+          name: adminData?.name,
+          id: adminData?.id,
+          role: adminData?.userType,
+        },
+        updates: [...(tooths ?? []), ...toothValues],
+      },
+    };
 
     let adminInfos = {
       updated: adminData?.id,
       updateTimestamp: new Date(),
       history,
     };
-    let values = { region, values: toothValues };
-
+    let values = { values: toothValues };
     return await updateToothOfPatient(odontogramId, values, adminInfos).then(
       async (res) => {
         onUpdatePatient();

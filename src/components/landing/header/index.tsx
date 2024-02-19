@@ -1,14 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { headerData } from "data";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/router";
 import useWindowSize from "@/hooks/useWindowSize";
-import { Box, styled, Typography } from "@mui/material";
+import { Box, ListItem, styled, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import { getIP } from "@/services/getIp";
 
 interface HeaderLandingProps {
   refMenu: any;
@@ -21,6 +22,7 @@ const HeaderLanding = (props: HeaderLandingProps) => {
   const size = useWindowSize();
   const [iconMenu, setIconMenu] = useState(true);
   const list = props.refMenu?.current?.style;
+  const [hasIp, setHasIp] = useState(null);
 
   const HeaderContainer = styled(Box)`
     width: 45%;
@@ -73,6 +75,17 @@ const HeaderLanding = (props: HeaderLandingProps) => {
     }
   `;
 
+  const handleGetCemicIp = useCallback(async () => {
+    await getIP().then((ip) => {
+      if (ip !== process.env.CEMIC_PUBLIC_IP) setHasIp(false);
+      else setHasIp(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    handleGetCemicIp();
+  }, [handleGetCemicIp]);
+
   return (
     <HeaderContainer>
       <HeaderListContainer>
@@ -84,7 +97,10 @@ const HeaderLanding = (props: HeaderLandingProps) => {
           onClick={async () => await router.push("/")}
         />
         <ListContainer ref={props.refMenu}>
-          {headerData.map((item, index) => listItem({ item, index }))}
+          {headerData.map((item, index) => {
+            if (!hasIp && index < 4) return listItem({ item, index });
+            else if (hasIp) return listItem({ item, index });
+          })}
         </ListContainer>
 
         {router.pathname === "/" && size?.width! > 900 && (

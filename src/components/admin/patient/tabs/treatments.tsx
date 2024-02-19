@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import * as F from "firebase/firestore";
-import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import ReceiptAdmin from "@/components/dynamicAdminBody/screening/receipt";
-import ModalPaymentAdmin from "@/components/dynamicAdminBody/screening/modalPayment";
 import { Box, Button } from "@mui/material";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { maskValue } from "@/services/services";
-import { PatientInterface } from "types/patient";
-import { PaymentShape, PaymentTypes } from "types/payments";
-import { formatISO } from "date-fns";
+import { PaymentTypes } from "types/payments";
 import { handleGetPatientTreatments } from "@/axios/admin/patients";
 import PatientData from "@/atoms/patient";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
@@ -41,9 +36,6 @@ interface ReceiptValuesProps {
   treatments: any[];
 }
 
-type ReceiptType = ReceiptValuesProps | null;
-type PayShapeArr = PaymentShapesArray[];
-
 const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   const { onUpdatePatient } = props;
   const [patientData, setPatientData] = useRecoilState(PatientData);
@@ -56,13 +48,10 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   const [negotiateds, setNegotiateds] = useState<any[]>([]);
   const [receiptVisible, setReceiptVisible] = useState(false);
   const [totalValueString, setTotalValueString] = useState("");
-  const [allValue, setAllValue] = useState<string | null>(null);
-  const [paymentModal, setPaymentModal] = useState<boolean>(false);
-  const [treatmentsToPay, setTreatmentsToPay] = useState<any[]>([]);
   const [paymentShapesValues, setPaymentShapesValues] = useState("");
   const [paymentType, setPaymentType] = useState<PaymentTypes | null>(null);
-  const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
-  const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
+  // const [receiptValues, setReceiptValues] = useState<ReceiptType>(null);
+  // const [paymentShapesArr, setPaymentsShapesArr] = useState<PayShapeArr>([]);
   const [negotiatedsToRealize, setNegotiatedsToRealize] = useState<any[]>([]);
   let patientOdontogram = client?.odontogram?.data;
 
@@ -71,60 +60,11 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     screening: null,
   });
 
-  const getTotalValue = useCallback(
-    (
-      arr: {
-        region: string;
-        treatment: { name: string; price: number; id: string };
-      }[]
-    ) => {
-      const prices: number[] = [];
-
-      const arrMap = arr?.map((v) => {
-        let hasPoint = v?.treatment?.price;
-        if (hasPoint) prices.push(v?.treatment?.price);
-        else prices.push(v?.treatment?.price);
-      });
-
-      if (arrMap.length > 0) {
-        let reduced = prices?.reduce((prev, curr) => prev + curr);
-
-        if (paymentType === "pix/cash") {
-          let discounted = (reduced * discount) / 100;
-          if (!discount) {
-            reduced = reduced;
-          } else reduced -= discounted;
-          setTotalValue(reduced);
-          return;
-        } else if (paymentType === "credit") {
-          let percent = (reduced * 10) / 100;
-          reduced += percent;
-          setTotalValue(reduced);
-          return;
-        } else return setTotalValue(reduced);
-      } else return;
-    },
-    [paymentType, discount]
-  );
-
-  const onCloseModalPayment = () => {
-    setPaymentShapesValues("");
-    setPaymentsShapesArr([]);
-    setPaymentModal(false);
-    setTreatmentsToPay([]);
-    setPaymentType(null);
-    setNegotiateds([]);
-    setAllValue(null);
-    setDiscount(5);
-    setVezes("");
-    return;
-  };
-
-  const handleCloseReceiptVisible = () => {
-    setReceiptValues(null);
-    setReceiptVisible(false);
-    return;
-  };
+  // const handleCloseReceiptVisible = () => {
+  //   setReceiptValues(null);
+  //   setReceiptVisible(false);
+  //   return;
+  // };
 
   const handleViewPayment = async () => {
     if (discount > 8 || discount < 5)
@@ -147,12 +87,12 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
       return console.log(changeNegotiatedsValues);
     }
 
-    setReceiptValues({
-      total: totalValue,
-      patientName: patientName!,
-      date: dateNow,
-      treatments: treatmentsString,
-    });
+    // setReceiptValues({
+    //   total: totalValue,
+    //   patientName: patientName!,
+    //   date: dateNow,
+    //   treatments: treatmentsString,
+    // });
     setReceiptVisible(true);
     return;
   };
@@ -200,38 +140,38 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     } else setNegotiatedsToRealize(negotiateds);
   };
 
-  const handleFinishPayment = async () => {
-    // setIsLoading(true);
-    const dateNow = F.Timestamp.now();
-    let paymentShape: PaymentShape[] = [];
+  // const handleFinishPayment = async () => {
+  //   // setIsLoading(true);
+  //   const dateNow = F.Timestamp.now();
+  //   let paymentShape: PaymentShape[] = [];
 
-    if (paymentType !== null) {
-      paymentShape = [
-        { type: paymentType, value: totalValue, valueStr: totalValueString },
-      ];
-    } else {
-      let formatShapes: any[] = paymentShapesArr.map((v) => ({
-        type: v.paymentType,
-        value: v.value,
-        valueStr: v.valueStr,
-      }));
-      paymentShape = formatShapes;
-    }
-    const receiptData = {
-      negotiateds,
-      paymentShape,
-      timestamp: dateNow,
-      client: patientData?.id,
-      total: totalValue,
-      totalStr: totalValueString,
-    };
+  //   if (paymentType !== null) {
+  //     paymentShape = [
+  //       { type: paymentType, value: totalValue, valueStr: totalValueString },
+  //     ];
+  //   } else {
+  //     let formatShapes: any[] = paymentShapesArr.map((v) => ({
+  //       type: v.paymentType,
+  //       value: v.value,
+  //       valueStr: v.valueStr,
+  //     }));
+  //     paymentShape = formatShapes;
+  //   }
+  //   const receiptData = {
+  //     negotiateds,
+  //     paymentShape,
+  //     timestamp: dateNow,
+  //     client: patientData?.id,
+  //     total: totalValue,
+  //     totalStr: totalValueString,
+  //   };
 
-    //getdoc
+  //   //getdoc
 
-    updateTreatmentsPayeds();
+  //   updateTreatmentsPayeds();
 
-    return;
-  };
+  //   return;
+  // };
 
   const openAddTreatment = async () => {
     if (patientOdontogram === null) {
@@ -262,42 +202,9 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     getTreatments();
   }, [getTreatments]);
 
-  useEffect(() => {
-    getTotalValue(negotiateds);
-  }, [getTotalValue, negotiateds]);
-
   return (
     <Box py={2} width="100%">
-      <Modal visible={paymentModal} closeModal={onCloseModalPayment}>
-        <ModalPaymentAdmin
-          vezes={vezes}
-          allValue={allValue}
-          discount={discount}
-          setVezes={setVezes}
-          totalValue={totalValue}
-          setAllValue={setAllValue}
-          negotiateds={negotiateds}
-          paymentType={paymentType}
-          setDiscount={setDiscount}
-          setTotalValue={setTotalValue}
-          setNegotiateds={setNegotiateds}
-          setPaymentType={setPaymentType}
-          treatmentsToPay={treatmentsToPay}
-          paymentShapesArr={paymentShapesArr}
-          totalValueString={totalValueString}
-          handleViewPayment={handleViewPayment}
-          setTreatmentsToPay={setTreatmentsToPay}
-          onCloseModalPayment={onCloseModalPayment}
-          setTotalValueString={setTotalValueString}
-          setPaymentShapesArr={setPaymentsShapesArr}
-          paymentShapesValues={paymentShapesValues}
-          setPaymentShapesValues={setPaymentShapesValues}
-          negotiatedsToRealize={negotiatedsToRealize}
-          setNegotiatedsToRealize={setNegotiatedsToRealize}
-        />
-      </Modal>
-
-      <Modal visible={receiptVisible} closeModal={handleCloseReceiptVisible}>
+      {/* <Modal visible={receiptVisible} closeModal={handleCloseReceiptVisible}>
         <ReceiptAdmin
           receiptValues={receiptValues}
           onSubmit={handleFinishPayment}
@@ -307,7 +214,7 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
           discount={discount}
           vezes={vezes}
         />
-      </Modal>
+      </Modal> */}
 
       {/* {clientTreatments !== null && (
         <>

@@ -4,7 +4,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import { handleGetTreatments } from "@/axios/admin/treatments";
 import { Autocomplete, Box, Button, Typography, styled } from "@mui/material";
 import { TextInput } from "@/components/dynamicAdminBody/screening/screeningDetails";
-import { ToothsInterface } from "types/odontogram";
+import { OdontogramRegions, ToothsInterface } from "types/odontogram";
 
 interface AddPatientTreatmentModalInterface {
   visible: boolean;
@@ -28,23 +28,6 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
   const handleSubmit = async () => {
     if (selectedRegion === null) return;
 
-    let newDate = new Date();
-    let { name, price }: any = treatmentToAdd;
-    let toothData: ToothsInterface = {
-      name,
-      price,
-      obs: "",
-      finishedAt: null,
-      finishedBy: null,
-      hasAbsent: false,
-      hasFinished: false,
-      hasPayed: false,
-      createdIn: newDate,
-    };
-    let data = { ...patientOdontogram };
-    let { attributes } = data;
-    let tooths = attributes?.tooths;
-
     let rg = "";
     if (
       selectedRegion === "Superior Total" ||
@@ -61,6 +44,24 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
     } else {
       rg = `t${selectedRegion}`;
     }
+
+    let newDate = new Date();
+    let { name, price }: any = treatmentToAdd;
+    let toothData: ToothsInterface = {
+      name,
+      price,
+      obs: "",
+      finishedAt: null,
+      finishedBy: null,
+      hasAbsent: false,
+      hasFinished: false,
+      hasPayed: false,
+      createdIn: newDate,
+      region: rg as OdontogramRegions,
+    };
+    let data = { ...patientOdontogram };
+    let { attributes } = data;
+    let tooths = attributes?.tooths;
 
     let dataUpdate = { tooths, region: rg, toothData };
 

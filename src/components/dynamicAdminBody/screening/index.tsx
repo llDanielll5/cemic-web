@@ -14,7 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ScreeningDetailsAdmin from "./screeningDetails";
 import { useRecoilValue } from "recoil";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import ScreeningModal from "@/components/admin/screeningModal";
+import ScreeningModal from "@/components/admin/screening/screeningModal";
 
 interface ScreeningProps {
   screeningModal: any;

@@ -18,7 +18,7 @@ import HeaderPatientInformations from "./components/header-informations";
 import AnamneseTab from "./tabs/anamnese";
 import Receipt from "../clientInfos/receipt";
 
-import SchedulesPatient from "../clientInfos/schedules";
+import SchedulesPatient from "./tabs/schedules";
 
 import ClientDocuments from "../clientInfos/docs";
 import {
