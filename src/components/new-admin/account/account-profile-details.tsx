@@ -10,9 +10,11 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import UserData from "@/atoms/userData";
 import { cpfMask, phoneMask } from "@/services/services";
+import { handleUpdateUser, uploadFile } from "@/axios/admin/profileDetails";
+import ProfileImage from "@/atoms/profileImage";
 
 const states = [
   {
@@ -22,23 +24,60 @@ const states = [
 ];
 
 export const AccountProfileDetails = () => {
-  const userData: any = useRecoilValue(UserData);
+  const [userData, setUserData]: any = useRecoilState(UserData);
+  const [profileImage, setProfileImage] = useRecoilState(ProfileImage);
   const [values, setValues] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    cpf: "",
-    state: "",
-    rg: "",
+    name: userData?.name,
+    email: userData?.email,
+    phone: phoneMask(userData?.phone),
+    cpf: cpfMask(userData?.cpf),
+    state: "brasilia",
+    rg: userData?.rg,
   });
 
-  const handleChange = useCallback((e: any) => {
+  const handleChange = (e: any) => {
     setValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }, []);
+  };
 
-  const handleSubmit = useCallback((event: any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
-  }, []);
+
+    if (!values.cpf) return alert("Preencha o campo CPF");
+    if (!values.name) return alert("Preencha o campo Nome");
+    if (!values.email) return alert("Preencha o campo Email");
+    if (!values.state) return alert("Preencha o campo Estado");
+
+    const uploadResult = profileImage
+      ? await uploadFile(profileImage.data, profileImage.file.type)
+      : undefined;
+
+    const image = uploadResult?.data[0] ?? userData.profileImage;
+
+    const userID = userData!.id;
+
+    const updateData = {
+      profileImage: image?.id,
+      name: values.name,
+      cpf: values.cpf,
+      phone: values.phone,
+      email: values.email,
+    };
+
+    await handleUpdateUser(userID, updateData)
+      .then((e) => {
+        setUserData((e: any) => ({
+          ...e,
+          ...values,
+          profileImage: image,
+        }));
+        console.log({ success: e.data });
+        alert("Dados foram salvos com sucesso");
+      })
+      .catch((e) => {
+        console.log("err: ", e);
+        alert("Ocorreu algum erro!");
+      });
+  };
 
   useEffect(() => {
     setValues((prev) => ({
@@ -49,7 +88,7 @@ export const AccountProfileDetails = () => {
       state: "brasilia",
       rg: userData?.rg,
     }));
-  }, []);
+  }, [userData]);
 
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
@@ -70,6 +109,7 @@ export const AccountProfileDetails = () => {
                   onChange={handleChange}
                   required
                   value={values.name}
+                  error={!values.name}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -80,6 +120,7 @@ export const AccountProfileDetails = () => {
                   onChange={handleChange}
                   required
                   value={values.email}
+                  error={!values.email}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -89,7 +130,8 @@ export const AccountProfileDetails = () => {
                   name="cpf"
                   onChange={handleChange}
                   required
-                  value={values.cpf}
+                  value={cpfMask(values.cpf)}
+                  error={!values.cpf}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -98,7 +140,7 @@ export const AccountProfileDetails = () => {
                   label="Phone Number"
                   name="phone"
                   onChange={handleChange}
-                  value={values.phone}
+                  value={phoneMask(values.phone)}
                 />
               </Grid>
               {/* <Grid xs={12} md={6}>
@@ -121,6 +163,7 @@ export const AccountProfileDetails = () => {
                   select
                   SelectProps={{ native: true }}
                   value={values.state}
+                  error={!values.state}
                 >
                   {states.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -134,7 +177,9 @@ export const AccountProfileDetails = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: "flex-end" }}>
-          <Button variant="contained">Save details</Button>
+          <Button variant="contained" type="submit">
+            Salvar
+          </Button>
         </CardActions>
       </Card>
     </form>

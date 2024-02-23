@@ -1,4 +1,6 @@
+import ProfileImage from "@/atoms/profileImage";
 import UserData from "@/atoms/userData";
+
 import {
   Avatar,
   Box,
@@ -8,11 +10,34 @@ import {
   CardContent,
   Divider,
   Typography,
+  styled,
 } from "@mui/material";
-import { useRecoilValue } from "recoil";
+import { profile } from "console";
+import { useRecoilState, useRecoilValue } from "recoil";
 
 export const AccountProfile = () => {
   const userData: any = useRecoilValue(UserData);
+  const [profileImage, setProfileImage] = useRecoilState(ProfileImage);
+
+  const handleChangeFile = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      return; // User canceled file selection
+    }
+
+    const file = event.target.files[0];
+    const data = new FormData();
+    const url = URL.createObjectURL(file);
+    data.append("files", file);
+
+    setProfileImage({
+      url,
+      data,
+      file,
+    });
+  };
+
   return (
     <Card>
       <CardContent>
@@ -24,7 +49,7 @@ export const AccountProfile = () => {
           }}
         >
           <Avatar
-            src={userData.profileImage}
+            src={profileImage?.url ?? userData?.profileImage?.url}
             sx={{ height: 80, mb: 2, width: 80 }}
           />
           <Typography gutterBottom variant="h6">
@@ -37,10 +62,23 @@ export const AccountProfile = () => {
       </CardContent>
       <Divider />
       <CardActions>
-        <Button fullWidth variant="text">
+        <Button fullWidth variant="text" component="label">
           Trocar Foto
+          <VisuallyHiddenInput type="file" onChange={handleChangeFile} />
         </Button>
       </CardActions>
     </Card>
   );
 };
+
+const VisuallyHiddenInput = styled("input")`
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+  width: 1;
+`;
