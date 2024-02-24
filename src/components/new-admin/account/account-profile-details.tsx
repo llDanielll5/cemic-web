@@ -56,7 +56,7 @@ export const AccountProfileDetails = () => {
     const userID = userData!.id;
 
     const updateData = {
-      profileImage: image?.id,
+      profileImage: image?.url,
       name: values.name,
       cpf: values.cpf,
       phone: values.phone,
@@ -68,7 +68,7 @@ export const AccountProfileDetails = () => {
         setUserData((e: any) => ({
           ...e,
           ...values,
-          profileImage: image,
+          profileImage: image?.url,
         }));
         console.log({ success: e.data });
         alert("Dados foram salvos com sucesso");

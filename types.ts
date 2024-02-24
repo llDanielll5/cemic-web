@@ -39,7 +39,7 @@ export interface AdminType {
   cpf: string;
   rg: string;
   phone: string;
-  profileImage: any;
+  profileImage: string;
   firstLetter: string;
   role: UserRole;
   dateBorn: string;

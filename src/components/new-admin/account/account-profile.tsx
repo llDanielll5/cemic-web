@@ -49,7 +49,10 @@ export const AccountProfile = () => {
           }}
         >
           <Avatar
-            src={profileImage?.url ?? userData?.profileImage?.url}
+            src={
+              profileImage?.url ??
+              `http://localhost:17000${userData?.profileImage}`
+            }
             sx={{ height: 80, mb: 2, width: 80 }}
           />
           <Typography gutterBottom variant="h6">
