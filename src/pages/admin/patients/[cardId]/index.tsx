@@ -10,31 +10,23 @@ import PatientData from "@/atoms/patient";
 
 const PatientSingle = (props: any) => {
   const router = useRouter();
-  const patientId: any = router?.query?.id;
+  const patientCardId: any = router?.query?.cardId;
   const adminData: any = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
 
-  const getBack = () => router.push("/admin/patients");
   const handleGetPatientInfo = useCallback(async () => {
-    if (!patientId || patientId === undefined) return;
-    return await handleGetSinglePatient(patientId!).then(
-      (res) => setPatientData(res.data.data),
+    if (!patientCardId || patientCardId === undefined) return;
+    return await handleGetSinglePatient(patientCardId!).then(
+      (res) => setPatientData(res.data.data[0]),
       (err) => console.log(err.response)
     );
-  }, [patientId]);
+  }, [patientCardId]);
 
   useEffect(() => {
     handleGetPatientInfo();
   }, [handleGetPatientInfo]);
 
-  return (
-    <Box p={4}>
-      {patientData !== null && (
-        <Typography variant="h5">{patientData?.attributes?.name}</Typography>
-      )}
-      {patientData !== null && <PatientDetails />}
-    </Box>
-  );
+  return <Box p={4}>{patientData !== null && <PatientDetails />}</Box>;
 };
 
 PatientSingle.getLayout = (page: any) => (

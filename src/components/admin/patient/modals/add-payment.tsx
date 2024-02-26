@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import CModal from "@/components/modal";
 import {
+  Autocomplete,
   Box,
   Button,
-  IconButton,
   Paper,
   Stack,
   TextField,
@@ -13,6 +14,7 @@ import {
 import {
   BankCheckInformationsInterface,
   PaymentShapesInterface,
+  ReceiptValues,
 } from "types/payments";
 import { parseToothRegion } from "@/services/services";
 import { ToothsInterface } from "types/odontogram";
@@ -25,12 +27,16 @@ interface AddPaymentPatientModal {
   visible: boolean;
   closeModal: any;
   treatmentsToPay: any[];
+  onPassReceiptValues: (receiptValues: ReceiptValues) => void;
 }
 
 const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
-  const { closeModal, visible, treatmentsToPay } = props;
+  const { closeModal, visible, treatmentsToPay, onPassReceiptValues } = props;
   const [totalValue, setTotalValue] = useState<number>(0);
   const [discount, setDiscount] = useState<string>("");
+  const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
+    "Clinico"
+  );
   const [discountVisible, setDiscountVisible] = useState(false);
   const [bankCheckInfos, setBankCheckInfos] = useState<
     BankCheckInformationsInterface[]
@@ -76,6 +82,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     setTreatmentsOfPatient((prev) => [...(prev ?? []), ...arr]);
     return;
   };
+
   const handleDiscountValidation = (e: any) => {
     const reg = new RegExp("[0-9]");
     if (reg.test(e.target.value)) {
@@ -91,7 +98,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const getTotalValue = useCallback(
     (arr: ToothsInterface[]) => {
       const prices: number[] = [];
-      arr?.map((v) => prices.push(v.price));
+      arr?.map((v) => prices.push(v.attributes.price));
       let reduced = prices?.reduce((prev, curr) => prev + curr, 0);
 
       const creditValues = paymentShapes.filter(
@@ -143,11 +150,8 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     [getTotalValue, treatmentsForPayment]
   );
 
-  const handleUpdateCheckInformations = (
-    v: BankCheckInformationsInterface[]
-  ) => {
+  const handleUpdateCheckInformations = (v: BankCheckInformationsInterface[]) =>
     setBankCheckInfos(v);
-  };
 
   const handleViewPayment = () => {
     const notPriced = paymentShapes.map((v) => v.price === 0);
@@ -174,6 +178,9 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       return alert("Desconto não liberado!");
 
     if (bankCheckInfos.length > 0) {
+      const priceTotalCheck = paymentShapes.find(
+        (v) => v.shape === "BANK_CHECK"
+      )?.price;
       const pricesBankCheck = bankCheckInfos.map((v: any) =>
         parseFloat(v.price!.replace(".", "").replace(",", "."))
       );
@@ -182,17 +189,17 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         0
       );
 
-      if (pricesCheckReduced > totalValue)
+      if (pricesCheckReduced > priceTotalCheck!)
         return alert(
           "Os valores somados de cheques não podem ultrapassar o total"
         );
-      if (pricesCheckReduced < totalValue)
+      if (pricesCheckReduced < priceTotalCheck!)
         return alert(
           "Os valores somados de cheques não podem ser inferior ao total"
         );
     }
 
-    const parsedBankCheckInfos = bankCheckInfos.map((v) => {
+    const parsedBankCheckInfos: any[] = bankCheckInfos.map((v) => {
       const parseValue = parseFloat(
         v.price!.replace(".", "").replace(",", ".")
       );
@@ -205,11 +212,16 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       };
     });
 
-    console.log({
+    const dataUpdate: ReceiptValues = {
       paymentShapes,
       treatmentsForPayment,
-      bankCheckInfos: parsedBankCheckInfos,
-    });
+      bankCheckInfos: parsedBankCheckInfos ?? [],
+      totalValue,
+      discount: parseInt(discount),
+      cashierType: cashierType === "Clinico" ? "clinic" : "implant",
+    };
+
+    onPassReceiptValues(dataUpdate);
   };
 
   const hasCheckPayment =
@@ -261,9 +273,11 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                 onClick={() => handleAddToPay(v)}
               >
                 <Typography variant="subtitle1">
-                  {parseToothRegion(v?.region)} -{" "}
+                  {parseToothRegion(v?.attributes?.region)} -{" "}
                 </Typography>
-                <Typography variant="subtitle1">{v?.name}</Typography>
+                <Typography variant="subtitle1">
+                  {v?.attributes?.name}
+                </Typography>
               </TreatmentsToChoice>
             ))}
           </Box>
@@ -290,9 +304,11 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                     onClick={() => handleDeleteToPay(i)}
                   >
                     <Typography variant="subtitle1">
-                      {parseToothRegion(v?.region)} -{" "}
+                      {parseToothRegion(v?.attributes?.region)} -{" "}
                     </Typography>
-                    <Typography variant="subtitle1">{v?.name}</Typography>
+                    <Typography variant="subtitle1">
+                      {v?.attributes?.name}
+                    </Typography>
                   </TreatmentsChoiceds>
                 ))}
             </Box>
@@ -325,6 +341,19 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                 </Stack>
               </Paper>
             ) : null}
+
+            <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
+              <Typography variant="subtitle1">
+                Escolha o tipo de Caixa
+              </Typography>
+              <Autocomplete
+                fullWidth
+                value={cashierType}
+                options={["Clinico", "Implantes"]}
+                onChange={(e, v: any) => setCashierType(v!)}
+                renderInput={(props) => <TextField {...props} label="Caixa" />}
+              />
+            </Paper>
           </>
         )}
 
@@ -363,26 +392,6 @@ const TreatmentsChoiceds = styled(Button)`
   width: 100%;
   padding: 4px;
   margin-bottom: 8px;
-`;
-
-const CreditDivide = styled(Box)`
-  display: flex;
-  align-items: center;
-  column-gap: 8px;
-  width: 50%;
-  .dropdown {
-    width: 40%;
-  }
-`;
-
-const ButtonCredit = styled(IconButton)`
-  background-color: var(--dark-blue);
-  color: white;
-  font-weight: bold;
-  border-radius: 8px;
-  :hover {
-    background-color: var(--red);
-  }
 `;
 
 export default AddPaymentPatientModal;

@@ -1,8 +1,9 @@
-import CModal from "@/components/modal";
-import { maskValue } from "@/services/services";
-import { Box, TextField, Typography, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { Box, Button, TextField, Typography, styled } from "@mui/material";
 import { BankCheckInformationsInterface } from "types/payments";
+import { maskValue } from "@/services/services";
+import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
+import CModal from "@/components/modal";
 
 interface BankCheckInfosInterface {
   onChangeCheckInformations: (v: any) => void;
@@ -127,6 +128,16 @@ const RenderBankCheckInfos = (props: BankCheckInfosInterface) => {
           </Container>
         </MapContainer>
       ))}
+
+      <Button
+        variant="contained"
+        sx={{ my: 2 }}
+        onClick={closeModal}
+        fullWidth
+        endIcon={<DoneOutlineIcon />}
+      >
+        Salvar
+      </Button>
     </CModal>
   );
 };

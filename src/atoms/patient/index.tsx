@@ -1,11 +1,11 @@
 import { atom } from "recoil";
 import { AddressType } from "types";
-import { ToothsInterface } from "types/odontogram";
+import { ToothsInterface, TreatmentsPatientInterface } from "types/odontogram";
 import { AnamneseQuestions, PatientRole } from "types/patient";
 
 interface AdminInfosProps {
-  createTimestamp: Date | string;
-  updateTimestamp: Date | string;
+  createTimestamp: string;
+  updateTimestamp: string;
   created: any;
   history: any;
   updated: any;
@@ -80,7 +80,7 @@ interface OdontogramInterface {
     attributes: {
       createdAt: Date | string;
       updatedAt: Date | string;
-      tooths: OdontogramAllToothsInterface;
+      treatments: any;
     };
   };
 }
@@ -116,9 +116,6 @@ interface PatientStrapiSingle {
     createdAt: Date | string;
     dateBorn: string;
     email: string;
-
-    finishedTreatments: any[];
-
     firstLetter: string;
     lectures: LecturesInterface;
     name: string;
@@ -130,14 +127,14 @@ interface PatientStrapiSingle {
     rg: string;
     role: PatientRole;
     sexo?: any;
-    treatmentPlan: any | null;
+    actualProfessional: any;
 
     screening: any;
-    actualProfessional: any;
-    forwardedTreatment: any;
     exams: Exam[];
     problems: Problem[];
     attachments: Attachment[];
+
+    treatments: any[] | TreatmentsPatientInterface[];
   };
 }
 

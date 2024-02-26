@@ -58,14 +58,12 @@ export const CustomersTable = (props: any) => {
             <TableBody>
               {items?.map((patient: any) => {
                 let attr = patient?.attributes;
-                // const isSelected = selected.includes(patient?.id);
-                // const createdAt = format(attr.createdAt, "dd/MM/yyyy");
 
                 return (
                   <TableRow
                     hover
                     key={patient?.id}
-                    onClick={() => props.onClick(patient?.id)}
+                    onClick={() => props.onClick(patient?.attributes?.cardId)}
                     sx={{ cursor: "pointer" }}
                   >
                     <TableCell padding="checkbox"></TableCell>

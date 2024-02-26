@@ -66,7 +66,7 @@ export const items = [
   },
   {
     title: "Caixa",
-    path: "/admin/cash",
+    path: "/admin/cashier",
     icon: (
       <SvgIcon fontSize="small">
         <PointOfSaleIcon />

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, styled, IconButton } from "@mui/material";
+import { Box, styled, IconButton, Paper } from "@mui/material";
 import { AddressType } from "types";
 import UserForm from "@/components/userForm";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -202,6 +202,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       anamnese: { ...anamneseData },
       createdBy: adminData?.id,
       cardId,
+      slug: userData?.name?.replaceAll(" ", "-").toLowerCase(),
     };
 
     return await handleCreatePatient(clientData).then(
@@ -214,7 +215,7 @@ const NewPatientForm = (props: AnamneseProps) => {
   };
 
   return (
-    <Container>
+    <Container elevation={10}>
       {page === 0 && (
         <UserForm
           handleChange={handleChange}
@@ -243,7 +244,7 @@ const NewPatientForm = (props: AnamneseProps) => {
   );
 };
 
-const Container = styled(Box)`
+const Container = styled(Paper)`
   margin: 24px auto;
   width: 90%;
   padding: 24px 16px;

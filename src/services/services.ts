@@ -139,7 +139,7 @@ export const nameCapitalized = (name: string) => {
 export const getCreditDiscount = (creditVal: number) => {
   let discount = (creditVal * 10) / 100;
   let discounted = creditVal - discount;
-  return discounted.toFixed(2);
+  return discounted;
 };
 
 export const getUserTypeRole = (role: UserRole) => {

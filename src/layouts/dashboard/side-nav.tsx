@@ -80,7 +80,6 @@ export const SideNav = (props: any) => {
                   ?.split("/")[1]
                   .concat("/")
                   .concat(pathname?.split("/")[2]);
-              // let pathnamePatient = "/" + path[1] + "/" + path[2];
               const active = item.path === pathname || path === item.path;
 
               return (

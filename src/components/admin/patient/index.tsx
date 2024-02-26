@@ -87,8 +87,8 @@ const PatientDetails = () => {
   };
 
   const handleGetPatient = async () => {
-    return await handleGetSinglePatient(patientData?.id!).then(
-      (res) => setPatientData(res.data.data),
+    return await handleGetSinglePatient(patientData?.attributes?.cardId).then(
+      (res) => setPatientData(res.data.data[0]),
       (err) => console.log(err.response)
     );
   };
@@ -123,6 +123,7 @@ const PatientDetails = () => {
 
   const updateClientStatus = useCallback(() => {
     if (patientData === null) return;
+
     let attr = patientData?.attributes;
 
     setClientData({
@@ -194,10 +195,12 @@ const PatientDetails = () => {
 
   return (
     <TabContext value={tabIndex.toString()}>
-      <HeaderPatientInformations
-        clientData={clientData}
-        handleChange={handleChange}
-      />
+      {patientData !== null && (
+        <HeaderPatientInformations
+          clientData={clientData}
+          handleChange={handleChange}
+        />
+      )}
 
       <Divider sx={{ mt: 2 }} />
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

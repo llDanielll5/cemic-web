@@ -96,8 +96,10 @@ const PatientsPage = () => {
     return await getPatients();
   };
 
-  const handleClickPatient = (id: string) =>
-    router.push("/admin/patients/" + id);
+  const handleClickPatient = (cardId: string) => {
+    // const slug = name.replaceAll(" ", "-").toLowerCase();
+    router.push("/admin/patients/" + cardId);
+  };
 
   const handleChangePatientVisible = () =>
     setNewPatientVisible(!newPatientVisible);
@@ -116,6 +118,7 @@ const PatientsPage = () => {
       <Head>
         <title>Pacientes · CEMIC</title>
       </Head>
+
       <CModal
         styles={{ width: "85vw", overflow: "auto", height: "95vh" }}
         visible={newPatientVisible}

@@ -4,7 +4,13 @@ import SaveIcon from "@mui/icons-material/Save";
 import { handleGetTreatments } from "@/axios/admin/treatments";
 import { Autocomplete, Box, Button, Typography, styled } from "@mui/material";
 import { TextInput } from "@/components/dynamicAdminBody/screening/screeningDetails";
-import { OdontogramRegions, ToothsInterface } from "types/odontogram";
+import {
+  OdontogramRegions,
+  ToothsInterface,
+  TreatmentsPatientInterface,
+} from "types/odontogram";
+import { useRecoilValue } from "recoil";
+import PatientData from "@/atoms/patient";
 
 interface AddPatientTreatmentModalInterface {
   visible: boolean;
@@ -22,6 +28,8 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
     patientOdontogram,
     onSaveTreatments,
   } = props;
+
+  const patientData = useRecoilValue(PatientData);
   const [treatments, setTreatments] = useState<any[]>([]);
   const [treatmentToAdd, setTreatmentToAdd] = useState(null);
 
@@ -45,9 +53,8 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
       rg = `t${selectedRegion}`;
     }
 
-    let newDate = new Date();
     let { name, price }: any = treatmentToAdd;
-    let toothData: ToothsInterface = {
+    let newTreatment: TreatmentsPatientInterface = {
       name,
       price,
       obs: "",
@@ -56,22 +63,37 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
       hasAbsent: false,
       hasFinished: false,
       hasPayed: false,
-      createdIn: newDate,
       region: rg as OdontogramRegions,
+      odontogram: patientOdontogram?.id,
+      patient: patientData?.id,
+      paymentsProfessional: null,
+      payment: null,
     };
     let data = { ...patientOdontogram };
     let { attributes } = data;
-    let tooths = attributes?.tooths;
-
-    let dataUpdate = { tooths, region: rg, toothData };
-
+    let treatments = attributes?.treatments.data;
+    const oldHistories = treatments.map((v: any) => {
+      const attr = v.attributes;
+      return {
+        name: attr.name,
+        obs: attr.obs,
+        hasAbsent: attr.hasAbsent,
+        hasFinished: attr.hasFinished,
+        hasPayed: attr.hasPayed,
+        price: attr.price,
+        region: attr.region,
+        finishedAt: attr.finishedAt,
+        finishedBy: attr.finishedBy,
+      };
+    });
+    let dataUpdate = { treatments: oldHistories, region: rg, newTreatment };
     return await onSaveTreatments(dataUpdate, patientOdontogram?.id).then((r) =>
       setTreatmentToAdd(null)
     );
   };
 
   const getTreatments = async () => {
-    return await handleGetTreatments().then(
+    return await handleGetTreatments(undefined, "999").then(
       (res) => {
         let data = res.data.data;
         let mapped = data?.map((v: any) => ({
@@ -97,7 +119,7 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
     <CModal
       visible={visible}
       closeModal={handleClose}
-      styles={{ width: "50vw" }}
+      styles={{ width: "90vw" }}
     >
       <Box
         p={2}

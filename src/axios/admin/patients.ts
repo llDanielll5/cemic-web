@@ -1,7 +1,6 @@
 import axios from "axios";
 import { nameCapitalized } from "@/services/services";
-import axiosInstance, { serverUrl } from "..";
-import { defaultOdontogram } from "types/odontogram";
+import axiosInstance from "..";
 
 export const handleCreatePatient = async (data: any) => {
   const {
@@ -81,11 +80,39 @@ export const handleGetPatientByCPF = async (cpf: string) => {
   return await axiosInstance.get(`/patients?filters[cpf]=${cpf}`);
 };
 
-export const handleGetSinglePatient = async (id: string) => {
-  //TODO AUMENTAR OS POPULATES DE ACORDO COM O AUMENTO DE INFORMAÇÕES DO PACIENTE NO DB
+export const handleGetSinglePatient = async (cardId: string) => {
+  const populates = {
+    lecture: "populate[lectures][populate]=*",
+    address: "populate[address]=*",
+    adminInfos: "populate[adminInfos][populate]=*",
+    odontogramTreats: "populate[odontogram][populate][treatments][populate]=*",
+    actualProfessional: "populate[actualProfessional]=*",
+    screening: "populate[screening][populate]=*",
+    odontogramAdmin: "populate[odontogram][populate][adminInfos]=*",
+    exams: "populate[exams][populate]=*",
+    problems: "populate[problems][populate]=*",
+    attachments: "populate[attachments][populate]=*",
+    payments: "populate[payments][populate]=*",
+    treatments: "populate[treatments][populate]=*",
+  };
+
+  const {
+    lecture,
+    address,
+    adminInfos,
+    odontogramTreats,
+    actualProfessional,
+    screening,
+    odontogramAdmin,
+    exams,
+    problems,
+    attachments,
+    payments,
+    treatments,
+  } = populates;
 
   return await axiosInstance.get(
-    `/patients/${id}?populate[lectures][populate]=*&populate[address]=*&populate[adminInfos][populate]=*&populate[finishedTreatments]=*&populate[odontogram][populate][tooths][populate]=*&populate[actualProfessional]=*&populate[screening][populate]=*&populate[odontogram][populate][adminInfos]=*&populate[exams][populate]=*&populate[problems][populate]=*&populate[attachments][populate]=*`
+    `/patients/?filter[cardId][$eq]=${cardId}&${lecture}&${address}&${adminInfos}&${odontogramTreats}&${actualProfessional}&${screening}&${odontogramAdmin}&${exams}&${problems}&${attachments}&${payments}&${treatments}`
   );
 };
 

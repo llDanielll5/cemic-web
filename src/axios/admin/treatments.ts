@@ -1,12 +1,15 @@
 import axios from "axios";
 import axiosInstance, { serverUrl } from "..";
 
-export const handleGetTreatments = async (currPage?: number) => {
+export const handleGetTreatments = async (
+  currPage?: number,
+  pageSize?: string
+) => {
   let page = currPage;
   if (page === 0) page = 1;
   if (page === undefined || page === null) page = 1;
   return await axiosInstance.get(
-    `/products?pagination[pageSize]=5&pagination[page]=${page}`
+    `/products?pagination[pageSize]=${pageSize ?? "5"}&pagination[page]=${page}`
   );
 };
 
@@ -30,4 +33,10 @@ export const handleEditTreatment = async (id: string, data: any) => {
   let dataCreate = { data: { price, name } };
 
   return await axiosInstance.put(`/products/${id}`, dataCreate);
+};
+
+export const handleGetTreatmentsOfPatient = async (patientId: string) => {
+  return await axiosInstance.get(
+    `/patient-treatments/?filters[patient][id][$eq]=${patientId}&pagination[pageSize]=999&populate[payment][populate]=*&populate[finishedBy][populate]=*`
+  );
 };

@@ -1,11 +1,13 @@
 //@ts-nocheck
 import React from "react";
-import { Box, TextField, Typography, styled } from "@mui/material";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import UserData from "@/atoms/userData";
 import PatientData from "@/atoms/patient";
-import { parseDateIso, phoneMask } from "@/services/services";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HeaderTopPatientInformations from "./header-top-informations";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { parseDateIso } from "@/services/services";
+import { useRouter } from "next/router";
 
 interface HeaderPatientInterface {
   clientData: any;
@@ -13,6 +15,7 @@ interface HeaderPatientInterface {
 
 const HeaderPatientInformations = (props: HeaderPatientInterface) => {
   const { clientData } = props;
+  const router = useRouter();
 
   const adminData: any = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
@@ -20,6 +23,13 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
 
   return (
     <Container>
+      <Stack direction={"row"} alignItems="flex-start">
+        <Button
+          variant="contained"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => router.push("/admin/patients")}
+        >{`Voltar para Pacientes`}</Button>
+      </Stack>
       <HeaderTopPatientInformations patient={clientData} />
       <Box
         columnGap={1}

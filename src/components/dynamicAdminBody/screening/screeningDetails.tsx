@@ -2,7 +2,6 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useState, useEffect, useCallback } from "react";
-import ReceiptAdmin from "./receipt";
 import Modal from "@/components/modal";
 import { db } from "@/services/firebase";
 // import ModalPaymentAdmin from "./modalPayment";
@@ -498,7 +497,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
         />
       </Modal> */}
 
-      <Modal visible={receiptVisible} closeModal={handleCloseReceiptVisible}>
+      {/* <Modal visible={receiptVisible} closeModal={handleCloseReceiptVisible}>
         <ReceiptAdmin
           receiptValues={receiptValues}
           onSubmit={handleFinishPayment}
@@ -508,7 +507,7 @@ const ScreeningDetailsAdmin = (props: ScreeningDetailsProps) => {
           discount={discount}
           vezes={vezes}
         />
-      </Modal>
+      </Modal> */}
 
       <Modal visible={forwardModalVisible} closeModal={handleCloseForwardModal}>
         <Typography variant="subtitle1">Escolha o dentista:</Typography>

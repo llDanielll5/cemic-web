@@ -5,9 +5,9 @@ import AddPatientTreatmentModal from "../modals/add-treatments";
 import { formatISO } from "date-fns";
 import { dentalArch } from "data";
 import {
-  getOdontogramDetails,
-  updateToothOfPatient,
-} from "@/axios/admin/odontogram";
+  getRegionDetails,
+  updatePatientTreatments,
+} from "@/axios/admin/patient-treatments";
 import {
   Box,
   Typography,
@@ -15,9 +15,11 @@ import {
   Button,
   TextField,
   Menu,
+  Autocomplete,
 } from "@mui/material";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
+import { updateOdontogramDetails } from "@/axios/admin/odontogram";
 
 interface OdontogramPatientDetailsInterface {
   patientOdontogram: any;
@@ -69,6 +71,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     setSelectedRegion(null);
     setAnchorEl(null);
   };
+  /* End Tooth Menu */
 
   const handleGetRegionDetails = async (region: string, e: any) => {
     handleClick(e);
@@ -86,13 +89,15 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
       rg = `t${region}`;
     }
     setSelectedRegion(region);
-    return await getOdontogramDetails(patientOdontogram?.id, rg).then(
+    return await getRegionDetails(patientOdontogram?.id, rg).then(
       ({ data }: any) => {
-        if (data?.data?.attributes?.tooths.length === 0) {
+        if (data?.data.length === 0) {
           setToothDetails([]);
         } else {
-          let tRegion = data?.data?.attributes?.tooths;
-          let filterRegion = tRegion.filter((v: any) => v.region === rg);
+          let tRegion = data?.data;
+          let filterRegion = tRegion.filter(
+            (v: any) => v.attributes.region === rg
+          );
           setToothDetails(filterRegion);
         }
       },
@@ -129,53 +134,52 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
 
   const handleConfirmDelete = (i: number) => {};
 
-  const handleDeleteRegion = async (i: number) => {
-    let odontogram = { ...patientOdontogram };
-    let { attributes } = odontogram;
-    let { tooths } = attributes;
-
-    let clone = tooths[selectedRegion!];
-    let filter = clone.filter((v: any, index: number) => index !== i);
-    tooths[selectedRegion!] = filter;
-
+  const handleDeleteRegion = async (id: string) => {
+    //deletar tratamento específico
     // return await onSaveTreatments(tooths, patientOdontogram?.id);
   };
 
   const handleSubmitTreatment = async (data: any, odontogramId: any) => {
     const toothValues: any[] = [];
 
-    const { tooths, toothData } = data;
+    const { treatments, newTreatment } = data;
 
-    toothValues.push(toothData);
-    let newDate = formatISO(new Date()).substring(0, 19);
+    let newDate = formatISO(new Date()).substring(0, 10);
     let history = {};
     let oldHistories = patientOdontogram?.attributes?.adminInfos?.history;
+
     history = {
       ...(oldHistories ?? {}),
       [newDate]: {
+        date: formatISO(new Date()).substring(0, 19),
         admin: {
           name: adminData?.name,
           id: adminData?.id,
           role: adminData?.userType,
         },
-        updates: [...(tooths ?? []), ...toothValues],
+        updates: [...(treatments ?? []), newTreatment],
       },
     };
 
+    const dataUpdate = { data: newTreatment };
     let adminInfos = {
       updated: adminData?.id,
       updateTimestamp: new Date(),
       history,
     };
-    let values = { values: toothValues };
-    return await updateToothOfPatient(odontogramId, values, adminInfos).then(
-      async (res) => {
-        onUpdatePatient();
-        handleCloseAddTreatment();
-        handleClose();
-        return alert("Tratamento atualizado!");
-      },
-      (err) => console.log(err)
+
+    return await updatePatientTreatments(dataUpdate).then(
+      async () =>
+        await updateOdontogramDetails(odontogramId, adminInfos).then(
+          () => {
+            onUpdatePatient();
+            handleCloseAddTreatment();
+            handleClose();
+            return alert("Tratamento atualizado!");
+          },
+          (err) => console.log(err.response)
+        ),
+      (err) => console.log(err.response)
     );
   };
 
@@ -202,7 +206,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
 
           <ToothHistoryTable
             data={toothDetails}
-            onDelete={(i: number) => handleDeleteRegion(i)}
+            onDelete={(id: string) => handleDeleteRegion(id)}
             messageNothing="Sem Histórico do Dente"
             onGetDetails={getToothSingleDetailsTreatment}
           />
@@ -217,25 +221,27 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
 
       <TitleOdontogram variant="h5">Odontograma do Paciente</TitleOdontogram>
 
-      <OtherRegions>
-        {toothRegions.map((v, i) => (
-          <Button
-            key={i}
-            fullWidth
-            variant="contained"
-            onClick={(e) => handleGetRegionDetails(v, e)}
-          >
-            {v}
-          </Button>
-        ))}
-      </OtherRegions>
-
       <GridColumns>
         <div className="div1">{renderRegions(lt)}</div>
         <div className="div2">{renderRegions(rt)}</div>
         <div className="div3">{renderRegions(lb)}</div>
         <div className="div4">{renderRegions(rb)}</div>
       </GridColumns>
+
+      <Autocomplete
+        options={toothRegions}
+        fullWidth
+        onChange={(e, v) => {
+          if (v !== null) handleGetRegionDetails(v, e);
+        }}
+        renderInput={(props) => (
+          <TextField
+            {...props}
+            label="Regiões Extras"
+            title="Selecione uma das regiões extras, caso não seja uma das acima"
+          />
+        )}
+      />
     </Container>
   );
 };
@@ -246,7 +252,6 @@ const Container = styled(Box)`
   width: 100%;
   margin: 0 auto;
   position: relative;
-  overflow-x: auto;
 `;
 
 const OtherRegions = styled(Box)`

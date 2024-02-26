@@ -1,15 +1,19 @@
 export interface ToothsInterface {
   id?: string;
-  name: string;
-  price: number;
-  hasPayed?: boolean | null;
-  hasFinished?: boolean | null;
-  finishedBy?: any | null; //dentista
-  finishedAt?: string | null;
-  hasAbsent?: boolean | null; //dente ausente
-  createdIn?: string | Date;
-  obs: string;
-  region: OdontogramRegions;
+  attributes: {
+    name: string;
+    price: number;
+    hasPayed?: boolean | null;
+    hasFinished?: boolean | null;
+    hasAbsent?: boolean | null; //dente ausente
+    obs: string;
+    finishedAt?: string | null;
+    finishedBy?: any | null; //dentista
+    patient?: any | null;
+    paymentProfessional?: any | null;
+    region: OdontogramRegions;
+    odontogram?: any | null;
+  };
 }
 
 export type OdontogramRegions =
@@ -54,55 +58,22 @@ export type OdontogramRegions =
 
 export interface OdontogramInterface {
   patient: any;
-  tooths: ToothsInterface[];
+  treatments: ToothsInterface[];
 }
 
-export const defaultOdontogram = (patientId?: string) => {
-  return {
-    patient: patientId,
-    tooths: {
-      "11": [],
-      "12": [],
-      "13": [],
-      "14": [],
-      "15": [],
-      "16": [],
-      "17": [],
-      "18": [],
-
-      "21": [],
-      "22": [],
-      "23": [],
-      "24": [],
-      "25": [],
-      "26": [],
-      "27": [],
-      "28": [],
-
-      "31": [],
-      "32": [],
-      "33": [],
-      "34": [],
-      "35": [],
-      "36": [],
-      "37": [],
-      "38": [],
-
-      "41": [],
-      "42": [],
-      "43": [],
-      "44": [],
-      "45": [],
-      "46": [],
-      "47": [],
-      "48": [],
-
-      "Sup. Dir.": [],
-      "Sup. Esq.": [],
-      "Inf. Esq.": [],
-      "Inf. Dir.": [],
-      "Superior Total": [],
-      "Inferior Total": [],
-    },
-  };
-};
+export interface TreatmentsPatientInterface {
+  id?: string;
+  name: string;
+  price: number;
+  hasPayed?: boolean | null;
+  hasFinished?: boolean | null;
+  hasAbsent?: boolean | null; //dente ausente
+  obs: string;
+  finishedAt?: string | null;
+  finishedBy?: any | null; //dentista
+  patient?: any | null;
+  paymentsProfessional?: any | null;
+  region: OdontogramRegions;
+  odontogram?: any | null;
+  payment?: any | null;
+}

@@ -1,126 +1,259 @@
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import Modal from "@/components/modal";
+import React, { useState } from "react";
 import Loading from "@/components/loading";
 import PatientData from "@/atoms/patient";
 import AddTreatment from "../modals/add-payment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PostAddIcon from "@mui/icons-material/PostAdd";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
-import { parseDateIso } from "@/services/services";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import {
-  Box,
-  Typography,
-  IconButton,
-  styled,
-  Button,
-  Paper,
-} from "@mui/material";
-import AddPaymentPatientModal from "../modals/add-payment";
+  BankCheckInformationsInterface,
+  PaymentInfosInterface,
+  PaymentShapesInterface,
+  ReceiptValues,
+} from "types/payments";
+import { createPatientPayment } from "@/axios/admin/payments";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { handleGetTreatmentsToPay } from "@/axios/admin/odontogram";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import AddPaymentPatientModal from "../modals/add-payment";
+import ReceiptPreview from "../modals/receipt-preview";
+import DeletePaymentModal from "../modals/delete-payment";
+import { Box, Typography, styled, Button, Paper, Card } from "@mui/material";
+import { AdminInfosInterface } from "types/admin";
+import { ToothsInterface } from "types/odontogram";
+import UserData from "@/atoms/userData";
+import { handleUpdatePatient } from "@/axios/admin/patients";
+import {
+  ReceiptSingle,
+  ReceiptsPatientTable,
+} from "@/components/table/receipts-table";
+import ReceiptSinglePatient from "../modals/receipt-single";
+import { formatISO } from "date-fns";
+import {
+  generatePatientPaymentInCashier,
+  handleGetCashierOpened,
+} from "@/axios/admin/cashiers";
+import { CreateCashierInfosInterface } from "types/cashier";
 
 interface PatientFinaceTabProps {
   onUpdatePatient: any;
 }
 
+interface CreatePayment {
+  data: {
+    date: Date | string;
+    total_value: number;
+    discount?: number;
+    patient: any;
+    bank_check_infos: BankCheckInformationsInterface[];
+    payment_shapes: PaymentShapesInterface[];
+    adminInfos: AdminInfosInterface;
+    treatments: any[];
+  };
+}
+
 const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const { onUpdatePatient } = props;
-  const [patientData, setPatientData] = useRecoilState(PatientData);
+  const patientData = useRecoilValue(PatientData);
+  const adminData: any = useRecoilValue(UserData);
+  const patient = patientData?.attributes;
+  const paymentsPatient = patient?.payments?.data;
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const [treatmentsToPay, setTreatmentsToPay] = useState<any>([]);
-  const [idReceipt, setIdReceipt] = useState("");
-
-  const client = patientData?.attributes;
-
-  const handleCloseModalDelete = () => {
-    setIdReceipt("");
-    setDeleteVisible(false);
-  };
-
-  const getReceiptId = (id: string) => {
-    setIdReceipt(id);
-    setDeleteVisible(true);
-  };
+  const [receiptPreviewVisible, setReceiptPreviewVisible] = useState(false);
+  const [receiptSingle, setReceiptSingle] = useState<ReceiptSingle | null>(
+    null
+  );
+  const [receiptValues, setReceiptValues] = useState<ReceiptValues | null>(
+    null
+  );
 
   const handleCloseAddPayment = () => setTreatmentsToPay([]);
   const handleGeneratePayment = async () => {
-    const res = await handleGetTreatmentsToPay(client?.odontogram?.data?.id!);
-    setTreatmentsToPay(res.data);
+    setIsLoading(true);
+    setLoadingMessage("Estamos Carregando Informações de Tratamentos!");
+    const res = await handleGetTreatmentsToPay(patientData?.id!);
+    const notPayeds = res.data.data.filter(
+      (v: any) => v.attributes.payment.data === null
+    );
+
+    setIsLoading(false);
+    if (notPayeds.length === 0)
+      return alert("Não há tratamentos sem pagamento deste paciente!");
+    setTreatmentsToPay(notPayeds);
   };
 
-  const handleDeleteReceipt = async () => {
-    // setIsLoading(true);
-    //deletar documento
+  const handleSubmitReceipt = async () => {
+    setIsLoading(true);
+    setLoadingMessage("Criando Pagamento do Paciente...");
+
+    const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
+    const dataUpdate: CreatePayment = {
+      data: {
+        adminInfos,
+        date: new Date(),
+        patient: patientData?.id,
+        total_value: receiptValues!.totalValue!,
+        discount: Number.isNaN(receiptValues?.discount)
+          ? 0
+          : receiptValues?.discount,
+        treatments: receiptValues?.treatmentsForPayment.map((v) => v.id)!,
+        payment_shapes: receiptValues?.paymentShapes!,
+        bank_check_infos: receiptValues?.bankCheckInfos ?? [],
+      },
+    };
+
+    const handleConclusion = () => {
+      handleCloseReceiptValues();
+      handleCloseAddPayment();
+      setReceiptValues(null);
+      onUpdatePatient();
+      setIsLoading(false);
+    };
+    const cashierType: "clinic" | "implant" = receiptValues?.cashierType!;
+    const isoDate = formatISO(new Date()).substring(0, 10);
+    const { data: resData } = await handleGetCashierOpened(
+      isoDate,
+      cashierType
+    );
+    setLoadingMessage("Estamos verificando o Caixa do Dia!");
+    const { data: hasOpenedCashier } = resData;
+
+    if (hasOpenedCashier.length === 0) {
+      setIsLoading(false);
+      alert("Abra o caixa do dia para lançar um novo pagamento!");
+      return;
+    }
+
+    let cashValues: any[] = [];
+    let creditValues: any[] = [];
+    let debitValues: any[] = [];
+    let pixValues: any[] = [];
+    let bankCheckValues: any[] = [];
+    let transferValues: any[] = [];
+
+    receiptValues?.paymentShapes?.forEach((v) => {
+      if (v.shape === "CASH") cashValues.push(v.price);
+      if (v.shape === "BANK_CHECK") bankCheckValues.push(v.price);
+      if (v.shape === "CREDIT_CARD") creditValues.push(v.price);
+      if (v.shape === "DEBIT_CARD") debitValues.push(v.price);
+      if (v.shape === "TRANSFER") transferValues.push(v.price);
+      if (v.shape === "PIX") pixValues.push(v.price);
+    });
+
+    const values = {
+      bank_check:
+        bankCheckValues.length > 0
+          ? bankCheckValues.reduce((prev, curr) => prev + curr, 0)
+          : 0,
+      cash:
+        cashValues.length > 0
+          ? cashValues.reduce((prev, curr) => prev + curr, 0)
+          : 0,
+      credit:
+        creditValues.length > 0
+          ? creditValues.reduce((prev, curr) => prev + curr, 0)
+          : 0,
+      debit:
+        debitValues.length > 0
+          ? debitValues.reduce((prev, curr) => prev + curr, 0)
+          : 0,
+      out: 0,
+      pix:
+        pixValues.length > 0
+          ? pixValues.reduce((prev, curr) => prev + curr, 0)
+          : 0,
+      transfer:
+        transferValues.length > 0
+          ? transferValues.reduce((prev, curr) => prev + curr, 0)
+          : 0,
+    };
+
+    const cashierInfoData: CreateCashierInfosInterface = {
+      data: {
+        date: new Date(),
+        description: "",
+        type: "IN",
+        cashier: hasOpenedCashier[0].id!,
+        outInfo: null,
+        verifyBy: null,
+        total_values: values,
+      },
+    };
+
+    return await createPatientPayment(dataUpdate).then(
+      async (res) => {
+        setLoadingMessage("Atualizando o caixa do Dia!");
+        return await generatePatientPaymentInCashier(cashierInfoData).then(
+          async (res) => {
+            setLoadingMessage("Estamos atualizando informações do paciente...");
+            return await handleUpdatePatient(patientData?.id!, {
+              data: { role: "PATIENT" },
+            }).then(
+              () => handleConclusion(),
+              (err) => {
+                setIsLoading(false);
+                console.log(err.response);
+              }
+            );
+          },
+          (err) => console.log(err.response)
+        );
+      },
+      (err) => {
+        setIsLoading(false);
+        console.log(err.response);
+      }
+    );
   };
 
-  const handleSubmit = async () => {
-    // if (receiptDate === "") return alert("Adicione a data do Recibo");
-    // setIsLoading(true);
-    // const timestamp = Timestamp.now().seconds;
-    // const clientRef = collection(db, "clients_receipts");
-    // const imgName = `${props?.client?.name.replaceAll(" ", "")}-${timestamp}`;
-    // const imgUpload = await uploadFile(
-    //   "clients_receipts",
-    //   imgName,
-    //   document.img
-    // );
-    // if (imgUpload.state === "Success") {
-    //   return await addDoc(clientRef, {
-    //     media: imgUpload.url,
-    //     client: props?.client!.id,
-    //     title: `Recibo ${props?.client?.id}-${timestamp}`,
-    //     date: receiptDate,
-    //   })
-    //     .then(async (e) => {
-    //       setIsLoading(false);
-    //       const document = doc(db, "clients_receipts", e.id);
-    //       closeAddReceipt();
-    //       return await updateDoc(document, { id: e.id });
-    //     })
-    //     .catch((err) => {
-    //       setIsLoading(false);
-    //       return alert("Erro ao adicionar documento");
-    //     });
-    // } else {
-    //   return alert("Erro ao realizar upload de documento");
-    // }
-    //Criar pagamento!!!
+  const handleGetReceiptValues = (receiptValues: ReceiptValues) => {
+    setReceiptValues(receiptValues);
+    setReceiptPreviewVisible(true);
   };
+  const handleCloseReceiptValues = () => {
+    setReceiptValues(null);
+    setReceiptPreviewVisible(false);
+  };
+
+  const onGetReceiptSingle = (receipt: ReceiptSingle) =>
+    setReceiptSingle(receipt);
+  const handleCloseReceiptSingle = () => setReceiptSingle(null);
 
   if (isLoading)
     return (
       <Box position="fixed" top={0} left={0} zIndex={999999}>
-        <Loading message="Atualizando..." />
+        <Loading message={loadingMessage} />
       </Box>
     );
   else
     return (
-      <Box>
-        <Modal visible={deleteVisible} closeModal={handleCloseModalDelete}>
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <Typography variant="h5">
-              Deseja realmente apagar este pagamento?
-            </Typography>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              columnGap={2}
-            >
-              <StyledButton onClick={handleDeleteReceipt}>Sim</StyledButton>
-              <StyledButton onClick={handleCloseModalDelete}>Não</StyledButton>
-            </Box>
-          </Box>
-        </Modal>
-
+      <Container>
         <AddPaymentPatientModal
           visible={treatmentsToPay.length > 0}
           closeModal={handleCloseAddPayment}
           treatmentsToPay={treatmentsToPay}
+          onPassReceiptValues={handleGetReceiptValues}
         />
+        {receiptValues !== null && (
+          <ReceiptPreview
+            visible={receiptPreviewVisible}
+            closeModal={handleCloseReceiptValues}
+            onSubmit={handleSubmitReceipt}
+            receiptValues={receiptValues}
+          />
+        )}
+
+        {receiptSingle !== null && (
+          <ReceiptSinglePatient
+            visible={receiptSingle !== null}
+            closeModal={handleCloseReceiptSingle}
+            receiptSingleValues={receiptSingle}
+          />
+        )}
 
         <HeaderContainer elevation={10}>
           <Typography variant="h5">Histórico Financeiro</Typography>
@@ -136,71 +269,37 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           </Box>
         </HeaderContainer>
 
-        {/* <Box p={2} width="100%">
-          <ReceiptTableContainer>
-            <TextId variant="subtitle1">ID Recibo</TextId>
-            <Typography variant="subtitle1">Data do Recibo</Typography>
-            <Box display="flex" columnGap={1} />
-          </ReceiptTableContainer>
-          {[{ id: 1, date: "1997-01-27" }].map((v, i) => (
-            <ReceiptSingle key={i}>
-              <TextId variant="subtitle1">{v?.id}</TextId>
-              <Typography variant="subtitle1">
-                {parseDateIso(v?.date)}
-              </Typography>
-              <Box display="flex" columnGap={1}>
-                <Link passHref href={"#"} target="_blank">
-                  <Button variant="text">Visualizar</Button>
-                </Link>
-                <IconButton
-                  title={`Excluir recibo ${v?.id}`}
-                  // onClick={() => getReceiptId(v?.id)}
-                >
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </Box>
-            </ReceiptSingle>
-          ))}
-        </Box> */}
-      </Box>
+        {paymentsPatient?.length > 0 && (
+          <ReceiptsPatientTable
+            onGetValues={onGetReceiptSingle}
+            items={paymentsPatient}
+          />
+        )}
+      </Container>
     );
 };
 
-const HeaderContainer = styled(Paper)`
+const Container = styled(Box)`
+  overflow: auto;
+  width: 100%;
+  padding: 1rem 0.5rem;
   display: flex;
   align-items: center;
-  width: 100%;
-  justify-content: space-between;
-  padding: 1rem 1rem;
-`;
-const ReceiptTableContainer = styled(Box)`
-  padding: 0 1rem;
-  margin: 0.5rem 0;
-  width: 100%;
-  display: flex;
-  border-radius: 1rem;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
 `;
 
-const ReceiptSingle = styled(Box)`
-  padding: 0.5rem 1rem;
-  margin: 8px 0;
-  width: 100%;
+const HeaderContainer = styled(Card)`
   display: flex;
-  border-radius: 1rem;
-  justify-content: space-between;
-  border: 1px solid #f3f3f3;
   align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem;
+  min-width: 700px;
+  max-width: 900px;
 `;
+
 const TextId = styled(Typography)`
   @media screen and (max-width: 600px) {
     display: none;
-  }
-`;
-const ViewReceiptButton = styled(StyledButton)`
-  @media screen and (max-width: 470px) {
-    font-size: 12px;
   }
 `;
 

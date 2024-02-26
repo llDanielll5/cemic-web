@@ -65,7 +65,7 @@ const UserForm = (props: UserFormProps) => {
       <TextField
         label="Nome Completo:"
         value={userData?.name!}
-        sx={{ width: "100%" }}
+        sx={{ width: "100%", mb: 1.5 }}
         onChange={(e) => handleChange(e.target.value, "name", setUserData)}
       />
       <TextField

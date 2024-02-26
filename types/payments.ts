@@ -1,3 +1,6 @@
+import { AdminInfosInterface } from "./admin";
+import { ToothsInterface } from "./odontogram";
+
 export interface PaymentShape {
   type: PaymentTypes;
   value?: number;
@@ -54,10 +57,10 @@ export interface PaymentInfosInterface {
 }
 
 export interface PaymentShapesInterface {
+  id?: string;
   shape: PaymentShapeTypes;
   price: number;
   split_times?: number;
-  discount?: number;
 }
 
 export interface PaymentInterface {
@@ -67,7 +70,19 @@ export interface PaymentInterface {
       total_value: number;
       infos: PaymentInfosInterface;
       payment_shapes: PaymentShapesInterface[];
+      patient: any;
+      adminInfos: AdminInfosInterface;
+      treatments: ToothsInterface[];
     };
     id: string;
   };
+}
+
+export interface ReceiptValues {
+  paymentShapes: PaymentShapesInterface[];
+  treatmentsForPayment: ToothsInterface[];
+  bankCheckInfos: BankCheckInformationsInterface[];
+  totalValue?: number;
+  discount?: number;
+  cashierType: "clinic" | "implant";
 }

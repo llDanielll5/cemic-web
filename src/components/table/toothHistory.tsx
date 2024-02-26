@@ -35,12 +35,13 @@ export default function ToothHistoryTable(props: TableProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.map((val: any, i: number) => {
+            {data?.map((v: any, i: number) => {
+              const val = v?.attributes;
               let hasPay = val?.hasPayed ? "green" : "red";
               let hasPayText = val?.hasPayed ? "Pagou" : "Não Pagou";
 
               return (
-                <TableRow hover key={i} onClick={() => onGetDetails(val?.id!)}>
+                <TableRow hover key={i} onClick={() => onGetDetails(v?.id!)}>
                   <TableCell>
                     <Typography variant="subtitle2">{val?.name}</Typography>
                   </TableCell>
@@ -48,7 +49,7 @@ export default function ToothHistoryTable(props: TableProps) {
                   <TableCell>{val.hasFinished ? "Sim" : "Não"}</TableCell>
                   {userData?.userType === "ADMIN" && (
                     <TableCell>
-                      <IconButton onClick={() => onDelete(i)}>
+                      <IconButton onClick={() => onDelete(v?.id!)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>

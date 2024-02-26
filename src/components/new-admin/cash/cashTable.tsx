@@ -1,6 +1,5 @@
-import PropTypes from "prop-types";
+import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
 import {
-  Avatar,
   Box,
   Card,
   Checkbox,
@@ -9,42 +8,21 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
   styled,
 } from "@mui/material";
-import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
-import { getInitials } from "@/services/get-initials";
+import { parseToBrl } from "@/components/admin/patient/modals/receipt-preview";
 
-export const CashTable = (props: any) => {
-  const {
-    items = [],
+export const CashTable = (props: {
+  onSelect: (idCashierInfo: string) => void;
+  items: any[];
+}) => {
+  const { items = [] } = props;
 
-    selected = [],
-  } = props;
-
-  const getRoleColor = (customer: any) => {
-    if (customer.role === "patient")
-      return {
-        color: "green",
-        fontWeight: "bold",
-      };
-    else if (customer.role === "pre-register")
-      return {
-        color: "var(--red)",
-        fontWeight: "bold",
-      };
-    else
-      return {
-        color: "gold",
-        fontWeight: "bold",
-      };
-  };
-  const getPatientRole = (role: string) => {
-    if (role === "patient") return "Paciente";
-    if (role === "pre-register") return "Pré-Registro";
-    if (role === "selected") return "Selecionado";
+  const parseType = (type: "IN" | "OUT") => {
+    if (type === "IN") return "Entrada";
+    else return "Saída";
   };
 
   return (
@@ -55,24 +33,27 @@ export const CashTable = (props: any) => {
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox">Visto</TableCell>
-                <TableCell>Nome</TableCell>
+                <TableCell>Fluxo</TableCell>
                 <TableCell>Descrição</TableCell>
                 <TableCell>Entrada A Vista</TableCell>
                 <TableCell>Entrada Débito</TableCell>
                 <TableCell>Entrada Crédito</TableCell>
                 <TableCell>Entrada Pix</TableCell>
+                <TableCell>Entrada Cheque</TableCell>
+                <TableCell>Entrada DOC/TED</TableCell>
                 <TableCell>Saida</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((cashier: any, index: number) => {
+              {items.map((item: any, index: number) => {
+                const cashier = item?.attributes;
                 return (
                   <TableRow key={index}>
                     <TableCell padding="checkbox">
                       <Checkbox
-                        checked={cashier.isChecked}
-                        disabled={cashier.isChecked}
-                        unselectable={cashier.isChecked && "on"}
+                        checked={cashier.verifyBy?.data !== null}
+                        disabled={cashier.verifyBy?.data !== null}
+                        // unselectable={!!cashier.verifyBy?.data?.id && "on"}
                         onChange={(event) => {
                           if (event.target.checked) {
                             props.onSelect?.(cashier.id);
@@ -82,26 +63,51 @@ export const CashTable = (props: any) => {
                     </TableCell>
                     <StyledTable>
                       <Stack alignItems="center" direction="row" spacing={2}>
-                        <Typography variant="subtitle2">
-                          {cashier.name}
+                        <Typography
+                          variant="subtitle2"
+                          color={cashier.type === "IN" ? "green" : "red"}
+                        >
+                          {parseType(cashier.type)}
                         </Typography>
                       </Stack>
                     </StyledTable>
                     <StyledTable>{cashier.description}</StyledTable>
-                    <StyledTable>R$ {cashier.cashIn.toFixed(2)}</StyledTable>
-                    <StyledTable>R$ {cashier.cardIn.toFixed(2)}</StyledTable>
-                    <StyledTable>R$ {cashier.creditIn.toFixed(2)}</StyledTable>
-                    <StyledTable>R$ {cashier.pix.toFixed(2)}</StyledTable>
-                    <StyledTable>R$ {cashier.out.toFixed(2)}</StyledTable>
-                    {/* <TableCell sx={getRoleColor(cashier)}>
-                      {getPatientRole(cashier.role)}
-                    </TableCell> */}
+                    <StyledTable>
+                      {parseToBrl(cashier.total_values.cash)}
+                    </StyledTable>
+                    <StyledTable>
+                      {parseToBrl(cashier.total_values.debit)}
+                    </StyledTable>
+                    <StyledTable>
+                      {parseToBrl(cashier.total_values.credit)}
+                    </StyledTable>
+                    <StyledTable>
+                      {" "}
+                      {parseToBrl(cashier.total_values.pix)}
+                    </StyledTable>
+                    <StyledTable>
+                      {parseToBrl(cashier.total_values.bank_check)}
+                    </StyledTable>
+                    <StyledTable>
+                      {parseToBrl(cashier.total_values.transfer)}
+                    </StyledTable>
+                    <StyledTable>
+                      {" "}
+                      {parseToBrl(cashier.total_values.out)}
+                    </StyledTable>
                   </TableRow>
                 );
               })}
             </TableBody>
           </Table>
         </Box>
+        {items.length === 0 && (
+          <Box display="flex" justifyContent={"center"} my={2}>
+            <Typography variant="h6" pt={2}>
+              Não há informações de pagamento nesse Caixa!
+            </Typography>
+          </Box>
+        )}
       </Scrollbar>
     </Card>
   );
