@@ -20,12 +20,15 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { maskValue } from "@/services/services";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
 import LoadingServer from "@/atoms/components/loading";
+import Loading from "@/components/loading";
+
 import {
   handleCreateTreatment,
   handleDeleteTreatment,
   handleEditTreatment,
   handleGetOneTreatment,
   handleGetTreatments,
+  handleGetTreatmentsByName
 } from "@/axios/admin/treatments";
 import { PaginationProps } from "types";
 import SearchTreatments from "@/components/new-admin/treatments/search-treatments";
@@ -53,12 +56,17 @@ const TreatmentsAdmin = (props: any) => {
   const setLoading = useSetRecoilState(LoadingServer);
   const loading = useRecoilValue(LoadingServer);
   const [readed, setReaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const [dbPagination, setDbPagination] = useState<PaginationProps>({
     page: 0,
     pageCount: 0,
     pageSize: 0,
     total: 0,
   });
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   function handleChangeValue(field: string, value: string) {
     return setTreatmentValues((prev) => ({ ...prev, [field]: value }));
@@ -78,6 +86,10 @@ const TreatmentsAdmin = (props: any) => {
 
   const handleSubmit = async () => {
     let { price, name } = treatmentValues;
+    if(!price || name){
+      alert("Por favor verificar os campos para o cadastro")
+      return 
+     }
     let priceNum = parseFloat(price.replace(".", "").replace(",", "."));
 
     let data = { price: priceNum, name };
@@ -155,6 +167,37 @@ const TreatmentsAdmin = (props: any) => {
     if (!readed) getTreatments(0);
   }, [getTreatments, readed]);
 
+  const handleFilterChange = (value: string) => {
+    setSearchTerm(value);
+  }
+
+  const handleSearchButtonClick = async () => {
+    try {
+      setIsLoading(true);
+      setLoadingMessage("Buscando tratamentos cadastrados...");
+
+      const result = await handleGetTreatmentsByName(searchTerm);
+
+      setTreatments(result.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Erro ao buscar tratamentos:', error);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if(searchTerm === '')
+      getTreatments(0); 
+  }, [searchTerm]); 
+
+  if (isLoading)
+    return (
+      <Box position="fixed" top={0} left={0} zIndex={200}>
+        <Loading message={loadingMessage} />
+      </Box>
+    );
+      
   return (
     <Box
       my={8}
@@ -234,7 +277,8 @@ const TreatmentsAdmin = (props: any) => {
         )}
       </Stack>
 
-      <SearchTreatments value="" onChange={() => {}} onClick={() => {}} />
+      <SearchTreatments value={searchTerm} onChange={(filterValue) => handleFilterChange(filterValue)}
+        onClick={handleSearchButtonClick} />
 
       <Box mx={1} px={2} width={"100%"} mb={2}>
         <CustomTable

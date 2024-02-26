@@ -13,6 +13,12 @@ export const handleGetTreatments = async (
   );
 };
 
+export const handleGetTreatmentsByName = async (name: string) => {  
+  const url = `/products?filters[name][$contains]=${name}`;
+  const response = await axiosInstance.get(url);
+  return response.data;
+}
+
 export const handleGetOneTreatment = async (id: string) => {
   return await axiosInstance.get(`/products/${id}`);
 };

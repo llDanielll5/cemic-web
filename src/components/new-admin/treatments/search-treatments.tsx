@@ -10,9 +10,9 @@ import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 
 interface SearchTreatmentsInterface {
   value: string;
-  onChange?: any;
-  onKeyDown?: any;
-  onClick?: any;
+  onChange?: (filterValue: string) =>  void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onClick?: () => void;
 }
 
 const SearchTreatments = (props: SearchTreatmentsInterface) => {
@@ -29,7 +29,7 @@ const SearchTreatments = (props: SearchTreatmentsInterface) => {
       <OutlinedInput
         defaultValue=""
         value={props.value}
-        onChange={props.onChange}
+        onChange={(e) => props.onChange?.(e.target.value)}
         onKeyDown={props.onKeyDown}
         fullWidth
         placeholder="Buscar Tratamento"
