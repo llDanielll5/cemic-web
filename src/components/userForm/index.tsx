@@ -58,7 +58,7 @@ const UserForm = (props: UserFormProps) => {
 
   return (
     <Box position="relative" pt={1}>
-      <Typography variant="h5" p={2}>
+      <Typography variant="h6" p={2}>
         Dados do Paciente
       </Typography>
 
@@ -129,7 +129,7 @@ const UserForm = (props: UserFormProps) => {
         )}
       />
 
-      <Typography variant="h5" p={2}>
+      <Typography variant="h6" p={2}>
         Dados de Localidade
       </Typography>
 

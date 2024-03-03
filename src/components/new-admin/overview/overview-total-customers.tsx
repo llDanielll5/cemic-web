@@ -25,7 +25,7 @@ export const OverviewTotalCustomers = (props: any) => {
         >
           <Stack spacing={1}>
             <Typography color="text.secondary" variant="overline">
-              Total Customers
+              Novos Pacientes
             </Typography>
             <Typography variant="h4">{value}</Typography>
           </Stack>
@@ -41,7 +41,7 @@ export const OverviewTotalCustomers = (props: any) => {
             </SvgIcon>
           </Avatar>
         </Stack>
-        {difference && (
+        {difference > 0 || difference < 0 ? (
           <Stack alignItems="center" direction="row" spacing={2} sx={{ mt: 2 }}>
             <Stack alignItems="center" direction="row" spacing={0.5}>
               <SvgIcon color={positive ? "success" : "error"} fontSize="small">
@@ -51,13 +51,18 @@ export const OverviewTotalCustomers = (props: any) => {
                 color={positive ? "success.main" : "error.main"}
                 variant="body2"
               >
-                {difference}%
+                {positive ? "+" : "-"}
+                {difference}
               </Typography>
             </Stack>
             <Typography color="text.secondary" variant="caption">
-              Since last month
+              Cadastro(s) comparado ao Mês passado
             </Typography>
           </Stack>
+        ) : (
+          <Typography variant="body2" color="orangered">
+            Igual ao mês passado
+          </Typography>
         )}
       </CardContent>
     </Card>

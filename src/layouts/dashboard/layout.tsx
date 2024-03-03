@@ -39,7 +39,6 @@ export const DashboardLayout = (props: any) => {
   const pathname = usePathname();
   const [openNav, setOpenNav] = useState(false);
   const [userData, setUserData] = useRecoilState(UserData);
-  const [loading, setLoading] = useRecoilState(LoadingServer);
   const router = useRouter();
 
   const handleAddPatient = () => {
@@ -52,17 +51,18 @@ export const DashboardLayout = (props: any) => {
   }, [openNav]);
 
   const handleLogout = async () => {
-    setLoading((prev) => ({
-      isLoading: true,
-      loadingMessage: "Estamos deslogando sua conta!",
-    }));
+    // setLoading((prev) => ({
+    //   isLoading: true,
+    //   loadingMessage: "Estamos deslogando sua conta!",
+    // }));
 
     setCookie("jwt", undefined);
     setCookie("user", undefined);
 
-    return await router.push("/auth/login").then((res) => {
-      if (res) setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
-    });
+    return await router.push("/auth/login");
+    // then((res) => {
+    //   if (res) setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
+    // });
   };
 
   const PersistLogin = async () => {
@@ -94,8 +94,8 @@ export const DashboardLayout = (props: any) => {
     PersistLogin();
   }, []);
 
-  if (loading.isLoading === true)
-    return <Loading message={loading.loadingMessage!} />;
+  // if (loading.isLoading === true)
+  //   return <Loading message={loading.loadingMessage!} />;
 
   return (
     <>

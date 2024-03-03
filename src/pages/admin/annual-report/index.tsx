@@ -1,10 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+//@ts-nocheck
+
 import React, { useCallback, useEffect, useState } from "react";
 import { Box, TextField, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
 import { formatISO } from "date-fns";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
-import { MonthCashTable } from "@/components/new-admin/cash/monthCashTable";
 import CashierValues from "@/components/new-admin/cash/values";
 import { getCreditDiscount } from "@/services/services";
 

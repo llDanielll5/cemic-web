@@ -84,7 +84,8 @@ export const handleGetSinglePatient = async (cardId: string) => {
   const populates = {
     lecture: "populate[lectures][populate]=*",
     address: "populate[address]=*",
-    adminInfos: "populate[adminInfos][populate]=*",
+    adminInfos:
+      "populate[adminInfos][populate][created][fields][0]=name&populate[adminInfos][populate][created][fields][1]=userType&populate[adminInfos][populate][updated][fields][0]=name&populate[adminInfos][populate][updated][fields][1]=userType",
     odontogramTreats: "populate[odontogram][populate][treatments][populate]=*",
     actualProfessional: "populate[actualProfessional]=*",
     screening: "populate[screening][populate]=*",
@@ -94,6 +95,7 @@ export const handleGetSinglePatient = async (cardId: string) => {
     attachments: "populate[attachments][populate]=*",
     payments: "populate[payments][populate]=*",
     treatments: "populate[treatments][populate]=*",
+    forwardedTreatments: "populate[forwardedTreatments][populate]=*",
   };
 
   const {
@@ -109,10 +111,11 @@ export const handleGetSinglePatient = async (cardId: string) => {
     attachments,
     payments,
     treatments,
+    forwardedTreatments,
   } = populates;
 
   return await axiosInstance.get(
-    `/patients/?filter[cardId][$eq]=${cardId}&${lecture}&${address}&${adminInfos}&${odontogramTreats}&${actualProfessional}&${screening}&${odontogramAdmin}&${exams}&${problems}&${attachments}&${payments}&${treatments}`
+    `/patients/?filters[cardId][$eq]=${cardId}&${lecture}&${address}&${adminInfos}&${odontogramTreats}&${actualProfessional}&${screening}&${odontogramAdmin}&${exams}&${problems}&${attachments}&${payments}&${treatments}&${forwardedTreatments}`
   );
 };
 
@@ -148,4 +151,13 @@ export const getSingleFile = async (id: string) => {
 
 export const deleteFile = async (id: string) => {
   return await axiosInstance.delete(`/upload/files/${id}`);
+};
+
+export const handleGetCountPatientsByDate = async (
+  startDate: string,
+  endDate: string
+) => {
+  return await axiosInstance.get(
+    `/patients/?filters[createdAt][$gte]=${startDate}&filters[createdAt][$lte]=${endDate}`
+  );
 };

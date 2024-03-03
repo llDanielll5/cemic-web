@@ -25,17 +25,11 @@ export const OverviewBudget = (props: any) => {
         >
           <Stack spacing={1}>
             <Typography color="text.secondary" variant="overline">
-              Budget
+              Total Caixa do Mês
             </Typography>
             <Typography variant="h4">{value}</Typography>
           </Stack>
-          <Avatar
-            sx={{
-              backgroundColor: "error.main",
-              height: 56,
-              width: 56,
-            }}
-          >
+          <Avatar sx={{ backgroundColor: "error.main", height: 56, width: 56 }}>
             <SvgIcon>
               <CurrencyDollarIcon />
             </SvgIcon>
@@ -55,7 +49,7 @@ export const OverviewBudget = (props: any) => {
               </Typography>
             </Stack>
             <Typography color="text.secondary" variant="caption">
-              Since last month
+              Comparado ao último mês
             </Typography>
           </Stack>
         )}

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import { Box, TextField, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";

@@ -93,11 +93,10 @@ const PatientsPage = () => {
 
   const handlePatientAdded = async () => {
     setNewPatientVisible(!newPatientVisible);
-    return await getPatients();
+    return await getPatients(currPage, pageSize, sort);
   };
 
   const handleClickPatient = (cardId: string) => {
-    // const slug = name.replaceAll(" ", "-").toLowerCase();
     router.push("/admin/patients/" + cardId);
   };
 
@@ -155,8 +154,8 @@ const PatientsPage = () => {
             />
 
             <PatientsSort
-              handleChangeSort={handleChangeSort}
               sort={sort}
+              handleChangeSort={handleChangeSort}
               filterStatus={statusFilter}
               setFilterStatus={setStatusFilter}
             />

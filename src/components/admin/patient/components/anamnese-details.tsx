@@ -23,7 +23,7 @@ interface AnamneseDetailsInterface {
 const PatientAnamneseDetails = (props: AnamneseDetailsInterface) => {
   const { anamneseKeys, anamneseValues } = props;
   const [patientData, setPatientData] = useRecoilState(PatientData);
-  const client = patientData?.attributes;
+  let client = patientData?.attributes;
 
   const [anamneseModal, setAnamneseModal] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -80,7 +80,7 @@ const PatientAnamneseDetails = (props: AnamneseDetailsInterface) => {
       [anamsVal[11]]: client?.anamnese[`${anamsVal[11]}`],
     }));
     setObservations(client?.observations!);
-  }, [patientData]);
+  }, [client?.anamnese, client?.observations, patientData]);
 
   if (isLoading)
     return (

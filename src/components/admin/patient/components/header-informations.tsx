@@ -21,13 +21,20 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
   const [patientData, setPatientData] = useRecoilState(PatientData);
   let client = patientData?.attributes;
 
+  const backPatients = () => {
+    return router.push("/admin/patients").then(
+      (b) => setPatientData(null),
+      (err) => console.log(err)
+    );
+  };
+
   return (
     <Container>
       <Stack direction={"row"} alignItems="flex-start">
         <Button
           variant="contained"
           startIcon={<ArrowBackIcon />}
-          onClick={() => router.push("/admin/patients")}
+          onClick={backPatients}
         >{`Voltar para Pacientes`}</Button>
       </Stack>
       <HeaderTopPatientInformations patient={clientData} />
@@ -39,12 +46,19 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
         }
         alignItems="center"
       >
-        {client?.adminInfos !== null && (
+        {client?.adminInfos?.updated?.data !== null ? (
           <Typography variant="caption">
             Atualizado por {client?.adminInfos?.updated?.data?.attributes?.name}{" "}
             dia{" "}
             {parseDateIso(
               client?.adminInfos?.updateTimestamp?.substring?.(0, 10)
+            )}
+          </Typography>
+        ) : (
+          <Typography variant="caption">
+            Criado por {client?.adminInfos?.created?.data?.attributes?.name} dia{" "}
+            {parseDateIso(
+              client?.adminInfos?.createTimestamp?.substring?.(0, 10)
             )}
           </Typography>
         )}

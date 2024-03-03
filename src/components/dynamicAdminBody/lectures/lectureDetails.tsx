@@ -1,7 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { Box, Typography, styled } from "@mui/material";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/services/firebase";
 import { cpfMask, phoneMask } from "@/services/services";
 import { closeIcon, successIcon } from "../screening/screeningDetails";
 import { getLectureDetails, updateSingleLecture } from "@/axios/admin/lectures";

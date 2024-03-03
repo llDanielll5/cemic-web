@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { getCreditDiscount } from "@/services/services";

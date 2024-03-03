@@ -5,6 +5,7 @@ import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import RecentActorsIcon from "@mui/icons-material/RecentActors";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import HealingIcon from "@mui/icons-material/Healing";
 import { SvgIcon } from "@mui/material";
@@ -29,11 +30,11 @@ export const items = [
     ),
   },
   {
-    title: "Triagens",
-    path: "/admin/screenings",
+    title: "Dentistas",
+    path: "/admin/dentists",
     icon: (
       <SvgIcon fontSize="small">
-        <ContactsIcon />
+        <RecentActorsIcon />
       </SvgIcon>
     ),
   },
@@ -46,6 +47,16 @@ export const items = [
       </SvgIcon>
     ),
   },
+  {
+    title: "Triagens",
+    path: "/admin/screenings",
+    icon: (
+      <SvgIcon fontSize="small">
+        <ContactsIcon />
+      </SvgIcon>
+    ),
+  },
+
   {
     title: "Tratamentos",
     path: "/admin/treatments",

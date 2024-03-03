@@ -41,6 +41,7 @@ const PatientTreatmentsHistory = (props: any) => {
         );
         setPatientTreatments(data);
         setTreatmentsFinished(finisheds);
+        // return location.reload();
       },
       (err) => console.log(err.response)
     );
@@ -58,7 +59,7 @@ const PatientTreatmentsHistory = (props: any) => {
         </Typography>
         <Typography variant="caption">
           Atualizado por: {adminInfos?.updated?.data?.attributes?.name} dia{" "}
-          {parseDateIso(adminInfos?.updateTimestamp.substring(0, 10))}
+          {parseDateIso(adminInfos?.updateTimestamp?.substring?.(0, 10))}
         </Typography>
       </Header>
 

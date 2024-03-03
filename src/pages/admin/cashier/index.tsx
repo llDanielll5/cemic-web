@@ -325,7 +325,6 @@ const CashierAdmin = () => {
 
   useEffect(() => {
     handleGetMonthValue();
-    // getMonthTotal();
   }, [handleGetMonthValue]);
 
   const handleSelectCashierType = (type: number) => {

@@ -120,7 +120,7 @@ const Page = () => (
               </Button>
             </div>
           </Stack>
-          <CompaniesSearch />
+          <CompaniesSearch onChange={(e) => console.log(e)} />
           <Grid container spacing={3}>
             {companies.map((company) => (
               <Grid xs={12} md={6} lg={4} key={company.id}>

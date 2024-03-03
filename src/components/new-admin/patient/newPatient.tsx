@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, styled, IconButton, Paper } from "@mui/material";
+import {
+  Box,
+  styled,
+  IconButton,
+  Paper,
+  Typography,
+  Divider,
+} from "@mui/material";
 import { AddressType } from "types";
 import UserForm from "@/components/userForm";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -216,6 +223,12 @@ const NewPatientForm = (props: AnamneseProps) => {
 
   return (
     <Container elevation={10}>
+      <Typography variant="h5" textAlign="center" mb={2}>
+        Novo Paciente
+      </Typography>
+
+      <Divider />
+
       {page === 0 && (
         <UserForm
           handleChange={handleChange}

@@ -1,4 +1,4 @@
-//@ts-nocheck
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useCallback, useEffect, useState } from "react";
@@ -16,11 +16,7 @@ import UserData from "@/atoms/userData";
 import PatientData from "@/atoms/patient";
 import HeaderPatientInformations from "./components/header-informations";
 import AnamneseTab from "./tabs/anamnese";
-import Receipt from "../clientInfos/receipt";
-
 import SchedulesPatient from "./tabs/schedules";
-
-import ClientDocuments from "../clientInfos/docs";
 import {
   handleGetSinglePatient,
   handleUpdatePatient,
@@ -37,7 +33,7 @@ import PatientExams from "./tabs/exams";
 import PatientProblems from "./tabs/problems";
 import PatientAttachments from "./tabs/attachments";
 
-const PatientDetails = () => {
+const PatientDetails = (props: { cardId: any }) => {
   const adminData: any = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
   const [clientData, setClientData] =
@@ -46,8 +42,8 @@ const PatientDetails = () => {
     useState<AddressType>(defaultAddress);
 
   const [addressModal, setAddressModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [loadingMessage, setLoadingMessage] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const currTabs =
     adminData?.userType !== "DENTIST" ? adminTabs : professionalTabs;
@@ -73,21 +69,21 @@ const PatientDetails = () => {
     if (notLocationCompleted) return alert("Preencha os campos de endereço!");
     let data = { data: { address: clientAddress, ...adminUpdate } };
 
-    setLoadingMessage("Alterando Endereço do Paciente!");
+    // setLoadingMessage("Alterando Endereço do Paciente!");
     return await handleUpdatePatient(patientData?.id!, data).then(
       (res) => {
-        setIsLoading(false);
+        // setIsLoading(false);
         setAddressModal(!addressModal);
       },
       (err) => {
-        setIsLoading(false);
+        // setIsLoading(false);
         console.log(err.response);
       }
     );
   };
 
   const handleGetPatient = async () => {
-    return await handleGetSinglePatient(patientData?.attributes?.cardId).then(
+    return await handleGetSinglePatient(props.cardId).then(
       (res) => setPatientData(res.data.data[0]),
       (err) => console.log(err.response)
     );
@@ -156,12 +152,12 @@ const PatientDetails = () => {
     handleGetPatient();
   }, []);
 
-  if (isLoading)
-    return (
-      <Box position="fixed" top={0} left={0} zIndex={200}>
-        <Loading message={loadingMessage} />
-      </Box>
-    );
+  // if (isLoading)
+  //   return (
+  //     <Box position="fixed" top={0} left={0} zIndex={200}>
+  //       <Loading message={loadingMessage} />
+  //     </Box>
+  //   );
 
   const renderPatientTabs = (tabIndex: string) => {
     switch (tabIndex) {
@@ -185,7 +181,7 @@ const PatientDetails = () => {
       case "4":
         return <PatientExams />;
       case "5":
-        return <SchedulesPatient client={patientData} />;
+        return <SchedulesPatient onUpdatePatient={handleGetPatient} />;
       case "6":
         return <PatientProblems />;
       case "7":
@@ -198,7 +194,7 @@ const PatientDetails = () => {
       {patientData !== null && (
         <HeaderPatientInformations
           clientData={clientData}
-          handleChange={handleChange}
+          // handleChange={handleChange}
         />
       )}
 

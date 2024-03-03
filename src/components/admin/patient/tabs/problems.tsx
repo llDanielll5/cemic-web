@@ -25,11 +25,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import UserData from "@/atoms/userData";
 
-interface ClientDocumentsProps {
-  client: any;
-}
-
-const PatientProblems = (props: ClientDocumentsProps) => {
+const PatientProblems = (props: any) => {
   const [checkBoxList, setCheckBoxList] = useState<boolean[]>([]);
   const [patientData, setPatientData] = useRecoilState(PatientData);
   const [isLoading, setIsLoading] = useState(false);

@@ -124,10 +124,10 @@ export const OverviewSales = (props: any) => {
               </SvgIcon>
             }
           >
-            Sync
+            Atualizar
           </Button>
         }
-        title="Sales"
+        title="Vendas"
       />
       <CardContent>
         <Chart
@@ -149,7 +149,7 @@ export const OverviewSales = (props: any) => {
           }
           size="small"
         >
-          Overview
+          Detalhes
         </Button>
       </CardActions>
     </Card>

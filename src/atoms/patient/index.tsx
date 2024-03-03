@@ -105,6 +105,10 @@ export interface Attachment {
   name: String;
 }
 
+interface DataTreatmentsPatient {
+  data: TreatmentsPatientInterface[];
+}
+
 interface PatientStrapiSingle {
   id: string;
   attributes: {
@@ -134,7 +138,8 @@ interface PatientStrapiSingle {
     problems: Problem[];
     attachments: Attachment[];
 
-    treatments: any[] | TreatmentsPatientInterface[];
+    treatments: TreatmentsPatientInterface[] | DataTreatmentsPatient;
+    forwardedTreatments?: any | null;
   };
 }
 
