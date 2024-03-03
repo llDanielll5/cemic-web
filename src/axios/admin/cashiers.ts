@@ -28,6 +28,16 @@ export const handleGetMonthCashiers = async (
   );
 };
 
+export const handleGetMonthCashiersOfType = async (
+  startDate: string,
+  endDate: string,
+  type?: "clinic" | "implant"
+) => {
+  return await axiosInstance.get(
+    `/cashiers/?filters[date][$gte]=${startDate}&filters[date][$lte]=${endDate}&filters[type]=${type}&populate[cashierInfos][populate]=*&populate[adminInfos][populate]=*`
+  );
+};
+
 export const handleOpenCashierDb = async (data: any) => {
   return await axiosInstance.post("/cashiers", data);
 };

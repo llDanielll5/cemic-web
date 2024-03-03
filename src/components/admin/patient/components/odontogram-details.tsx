@@ -20,6 +20,7 @@ import {
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import { updateOdontogramDetails } from "@/axios/admin/odontogram";
+import PatientData from "@/atoms/patient";
 
 interface OdontogramPatientDetailsInterface {
   patientOdontogram: any;
@@ -54,6 +55,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
   const { patientOdontogram, onUpdatePatient } = props;
   const { lb, lt, rb, rt } = dentalArch;
   const adminData: any = useRecoilValue(UserData);
+  const patientData = useRecoilValue(PatientData);
   const [toothDetails, setToothDetails] = useState<any>([]);
   const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
 
@@ -89,7 +91,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
       rg = `t${region}`;
     }
     setSelectedRegion(region);
-    return await getRegionDetails(patientOdontogram?.id, rg).then(
+    return await getRegionDetails(patientData?.id!, rg).then(
       ({ data }: any) => {
         if (data?.data.length === 0) {
           setToothDetails([]);

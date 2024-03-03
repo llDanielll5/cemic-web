@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-//@ts-nocheck
 
 import React, { useCallback, useEffect, useState } from "react";
 import { Box, TextField, Typography, styled } from "@mui/material";
@@ -7,8 +6,6 @@ import { useRouter } from "next/router";
 import { formatISO } from "date-fns";
 import CashierValues from "@/components/new-admin/cash/values";
 import { getCreditDiscount } from "@/services/services";
-
-const refCashiers = collection(db, "cashiers");
 
 const AnnualCashierReport = (props: any) => {
   const router = useRouter();
@@ -27,87 +24,87 @@ const AnnualCashierReport = (props: any) => {
     totalOut: 0,
   });
 
-  const handleGetYearValue = useCallback(async () => {
-    if (!year) return;
+  // const handleGetYearValue = useCallback(async () => {
+  //   if (!year) return;
 
-    let beginYear = formatISO(new Date(year, 0, 1)).substring(0, 10);
-    let endYear = formatISO(new Date(year, 11 + 1, 0)).substring(0, 10);
-    const q = query(
-      refCashiers,
-      where("date", ">=", beginYear),
-      where("date", "<=", endYear),
-      where("type", "==", cashierType)
-    );
+  //   let beginYear = formatISO(new Date(year, 0, 1)).substring(0, 10);
+  //   let endYear = formatISO(new Date(year, 11 + 1, 0)).substring(0, 10);
+  //   const q = query(
+  //     refCashiers,
+  //     where("date", ">=", beginYear),
+  //     where("date", "<=", endYear),
+  //     where("type", "==", cashierType)
+  //   );
 
-    const snapshotYear = await getDocs(q);
-    if (snapshotYear.docs.length === 0) return;
+  //   const snapshotYear = await getDocs(q);
+  //   if (snapshotYear.docs.length === 0) return;
 
-    let yearCash: any[] = [];
-    let yearCard: any[] = [];
-    let yearCredit: any[] = [];
-    let yearPix: any[] = [];
-    let yearOut: any[] = [];
+  //   let yearCash: any[] = [];
+  //   let yearCard: any[] = [];
+  //   let yearCredit: any[] = [];
+  //   let yearPix: any[] = [];
+  //   let yearOut: any[] = [];
 
-    snapshotYear.forEach((docs: any) => {
-      yearCash.push(docs.data().totalCash);
-      yearCard.push(docs.data().totalCard);
-      yearCredit.push(docs.data().totalCredit);
-      yearPix.push(docs.data().totalPix);
-      yearOut.push(docs.data().totalOut);
-    });
+  //   snapshotYear.forEach((docs: any) => {
+  //     yearCash.push(docs.data().totalCash);
+  //     yearCard.push(docs.data().totalCard);
+  //     yearCredit.push(docs.data().totalCredit);
+  //     yearPix.push(docs.data().totalPix);
+  //     yearOut.push(docs.data().totalOut);
+  //   });
 
-    let totalCash = 0;
-    let totalCard = 0;
-    let totalCredit = 0;
-    let totalPix = 0;
-    let totalOut = 0;
+  //   let totalCash = 0;
+  //   let totalCard = 0;
+  //   let totalCredit = 0;
+  //   let totalPix = 0;
+  //   let totalOut = 0;
 
-    totalCash = yearCash.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalCard = yearCard.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalCredit = yearCredit.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalPix = yearPix.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalOut = yearOut.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
+  //   totalCash = yearCash.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalCard = yearCard.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalCredit = yearCredit.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalPix = yearPix.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalOut = yearOut.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
 
-    setYearValues((prev) => ({
-      totalCard,
-      totalCash,
-      totalCredit,
-      totalOut,
-      totalPix,
-    }));
+  //   setYearValues((prev) => ({
+  //     totalCard,
+  //     totalCash,
+  //     totalCredit,
+  //     totalOut,
+  //     totalPix,
+  //   }));
 
-    setReaded(true);
-    return;
-  }, [year]);
+  //   setReaded(true);
+  //   return;
+  // }, [year]);
 
-  const getYearTotal = () => {
-    const { totalCard, totalCash, totalCredit, totalPix, totalOut } =
-      yearValues;
-    let total = 0;
+  // const getYearTotal = () => {
+  //   const { totalCard, totalCash, totalCredit, totalPix, totalOut } =
+  //     yearValues;
+  //   let total = 0;
 
-    let creditDiscounted = parseFloat(getCreditDiscount(totalCredit));
+  //   let creditDiscounted = parseFloat(getCreditDiscount(totalCredit));
 
-    total = totalCard + totalCash + totalPix + creditDiscounted;
-    if (totalOut === 0) return total;
-    else {
-      total = total - totalOut;
-      return total;
-    }
-  };
+  //   total = totalCard + totalCash + totalPix + creditDiscounted;
+  //   if (totalOut === 0) return total;
+  //   else {
+  //     total = total - totalOut;
+  //     return total;
+  //   }
+  // };
 
-  useEffect(() => {
-    if (!readed) handleGetYearValue();
-  }, [handleGetYearValue, readed]);
+  // useEffect(() => {
+  //   if (!readed) handleGetYearValue();
+  // }, [handleGetYearValue, readed]);
 
   return (
     <Container>
@@ -131,7 +128,7 @@ const AnnualCashierReport = (props: any) => {
         credit={yearValues?.totalCredit}
         pix={yearValues?.totalPix}
         out={yearValues?.totalOut}
-        total={getYearTotal()}
+        total={0}
       />
     </Container>
   );

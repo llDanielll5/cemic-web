@@ -38,7 +38,8 @@ export default function ToothHistoryTable(props: TableProps) {
             {data?.map((v: any, i: number) => {
               const val = v?.attributes;
               let hasPay = val?.hasPayed ? "green" : "red";
-              let hasPayText = val?.hasPayed ? "Pagou" : "Não Pagou";
+              let hasPayText =
+                val?.payment?.data !== null ? "Pagou" : "Não Pagou";
 
               return (
                 <TableRow hover key={i} onClick={() => onGetDetails(v?.id!)}>

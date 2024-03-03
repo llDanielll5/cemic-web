@@ -6,6 +6,6 @@ export const updatePatientTreatments = async (values: any) => {
 
 export const getRegionDetails = async (patientId: string, region: string) => {
   return await axiosInstance.get(
-    `/patient-treatments/?fiters[patient][id][$eq]=${patientId}&filters[region][$eq]=${region}`
+    `/patient-treatments/?filters[patient][id][$eq]=${patientId}&filters[region][$eq]=${region}&populate[payment][populate]=*&populate[forwardeds][populate]=*&populate[finishedBy][populate]=*&populate[finishedHistory][populate]=*`
   );
 };

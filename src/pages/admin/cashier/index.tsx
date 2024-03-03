@@ -2,10 +2,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { CashierInterface, CreateCashierInterface } from "types/cashier";
-import { Box, Button, Stack, Typography, styled } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { CashTable } from "@/components/new-admin/cash/cashTable";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { nameCapitalized } from "@/services/services";
+import { useRecoilValue } from "recoil";
 import { getCookie, setCookie } from "cookies-next";
 import { useFormik } from "formik";
 import { endOfMonth, formatISO, startOfMonth } from "date-fns";
@@ -14,20 +13,19 @@ import Calendar from "react-calendar";
 import UserData from "@/atoms/userData";
 import CModal from "@/components/modal";
 
+import * as Yup from "yup";
 import AddCashModal from "../../../components/new-admin/cash/modals/add";
 import ConfirmCashModal from "../../../components/new-admin/cash/modals/confirm";
 import OpenCashierModal from "../../../components/new-admin/cash/modals/open";
 import CashierBody from "@/components/admin/cashier/_components/cashier-body";
 import ReportsButtons from "@/components/admin/cashier/_components/reports";
+import CashierButtons from "@/components/admin/cashier/_components/cashier-buttons";
 import "react-calendar/dist/Calendar.css";
 import {
-  handleGetCashierOpened,
   handleGetCashierOpenedWithType,
-  handleGetMonthCashiers,
+  handleGetMonthCashiersOfType,
   handleOpenCashierDb,
 } from "@/axios/admin/cashiers";
-import * as Yup from "yup";
-import CashierButtons from "@/components/admin/cashier/_components/cashier-buttons";
 
 const CashierAdmin = () => {
   const router = useRouter();
@@ -57,7 +55,7 @@ const CashierAdmin = () => {
   });
 
   let dateIso = formatISO(dateSelected).substring(0, 10);
-  let type = cashierType === 0 ? "clinic" : "implant";
+  let type: "clinic" | "implant" = cashierType === 0 ? "clinic" : "implant";
 
   const formik = useFormik({
     initialValues: {
@@ -233,7 +231,11 @@ const CashierAdmin = () => {
     const startDate = formatISO(startOfMonth(dateSelected)).substring(0, 10);
     const endDate = formatISO(endOfMonth(dateSelected)).substring(0, 10);
 
-    const { data: result } = await handleGetMonthCashiers(startDate, endDate);
+    const { data: result } = await handleGetMonthCashiersOfType(
+      startDate,
+      endDate,
+      type
+    );
     const { data: monthCashArr } = result;
 
     if (monthCashArr.length === 0) return;

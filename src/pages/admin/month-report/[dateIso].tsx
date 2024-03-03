@@ -3,12 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Box, TextField, Typography, styled } from "@mui/material";
 import { useRouter } from "next/router";
 import { formatISO } from "date-fns";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase";
 import { MonthCashTable } from "@/components/new-admin/cash/monthCashTable";
-
-const refCashiers = collection(db, "cashiers");
-const refInformations = collection(db, "cashiers_informations");
 
 const MonthCashierReport = (props: any) => {
   const router = useRouter();
@@ -38,158 +33,158 @@ const MonthCashierReport = (props: any) => {
     return discounted.toFixed(2);
   };
 
-  const handleGetMonthReport = async () => {
-    if (!month) return;
-    const selectedMonth = parseInt(month) - 1;
-    if (!year || !selectedMonth) return;
-    let beginMonth = formatISO(new Date(year, selectedMonth, 1)).substring(
-      0,
-      10
-    );
-    let endMonth = formatISO(new Date(year, selectedMonth + 1, 0)).substring(
-      0,
-      10
-    );
-    const q = query(
-      refCashiers,
-      where("date", ">=", beginMonth),
-      where("date", "<=", endMonth),
-      where("type", "==", cashierType)
-    );
-    const snapshot = await getDocs(q);
+  // const handleGetMonthReport = async () => {
+  //   if (!month) return;
+  //   const selectedMonth = parseInt(month) - 1;
+  //   if (!year || !selectedMonth) return;
+  //   let beginMonth = formatISO(new Date(year, selectedMonth, 1)).substring(
+  //     0,
+  //     10
+  //   );
+  //   let endMonth = formatISO(new Date(year, selectedMonth + 1, 0)).substring(
+  //     0,
+  //     10
+  //   );
+  //   const q = query(
+  //     refCashiers,
+  //     where("date", ">=", beginMonth),
+  //     where("date", "<=", endMonth),
+  //     where("type", "==", cashierType)
+  //   );
+  //   const snapshot = await getDocs(q);
 
-    if (snapshot.docs.length === 0) return alert("Sem caixas este Mês!");
+  //   if (snapshot.docs.length === 0) return alert("Sem caixas este Mês!");
 
-    let arr: any[] = [];
-    snapshot.forEach((docs) => {
-      arr.push(docs.data().id);
-    });
+  //   let arr: any[] = [];
+  //   snapshot.forEach((docs) => {
+  //     arr.push(docs.data().id);
+  //   });
 
-    return setCashiers(arr);
-  };
+  //   return setCashiers(arr);
+  // };
 
-  const handleGetMonthInformations = async () => {
-    if (!month) return;
-    const selectedMonth = parseInt(month) - 1;
-    if (!year || !selectedMonth) return;
-    let beginMonth = formatISO(new Date(year, selectedMonth, 1)).substring(
-      0,
-      10
-    );
-    let endMonth = formatISO(new Date(year, selectedMonth + 1, 0)).substring(
-      0,
-      10
-    );
-    if (cashiers.length === 0) return;
+  // const handleGetMonthInformations = async () => {
+  //   if (!month) return;
+  //   const selectedMonth = parseInt(month) - 1;
+  //   if (!year || !selectedMonth) return;
+  //   let beginMonth = formatISO(new Date(year, selectedMonth, 1)).substring(
+  //     0,
+  //     10
+  //   );
+  //   let endMonth = formatISO(new Date(year, selectedMonth + 1, 0)).substring(
+  //     0,
+  //     10
+  //   );
+  //   if (cashiers.length === 0) return;
 
-    const q = query(
-      refInformations,
-      where("type", "==", cashierType),
-      where("date", ">=", beginMonth),
-      where("date", "<=", endMonth)
-    );
-    const snapshot = await getDocs(q);
+  //   const q = query(
+  //     refInformations,
+  //     where("type", "==", cashierType),
+  //     where("date", ">=", beginMonth),
+  //     where("date", "<=", endMonth)
+  //   );
+  //   const snapshot = await getDocs(q);
 
-    if (snapshot.docs.length === 0)
-      return alert("Sem informações de caixas este mês");
+  //   if (snapshot.docs.length === 0)
+  //     return alert("Sem informações de caixas este mês");
 
-    let arr: any[] = [];
-    snapshot.forEach((docs) => {
-      arr.push(docs.data());
-    });
+  //   let arr: any[] = [];
+  //   snapshot.forEach((docs) => {
+  //     arr.push(docs.data());
+  //   });
 
-    setReaded(true);
-    setData(arr);
-    setDynamicData(arr);
-    return;
-  };
+  //   setReaded(true);
+  //   setData(arr);
+  //   setDynamicData(arr);
+  //   return;
+  // };
 
-  const handleGetMonthValue = async () => {
-    if (!month) return;
-    const selectedMonth = parseInt(month) - 1;
-    let beginMonth = formatISO(new Date(year, selectedMonth, 1)).substring(
-      0,
-      10
-    );
-    let endMonth = formatISO(new Date(year, selectedMonth + 1, 0)).substring(
-      0,
-      10
-    );
-    if (!year || !selectedMonth) return;
-    if (cashiers.length > 30) return alert("Caixa com 31 dias");
-    if (cashiers.length === 0) return;
+  // const handleGetMonthValue = async () => {
+  //   if (!month) return;
+  //   const selectedMonth = parseInt(month) - 1;
+  //   let beginMonth = formatISO(new Date(year, selectedMonth, 1)).substring(
+  //     0,
+  //     10
+  //   );
+  //   let endMonth = formatISO(new Date(year, selectedMonth + 1, 0)).substring(
+  //     0,
+  //     10
+  //   );
+  //   if (!year || !selectedMonth) return;
+  //   if (cashiers.length > 30) return alert("Caixa com 31 dias");
+  //   if (cashiers.length === 0) return;
 
-    const qMonthValues = query(
-      refCashiers,
-      where("date", ">=", beginMonth),
-      where("date", "<=", endMonth),
-      where("type", "==", cashierType)
-    );
-    const snapshotMonth = await getDocs(qMonthValues);
+  //   const qMonthValues = query(
+  //     refCashiers,
+  //     where("date", ">=", beginMonth),
+  //     where("date", "<=", endMonth),
+  //     where("type", "==", cashierType)
+  //   );
+  //   const snapshotMonth = await getDocs(qMonthValues);
 
-    if (snapshotMonth.docs.length === 0) return;
+  //   if (snapshotMonth.docs.length === 0) return;
 
-    let monthCash: any[] = [];
-    let monthCard: any[] = [];
-    let monthCredit: any[] = [];
-    let monthPix: any[] = [];
-    let monthOut: any[] = [];
+  //   let monthCash: any[] = [];
+  //   let monthCard: any[] = [];
+  //   let monthCredit: any[] = [];
+  //   let monthPix: any[] = [];
+  //   let monthOut: any[] = [];
 
-    snapshotMonth.forEach((docs: any) => {
-      monthCash.push(docs.data().totalCash);
-      monthCard.push(docs.data().totalCard);
-      monthCredit.push(docs.data().totalCredit);
-      monthPix.push(docs.data().totalPix);
-      monthOut.push(docs.data().totalOut);
-    });
+  //   snapshotMonth.forEach((docs: any) => {
+  //     monthCash.push(docs.data().totalCash);
+  //     monthCard.push(docs.data().totalCard);
+  //     monthCredit.push(docs.data().totalCredit);
+  //     monthPix.push(docs.data().totalPix);
+  //     monthOut.push(docs.data().totalOut);
+  //   });
 
-    let totalCash = 0;
-    let totalCard = 0;
-    let totalCredit = 0;
-    let totalPix = 0;
-    let totalOut = 0;
+  //   let totalCash = 0;
+  //   let totalCard = 0;
+  //   let totalCredit = 0;
+  //   let totalPix = 0;
+  //   let totalOut = 0;
 
-    totalCash = monthCash.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalCard = monthCard.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalCredit = monthCredit.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalPix = monthPix.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalOut = monthOut.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
+  //   totalCash = monthCash.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalCard = monthCard.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalCredit = monthCredit.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalPix = monthPix.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
+  //   totalOut = monthOut.reduce((prev, curr) => {
+  //     return prev + curr;
+  //   }, 0);
 
-    setMonthValues((prev) => ({
-      totalCard,
-      totalCash,
-      totalCredit,
-      totalOut,
-      totalPix,
-    }));
+  //   setMonthValues((prev) => ({
+  //     totalCard,
+  //     totalCash,
+  //     totalCredit,
+  //     totalOut,
+  //     totalPix,
+  //   }));
 
-    return;
-  };
+  //   return;
+  // };
 
-  const getMonthTotal = () => {
-    const { totalCard, totalCash, totalCredit, totalPix, totalOut } =
-      monthValues;
-    let total = 0;
+  // const getMonthTotal = () => {
+  //   const { totalCard, totalCash, totalCredit, totalPix, totalOut } =
+  //     monthValues;
+  //   let total = 0;
 
-    let creditDiscounted = parseFloat(getCreditDiscount(totalCredit));
+  //   let creditDiscounted = parseFloat(getCreditDiscount(totalCredit));
 
-    total = totalCard + totalCash + totalPix + creditDiscounted;
-    if (totalOut === 0) return total;
-    else {
-      total = total - totalOut;
-      return total;
-    }
-  };
+  //   total = totalCard + totalCash + totalPix + creditDiscounted;
+  //   if (totalOut === 0) return total;
+  //   else {
+  //     total = total - totalOut;
+  //     return total;
+  //   }
+  // };
 
   const filterByName = useCallback(() => {
     if (data.length === 0) return;
@@ -203,19 +198,19 @@ const MonthCashierReport = (props: any) => {
     }
   }, [data, filter]);
 
-  useEffect(() => {
-    if (!month) return;
-    const selectedMonth = parseInt(month) - 1;
-    if (!year || !selectedMonth) return;
-    handleGetMonthReport();
-  }, [year, month]);
+  // useEffect(() => {
+  //   if (!month) return;
+  //   const selectedMonth = parseInt(month) - 1;
+  //   if (!year || !selectedMonth) return;
+  //   handleGetMonthReport();
+  // }, [year, month]);
 
-  useEffect(() => {
-    if (cashiers.length > 0 && !readed) {
-      handleGetMonthInformations();
-      handleGetMonthValue();
-    }
-  }, [cashiers, readed]);
+  // useEffect(() => {
+  //   if (cashiers.length > 0 && !readed) {
+  //     handleGetMonthInformations();
+  //     handleGetMonthValue();
+  //   }
+  // }, [cashiers, readed]);
 
   useEffect(() => {
     filterByName();
@@ -292,7 +287,7 @@ const MonthCashierReport = (props: any) => {
               border: "1.5px solid #e4e4e4",
             }}
           >
-            Total: <b> R$ {getMonthTotal()}</b>
+            Total: <b> R$ {0}</b>
           </Typography>
         </Box>
       </Box>
