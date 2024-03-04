@@ -21,6 +21,7 @@ import {
   styled,
 } from "@mui/material";
 import { handleGetTreatments } from "@/axios/admin/treatments";
+import { formatISO } from "date-fns";
 
 interface ReceiptsProps {
   items: any[];
@@ -48,6 +49,7 @@ export const ForwardPatientTable = (props: ReceiptsProps) => {
               const schedule = val?.attributes;
               let equalsNames: any = {};
               const treatments = schedule.treatments.data;
+              const date = new Date(schedule.date);
 
               treatments.map((item: any) => {
                 equalsNames[item.attributes.name] = [
@@ -57,18 +59,17 @@ export const ForwardPatientTable = (props: ReceiptsProps) => {
               });
 
               let keys = Object.keys(equalsNames);
-
               if (index < 6)
                 return (
                   <TableRow key={index}>
                     <StyledTable>
                       <Typography textAlign="center" variant="body2">
-                        {parseDateIso(schedule.date.substring(0, 10))}
+                        {parseDateIso(formatISO(date).substring(0, 10))}
                       </Typography>
                     </StyledTable>
                     <StyledTable>
                       <Typography textAlign="center" variant="body2">
-                        {schedule.date.substring(11, 16)}
+                        {formatISO(date).substring(11, 16)}
                       </Typography>
                     </StyledTable>
                     <StyledTable>

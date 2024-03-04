@@ -5,14 +5,20 @@ import UserData from "@/atoms/userData";
 import { useRecoilValue } from "recoil";
 import { parseToothRegion } from "@/services/services";
 import { ForwardPatientTable } from "@/components/table/forward-patient-table";
+import { FinishedsTreatmentsPatientTable } from "@/components/table/finisheds-treatments-patient-table";
 import RunCircleOutlinedIcon from "@mui/icons-material/RunCircleOutlined";
 import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import FinishPatientTreatmentsModal from "../modals/finish-treatments";
+import CheckIcon from "@mui/icons-material/Check";
 import PatientData from "@/atoms/patient";
 import {
   getListOfDentists,
   handleCreateForwardPatientTreatments,
 } from "@/axios/admin/dentists";
+import {
+  handleFinishTreatmentsOfPatient,
+  handleGetFinishedTreatmentsOfPatient,
+} from "@/axios/admin/patient-treatments";
 import {
   Box,
   Typography,
@@ -23,13 +29,16 @@ import {
   Stack,
   Paper,
 } from "@mui/material";
-import { SchedulePatientTable } from "@/components/table/schedule-patient-table";
 
 const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [dentists, setDentists] = useState<any[]>([]);
   const adminData: any = useRecoilValue(UserData);
   const patientData = useRecoilValue(PatientData);
+  const [patientFinishedTreatments, setPatientFinishedTreatments] = useState<
+    any[]
+  >([]);
+  const [finishTreatmentsModal, setFinishTreatmentsModal] = useState(false);
   const [forwardModalVisible, setForwardModalVisible] = useState(false);
   const [treatmentsToForward, setTreatmentsToForward] = useState<any[]>([]);
   const [selectedProfessional, setSelectedProfessional] = useState<any | null>(
@@ -45,6 +54,7 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
       ),
     [patientTreatments]
   );
+
   const forwardedTreatmentsOfPatient = patient?.forwardedTreatments?.data;
   const [patientTreatmentsArr, setPatientTreatmentsArr] = useState<any[]>([]);
 
@@ -102,8 +112,35 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
     );
   };
 
+  const getFinishedTreatmentsOfPatient = async () => {
+    return await handleGetFinishedTreatmentsOfPatient(patientData?.id!).then(
+      (res) => setPatientFinishedTreatments(res.data.data),
+      (err) => console.log(err.response)
+    );
+  };
+
+  const handleFinishTreatments = async (values: any) => {
+    const data = {
+      dentist: values.dentist,
+      treatments: values.treatments,
+      patient: patientData?.id!,
+      paymentDentist: null,
+      date: new Date(),
+      obs: "",
+    };
+
+    return await handleFinishTreatmentsOfPatient(data).then(
+      (res) => {
+        //update finishedBy of treatments
+        getFinishedTreatmentsOfPatient();
+      },
+      (err) => console.log(err.response)
+    );
+  };
+
   useEffect(() => {
     handleGetAllDentists();
+    getFinishedTreatmentsOfPatient();
   }, []);
 
   useEffect(() => {
@@ -203,38 +240,84 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
         ) : null}
       </Modal>
 
+      <FinishPatientTreatmentsModal
+        closeModal={() => setFinishTreatmentsModal(false)}
+        visible={finishTreatmentsModal}
+        dentists={dentists}
+        onSubmitEffect={(submitValues) => handleFinishTreatments(submitValues)}
+      />
+
       {forwardedTreatmentsOfPatient !== null && (
         <Box>
           <InlinePaper elevation={9}>
-            <Typography variant="h5">Encaminhamentos</Typography>
-            {patientData?.attributes?.role === "PATIENT" ? (
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                mt={1}
-              >
-                <Button
-                  variant="contained"
-                  onClick={() => setForwardModalVisible(true)}
-                  endIcon={<TransferWithinAStationIcon />}
-                  fullWidth
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              width="100%"
+            >
+              <Typography variant="h5">Encaminhamentos</Typography>
+              {patientData?.attributes?.role === "PATIENT" ? (
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  mt={1}
                 >
-                  Encaminhar Paciente
-                </Button>
-              </Box>
-            ) : null}
+                  <Button
+                    variant="contained"
+                    onClick={() => setForwardModalVisible(true)}
+                    endIcon={<TransferWithinAStationIcon />}
+                    fullWidth
+                  >
+                    Encaminhar Paciente
+                  </Button>
+                </Box>
+              ) : null}
+            </Stack>
+
+            <ForwardPatientTable
+              items={forwardedTreatmentsOfPatient}
+              onGetDetails={(id) => console.log(id)}
+            />
           </InlinePaper>
-          <ForwardPatientTable
-            items={forwardedTreatmentsOfPatient}
-            onGetDetails={(id) => console.log(id)}
-          />
         </Box>
       )}
 
-      <Box mt={2}>
+      <Box my={2}>
         <InlinePaper elevation={9}>
-          <Typography variant="h6">Agendamentos</Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            width="100%"
+          >
+            <Typography variant="h5">Tratamentos Finalizados</Typography>
+            {adminData?.userType === "ADMIN" && (
+              <Button
+                variant="contained"
+                endIcon={<CheckIcon />}
+                onClick={() => setFinishTreatmentsModal(true)}
+              >
+                Finalizar Tratamentos
+              </Button>
+            )}
+          </Stack>
+
+          <FinishedsTreatmentsPatientTable
+            items={patientFinishedTreatments}
+            onGetDetails={(id) => console.log(id)}
+          />
+        </InlinePaper>
+      </Box>
+
+      <Typography variant="h6" textAlign="center" color="grey" my={6}>
+        Agendamentos em breve...
+      </Typography>
+
+      {/* <Box mt={2}>
+        <InlinePaper elevation={9}>
+          <Typography variant="h5">Agendamentos</Typography>
           <Button variant="contained" endIcon={<CalendarMonthOutlinedIcon />}>
             Agendar Paciente
           </Button>
@@ -243,7 +326,7 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
           items={[]}
           onGetDetails={(id) => console.log(id)}
         />
-      </Box>
+      </Box> */}
     </Box>
   );
 };
@@ -269,6 +352,7 @@ const InlinePaper = styled(Paper)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-direction: column;
 `;
 
 export default SchedulesPatient;

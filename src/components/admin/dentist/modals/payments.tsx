@@ -39,10 +39,10 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
 
       <StyledGrid>
         <FinishedTreatmentsContainer elevation={9}>
-          <Typography variant="h5" textAlign="center">
+          <Typography variant="h5" textAlign="center" mb={2}>
             Histórico de Pagamentos
           </Typography>
-          {dentistInfos?.finisheds?.length === 0 && (
+          {/* {dentistInfos?.finisheds?.length === 0 && (
             <Typography variant="subtitle1" textAlign="center" mt={1}>
               Não há tratamentos pagos!
             </Typography>
@@ -52,15 +52,18 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
               <Typography variant="h6" key={i}>
                 Tratamento
               </Typography>
-            ))}
+            ))} */}
+          <Button variant="contained" fullWidth>
+            Ver Histórico
+          </Button>
         </FinishedTreatmentsContainer>
 
         <TreatmentsInProgress>
-          <Typography variant="h5" textAlign="center">
-            Tratamentos em Andamento
+          <Typography variant="h5" textAlign="center" mb={2}>
+            Tratamentos Encaminhados
           </Typography>
 
-          {forwardeds?.map((item: any, index: number) => {
+          {/* {forwardeds?.map((item: any, index: number) => {
             <Stack
               alignItems="center"
               justifyContent="space-between"
@@ -72,8 +75,22 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
               <Typography>{item.treatments.length} Tratamentos</Typography>
               <Button variant="contained">Ver Mais</Button>
             </Stack>;
-          })}
+          })} */}
+
+          <Button variant="contained" fullWidth>
+            Ver Histórico
+          </Button>
         </TreatmentsInProgress>
+
+        <TreatmentsFinisheds>
+          <Typography variant="h5" textAlign="center" mb={2}>
+            Tratamentos Finalizados
+          </Typography>
+
+          <Button variant="contained" fullWidth>
+            Ver Histórico
+          </Button>
+        </TreatmentsFinisheds>
       </StyledGrid>
     </CModal>
   );
@@ -100,6 +117,12 @@ const FinishedTreatmentsContainer = styled(Paper)`
 
 const TreatmentsInProgress = styled(Paper)`
   background-color: #fdff94;
+  padding: 1rem;
+  width: 100%;
+`;
+
+const TreatmentsFinisheds = styled(Paper)`
+  background-color: #9ee5ff;
   padding: 1rem;
   width: 100%;
 `;
