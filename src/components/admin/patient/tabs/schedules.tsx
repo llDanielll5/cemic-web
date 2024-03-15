@@ -50,7 +50,10 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
   const notConcludeds = useMemo(
     () =>
       patientTreatments?.filter(
-        (treat: any) => treat.attributes.finishedBy.data === null
+        (treat: any) =>
+          treat.attributes.finishedBy.data === null &&
+          treat.attributes.payment.data !== null &&
+          treat.attributes.finishedHistory.data === null
       ),
     [patientTreatments]
   );

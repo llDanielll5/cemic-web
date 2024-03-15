@@ -39,65 +39,21 @@ const AddCashModal = (props: any) => {
         multiline
         rows={5}
       />
-      <DoubleInputs>
-        <TextField
-          type="number"
-          error={!!(formik.touched.cashIn && formik.errors.cashIn)}
-          fullWidth
-          helperText={formik.touched.cashIn && formik.errors.cashIn}
-          label="Entrada A Vista"
-          name="cashIn"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.cashIn}
-        />
-        <TextField
-          type="number"
-          error={!!(formik.touched.cardIn && formik.errors.cardIn)}
-          fullWidth
-          helperText={formik.touched.cardIn && formik.errors.cardIn}
-          label="Entrada Débito"
-          name="cardIn"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.cardIn}
-        />
-        <TextField
-          type="number"
-          error={!!(formik.touched.creditIn && formik.errors.creditIn)}
-          fullWidth
-          helperText={formik.touched.creditIn && formik.errors.creditIn}
-          label="Entrada Crédito"
-          name="creditIn"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.creditIn}
-        />
-        <TextField
-          type="number"
-          error={!!(formik.touched.pix && formik.errors.pix)}
-          fullWidth
-          helperText={formik.touched.pix && formik.errors.pix}
-          label="Entrada Pix"
-          name="pix"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.pix}
-        />
-        <TextField
-          type="number"
-          error={!!(formik.touched.out && formik.errors.out)}
-          fullWidth
-          helperText={formik.touched.out && formik.errors.out}
-          label="Saída"
-          name="out"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.out}
-        />
-      </DoubleInputs>
 
-      <Box width="100%" display="flex" justifyContent={"center"}>
+      <TextField
+        type="number"
+        error={!!(formik.touched.out && formik.errors.out)}
+        fullWidth
+        helperText={formik.touched.out && formik.errors.out}
+        label="Saída"
+        name="out"
+        onBlur={formik.handleBlur}
+        onChange={formik.handleChange}
+        value={formik.values.out}
+        margin="dense"
+      />
+
+      <Box width="100%" display="flex" justifyContent={"center"} mt={2}>
         <Button
           variant="contained"
           fullWidth

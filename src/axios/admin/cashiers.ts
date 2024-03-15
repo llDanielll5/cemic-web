@@ -15,7 +15,7 @@ export const handleGetCashierOpenedWithType = async (
   cashierType: string
 ) => {
   return await axiosInstance.get(
-    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${cashierType}&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*`
+    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${cashierType}&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*&populate[patient][fields][0]=name&populate[outInfo][populate]=*`
   );
 };
 
@@ -44,4 +44,18 @@ export const handleOpenCashierDb = async (data: any) => {
 
 export const generatePatientPaymentInCashier = async (data: any) => {
   return await axiosInstance.post(`/cashier-infos/`, data);
+};
+
+export const handleGetHasOpenedCashier = async (
+  startDate: string,
+  endDate: string,
+  type?: "clinic" | "implant"
+) => {
+  return await axiosInstance.get(
+    `/cashiers/?filters[date][$gte]=${startDate}&filters[date][$lte]=${endDate}&filters[type]=${type}&filters[hasClosed]=false&populate[cashierInfos][populate]=*&populate[adminInfos][populate]=*`
+  );
+};
+
+export const handleCloseCashierOfDay = async (cashierId: string, data: any) => {
+  return await axiosInstance.put(`/cashiers/${cashierId}`, { data });
 };

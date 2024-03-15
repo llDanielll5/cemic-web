@@ -48,6 +48,7 @@ export interface CreateCashierInfosInterface {
     verifyBy?: any | null;
     cashier?: any | null;
     outInfo?: any | null;
+    patient?: any | null;
     //adicionar pagamento de profisisonal
   };
 }

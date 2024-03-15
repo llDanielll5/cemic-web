@@ -172,15 +172,35 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           : 0,
     };
 
+    let equalsNames: any = {};
+
+    receiptValues?.treatmentsForPayment.map((item: any) => {
+      equalsNames[item.attributes.name] = [
+        ...(equalsNames[item.attributes.name] ?? []),
+        item.attributes.name,
+      ];
+    });
+
+    let keys = Object.keys(equalsNames);
+
+    const description = keys
+      .map((key, index) => {
+        return `${equalsNames[key].length} ${key}${
+          equalsNames[key].length > 1 ? "s" : ""
+        }${index === equalsNames[key].length ? " " : ", "}`;
+      })
+      .join(" ");
+
     const cashierInfoData: CreateCashierInfosInterface = {
       data: {
         date: new Date(),
-        description: "",
+        description,
         type: "IN",
         cashier: hasOpenedCashier[0].id!,
         outInfo: null,
         verifyBy: null,
         total_values: values,
+        patient: patientData?.id!,
       },
     };
 

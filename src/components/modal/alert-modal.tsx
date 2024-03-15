@@ -6,7 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import React from "react";
+import React, { forwardRef } from "react";
 
 interface AlertModalProps {
   open: boolean;
@@ -15,15 +15,22 @@ interface AlertModalProps {
   content?: string | React.ReactNode;
   onAccept?: () => void;
   onRefuse?: () => void;
+  ref: React.ForwardedRef<any>;
+  hasFullScreen?: boolean;
 }
 
-const AlertModal = (props: AlertModalProps) => {
-  const { onClose, open, title, content, onAccept, onRefuse } = props;
-
-  console.log(content?.valueOf());
+const Modal = forwardRef((props: AlertModalProps, ref: any) => {
+  const { onClose, open, title, content, onAccept, onRefuse, hasFullScreen } =
+    props;
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      ref={ref}
+      fullWidth
+      fullScreen={hasFullScreen}
+    >
       <DialogTitle>{title}</DialogTitle>
       {content?.valueOf() === "string" ? (
         <DialogContent>
@@ -33,12 +40,45 @@ const AlertModal = (props: AlertModalProps) => {
         content
       )}
       <DialogActions>
-        <Button onClick={onAccept}>SIM</Button>
-        <Button onClick={onRefuse} autoFocus>
+        <Button
+          variant="contained"
+          fullWidth
+          color="success"
+          onClick={onAccept}
+        >
+          SIM
+        </Button>
+        <Button
+          variant="outlined"
+          fullWidth
+          color="error"
+          onClick={onRefuse}
+          autoFocus
+        >
           NÃO
         </Button>
       </DialogActions>
     </Dialog>
+  );
+});
+
+Modal.displayName = "ModalForwarded";
+
+const AlertModal = (props: AlertModalProps) => {
+  const { onClose, open, title, content, onAccept, onRefuse, hasFullScreen } =
+    props;
+
+  return (
+    <Modal
+      ref={props.ref}
+      onClose={onClose}
+      open={open}
+      title={title}
+      content={content}
+      onAccept={onAccept}
+      onRefuse={onRefuse}
+      hasFullScreen={hasFullScreen}
+    />
   );
 };
 

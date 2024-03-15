@@ -32,8 +32,9 @@ export const CashTable = (props: {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">Visto</TableCell>
+                <TableCell padding="checkbox">Paciente</TableCell>
                 <TableCell>Fluxo</TableCell>
+                <TableCell>Paciente/Parceiro</TableCell>
                 <TableCell>Descrição</TableCell>
                 <TableCell>Entrada A Vista</TableCell>
                 <TableCell>Entrada Débito</TableCell>
@@ -56,7 +57,7 @@ export const CashTable = (props: {
                         // unselectable={!!cashier.verifyBy?.data?.id && "on"}
                         onChange={(event) => {
                           if (event.target.checked) {
-                            props.onSelect?.(cashier.id);
+                            props.onSelect?.(item.id);
                           }
                         }}
                       />
@@ -70,6 +71,11 @@ export const CashTable = (props: {
                           {parseType(cashier.type)}
                         </Typography>
                       </Stack>
+                    </StyledTable>
+                    <StyledTable align="center">
+                      {cashier.patient.data === null
+                        ? "Nenhum"
+                        : cashier.patient.data.attributes.name}
                     </StyledTable>
                     <StyledTable>{cashier.description}</StyledTable>
                     <StyledTable>

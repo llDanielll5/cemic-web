@@ -37,19 +37,21 @@ const CashierButtons = (props: CashierButtonsProps) => {
         {cashierInfo}
       </Typography>
       <Buttons>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={onAddInformations}
-        >
-          Add
-        </Button>
+        {cashierData !== null && !cashierData?.attributes?.hasClosed ? (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={onAddInformations}
+          >
+            Add
+          </Button>
+        ) : null}
         {cashierData === null && (
           <Button variant="contained" color={"success"} onClick={onOpenCashier}>
             Abrir Caixa
           </Button>
         )}
-        {cashierData !== null && (
+        {cashierData !== null && !cashierData?.attributes?.hasClosed ? (
           <Button
             variant="contained"
             color={"warning"}
@@ -57,7 +59,7 @@ const CashierButtons = (props: CashierButtonsProps) => {
           >
             Fechar Caixa
           </Button>
-        )}
+        ) : null}
       </Buttons>
     </ButtonsContainer>
   );

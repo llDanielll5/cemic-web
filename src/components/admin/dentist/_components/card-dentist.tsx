@@ -55,7 +55,7 @@ const CardDentist = (props: CardDentistProps) => {
           fullWidth
           onClick={() => onGetPayments(dentistInfos.id)}
         >
-          Pagamentos
+          Históricos
         </Button>
       </CardActions>
     </Card>

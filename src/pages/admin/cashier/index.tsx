@@ -22,7 +22,9 @@ import ReportsButtons from "@/components/admin/cashier/_components/reports";
 import CashierButtons from "@/components/admin/cashier/_components/cashier-buttons";
 import "react-calendar/dist/Calendar.css";
 import {
+  handleCloseCashierOfDay,
   handleGetCashierOpenedWithType,
+  handleGetHasOpenedCashier,
   handleGetMonthCashiersOfType,
   handleOpenCashierDb,
 } from "@/axios/admin/cashiers";
@@ -186,9 +188,30 @@ const CashierAdmin = () => {
     else setAddVisible(true);
   };
 
-  const handleOpenCashier = () => {
+  const handleOpenCashier = async () => {
     if (cashierData !== null) return alert("Caixa já aberto!");
-    else setOpenCashier(true);
+    const startDate = formatISO(startOfMonth(dateSelected)).substring(0, 10);
+    const endDate = formatISO(endOfMonth(dateSelected)).substring(0, 10);
+
+    const response = await handleGetHasOpenedCashier(startDate, endDate, type);
+
+    const { data: openeds } = response.data;
+
+    if (openeds.length > 0)
+      return alert("Há caixas abertos que não foram fechados!");
+    else return setOpenCashier(true);
+  };
+
+  const handleCloseCashier = async () => {
+    const data = { hasClosed: true };
+
+    return await handleCloseCashierOfDay(cashierData?.id!, data).then(
+      (res) => {
+        getCashier();
+        alert("Caixa fechado com sucesso!");
+      },
+      (err) => console.log(err.response)
+    );
   };
 
   const handleConfirmOpenCashier = async () => {
@@ -382,6 +405,7 @@ const CashierAdmin = () => {
         visible={addVisible}
         formik={formik}
       />
+
       <ConfirmCashModal
         closeModal={handleCloseConfirmModal}
         visible={confirmModal}
@@ -419,7 +443,7 @@ const CashierAdmin = () => {
         cashierData={cashierData}
         onAddInformations={handleOpenAddInformations}
         onOpenCashier={handleOpenCashier}
-        onCloseCashier={() => alert("fechar caixa")}
+        onCloseCashier={handleCloseCashier}
       />
 
       <CashTable
