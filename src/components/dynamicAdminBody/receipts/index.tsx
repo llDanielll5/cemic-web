@@ -1,10 +1,9 @@
 //@ts-nocheck
 import React, { useEffect, useState } from "react";
-import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { maskValue, parseDateBr } from "@/services/services";
 import { useRouter } from "next/router";
-import { db } from "@/services/firebase";
+
 import PreviewIcon from "@mui/icons-material/Preview";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -25,8 +24,8 @@ import Calendar from "react-calendar";
 
 interface ReceiptPageProps {}
 
-const receiptRef = collection(db, "receipts");
-const arrowIconStyle = { fontSize: "24px" };
+// const receiptRef = collection(db, "receipts");
+// const arrowIconStyle = { fontSize: "24px" };
 
 const ReceiptPageAdmin = (props: ReceiptPageProps) => {
   const [dataReceipts, setDataReceipts] = useState<any[]>([]);
@@ -42,17 +41,17 @@ const ReceiptPageAdmin = (props: ReceiptPageProps) => {
   const [findInput, setFindInput] = useState<string>("");
   const dateBr = date.toLocaleDateString();
 
-  const q = query(
-    receiptRef,
-    where("timestamp", ">=", startDay),
-    where("timestamp", "<", tomorrow)
-  );
-  const deps = [currentYear, currentMonth, currentDay];
-  const snapReceipts: any = useOnSnapshotQuery("receipts", q, deps);
+  // const q = query(
+  //   receiptRef,
+  //   where("timestamp", ">=", startDay),
+  //   where("timestamp", "<", tomorrow)
+  // );
+  // const deps = [currentYear, currentMonth, currentDay];
+  // const snapReceipts: any = useOnSnapshotQuery("receipts", q, deps);
 
-  useEffect(() => {
-    setDataReceipts(snapReceipts);
-  }, [snapReceipts]);
+  // useEffect(() => {
+  //   setDataReceipts(snapReceipts);
+  // }, [snapReceipts]);
 
   const previousMonth = () => {
     if (currentMonth === 0) {

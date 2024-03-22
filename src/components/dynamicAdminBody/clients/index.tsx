@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StyledButton } from "../receipts";
 import { Box, styled, IconButton, Typography } from "@mui/material";
-import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
 import NewPatientForm from "../../new-admin/patient/newPatient";
 import Loading from "@/components/loading";

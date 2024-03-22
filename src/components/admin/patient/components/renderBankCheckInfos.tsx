@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { Box, Button, TextField, Typography, styled } from "@mui/material";
 import { BankCheckInformationsInterface } from "types/payments";

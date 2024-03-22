@@ -7,7 +7,6 @@ import { parseDateIso, phoneMask } from "@/services/services";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { ScreeningInformations } from "types";
-import { db } from "@/services/firebase";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import SearchIcon from "@mui/icons-material/Search";
@@ -23,8 +22,8 @@ interface ScreeningProps {
   setIsGeneratePayment: (e: boolean) => void;
 }
 
-const momentIso = new Date().toISOString().substring(0, 10);
-const screeningRef = collection(db, "screenings");
+// const momentIso = new Date().toISOString().substring(0, 10);
+// const screeningRef = collection(db, "screenings");
 
 const ScreeningAdmin = (props: ScreeningProps) => {
   const { setClientDetailsVisible, setClientID, setIsGeneratePayment } = props;
@@ -32,7 +31,7 @@ const ScreeningAdmin = (props: ScreeningProps) => {
   const [idFind, setIdFind] = useState("");
   const [client, setClient] = useState<any | null>(null);
   const [patientFind, setPatientFind] = useState<any[]>([]);
-  const [dateSelected, setDateSelected] = useState(momentIso);
+  // const [dateSelected, setDateSelected] = useState(momentIso);
   const [findModal, setFindModal] = useState<boolean>(false);
   const [clientModalVisible, setClientModalVisible] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
@@ -44,52 +43,52 @@ const ScreeningAdmin = (props: ScreeningProps) => {
   const userData: any = useRecoilValue(UserData);
 
   // SNAPSHOT QUERY FOR SCREENINGS COLLECTION
-  const q = query(
-    screeningRef,
-    where("date", "==", dateSelected),
-    orderBy("hour", "asc")
-  );
-  const snapScreening = useOnSnapshotQuery("screenings", q, [dateSelected]);
+  // const q = query(
+  //   screeningRef,
+  //   where("date", "==", dateSelected),
+  //   orderBy("hour", "asc")
+  // );
+  // const snapScreening = useOnSnapshotQuery("screenings", q, [dateSelected]);
 
   const getByClientID = async () => {
     if (idFind.length < 7) return alert("Digite um ID Válido");
 
-    const qry = query(screeningRef, where(`patientId`, "==", idFind));
+    // const qry = query(screeningRef, where(`patientId`, "==", idFind));
 
-    const getScreeningByID = async () => {
-      return await getDocs(qry)
-        .then((res) => {
-          if (res.size > 0) {
-            const arr: any[] = [];
-            res.docs.forEach((v) => {
-              arr.push(v.data());
-            });
-            setPatientFind(arr);
-            setFindModal(true);
-            return;
-          } else {
-            return alert("Paciente não encontrado na base de dados de Triados");
-          }
-        })
-        .catch((err) => {
-          alert("Não encontrado ou código incorreto!");
-          return;
-        });
-    };
-    return await getScreeningByID();
+    // const getScreeningByID = async () => {
+    //   return await getDocs(qry)
+    //     .then((res) => {
+    //       if (res.size > 0) {
+    //         const arr: any[] = [];
+    //         res.docs.forEach((v) => {
+    //           arr.push(v.data());
+    //         });
+    //         setPatientFind(arr);
+    //         setFindModal(true);
+    //         return;
+    //       } else {
+    //         return alert("Paciente não encontrado na base de dados de Triados");
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       alert("Não encontrado ou código incorreto!");
+    //       return;
+    //     });
+    // };
+    // return await getScreeningByID();
   };
   // ******
 
-  useEffect(() => {
-    setScreeningList(snapScreening);
-  }, [snapScreening]);
+  // useEffect(() => {
+  //   setScreeningList(snapScreening);
+  // }, [snapScreening]);
 
-  const handleCreateScreening = () => {
-    if (dateSelected === momentIso)
-      return alert("Não é possível agendar para hoje");
-    else if (dateSelected > momentIso) return setScreeningModal(true);
-    else return alert("Não é possível em dias anteriores");
-  };
+  // const handleCreateScreening = () => {
+  //   if (dateSelected === momentIso)
+  //     return alert("Não é possível agendar para hoje");
+  //   else if (dateSelected > momentIso) return setScreeningModal(true);
+  //   else return alert("Não é possível em dias anteriores");
+  // };
 
   const handleCloseClientDetails = () => {
     setClientModalVisible(false);
@@ -152,11 +151,11 @@ const ScreeningAdmin = (props: ScreeningProps) => {
 
   const renderScreening = () => {
     const notScreenings = screeningList?.length === 0;
-    const momentLess = notScreenings && dateSelected < momentIso;
-    const momentMore = notScreenings && dateSelected >= momentIso;
+    // const momentLess = notScreenings && dateSelected < momentIso;
+    // const momentMore = notScreenings && dateSelected >= momentIso;
 
-    if (momentLess) return renderPassedDayNotSchedule();
-    if (momentMore) return renderNotHaveSchedules();
+    // if (momentLess) return renderPassedDayNotSchedule();
+    // if (momentMore) return renderNotHaveSchedules();
     if (screeningList !== null) return renderHaveSchedule();
   };
 
@@ -167,7 +166,7 @@ const ScreeningAdmin = (props: ScreeningProps) => {
         closeModal={() => setScreeningModal(false)}
       >
         <ScreeningModal
-          date={dateSelected}
+          date={new Date().toISOString()}
           setVisible={setScreeningModal}
           setIsScheduling={setIsScheduling}
           clientDetailsVisible={setClientDetailsVisible}
@@ -205,7 +204,7 @@ const ScreeningAdmin = (props: ScreeningProps) => {
       </Modal>
 
       <Button
-        onClick={handleCreateScreening}
+        onClick={() => {}}
         sx={{ height: "55px" }}
         color="info"
         endIcon={<PersonAddIcon />}
@@ -222,8 +221,8 @@ const ScreeningAdmin = (props: ScreeningProps) => {
       >
         <TextField
           sx={{ width: "fit-content", backgroundColor: "white" }}
-          value={dateSelected}
-          onChange={(e) => setDateSelected(e.target.value)}
+          value={new Date().toISOString()}
+          onChange={(e) => {}}
           InputLabelProps={{ shrink: true }}
           label="Selecionar Data"
           type={"date"}

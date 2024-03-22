@@ -9,7 +9,7 @@ let testconfig = {};
 
 const firebaseConfig = testconfig;
 
-export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+// export const app = initializeApp(firebaseConfig);
+// export const db = getFirestore(app);
 // export const storage = getStorage(app, teststorage);
-export const auth = getAuth(app);
+// export const auth = getAuth(app);

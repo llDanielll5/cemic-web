@@ -197,15 +197,15 @@ const Anamnese = (props: AnamneseProps) => {
       },
       anamneseFilled: true,
     };
-    const updated = await updateUserData(userContext?.id!, updatesUser);
+    // const updated = await updateUserData(userContext?.id!, updatesUser);
 
-    if (updated === "Sucesso") {
-      props.setUserUpdating(false);
-      return alert("Usuário Atualizado com sucesso!");
-    } else {
-      props.setUserUpdating(false);
-      return alert("Não foi possível atualizar seu cadastro!");
-    }
+    // if (updated === "Sucesso") {
+    //   props.setUserUpdating(false);
+    //   return alert("Usuário Atualizado com sucesso!");
+    // } else {
+    //   props.setUserUpdating(false);
+    //   return alert("Não foi possível atualizar seu cadastro!");
+    // }
   };
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import Loading from "@/components/loading";
 import CModal from "@/components/modal";
 import { handleLogin } from "@/axios/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/services/firebase";
+
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getCookie, setCookie } from "cookies-next";

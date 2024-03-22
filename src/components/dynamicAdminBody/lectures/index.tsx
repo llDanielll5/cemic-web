@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "../../../styles/Admin.module.css";
-import { db } from "@/services/firebase";
 import { StyledButton } from "../receipts";
 import { parseDateBr } from "@/services/services";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
@@ -17,7 +16,7 @@ import "react-calendar/dist/Calendar.css";
 import AddPatientLecture from "./addPatient";
 import Loading from "@/components/loading";
 
-const lecturesRef = collection(db, "lectures");
+// const lecturesRef = collection(db, "lectures");
 interface LectureHours {
   "11:00": any[];
   "17:00": any[];
@@ -53,8 +52,8 @@ const LecturesAdmin = (props: any) => {
   const hasWeekend = dateSelected.getDay() === 0 || dateSelected.getDay() === 6;
   const [lectureData, setLectureData] = useState<LectureHours>(defaultLectures);
   const isoDateSelected = dateSelected.toISOString().substring(0, 10);
-  const q = query(lecturesRef, where("day", "==", isoDateSelected));
-  const lectureSnap = useOnSnapshotQuery("lectures", q, [dateSelected]);
+  // const q = query(lecturesRef, where("day", "==", isoDateSelected));
+  // const lectureSnap = useOnSnapshotQuery("lectures", q, [dateSelected]);
   const notScheduleForThisDay =
     lectureData["11:00"]?.length === 0 &&
     lectureData["17:00"]?.length === 0 &&
@@ -129,23 +128,23 @@ const LecturesAdmin = (props: any) => {
       return alert("Adicione um horário");
 
     setIsScheduling(true);
-    await scheduleLecture(patientValues).then(async (res) => {
-      if (res === "Sucesso") {
-        closeAddPatient();
-        setIsScheduling(false);
-        return alert("Sucesso ao agendar sua palestra");
-      } else {
-        setIsScheduling(false);
-        return;
-      }
-    });
+    // await scheduleLecture(patientValues).then(async (res) => {
+    //   if (res === "Sucesso") {
+    //     closeAddPatient();
+    //     setIsScheduling(false);
+    //     return alert("Sucesso ao agendar sua palestra");
+    //   } else {
+    //     setIsScheduling(false);
+    //     return;
+    //   }
+    // });
   };
 
-  useEffect(() => {
-    const filter11 = lectureSnap.filter((item) => item.hour === "11:00");
-    const filter17 = lectureSnap.filter((item) => item.hour === "17:00");
-    setLectureData({ "11:00": filter11, "17:00": filter17 });
-  }, [lectureSnap]);
+  // useEffect(() => {
+  //   const filter11 = lectureSnap.filter((item) => item.hour === "11:00");
+  //   const filter17 = lectureSnap.filter((item) => item.hour === "17:00");
+  //   setLectureData({ "11:00": filter11, "17:00": filter17 });
+  // }, [lectureSnap]);
 
   return (
     <div className={styles.lectures}>

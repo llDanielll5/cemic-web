@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Autocomplete, TextField } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
 // import { chooseImgStyle } from "@/components/pre-register/profile";
-import { db } from "@/services/firebase";
 import Loading from "@/components/loading";
 import uploadFile from "@/services/uploadFile";
 import SaveIcon from "@mui/icons-material/Save";
@@ -35,16 +34,16 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
   };
 
   const handleChangeUserImage = async (img: string) => {
-    const professionalRef = doc(db, "professionals", hasId);
-    await updateDoc(professionalRef, { profileImage: img })
-      .then(() => {
-        setIsLoading(false);
-        return alert("Imagem do usuário atualizada.");
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        return alert("Erro ao atualizar imagem do usuário");
-      });
+    // const professionalRef = doc(db, "professionals", hasId);
+    // await updateDoc(professionalRef, { profileImage: img })
+    //   .then(() => {
+    //     setIsLoading(false);
+    //     return alert("Imagem do usuário atualizada.");
+    //   })
+    //   .catch((err) => {
+    //     setIsLoading(false);
+    //     return alert("Erro ao atualizar imagem do usuário");
+    //   });
   };
 
   const handleChangeFile = async (e: any) => {
@@ -52,55 +51,54 @@ const ProfileProfessional = (props: ProfileProfessionalProps) => {
     const targetImg = e.target.files[0];
     const timestamp = Timestamp.now().seconds;
     const imgName = `${userData?.id}-${timestamp}`;
-    const imgUpload = await uploadFile("professionals", imgName, targetImg);
+    // const imgUpload = await uploadFile("professionals", imgName, targetImg);
 
-    if (imgUpload.state === "Success") {
-      return await handleChangeUserImage(imgUpload.url);
-    } else {
-      return alert("Erro ao realizar upload de imagem");
-    }
+    // if (imgUpload.state === "Success") {
+    //   return await handleChangeUserImage(imgUpload.url);
+    // } else {
+    //   return alert("Erro ao realizar upload de imagem");
+    // }
   };
 
   const handleUpdateUser = async () => {
-    const professionalRef = doc(db, "professionals", hasId);
-    if (
-      userInformations?.name === "" ||
-      userInformations!.cpf.length < 14 ||
-      userInformations!.phone.length < 14 ||
-      userInformations?.cro === "" ||
-      userInformations?.rg === "" ||
-      userInformations?.specialty === ""
-    )
-      return alert("Não foi possível atualizar. Verifique os campos");
-
-    setIsLoading(true);
-    const phoneReplaced = userInformations
-      ?.phone!.replace("(", "")
-      .replace(")", "")
-      .replace("-", "")
-      .replace(" ", "");
-    const cpfReplaced = userInformations
-      ?.cpf!.replace(".", "")
-      .replace("-", "")
-      .replace(".", "");
-    const data: any = {
-      name: userInformations?.name,
-      cpf: cpfReplaced,
-      cro: userInformations?.cro,
-      rg: userInformations?.rg,
-      specialty: userInformations?.specialty,
-      phone: phoneReplaced,
-      firstLetter: userInformations?.name.charAt(0).toUpperCase(),
-    };
-    return await updateDoc(professionalRef, data)
-      .then(() => {
-        setIsLoading(false);
-        return alert("Usuário atualizado");
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        return alert("Erro ao realizar atualização de cadastro!");
-      });
+    // const professionalRef = doc(db, "professionals", hasId);
+    // if (
+    //   userInformations?.name === "" ||
+    //   userInformations!.cpf.length < 14 ||
+    //   userInformations!.phone.length < 14 ||
+    //   userInformations?.cro === "" ||
+    //   userInformations?.rg === "" ||
+    //   userInformations?.specialty === ""
+    // )
+    //   return alert("Não foi possível atualizar. Verifique os campos");
+    // setIsLoading(true);
+    // const phoneReplaced = userInformations
+    //   ?.phone!.replace("(", "")
+    //   .replace(")", "")
+    //   .replace("-", "")
+    //   .replace(" ", "");
+    // const cpfReplaced = userInformations
+    //   ?.cpf!.replace(".", "")
+    //   .replace("-", "")
+    //   .replace(".", "");
+    // const data: any = {
+    //   name: userInformations?.name,
+    //   cpf: cpfReplaced,
+    //   cro: userInformations?.cro,
+    //   rg: userInformations?.rg,
+    //   specialty: userInformations?.specialty,
+    //   phone: phoneReplaced,
+    //   firstLetter: userInformations?.name.charAt(0).toUpperCase(),
+    // };
+    // return await updateDoc(professionalRef, data)
+    //   .then(() => {
+    //     setIsLoading(false);
+    //     return alert("Usuário atualizado");
+    //   })
+    //   .catch((err) => {
+    //     setIsLoading(false);
+    //     return alert("Erro ao realizar atualização de cadastro!");
+    //   });
   };
 
   useEffect(() => {

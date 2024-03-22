@@ -7,7 +7,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { IMaskInput as IMask } from "react-imask";
 import { nameCapitalized } from "@/services/services";
-import { createPartner } from "@/services/requests/auth";
 import Loading from "@/components/loading";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";

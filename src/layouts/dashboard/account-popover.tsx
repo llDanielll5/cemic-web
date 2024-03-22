@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import PropTypes from "prop-types";

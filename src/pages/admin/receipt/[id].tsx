@@ -5,7 +5,6 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { Box, styled, Typography, Button, IconButton } from "@mui/material";
 import { parseDateIso } from "@/services/services";
 import { TreatmentPlanInterface, TreatmentProps } from "types";
-import { db } from "@/services/firebase";
 import { useRouter } from "next/router";
 import Loading from "@/components/loading";
 import ReplyIcon from "@mui/icons-material/Reply";
@@ -18,8 +17,8 @@ import {
 } from "firebase/firestore";
 import { PaymentTypes } from "types/payments";
 
-const receiptRef = collection(db, "receipts");
-const clientRef = collection(db, "clients");
+// const receiptRef = collection(db, "receipts");
+// const clientRef = collection(db, "clients");
 
 const ReceiptPage = () => {
   const router = useRouter();
@@ -33,22 +32,22 @@ const ReceiptPage = () => {
   };
 
   const getReceiptData = useCallback(async () => {
-    setIsLoading(true);
-    const q = query(receiptRef, where("id", "==", id));
-    const getReceipt = async () => {
-      onSnapshot(q, (querySnapshot) => {
-        if (querySnapshot.docs.length > 0) {
-          const result: any = querySnapshot.docs[0].data();
-          setReceiptData(result);
-          setIsLoading(false);
-        } else {
-          setIsLoading(false);
-          alert("Recibo não encontrado");
-          router.back();
-        }
-      });
-    };
-    getReceipt();
+    // setIsLoading(true);
+    // const q = query(receiptRef, where("id", "==", id));
+    // const getReceipt = async () => {
+    //   onSnapshot(q, (querySnapshot) => {
+    //     if (querySnapshot.docs.length > 0) {
+    //       const result: any = querySnapshot.docs[0].data();
+    //       setReceiptData(result);
+    //       setIsLoading(false);
+    //     } else {
+    //       setIsLoading(false);
+    //       alert("Recibo não encontrado");
+    //       router.back();
+    //     }
+    //   });
+    // };
+    // getReceipt();
   }, [id]);
 
   useEffect(() => {
@@ -58,28 +57,28 @@ const ReceiptPage = () => {
   useEffect(() => {
     if (receiptData === null) return;
 
-    function getPatientData() {
-      setIsLoading(true);
-      const q = query(clientRef, where("id", "==", receiptData?.patientId!));
-      const getPatient = async () => {
-        onSnapshot(q, (querySnapshot) => {
-          if (querySnapshot.docs.length > 0) {
-            const result: any = querySnapshot.docs[0].data();
-            setPatientData(result);
-            setIsLoading(false);
-            return;
-          } else {
-            setIsLoading(false);
-            alert("paciente não encontrado");
-            router.back();
-            return;
-          }
-        });
-      };
-      getPatient();
-    }
+    // function getPatientData() {
+    //   setIsLoading(true);
+    //   const q = query(clientRef, where("id", "==", receiptData?.patientId!));
+    //   const getPatient = async () => {
+    //     onSnapshot(q, (querySnapshot) => {
+    //       if (querySnapshot.docs.length > 0) {
+    //         const result: any = querySnapshot.docs[0].data();
+    //         setPatientData(result);
+    //         setIsLoading(false);
+    //         return;
+    //       } else {
+    //         setIsLoading(false);
+    //         alert("paciente não encontrado");
+    //         router.back();
+    //         return;
+    //       }
+    //     });
+    //   };
+    //   getPatient();
+    // }
 
-    getPatientData();
+    // getPatientData();
   }, [receiptData]);
 
   const parsedPaymentTypeText = (type: PaymentTypes | null) => {

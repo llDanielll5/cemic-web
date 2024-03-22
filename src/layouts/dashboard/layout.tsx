@@ -6,15 +6,11 @@ import { SideNav } from "./side-nav";
 import { TopNav } from "./top-nav";
 import { useRecoilState } from "recoil";
 import UserData from "@/atoms/userData";
-import { auth } from "@/services/firebase";
 import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/router";
-import Loading from "@/components/loading";
-import LoadingServer from "@/atoms/components/loading";
 import { handlePersistLogin } from "@/axios/auth";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Fab } from "@mui/material";
-import { getIP } from "@/services/getIp";
 
 const SIDE_NAV_WIDTH = 280;
 

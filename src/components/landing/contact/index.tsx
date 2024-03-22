@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { nameCapitalized } from "@/services/services";
-import { createUserLanding } from "@/services/requests/auth";
+// import { createUserLanding } from "@/services/requests/auth";
 import { Box } from "@mui/material";
 import styles from "../../styles/Landing.module.css";
 import Loading from "@/components/loading";
@@ -52,38 +52,38 @@ const ContactForm = () => {
       cpf: cpfReplaced,
     };
 
-    return await createUserLanding(data)
-      .then(async (res) => {
-        if (res === "CPF existente") {
-          setIsLoading(false);
-          setModalError(true);
-          setErrorMessage(
-            "Esse CPF já está em uso! Favor entrar em contato com nosso Whatsapp"
-          );
-          return;
-        } else {
-          const finish = await router.push("/pre-register/" + cpfReplaced);
-          if (finish) {
-            setIsLoading(false);
-            setName("");
-            setEmail("");
-            return;
-          }
-        }
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        if (err.code === AuthErrorCodes.EMAIL_EXISTS) {
-          setModalError(true);
-          setErrorMessage("Email já está em uso");
-          return;
-        } else if (err.code === "auth/invalid-email") {
-          setModalError(true);
-          setErrorMessage(
-            "Email inválido. Verifique corretamente o email adicionado!"
-          );
-        } else return alert(err);
-      });
+    // return await createUserLanding(data)
+    //   .then(async (res) => {
+    //     if (res === "CPF existente") {
+    //       setIsLoading(false);
+    //       setModalError(true);
+    //       setErrorMessage(
+    //         "Esse CPF já está em uso! Favor entrar em contato com nosso Whatsapp"
+    //       );
+    //       return;
+    //     } else {
+    //       const finish = await router.push("/pre-register/" + cpfReplaced);
+    //       if (finish) {
+    //         setIsLoading(false);
+    //         setName("");
+    //         setEmail("");
+    //         return;
+    //       }
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     setIsLoading(false);
+    //     if (err.code === AuthErrorCodes.EMAIL_EXISTS) {
+    //       setModalError(true);
+    //       setErrorMessage("Email já está em uso");
+    //       return;
+    //     } else if (err.code === "auth/invalid-email") {
+    //       setModalError(true);
+    //       setErrorMessage(
+    //         "Email inválido. Verifique corretamente o email adicionado!"
+    //       );
+    //     } else return alert(err);
+    //   });
   };
 
   return (

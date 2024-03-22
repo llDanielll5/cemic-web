@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useOnSnapshotQuery } from "@/hooks/useOnSnapshotQuery";
 import { ClientTreatmentsProps, ScreeningInformations } from "types";
 import { Box, styled, Typography, Button } from "@mui/material";
-import { db } from "@/services/firebase";
+
 import Modal from "@/components/modal";
 import AddIcon from "@mui/icons-material/Add";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";

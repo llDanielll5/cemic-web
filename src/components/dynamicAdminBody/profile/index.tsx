@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useState, useEffect } from "react";
 import * as S from "../../dynamicProfBody/profile/styles";
-import { db } from "@/services/firebase";
+
 import { Box, Typography, TextField } from "@mui/material";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
 import { StyledButton } from "@/components/dynamicAdminBody/receipts";

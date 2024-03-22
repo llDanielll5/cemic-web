@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Modal from "@/components/modal";
-import { db } from "@/services/firebase";
+
 // import ModalPaymentAdmin from "./modalPayment";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
