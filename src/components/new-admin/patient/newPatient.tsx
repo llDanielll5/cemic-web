@@ -1,26 +1,22 @@
 import React, { useState } from "react";
-import {
-  Box,
-  styled,
-  IconButton,
-  Paper,
-  Typography,
-  Divider,
-} from "@mui/material";
+import { styled, Paper, Typography, Divider } from "@mui/material";
 import { AddressType } from "types";
 import UserForm from "@/components/userForm";
-import CancelIcon from "@mui/icons-material/Cancel";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import {
   getPatientWithSameCardId,
   handleCreatePatient,
-  handleGetSinglePatient,
 } from "@/axios/admin/patients";
 import { cpfMask, makeid, phoneMask } from "@/services/services";
-import { AnamneseQuestions, AnswerType } from "types/patient";
-import { anamneseQuestions } from "data";
+import {
+  AnamneseQuestions,
+  AnswerType,
+  allAnamneseQuestions,
+} from "types/patient";
+import { anamneseQuestions, anamsVal } from "data";
 import AnamneseForm from "@/components/admin/patient/components/anamnese-form";
+import { getViaCepInfo } from "@/axios/viacep";
 
 interface UserDefaultEdit {
   bornDate: string;
@@ -93,22 +89,9 @@ const NewPatientForm = (props: AnamneseProps) => {
   const handleGetCep = async (e: any) => {
     handleChange(e.target.value, "cep", setLocationData);
     let val = e.target.value;
-    if (val.length === 8) {
-      try {
-        const res = await fetch(`https://viacep.com.br/ws/${val}/json/`);
-        const json = await res.json();
-        if (json) {
-          setLocationData((prev: any) => ({
-            neighbor: json.bairro,
-            city: json.localidade,
-            complement: json.complemento,
-            line1: json.logradouro,
-            uf: json.uf,
-            cep: val,
-            address: `${json.logradouro}, ${json.bairro} ${json.complemento}, ${json.localidade} - ${json.uf}`,
-          }));
-        }
-      } catch (error) {}
+    const jsonCep = await getViaCepInfo(val);
+    if (jsonCep) {
+      setLocationData((prev: any) => ({ ...prev, ...jsonCep }));
     }
   };
 
@@ -123,19 +106,12 @@ const NewPatientForm = (props: AnamneseProps) => {
       userData?.phone?.length! < 14 ||
       userData?.rg?.length! < 4;
 
-    const hasFinishAnamnese =
-      anamneseData["Está tomando alguma medicação no momento?"] !== "" &&
-      anamneseData["Sofre ou sofreu de algum problema no coração?"] !== "" &&
-      anamneseData["É diabético?"] !== "" &&
-      anamneseData["Possui dificuldade de cicatrização?"] !== "" &&
-      anamneseData["Tem ou teve alguma doença nos rins ou fígado?"] !== "" &&
-      anamneseData["Sofre de epilepsia?"] !== "" &&
-      anamneseData["Já esteve hospitalizado por algum motivo?"] !== "" &&
-      anamneseData["Tem anemia?"] !== "" &&
-      anamneseData["É alérgico a algum medicamento?"] !== "" &&
-      anamneseData["Já teve algum problema com anestésicos?"] !== "" &&
-      anamneseData["Tem ansiedade?"] !== "" &&
-      anamneseData["Faz uso de AAS?"] !== "";
+    let hasFinishedAnamnese = false;
+    for (let i = 0; i < anamsVal.length; i++) {
+      if (anamneseData?.[anamsVal[i] as allAnamneseQuestions] !== "") {
+        hasFinishedAnamnese = true;
+      } else hasFinishedAnamnese = false;
+    }
 
     if (page === 0) {
       if (notUserCompleted)
@@ -146,7 +122,7 @@ const NewPatientForm = (props: AnamneseProps) => {
     }
 
     if (page === 1) {
-      if (!hasFinishAnamnese) return alert("Preencha a Anamnese completa!");
+      if (!hasFinishedAnamnese) return alert("Preencha a Anamnese completa!");
       if (userData?.screeningDate === "")
         return alert("Sem data de triagem selecionada");
       return handleFinish();
