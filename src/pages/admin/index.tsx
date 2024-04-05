@@ -38,6 +38,7 @@ const AdminPage = () => {
   const [monthDifference, setMonthDifference] = useState(0);
   const [newPatients, setNewPatients] = useState(0);
   const [lastMonthNewPatients, setLastMonthNewPatients] = useState(0);
+
   const [monthValues, setMonthValues] = useState({
     totalDebit: 0,
     totalCredit: 0,
@@ -207,18 +208,23 @@ const AdminPage = () => {
     },
     [monthValues, lastMonthValues]
   );
+  function percDiff(etalon: number, example: number) {
+    return +Math.abs((etalon / example) * 100).toFixed(2);
+  }
 
   const getDifferenceMonthValues = () => {
     const difference = totalMonth - totalLastMonth;
-    const percentageDifference = Math.abs((difference / totalMonth) * 100);
+    const percentageDifference = Math.floor(
+      (difference / totalLastMonth) * 100
+    );
 
     if (difference < 0) {
       let diff = 0;
-      let val = parseInt(percentageDifference.toFixed(0));
+      let val = parseFloat(percentageDifference.toFixed(0));
 
       diff = -val;
       setMonthDifference(diff);
-    } else setMonthDifference(parseInt(percentageDifference.toFixed(0)));
+    } else setMonthDifference(parseFloat(percentageDifference.toFixed(0)));
   };
 
   useEffect(() => {
@@ -247,7 +253,7 @@ const AdminPage = () => {
         <Container maxWidth="xl">
           <Grid container spacing={3}>
             {adminData?.userType === "ADMIN" && (
-              <Grid xs={12} sm={6} lg={3}>
+              <Grid xs={12} sm={6} lg={6}>
                 <OverviewBudget
                   difference={monthDifference ?? 0}
                   positive={monthDifference > totalLastMonth}
@@ -256,7 +262,7 @@ const AdminPage = () => {
                 />
               </Grid>
             )}
-            <Grid xs={12} sm={6} lg={3}>
+            <Grid xs={12} sm={6} lg={6}>
               <OverviewTotalCustomers
                 difference={newPatients - lastMonthNewPatients}
                 positive={newPatients > lastMonthNewPatients}

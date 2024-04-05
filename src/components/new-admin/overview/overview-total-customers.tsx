@@ -51,7 +51,7 @@ export const OverviewTotalCustomers = (props: any) => {
                 color={positive ? "success.main" : "error.main"}
                 variant="body2"
               >
-                {positive ? "+" : "-"}
+                {positive ? "+" : ""}
                 {difference}
               </Typography>
             </Stack>

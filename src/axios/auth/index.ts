@@ -1,6 +1,11 @@
 import axios from "axios";
 import { getCookie, setCookie } from "cookies-next";
-import { serverUrl } from "..";
+import axiosInstance, { serverUrl } from "..";
+import {
+  defaultAdminPermissions,
+  defaultEmployeePermissions,
+} from "@/_mock/users";
+import { AdminType } from "types";
 
 export const handleRegister = async (data: any) => {
   const { role, password, email, phone, rg, cpf, dateBorn, name, username } =
@@ -16,6 +21,8 @@ export const handleRegister = async (data: any) => {
     firstLetter: name.charAt(0).toUpperCase(),
     dateBorn,
     username,
+    permissions:
+      role === "ADMIN" ? defaultAdminPermissions : defaultEmployeePermissions,
   });
 };
 
@@ -28,13 +35,9 @@ export const handleLogin = async (data: any) => {
   });
 };
 
-export const handlePersistLogin = () => {
-  let cookieUser: any = getCookie("user");
-
-  if (!cookieUser) return null;
-
-  let jsonStr = JSON.parse(cookieUser);
-  let authData = new Object(jsonStr);
+export const handlePersistLogin = async () => {
+  let { data } = await axiosInstance.get(`/users/me`);
+  const authData = data;
   return authData;
 };
 

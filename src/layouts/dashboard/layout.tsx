@@ -62,7 +62,7 @@ export const DashboardLayout = (props: any) => {
   };
 
   const PersistLogin = async () => {
-    let persistance = handlePersistLogin();
+    let persistance = await handlePersistLogin();
     if (persistance === null) return await handleLogout();
     return setUserData(persistance);
   };

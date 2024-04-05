@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import PropTypes from "prop-types";
 import ChevronUpDownIcon from "@heroicons/react/24/solid/ChevronUpDownIcon";
 import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
-import { items } from "./config";
+import { SideNavLinks } from "./config";
 import { SideNavItem } from "./side-nav-item";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
@@ -73,7 +73,10 @@ export const SideNav = (props: any) => {
             spacing={0.5}
             sx={{ listStyle: "none", p: 0, m: 0 }}
           >
-            {items.map((item: any) => {
+            {SideNavLinks({
+              userType: userData?.userType,
+              permissions: userData?.permissions,
+            }).map((item: any) => {
               let path =
                 "/" +
                 pathname

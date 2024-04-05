@@ -1,6 +1,12 @@
 import { Timestamp } from "firebase/firestore";
+import { UserPermissionsJsonInterface } from "types/admin";
 
-export type UserRole = "ADMIN" | "EMPLOYEE" | "DENTIST" | "PROSTHETIC";
+export type UserRole =
+  | "ADMIN"
+  | "EMPLOYEE"
+  | "DENTIST"
+  | "PROSTHETIC"
+  | "SUPERADMIN";
 export type AnamneseType = "Sim" | "Não" | "Não Sei";
 export type DentistSpecialties =
   | "IMPLANT"
@@ -43,6 +49,8 @@ export interface AdminType {
   firstLetter: string;
   role: UserRole;
   dateBorn: string;
+  userType: UserRole;
+  permissions: UserPermissionsJsonInterface;
 }
 
 export interface TreatmentProps {

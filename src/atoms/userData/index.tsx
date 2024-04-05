@@ -1,9 +1,9 @@
 import { atom } from "recoil";
 import { AdminType } from "types";
 
-const UserData = atom<AdminType | {}>({
+const UserData = atom<AdminType | null>({
   key: "UserData",
-  default: {},
+  default: null,
 });
 
 export default UserData;

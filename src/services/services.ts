@@ -146,6 +146,7 @@ export const getUserTypeRole = (role: UserRole) => {
   if (role === "ADMIN") return "Administrador";
   if (role === "DENTIST") return "Dentista";
   if (role === "EMPLOYEE") return "Funcionário";
+  if (role === "SUPERADMIN") return "Super Admin";
   return "Protético";
 };
 

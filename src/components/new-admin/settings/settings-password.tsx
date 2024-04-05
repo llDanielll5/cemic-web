@@ -30,13 +30,13 @@ export const SettingsPassword = () => {
   return (
     <form onSubmit={handleSubmit}>
       <Card>
-        <CardHeader subheader="Update password" title="Password" />
+        <CardHeader subheader="Alterar sua Senha" title="Segurança" />
         <Divider />
         <CardContent>
           <Stack spacing={3} sx={{ maxWidth: 400 }}>
             <TextField
               fullWidth
-              label="Password"
+              label="Senha"
               name="password"
               onChange={handleChange}
               type="password"
@@ -44,7 +44,7 @@ export const SettingsPassword = () => {
             />
             <TextField
               fullWidth
-              label="Password (Confirm)"
+              label="Confirmar Senha"
               name="confirm"
               onChange={handleChange}
               type="password"
@@ -54,7 +54,7 @@ export const SettingsPassword = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: "flex-end" }}>
-          <Button variant="contained">Update</Button>
+          <Button variant="contained">Alterar</Button>
         </CardActions>
       </Card>
     </form>
