@@ -31,11 +31,7 @@ export const AccountProfile = () => {
     const url = URL.createObjectURL(file);
     data.append("files", file);
 
-    setProfileImage({
-      url,
-      data,
-      file,
-    });
+    setProfileImage({ url, data, file });
   };
 
   return (
@@ -56,10 +52,10 @@ export const AccountProfile = () => {
             sx={{ height: 80, mb: 2, width: 80 }}
           />
           <Typography gutterBottom variant="h6">
-            {userData.name}
+            {userData?.name}
           </Typography>
           <Typography color="text.secondary" variant="body2">
-            {userData.email}
+            {userData?.email}
           </Typography>
         </Box>
       </CardContent>
