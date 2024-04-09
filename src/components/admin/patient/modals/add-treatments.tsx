@@ -43,7 +43,8 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
       selectedRegion === "Sup. Esq." ||
       selectedRegion === "Inferior Total" ||
       selectedRegion === "Inf. Dir." ||
-      selectedRegion === "Inf. Esq."
+      selectedRegion === "Inf. Esq." ||
+      selectedRegion === "Total"
     ) {
       rg = selectedRegion
         .replaceAll(".", "")

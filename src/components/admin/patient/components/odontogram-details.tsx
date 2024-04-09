@@ -49,6 +49,7 @@ const toothRegions = [
   "Inferior Total",
   "Inf. Dir.",
   "Inf. Esq.",
+  "Total",
 ];
 
 const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
@@ -84,7 +85,8 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
       region === "Sup. Esq." ||
       region === "Inferior Total" ||
       region === "Inf. Dir." ||
-      region === "Inf. Esq."
+      region === "Inf. Esq." ||
+      region === "Total"
     ) {
       rg = region.replaceAll(".", "").replaceAll(" ", "_").toLowerCase();
     } else {
