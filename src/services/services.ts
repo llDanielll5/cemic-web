@@ -170,6 +170,8 @@ export const parseToothRegion = (rg: string) => {
     replaced = "Inferior Direito";
   } else if (rg === "inf_esq") {
     replaced = "Inferior Esquerdo";
+  } else if (rg === "total") {
+    replaced = "Total";
   } else {
     replaced = rg.replaceAll("t", "");
   }
