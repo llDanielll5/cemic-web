@@ -14,9 +14,13 @@ import {
 import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
 import { getInitials } from "@/services/get-initials";
 import { cpfMask, phoneMask } from "@/services/services";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { SeverityPill } from "../comps/severity-pill";
 
 export const CustomersTable = (props: any) => {
   const { items = [] } = props;
+  const adminData = useRecoilValue(UserData);
 
   const getRoleColor = (customer: any) => {
     if (customer.role === "PATIENT")
@@ -41,6 +45,15 @@ export const CustomersTable = (props: any) => {
     if (role === "SELECTED") return "Selecionado";
   };
 
+  const patientLocationColor = {
+    DF: "primary",
+    MG: "secondary",
+  };
+  const patientLocationName = {
+    DF: "Brasília",
+    MG: "Minas Gerais",
+  };
+
   return (
     <Card>
       {items.length > 0 ? (
@@ -53,11 +66,15 @@ export const CustomersTable = (props: any) => {
                 <TableCell>CPF</TableCell>
                 <TableCell>Telefone</TableCell>
                 <TableCell>Status</TableCell>
+                {adminData?.userType === "SUPERADMIN" && (
+                  <TableCell>Cidade</TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
               {items?.map((patient: any) => {
                 let attr = patient?.attributes;
+                const location: any = attr?.location;
 
                 return (
                   <TableRow
@@ -81,6 +98,13 @@ export const CustomersTable = (props: any) => {
                     <TableCell>{phoneMask(attr?.phone)}</TableCell>
                     <TableCell sx={getRoleColor(attr)}>
                       {getPatientRole(attr?.role)}
+                    </TableCell>
+                    <TableCell>
+                      <SeverityPill
+                        color={patientLocationColor[location as "MG" | "DF"]}
+                      >
+                        {patientLocationName[location as "MG" | "DF"]}
+                      </SeverityPill>
                     </TableCell>
                   </TableRow>
                 );

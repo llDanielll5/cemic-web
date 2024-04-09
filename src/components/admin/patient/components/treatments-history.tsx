@@ -17,9 +17,11 @@ import axiosInstance from "@/axios";
 import Link from "next/link";
 import { handleGetTreatmentsOfPatient } from "@/axios/admin/treatments";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import UserData from "@/atoms/userData";
 
 const PatientTreatmentsHistory = (props: any) => {
   const patientData = useRecoilValue(PatientData);
+  const adminData = useRecoilValue(UserData);
   const patient = patientData?.attributes;
   const actualProfessional = patientData?.attributes?.actualProfessional ?? "";
   const adminInfos = patient?.adminInfos;
@@ -37,7 +39,7 @@ const PatientTreatmentsHistory = (props: any) => {
       (res) => {
         let data = res.data.data;
         const finisheds = data?.filter(
-          (v: any) => v.attributes.finishedBy.data !== null
+          (v: any) => v?.attributes?.finishedBy?.data !== null
         );
         setPatientTreatments(data);
         setTreatmentsFinished(finisheds);

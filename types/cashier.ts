@@ -52,3 +52,7 @@ export interface CreateCashierInfosInterface {
     //adicionar pagamento de profisisonal
   };
 }
+
+export interface LastPaymentsAdminDashboard {
+  id: string;
+}

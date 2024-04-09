@@ -48,6 +48,7 @@ export interface AdminType {
   profileImage: string;
   firstLetter: string;
   role: UserRole;
+  location: "" | "DF" | "MG";
   dateBorn: string;
   userType: UserRole;
   permissions: UserPermissionsJsonInterface;

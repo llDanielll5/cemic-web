@@ -8,6 +8,7 @@ import {
   Button,
 } from "@mui/material";
 import { OptionsSpecialties } from "../dynamicProfBody/profile/styles";
+import { regionsSelect } from "@/pages/auth/register";
 
 interface UserFormProps {
   userData: any;
@@ -54,6 +55,15 @@ const UserForm = (props: UserFormProps) => {
       ? "Pré-registro"
       : userData?.role === "SELECTED"
       ? "Selecionado"
+      : "";
+
+  const getRegion =
+    userData?.location === ""
+      ? ""
+      : userData?.location === "DF"
+      ? "Distrito Federal"
+      : userData?.location === "MG"
+      ? "Minas Gerais"
       : "";
 
   return (
@@ -128,6 +138,21 @@ const UserForm = (props: UserFormProps) => {
           />
         )}
       />
+      {/* <Autocomplete
+        disablePortal
+        options={regionsSelect}
+        sx={{ width: "100%" }}
+        onChange={(e, v) => handleChange(v?.value, "location", setUserData)}
+        value={{ label: getRegion, value: userData?.location }}
+        isOptionEqualToValue={(option, value) => option.value === value.value}
+        renderInput={(params) => (
+          <OptionsSpecialties
+            {...params}
+            label="Região do Paciente"
+            color="primary"
+          />
+        )}
+      /> */}
 
       <Typography variant="h6" p={2}>
         Dados de Localidade

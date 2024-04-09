@@ -45,6 +45,11 @@ const roleValues = [
   },
 ];
 
+export const regionsSelect = [
+  { value: "DF", label: "Distrito Federal" },
+  { value: "MG", label: "Minas Gerais" },
+];
+
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
   name: string;
@@ -108,6 +113,7 @@ const RegisterPage = () => {
       rg: "",
       dateBorn: "",
       role: "",
+      location: "",
       submit: null,
     },
     validationSchema: Yup.object({
@@ -128,9 +134,20 @@ const RegisterPage = () => {
       role: Yup.string().required(
         "Você deve informar qual sua função na CEMIC."
       ),
+      location: Yup.string().required("Informe sua Região de Trabalho!"),
     }),
     onSubmit: async (values, helpers) => {
-      const { cpf, email, name, phone, rg, password, role, username } = values;
+      const {
+        cpf,
+        email,
+        name,
+        phone,
+        rg,
+        password,
+        role,
+        username,
+        location,
+      } = values;
       const phoneReplaced = phone!
         .replace("(", "")
         .replace(")", "")
@@ -153,6 +170,7 @@ const RegisterPage = () => {
         rg: rg.toString(),
         password,
         role,
+        location,
       };
 
       try {
@@ -356,6 +374,24 @@ const RegisterPage = () => {
                   onBlur={formik.handleBlur}
                 >
                   {roleValues.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  label="Especifique a região que trabalha*"
+                  name="location"
+                  error={!!(formik.touched.location && formik.errors.location)}
+                  select
+                  onChange={formik.handleChange}
+                  value={formik.values.location}
+                  fullWidth
+                  helperText={formik.touched.location && formik.errors.location}
+                  onBlur={formik.handleBlur}
+                >
+                  {regionsSelect.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>

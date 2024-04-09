@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
@@ -40,7 +40,7 @@ const PatientsPage = () => {
   const [data, setData] = useState([]);
   const adminData: any = useRecoilValue(UserData);
   const [currPage, setCurrPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [sort, setSort] = useState<SortType>("asc");
   const [statusFilter, setStatusFilter] = useState<PatientRole | null>(null);
   const [searchPatientValue, setSearchPatientValue] = useState("");
@@ -52,22 +52,24 @@ const PatientsPage = () => {
     total: 0,
   });
 
-  const getPatients = async (
-    currPage?: number,
-    pageSize?: number,
-    sort?: string
-  ) => {
-    return await handleGetPatients(currPage, pageSize, sort).then(
-      (res: any) => {
-        let pagination = res.data.meta.pagination;
-        setData(res.data.data);
-        setDbPagination(pagination);
-        setCurrPage(pagination.page);
-        return;
-      },
-      (error) => console.log(error.response)
-    );
-  };
+  const getPatients = useCallback(
+    async (currPage?: number, pageSize?: number, sort?: string) => {
+      if (!adminData) return;
+      const location =
+        adminData?.userType !== "SUPERADMIN" ? adminData.location : undefined;
+      return await handleGetPatients(location, currPage, pageSize, sort).then(
+        (res: any) => {
+          let pagination = res.data.meta.pagination;
+          setData(res.data.data);
+          setDbPagination(pagination);
+          setCurrPage(pagination.page);
+          return;
+        },
+        (error) => console.log(error.response)
+      );
+    },
+    [adminData?.location]
+  );
 
   const handleChangePage = (e: any, value: number) => {
     setCurrPage(value);
@@ -110,7 +112,7 @@ const PatientsPage = () => {
 
   useEffect(() => {
     getPatients(1, pageSize, sort);
-  }, [pageSize]);
+  }, [pageSize, getPatients]);
 
   return (
     <>

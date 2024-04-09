@@ -43,6 +43,6 @@ export const handleEditTreatment = async (id: string, data: any) => {
 
 export const handleGetTreatmentsOfPatient = async (patientId: string) => {
   return await axiosInstance.get(
-    `/patient-treatments/?filters[patient][id][$eq]=${patientId}&pagination[pageSize]=999&populate[payment][populate]=*&populate[finishedBy][populate]=*`
+    `/patient-treatments/?filters[patient][id][$eq]=${patientId}&pagination[pageSize]=999&populate[0]=finishedBy&populate[1]=payment`
   );
 };

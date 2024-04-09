@@ -59,3 +59,9 @@ export const handleGetHasOpenedCashier = async (
 export const handleCloseCashierOfDay = async (cashierId: string, data: any) => {
   return await axiosInstance.put(`/cashiers/${cashierId}`, { data });
 };
+
+export const handleGetLastPayments = async () => {
+  return await axiosInstance.get(
+    `/cashier-infos/?populate=*&sort[0]=date:desc&pagination[pageSize]=10&filters[type]=IN`
+  );
+};

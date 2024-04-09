@@ -8,8 +8,18 @@ import {
 import { AdminType } from "types";
 
 export const handleRegister = async (data: any) => {
-  const { role, password, email, phone, rg, cpf, dateBorn, name, username } =
-    data;
+  const {
+    role,
+    password,
+    email,
+    phone,
+    rg,
+    cpf,
+    dateBorn,
+    name,
+    username,
+    location,
+  } = data;
   return axios.post(`${serverUrl}/auth/local/register`, {
     email,
     password,
@@ -21,6 +31,7 @@ export const handleRegister = async (data: any) => {
     firstLetter: name.charAt(0).toUpperCase(),
     dateBorn,
     username,
+    location,
     permissions:
       role === "ADMIN" ? defaultAdminPermissions : defaultEmployeePermissions,
   });

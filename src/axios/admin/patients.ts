@@ -19,6 +19,7 @@ export const handleCreatePatient = async (data: any) => {
     role,
     createdBy,
     cardId,
+    location,
   } = data;
 
   const phoneReplaced = phone!
@@ -53,6 +54,7 @@ export const handleCreatePatient = async (data: any) => {
       name: completeName,
       cpf: cpfReplaced,
       phone: phoneReplaced,
+      location,
       adminInfos: { created: createdBy, createTimestamp: new Date() },
     },
   };
@@ -60,6 +62,7 @@ export const handleCreatePatient = async (data: any) => {
 };
 
 export const handleGetPatients = async (
+  location?: string,
   currPage?: number,
   pageSize?: number,
   sort?: any
@@ -67,12 +70,15 @@ export const handleGetPatients = async (
   let page = currPage;
   let size = pageSize;
   let ord = sort;
+  let locationFilter = "";
   if (page === 0) page = 1;
   if (size === undefined) size = 10;
   if (!ord || ord === undefined) sort = "asc";
+  if (location !== undefined)
+    locationFilter = `&filters[location][$eq]=${location}`;
 
   return await axiosInstance.get(
-    `/patients?pagination[page]=${page}&pagination[pageSize]=${size}&populate=*&sort[0]=name:${sort}`
+    `/patients?pagination[page]=${page}&pagination[pageSize]=${size}&populate=*&sort[0]=name:${sort}${locationFilter}`
   );
 };
 

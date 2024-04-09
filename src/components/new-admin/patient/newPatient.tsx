@@ -33,6 +33,7 @@ interface UserDefaultEdit {
   sexo: string;
   anamnese: any | null;
   screeningDate: string;
+  location: "" | "DF" | "MG";
 }
 
 interface AnamneseProps {
@@ -54,6 +55,7 @@ const defaultValues: UserDefaultEdit = {
   role: "PRE-REGISTER",
   sexo: "NENHUM",
   screeningDate: "",
+  location: "",
 };
 
 const defaultAddress: AddressType = {
@@ -74,6 +76,8 @@ const NewPatientForm = (props: AnamneseProps) => {
   const [observations, setObservations] = useState("");
   const [page, setPage] = useState(0);
   const adminData: any = useRecoilValue(UserData);
+
+  console.log(adminData.location);
 
   const handleMasked = (value: string, type: string, setState: any) => {
     const masked = type === "cpf" ? cpfMask : phoneMask;
@@ -185,6 +189,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       anamnese: { ...anamneseData },
       createdBy: adminData?.id,
       cardId,
+      location: adminData?.location,
       slug: userData?.name?.replaceAll(" ", "-").toLowerCase(),
     };
 

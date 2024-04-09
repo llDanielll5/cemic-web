@@ -1,13 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Head from "next/head";
 import UserData from "@/atoms/userData";
-import {
-  endOfMonth,
-  formatISO,
-  startOfMonth,
-  subDays,
-  subHours,
-} from "date-fns";
+import { endOfMonth, formatISO, startOfMonth } from "date-fns";
 import { Box, Container, Fab, Unstable_Grid2 as Grid } from "@mui/material";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { OverviewBudget } from "src/components/new-admin/overview/overview-budget";
@@ -21,12 +15,12 @@ import { OverviewTraffic } from "src/components/new-admin/overview/overview-traf
 import { useRecoilValue } from "recoil";
 import { useCallback, useEffect, useState } from "react";
 import { parseToBrl } from "@/components/admin/patient/modals/receipt-preview";
-import { handleGetMonthCashiers } from "@/axios/admin/cashiers";
-import { getCreditDiscount } from "@/services/services";
 import {
-  handleGetCountPatientsByDate,
-  handleGetPatients,
-} from "@/axios/admin/patients";
+  handleGetLastPayments,
+  handleGetMonthCashiers,
+} from "@/axios/admin/cashiers";
+import { getCreditDiscount } from "@/services/services";
+import { handleGetCountPatientsByDate } from "@/axios/admin/patients";
 
 const now = new Date();
 
@@ -38,7 +32,7 @@ const AdminPage = () => {
   const [monthDifference, setMonthDifference] = useState(0);
   const [newPatients, setNewPatients] = useState(0);
   const [lastMonthNewPatients, setLastMonthNewPatients] = useState(0);
-
+  const [lastPayments, setLastPayments] = useState([]);
   const [monthValues, setMonthValues] = useState({
     totalDebit: 0,
     totalCredit: 0,
@@ -68,6 +62,12 @@ const AdminPage = () => {
       data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
     },
   ];
+
+  const getLastPayments = async () => {
+    return await handleGetLastPayments().then((res) =>
+      setLastPayments(res.data.data)
+    );
+  };
 
   const handleGetMonthValue = async (date: Date) => {
     const startDate = formatISO(startOfMonth(date)).substring(0, 10);
@@ -235,6 +235,7 @@ const AdminPage = () => {
     handleGetMonthValue(new Date(now.getFullYear(), now.getMonth() - 1, 1));
     handleGetAllPatients(now);
     handleGetAllPatients(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+    getLastPayments();
   }, []);
 
   useEffect(() => {
@@ -278,7 +279,7 @@ const AdminPage = () => {
             <Grid xs={12} sm={6} lg={3}>
               <OverviewTotalProfit sx={{ height: "100%" }} value="$15k" />
             </Grid> */}
-            <Grid xs={12} lg={8}>
+            {/* <Grid xs={12} lg={8}>
               <OverviewSales chartSeries={salesGraph} sx={{ height: "100%" }} />
             </Grid>
             <Grid xs={12} md={6} lg={4}>
@@ -287,24 +288,16 @@ const AdminPage = () => {
                 labels={["Desktop", "Tablet", "Phone"]}
                 sx={{ height: "100%" }}
               />
-            </Grid>
-            <Grid xs={12} md={6} lg={4}>
-              <OverviewLatestOrders
-                orders={[
-                  {
-                    id: "f69f88012978187a6c12897f",
-                    ref: "DEV1049",
-                    amount: 30.5,
-                    customer: {
-                      name: "Ekaterina Tankova",
-                    },
-                    createdAt: 1555016400000,
-                    status: "pending",
-                  },
-                ]}
-                sx={{ height: "100%" }}
-              />
-            </Grid>
+            </Grid> */}
+            {adminData?.userType === "ADMIN" ||
+            adminData?.userType === "SUPERADMIN" ? (
+              <Grid xs={12} md={6} lg={4}>
+                <OverviewLatestOrders
+                  orders={lastPayments}
+                  sx={{ height: "100%" }}
+                />
+              </Grid>
+            ) : null}
             {/* <Grid xs={12} md={6} lg={4}>
               <OverviewLatestProducts
                 products={[
