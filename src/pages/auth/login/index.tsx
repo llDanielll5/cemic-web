@@ -13,7 +13,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getCookie, setCookie } from "cookies-next";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import UserData from "@/atoms/userData";
 import {
   Box,
@@ -40,6 +40,7 @@ const Page = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const setUserData = useSetRecoilState(UserData);
   const userCookie = getCookie("user");
+  const adminData = useRecoilValue(UserData);
 
   const formik = useFormik({
     initialValues: {
@@ -74,10 +75,16 @@ const Page = () => {
         async (res: any) => {
           let jwt = res.data.jwt;
           let user = res.data.user;
+
           setCookie("jwt", jwt, { maxAge: 86400 });
           setCookie("user", user, { maxAge: 86400 });
           setUserData(user);
-          return router.push("/admin");
+
+          if (user.userType === "ADMIN" || user.userType === "SUPERADMIN") {
+            return router.push("/admin");
+          } else {
+            return router.push("/admin/patients");
+          }
         },
         (error) => {
           setIsLoading(false);
@@ -118,7 +125,13 @@ const Page = () => {
   //   handleGetCemicIp();
   // }, [handleGetCemicIp]);
 
-  if (!!userCookie) return router.push("/admin");
+  // if (adminData !== null) {
+  //   if (adminData?.userType !== "ADMIN") {
+  //     return router.push("/admin/patients");
+  //   } else if (adminData?.userType !== "SUPERADMIN") {
+  //     return router.push("/admin/patients");
+  //   } else return router.push("/admin");
+  // }
 
   return (
     <>
