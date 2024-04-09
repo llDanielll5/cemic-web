@@ -252,24 +252,28 @@ const AdminPage = () => {
       <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
         <Container maxWidth="xl">
           <Grid container spacing={3}>
-            {adminData?.userType === "ADMIN" && (
-              <Grid xs={12} sm={6} lg={6}>
-                <OverviewBudget
-                  difference={monthDifference ?? 0}
-                  positive={monthDifference > totalLastMonth}
-                  sx={{ height: "100%" }}
-                  value={parseToBrl(totalMonth)}
-                />
-              </Grid>
-            )}
-            <Grid xs={12} sm={6} lg={6}>
-              <OverviewTotalCustomers
-                difference={newPatients - lastMonthNewPatients}
-                positive={newPatients > lastMonthNewPatients}
-                sx={{ height: "100%" }}
-                value={newPatients.toString()}
-              />
-            </Grid>
+            {adminData?.userType === "ADMIN" ||
+            adminData?.userType === "SUPERADMIN" ? (
+              <>
+                <Grid xs={12} sm={6} lg={6}>
+                  <OverviewBudget
+                    difference={monthDifference ?? 0}
+                    positive={monthDifference > totalLastMonth}
+                    sx={{ height: "100%" }}
+                    value={parseToBrl(totalMonth)}
+                  />
+                </Grid>
+                <Grid xs={12} sm={6} lg={6}>
+                  <OverviewTotalCustomers
+                    difference={newPatients - lastMonthNewPatients}
+                    positive={newPatients > lastMonthNewPatients}
+                    sx={{ height: "100%" }}
+                    value={newPatients.toString()}
+                  />
+                </Grid>
+              </>
+            ) : null}
+
             {/* <Grid xs={12} sm={6} lg={3}>
               <OverviewTasksProgress sx={{ height: "100%" }} value={75.5} />
             </Grid>
