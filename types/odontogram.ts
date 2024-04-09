@@ -54,7 +54,8 @@ export type OdontogramRegions =
   | "inf_dir"
   | "inf_esq"
   | "sup_esq"
-  | "sup_dir";
+  | "sup_dir"
+  | "total";
 
 export interface OdontogramInterface {
   patient: any;
