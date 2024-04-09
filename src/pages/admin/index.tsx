@@ -214,9 +214,7 @@ const AdminPage = () => {
 
   const getDifferenceMonthValues = () => {
     const difference = totalMonth - totalLastMonth;
-    const percentageDifference = Math.floor(
-      (difference / totalLastMonth) * 100
-    );
+    const percentageDifference = percDiff(difference, totalLastMonth);
 
     if (difference < 0) {
       let diff = 0;
@@ -257,7 +255,7 @@ const AdminPage = () => {
               <>
                 <Grid xs={12} sm={6} lg={6}>
                   <OverviewBudget
-                    difference={monthDifference ?? 0}
+                    difference={monthDifference}
                     positive={monthDifference > totalLastMonth}
                     sx={{ height: "100%" }}
                     value={parseToBrl(totalMonth)}
