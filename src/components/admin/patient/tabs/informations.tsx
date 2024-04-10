@@ -6,6 +6,7 @@ import PatientData from "@/atoms/patient";
 import {
   Autocomplete,
   Box,
+  Button,
   Card,
   Divider,
   Stack,
@@ -18,10 +19,10 @@ import { cpfMask, phoneMask } from "@/services/services";
 interface PatientInformationsInterface {
   clientAddress: any;
   setClientAddress: any;
-  handleEditAddress: any;
   handleChangeAddress: any;
   clientData: any;
   handleChange: any;
+  handleSubmit: any;
 }
 
 const rolesOptions = [
@@ -34,10 +35,10 @@ const PatientInformations = (props: PatientInformationsInterface) => {
   const {
     clientAddress,
     handleChangeAddress,
-    handleEditAddress,
     setClientAddress,
     clientData,
     handleChange,
+    handleSubmit,
   } = props;
 
   const adminData: any = useRecoilValue(UserData);
@@ -149,9 +150,17 @@ const PatientInformations = (props: PatientInformationsInterface) => {
       <PatientAddress
         clientAddress={clientAddress}
         setClientAddress={setClientAddress}
-        handleEditAddress={handleEditAddress}
         handleChangeAddress={handleChangeAddress}
       />
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit}
+        sx={{ mt: 2 }}
+      >
+        Salvar
+      </Button>
     </ClientContainer>
   );
 };

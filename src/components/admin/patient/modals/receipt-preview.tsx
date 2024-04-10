@@ -45,6 +45,7 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
     if (shape === "DEBIT_CARD") return "Cartão de Débito";
     if (shape === "PIX") return "Transferência Pix";
     if (shape === "TRANSFER") return "Transferência Bancária TED/DOC";
+    if (shape === "WALLET_CREDIT") return "Crédito de Carteira";
   };
 
   return (

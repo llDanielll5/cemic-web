@@ -167,3 +167,9 @@ export const handleGetCountPatientsByDate = async (
     `/patients/?filters[createdAt][$gte]=${startDate}&filters[createdAt][$lte]=${endDate}`
   );
 };
+
+export const handleUpdateHasPayedTreatments = async (ids: any[]) => {
+  return await axiosInstance.post(`/patients/updateHasPayedTreatments`, {
+    ids,
+  });
+};

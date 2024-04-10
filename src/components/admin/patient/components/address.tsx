@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { InputsContainer } from "@/components/userForm";
 import {
   Box,
@@ -9,49 +9,41 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
+import { getViaCepInfo } from "@/axios/viacep";
 
 interface PatientAddressInterface {
   clientAddress?: any;
   handleChangeAddress: any;
-  handleEditAddress: any;
   setClientAddress: any;
 }
 
 const PatientAddress = (props: PatientAddressInterface) => {
-  const {
-    handleChangeAddress,
-    handleEditAddress,
-    clientAddress,
-    setClientAddress,
-  } = props;
+  const { handleChangeAddress, clientAddress, setClientAddress } = props;
 
-  const handleGetCep = async (e: any) => {
-    setClientAddress((prev: any) => ({ ...prev, cep: e.target.value }));
-    let val = e.target.value;
-    if (val.length === 8) {
-      //   setIsLoading(true);
-      //   setLoadingMessage("Carregando informações de CEP");
-      try {
-        const res = await axios.get(`https://viacep.com.br/ws/${val}/json/`);
-        let json = res.data;
-        if (json) {
+  const handleGetCep = useCallback(async () => {
+    if (clientAddress.cep === null) return;
+    if (clientAddress?.cep?.length > 7) {
+      getViaCepInfo(clientAddress.cep).then((res) => {
+        if (res) {
+          const { address, city, complement, line1, neighbor, uf } = res;
+
           setClientAddress((prev: any) => ({
-            neighbor: json.bairro,
-            city: json.localidade,
-            complement: json.complemento,
-            line1: json.logradouro,
-            uf: json.uf,
-            cep: val,
-            number: json.number,
-            address: `${json.logradouro}, ${json.bairro} ${json.complemento}, ${json.localidade} - ${json.uf}`,
+            ...prev,
+            neighbor,
+            city,
+            complement,
+            line1,
+            uf,
+            address,
           }));
-          //   setIsLoading(false);
         }
-      } catch (error) {
-        // setIsLoading(false);
-      }
+      });
     }
-  };
+  }, [clientAddress.cep]);
+
+  useEffect(() => {
+    handleGetCep();
+  }, [handleGetCep]);
 
   return (
     <Box display="flex" flexDirection="column">
@@ -66,7 +58,9 @@ const PatientAddress = (props: PatientAddressInterface) => {
         <TextField
           label="CEP*:"
           value={clientAddress?.cep!}
-          onChange={handleGetCep}
+          onChange={({ target }) =>
+            setClientAddress((prev: any) => ({ ...prev, cep: target.value }))
+          }
           inputProps={{ maxLength: 8 }}
           sx={{ width: "100%" }}
         />
@@ -121,15 +115,6 @@ const PatientAddress = (props: PatientAddressInterface) => {
         sx={{ width: "100%", mt: "16px" }}
         onChange={(e) => handleChangeAddress(e.target.value, "complement")}
       />
-
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleEditAddress}
-        sx={{ mt: 2 }}
-      >
-        Salvar
-      </Button>
     </Box>
   );
 };

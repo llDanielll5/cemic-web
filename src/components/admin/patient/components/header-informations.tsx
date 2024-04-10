@@ -46,22 +46,23 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
         }
         alignItems="center"
       >
+        {client?.adminInfos?.created?.data !== null ? (
+          <Typography variant="caption" color="orangered">
+            Criado por {client?.adminInfos?.created?.data?.attributes?.name} dia{" "}
+            {parseDateIso(
+              client?.adminInfos?.createTimestamp?.substring?.(0, 10)
+            )}
+          </Typography>
+        ) : null}
         {client?.adminInfos?.updated?.data !== null ? (
-          <Typography variant="caption">
+          <Typography variant="caption" color="green">
             Atualizado por {client?.adminInfos?.updated?.data?.attributes?.name}{" "}
             dia{" "}
             {parseDateIso(
               client?.adminInfos?.updateTimestamp?.substring?.(0, 10)
             )}
           </Typography>
-        ) : (
-          <Typography variant="caption">
-            Criado por {client?.adminInfos?.created?.data?.attributes?.name} dia{" "}
-            {parseDateIso(
-              client?.adminInfos?.createTimestamp?.substring?.(0, 10)
-            )}
-          </Typography>
-        )}
+        ) : null}
       </Box>
     </Container>
   );

@@ -22,6 +22,9 @@ import AddPaymentShape from "../components/add-payment-shape";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import PaymentTypesPatient from "../components/payment-types";
+import { useRecoilValue } from "recoil";
+import PatientData from "@/atoms/patient";
+import AlertModal from "@/components/modal/alert-modal";
 
 interface AddPaymentPatientModal {
   visible: boolean;
@@ -32,6 +35,7 @@ interface AddPaymentPatientModal {
 
 const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const { closeModal, visible, treatmentsToPay, onPassReceiptValues } = props;
+  const patientData = useRecoilValue(PatientData);
   const [totalValue, setTotalValue] = useState<number>(0);
   const [discount, setDiscount] = useState<string>("");
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
@@ -157,6 +161,9 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     const notPriced = paymentShapes.map((v) => v.price === 0);
     const notShape = paymentShapes.map((v) => v.shape === "");
     const prices = paymentShapes.map((v) => v.price);
+    const wallets = paymentShapes.filter((v) => v.shape === "WALLET_CREDIT");
+    const walletPrice = wallets.map((v) => v.price);
+    const walletReduce = walletPrice.reduce((acc, curr) => acc + curr, 0);
     const pricesReduced = prices.reduce((prev, curr) => prev + curr, 0);
 
     if (notShape.find((v) => v === true))
@@ -176,6 +183,14 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       );
     if (parseInt(discount) < 0 || parseInt(discount) > 9)
       return alert("Desconto não liberado!");
+
+    if (wallets.length > 1) {
+      return alert(
+        "Não é possível adicionar duas formas de pagamento de fundo de carteira, adicione somente 1 com o valor até o limite da carteira!"
+      );
+    }
+    if (walletReduce > patientData?.attributes?.credits!)
+      return alert("Valor acima do fundo de crédito do paciente!");
 
     if (bankCheckInfos.length > 0) {
       const priceTotalCheck = paymentShapes.find(
@@ -212,13 +227,14 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       };
     });
 
-    const dataUpdate: ReceiptValues = {
+    const dataUpdate: any = {
       paymentShapes,
       treatmentsForPayment,
       bankCheckInfos: parsedBankCheckInfos ?? [],
       totalValue,
       discount: parseInt(discount),
       cashierType: cashierType === "Clinico" ? "clinic" : "implant",
+      creditsUsed: wallets.length > 0 ? walletReduce : null,
     };
 
     onPassReceiptValues(dataUpdate);

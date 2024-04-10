@@ -1,30 +1,37 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
-import PatientData from "@/atoms/patient";
 import CModal from "@/components/modal";
-import { BankInformationsTable } from "@/components/table/bank-informations";
-import { ReceiptSingle } from "@/components/table/receipts-table";
-import { Box, Button, Typography, styled } from "@mui/material";
-import { useRecoilValue } from "recoil";
-import { PaymentShapeTypes } from "types/payments";
-import { parseToBrl } from "./receipt-preview";
+import UserData from "@/atoms/userData";
+import PatientData from "@/atoms/patient";
+import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { parseToothRegion } from "@/services/services";
-import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import { PaymentShapeTypes } from "types/payments";
+import { useRecoilValue } from "recoil";
+import { BankInformationsTable } from "@/components/table/bank-informations";
 
-interface ReceiptSingleProps {
-  visible: boolean;
+interface ReceiptCreditsPreviewProps {
+  visible: any;
   closeModal: any;
-  receiptSingleValues?: ReceiptSingle;
+  receiptCredits?: any | null;
+  onSubmit: () => void;
 }
 
-const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
-  const { closeModal, visible, receiptSingleValues } = props;
-  const patientData = useRecoilValue(PatientData);
-  const patient = patientData?.attributes;
-  const receipt = receiptSingleValues?.attributes;
-  const payShapes = receiptSingleValues?.attributes?.payment_shapes;
+export const parseToBrl = (val?: number) => {
+  return val?.toLocaleString("pt-br", {
+    style: "currency",
+    currency: "BRL",
+  });
+};
 
-  const getTotal = receipt?.total_value!.toLocaleString("pt-br", {
+const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
+  const { closeModal, visible, receiptCredits, onSubmit } = props;
+  const patientData = useRecoilValue(PatientData);
+  const adminData: any = useRecoilValue(UserData);
+  const patient = patientData?.attributes;
+  const payShapes = receiptCredits?.paymentShapes;
+
+  const getTotal = receiptCredits!.totalValue!.toLocaleString("pt-br", {
     style: "currency",
     currency: "BRL",
   });
@@ -38,13 +45,18 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
     if (shape === "DEBIT_CARD") return "Cartão de Débito";
     if (shape === "PIX") return "Transferência Pix";
     if (shape === "TRANSFER") return "Transferência Bancária TED/DOC";
-    if (shape === "WALLET_CREDIT") return "Carteira de Crédito";
   };
+
   return (
     <CModal
       visible={visible}
       closeModal={closeModal}
-      styles={{ width: "90vw", height: "95vh", overflowY: "auto" }}
+      styles={{
+        height: "100vh",
+        width: "90vw",
+        overflowX: "auto",
+        overflowY: "auto",
+      }}
     >
       <Box
         display={"flex"}
@@ -77,33 +89,15 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
         </Typography>
 
         <Box my={2} width="100%">
-          {receipt?.description === null &&
-            receipt?.treatments?.data.map((v, i: number) => (
-              <Typography
-                key={i}
-                variant="subtitle2"
-                textAlign="left"
-                ml={3}
-                my={0.5}
-                pl={"16px"}
-              >
-                {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
-                  v.attributes.name
-                }`}
-              </Typography>
-            ))}
-
-          {receipt?.description !== null && (
-            <Typography
-              variant="subtitle2"
-              textAlign="left"
-              ml={3}
-              my={0.5}
-              pl={"16px"}
-            >
-              - {receipt?.description}
-            </Typography>
-          )}
+          <Typography
+            variant="subtitle2"
+            textAlign="left"
+            ml={3}
+            my={0.5}
+            pl={"16px"}
+          >
+            - {receiptCredits?.description}
+          </Typography>
         </Box>
 
         <Typography
@@ -118,7 +112,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           TOTAL: {getTotal}
         </Typography>
 
-        {receipt?.payment_shapes?.length! > 0 && (
+        {receiptCredits?.paymentShapes?.length! > 0 && (
           <Typography
             variant="body2"
             textAlign="left"
@@ -129,7 +123,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           >
             <b>Forma de Pagamento:</b> Sendo pagos{" "}
             {payShapes?.length === 1 &&
-              payShapes?.map((v) => {
+              payShapes?.map((v: any) => {
                 if (v.shape === "CREDIT_CARD") {
                   return `No ${parseShape(v.shape)} em ${v.split_times}x`;
                 } else if (v.shape === "BANK_CHECK") {
@@ -139,7 +133,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                 } else return `No ${parseShape(v.shape)}`;
               })}
             {payShapes?.length! > 1 &&
-              payShapes?.map((v, i) => {
+              payShapes?.map((v: any, i: number) => {
                 const hasSpace = i === payShapes?.length - 1 ? "" : " + ";
                 if (v.shape === "CREDIT_CARD") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
@@ -157,13 +151,14 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           </Typography>
         )}
 
-        {receipt?.discount! > 0 && (
+        {receiptCredits?.discount! > 0 && (
           <Typography variant="subtitle2">
-            * Foi concedido para o paciente o desconto de {receipt?.discount}%
+            * Foi concedido para o paciente o desconto de{" "}
+            {receiptCredits?.discount}%
           </Typography>
         )}
 
-        {/* {receiptValues?.bankCheckInfos.length! > 0 && (
+        {receiptCredits?.bankCheckInfos.length! > 0 && (
           <Box
             position={"relative"}
             display={"flex"}
@@ -176,9 +171,9 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
             <Typography variant="h6" mb={1} {...colorBlue}>
               Cheques:
             </Typography>
-            <BankInformationsTable items={receiptValues?.bankCheckInfos!} />
+            <BankInformationsTable items={receiptCredits?.bankCheckInfos!} />
           </Box>
-        )} */}
+        )}
 
         <Typography
           variant="subtitle2"
@@ -240,14 +235,21 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           <Typography variant="body1">CEMIC</Typography>
         </Typography>
 
-        <Button endIcon={<LocalPrintshopIcon />} onClick={() => window.print()}>
-          Imprimir Recibo
+        {/* <Button50 endIcon={<LocalPrintshopIcon />} onClick={() => window.print()}>
+        Imprimir Recibo
+      </Button50> */}
+        <Button
+          endIcon={<DoneOutlineIcon />}
+          onClick={onSubmit}
+          fullWidth
+          variant="contained"
+          sx={{ my: 2 }}
+        >
+          Gerar Pagamento
         </Button>
       </Box>
     </CModal>
   );
 };
 
-const Container = styled(Box)``;
-
-export default ReceiptSinglePatient;
+export default ReceiptCreditsPreview;

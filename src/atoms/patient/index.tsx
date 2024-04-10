@@ -132,6 +132,7 @@ interface PatientStrapiSingle {
     role: PatientRole;
     sexo?: any;
     actualProfessional: any;
+    credits?: number;
 
     screening: any;
     exams: Exam[];

@@ -34,6 +34,7 @@ export type PaymentShapeTypes =
   | "PIX"
   | "BANK_CHECK"
   | "TRANSFER"
+  | "WALLET_CREDIT"
   | "";
 
 export interface BankCheckInformationsInterface {

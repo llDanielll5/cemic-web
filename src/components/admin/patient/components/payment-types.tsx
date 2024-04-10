@@ -22,6 +22,8 @@ import {
   Button,
 } from "@mui/material";
 import RenderBankCheckInfos from "./renderBankCheckInfos";
+import { useRecoilValue } from "recoil";
+import PatientData from "@/atoms/patient";
 
 interface PaymentTypesProps {
   index: number;
@@ -37,11 +39,13 @@ const _mock = [
   { title: "Pix", shape: "PIX" },
   { title: "Cheque", shape: "BANK_CHECK" },
   { title: "Transferência Bancária", shape: "TRANSFER" },
+  { title: "Fundos de Crédito", shape: "WALLET_CREDIT" },
 ];
 
 const PaymentTypesPatient = (props: PaymentTypesProps) => {
   const { onChangeShape, index, onRemoveShape, onChangeBankCheckInformations } =
     props;
+  const patientData = useRecoilValue(PatientData);
   const [paymentShapeString, setPaymentShapeString] = useState("");
   const [price, setPrice] = useState("0,00");
   const [splitTimes, setSplitTimes] = useState<string | null>(null);
@@ -51,6 +55,15 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
 
   const updateSplitBankCheck = (e: any) => setSplitTimes(e.target.value);
   const handleChange = (event: SelectChangeEvent) => {
+    if (event.target.value === "Fundos de Crédito") {
+      if (
+        patientData?.attributes?.credits === null ||
+        patientData?.attributes?.credits === 0
+      ) {
+        return alert("Paciente não possui créditos!");
+      }
+    }
+
     const value: any = event.target.value;
     const filter: any = _mock.filter((v) => v.title === value);
     if (value === "Cartão de Crédito" || value === "Cheque")

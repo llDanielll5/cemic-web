@@ -6,7 +6,7 @@ export const handleGetCashierOpened = async (
   type: "clinic" | "implant"
 ) => {
   return await axiosInstance.get(
-    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${type}&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*`
+    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${type}&filters[hasClosed]=false&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*`
   );
 };
 

@@ -48,7 +48,11 @@ const PatientDetails = (props: { cardId: any }) => {
   const currTabs =
     adminData?.userType !== "DENTIST" ? adminTabs : professionalTabs;
   const adminUpdate = {
-    adminInfos: { updated: adminData?.id, updateTimestamp: new Date() },
+    adminInfos: {
+      ...(patientData?.attributes?.adminInfos ?? []),
+      updated: adminData.id,
+      updateTimestamp: new Date(),
+    },
   };
 
   const handleChange = (val: any, field: any) =>
@@ -56,31 +60,6 @@ const PatientDetails = (props: { cardId: any }) => {
   const handleChangeAddress = (val: any, field: any) =>
     setClientAddress((prev) => ({ ...prev, [field]: val }));
   const handleChangeTab = (e: any, nVal: string) => setTabIndex(parseInt(nVal));
-
-  const handleEditAddress = async () => {
-    const { cep, city, line1, neighbor, uf } = clientAddress;
-    const notLocationCompleted =
-      city === undefined ||
-      line1 === undefined ||
-      neighbor === undefined ||
-      uf === undefined ||
-      cep?.length! < 8;
-
-    if (notLocationCompleted) return alert("Preencha os campos de endereço!");
-    let data = { data: { address: clientAddress, ...adminUpdate } };
-
-    // setLoadingMessage("Alterando Endereço do Paciente!");
-    return await handleUpdatePatient(patientData?.id!, data).then(
-      (res) => {
-        // setIsLoading(false);
-        setAddressModal(!addressModal);
-      },
-      (err) => {
-        // setIsLoading(false);
-        console.log(err.response);
-      }
-    );
-  };
 
   const handleGetPatient = async () => {
     return await handleGetSinglePatient(props.cardId).then(
@@ -94,6 +73,16 @@ const PatientDetails = (props: { cardId: any }) => {
     if (email === "" || dateBorn === "" || phone === "" || rg === "")
       return alert("Preencha os campos");
 
+    const { cep, city, line1, neighbor, uf } = clientAddress;
+    const notLocationCompleted =
+      city === undefined ||
+      line1 === undefined ||
+      neighbor === undefined ||
+      uf === undefined ||
+      cep?.length! < 8;
+
+    if (notLocationCompleted) return alert("Preencha os campos de endereço!");
+
     let data = {
       data: {
         rg,
@@ -102,7 +91,7 @@ const PatientDetails = (props: { cardId: any }) => {
         phone,
         dateBorn,
         role: clientData?.role,
-        address: { address: clientData?.address },
+        address: clientAddress,
         ...adminUpdate,
       },
     };
@@ -110,11 +99,6 @@ const PatientDetails = (props: { cardId: any }) => {
       (res) => handleGetPatient(),
       (err) => console.log(err.response)
     );
-  };
-
-  const handleUpdateAddressAndPatient = () => {
-    handleEditAddress();
-    handleSubmit();
   };
 
   const updateClientStatus = useCallback(() => {
@@ -166,10 +150,10 @@ const PatientDetails = (props: { cardId: any }) => {
           <PatientInformations
             clientAddress={clientAddress}
             handleChangeAddress={handleChangeAddress}
-            handleEditAddress={handleUpdateAddressAndPatient}
             setClientAddress={setClientAddress}
             clientData={clientData}
             handleChange={handleChange}
+            handleSubmit={handleSubmit}
           />
         );
       case "1":
@@ -192,10 +176,7 @@ const PatientDetails = (props: { cardId: any }) => {
   return (
     <TabContext value={tabIndex.toString()}>
       {patientData !== null && (
-        <HeaderPatientInformations
-          clientData={clientData}
-          // handleChange={handleChange}
-        />
+        <HeaderPatientInformations clientData={clientData} />
       )}
 
       <Divider sx={{ mt: 2 }} />

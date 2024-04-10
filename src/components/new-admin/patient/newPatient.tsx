@@ -77,8 +77,6 @@ const NewPatientForm = (props: AnamneseProps) => {
   const [page, setPage] = useState(0);
   const adminData: any = useRecoilValue(UserData);
 
-  console.log(adminData.location);
-
   const handleMasked = (value: string, type: string, setState: any) => {
     const masked = type === "cpf" ? cpfMask : phoneMask;
     setState((prev: any) => ({ ...prev, [type]: masked(value) }));
@@ -187,9 +185,9 @@ const NewPatientForm = (props: AnamneseProps) => {
       sexo: "NENHUM",
       observations,
       anamnese: { ...anamneseData },
-      createdBy: adminData?.id,
+      createdBy: adminData.id,
       cardId,
-      location: adminData?.location,
+      location: adminData.location,
       slug: userData?.name?.replaceAll(" ", "-").toLowerCase(),
     };
 

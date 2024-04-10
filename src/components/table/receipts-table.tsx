@@ -30,6 +30,7 @@ export interface ReceiptSingle {
     total_value?: number;
     treatments?: { data: ToothsInterface[] };
     updatedAt?: string;
+    description?: string;
   };
 }
 
