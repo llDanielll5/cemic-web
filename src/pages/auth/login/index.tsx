@@ -39,7 +39,7 @@ const Page = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const setUserData = useSetRecoilState(UserData);
-  const userCookie = getCookie("user");
+  const userCookie: any = getCookie("user");
   const adminData = useRecoilValue(UserData);
 
   const formik = useFormik({
@@ -125,13 +125,16 @@ const Page = () => {
   //   handleGetCemicIp();
   // }, [handleGetCemicIp]);
 
-  // if (adminData !== null) {
-  //   if (adminData?.userType !== "ADMIN") {
-  //     return router.push("/admin/patients");
-  //   } else if (adminData?.userType !== "SUPERADMIN") {
-  //     return router.push("/admin/patients");
-  //   } else return router.push("/admin");
-  // }
+  if (!!userCookie) {
+    let { userType } = JSON.parse(userCookie!);
+    if (userType === "ADMIN") {
+      return router.push("/admin");
+    } else if (userType === "SUPERADMIN") {
+      return router.push("/admin");
+    } else if (userType === "EMPLOYEE") {
+      return router.push("/admin/patients");
+    } else return router.push("/admin/patients");
+  }
 
   return (
     <>

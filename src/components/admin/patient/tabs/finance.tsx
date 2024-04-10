@@ -448,8 +448,13 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         )}
 
         {patient?.credits === null || patient?.credits === 0 ? null : (
-          <Alert severity="warning" sx={{ width: "100%", mb: 2 }}>
-            O paciente possui um crédito de: {parseToBrl(patient?.credits)}
+          <Alert
+            severity="warning"
+            sx={{ width: "100%", mb: 2, bgcolor: "rgba(255, 200, 10, 0.2)" }}
+          >
+            <Typography variant="subtitle2">
+              O paciente possui um crédito de: {parseToBrl(patient?.credits)}
+            </Typography>
           </Alert>
         )}
 
