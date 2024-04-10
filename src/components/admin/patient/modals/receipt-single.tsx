@@ -44,16 +44,20 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
     <CModal
       visible={visible}
       closeModal={closeModal}
-      styles={{ width: "90vw", height: "95vh", overflowY: "auto" }}
+      styles={{
+        overflowY: "auto",
+        width: "90vw",
+        height: "95vh",
+        maxWidth: "800px",
+        minWidth: "750px",
+      }}
     >
       <Box
         display={"flex"}
         alignItems="center"
         justifyContent="center"
         textAlign="center"
-        minWidth={"100%"}
         flexDirection={"column"}
-        overflow={"auto"}
       >
         <img
           src="/images/cemicLogo.png"
@@ -240,14 +244,24 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           <Typography variant="body1">CEMIC</Typography>
         </Typography>
 
-        <Button endIcon={<LocalPrintshopIcon />} onClick={() => window.print()}>
+        <StyledButton
+          endIcon={<LocalPrintshopIcon />}
+          onClick={() => window.print()}
+        >
           Imprimir Recibo
-        </Button>
+        </StyledButton>
       </Box>
     </CModal>
   );
 };
 
-const Container = styled(Box)``;
+const StyledButton = styled(Button)`
+  :hover {
+    opacity: 0.3;
+  }
+  :active {
+    opacity: 0;
+  }
+`;
 
 export default ReceiptSinglePatient;
