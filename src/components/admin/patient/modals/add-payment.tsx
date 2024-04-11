@@ -96,6 +96,13 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       getTotalValue(treatmentsForPayment);
     }
   };
+  const handleCreditValidation = (e: any) => {
+    const reg = new RegExp("[0-9]");
+    if (reg.test(e.target.value)) {
+      setCreditAddition(e.target.value);
+      getTotalValue(treatmentsForPayment);
+    }
+  };
   const handleAddPaymentShape = () => {
     let defaultValues: PaymentShapesInterface = { price: 0, shape: "" };
     setPaymentShapes((prev) => [...(prev ?? []), defaultValues]);
@@ -189,6 +196,12 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       );
     if (parseInt(discount) < 0 || parseInt(discount) > 9)
       return alert("Desconto não liberado!");
+    if (creditAddition > 10) {
+      return alert("Não é possível adicionar acréscimo acima de 10%");
+    }
+    if (creditAddition < 0) {
+      return alert("Não é possível adicionar acréscimo menor que 0");
+    }
 
     if (wallets.length > 1) {
       return alert(
@@ -365,25 +378,24 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
             {additionCreditVisible && (
               <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
                 <Typography variant="subtitle1">
-                  Decida o Percentual de Crédito
+                  Qual o valor de Acréscimo?
                 </Typography>
-                <Box
-                  display={"flex"}
-                  alignItems="center"
-                  justifyContent="space-between"
-                  columnGap={2}
-                >
-                  <Autocomplete
+                <Stack direction={"row"} alignItems="center" columnGap={2}>
+                  <TextField
+                    title="Acréscimo de Crédito"
+                    type="number"
+                    label="Acréscimo (%)"
+                    value={creditAddition}
+                    onChange={handleCreditValidation}
                     fullWidth
-                    value={creditAddition.toString()}
-                    options={["5", "10"]}
-                    onChange={(e, v: any) => setCreditAddition(+v!)}
-                    renderInput={(props) => (
-                      <TextField {...props} label="Percentual de Acréscimo" />
-                    )}
                   />
-                  <Typography variant="h6">%</Typography>
-                </Box>
+                  <Button
+                    variant="contained"
+                    onClick={() => setCreditAddition(10)}
+                  >
+                    Resetar
+                  </Button>
+                </Stack>
               </Paper>
             )}
 

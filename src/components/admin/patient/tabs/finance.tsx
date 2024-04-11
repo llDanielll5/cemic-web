@@ -237,8 +237,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       },
     };
 
-    console.log(dataUpdate);
-
     const handleConclusion = () => {
       handleCloseReceiptValues();
       handleCloseAddPayment();
