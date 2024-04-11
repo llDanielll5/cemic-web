@@ -115,16 +115,6 @@ const Page = () => {
   const handleTogglePasswordVisible = (e: any) =>
     setPasswordVisible(!passwordVisible);
 
-  // const handleGetCemicIp = useCallback(async () => {
-  //   await getIP().then((ip) => {
-  //     if (ip !== process.env.CEMIC_PUBLIC_IP) router.push("/");
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   handleGetCemicIp();
-  // }, [handleGetCemicIp]);
-
   if (!!userCookie) {
     let { userType } = JSON.parse(userCookie!);
     if (userType === "ADMIN") {

@@ -8,6 +8,7 @@ import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import RecentActorsIcon from "@mui/icons-material/RecentActors";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import HealingIcon from "@mui/icons-material/Healing";
+import PunchClockIcon from "@mui/icons-material/PunchClock";
 import { SvgIcon } from "@mui/material";
 
 export const SideNavLinks = (data: { userType: any; permissions: any }) => {
@@ -106,6 +107,15 @@ export const SideNavLinks = (data: { userType: any; permissions: any }) => {
   }
 
   itens.push(
+    {
+      title: "Folha de Ponto",
+      path: "/admin/timesheet",
+      icon: (
+        <SvgIcon fontSize="small">
+          <PunchClockIcon />
+        </SvgIcon>
+      ),
+    },
     {
       title: "Conta",
       path: "/admin/account",

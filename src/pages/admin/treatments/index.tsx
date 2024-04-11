@@ -84,10 +84,9 @@ const TreatmentsAdmin = (props: any) => {
 
   const handleSubmit = async () => {
     let { price, name } = treatmentValues;
-    if (!price || name) {
-      alert("Por favor verificar os campos para o cadastro");
-      return;
-    }
+    if (!price || !name)
+      return alert("Por favor verificar os campos para o cadastro");
+
     let priceNum = parseFloat(price.replace(".", "").replace(",", "."));
 
     let data = { price: priceNum, name };
@@ -259,7 +258,8 @@ const TreatmentsAdmin = (props: any) => {
       >
         <Typography variant="h5">Tratamentos Cadastrados</Typography>
 
-        {userData?.userType === "ADMIN" && (
+        {userData?.userType === "ADMIN" ||
+        userData?.userType === "SUPERADMIN" ? (
           <Button
             variant="contained"
             title="Adicionar novo tratamento"
@@ -271,7 +271,7 @@ const TreatmentsAdmin = (props: any) => {
           >
             Add
           </Button>
-        )}
+        ) : null}
       </Stack>
 
       <SearchTreatments

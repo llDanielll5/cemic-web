@@ -47,14 +47,8 @@ export const DashboardLayout = (props: any) => {
   }, [openNav]);
 
   const handleLogout = async () => {
-    // setLoading((prev) => ({
-    //   isLoading: true,
-    //   loadingMessage: "Estamos deslogando sua conta!",
-    // }));
-
     setCookie("jwt", undefined);
     setCookie("user", undefined);
-
     return await router.push("/auth/login");
     // then((res) => {
     //   if (res) setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
@@ -66,16 +60,6 @@ export const DashboardLayout = (props: any) => {
     if (persistance === null) return await handleLogout();
     return setUserData(persistance);
   };
-
-  // const handleGetCemicIp = useCallback(async () => {
-  //   await getIP().then((ip) => {
-  //     if (ip !== process.env.CEMIC_PUBLIC_IP) router.push("/");
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   handleGetCemicIp();
-  // }, [handleGetCemicIp]);
 
   useEffect(() => {
     setCookie("oldDate", undefined);
@@ -89,9 +73,6 @@ export const DashboardLayout = (props: any) => {
   useEffect(() => {
     PersistLogin();
   }, []);
-
-  // if (loading.isLoading === true)
-  //   return <Loading message={loading.loadingMessage!} />;
 
   return (
     <>
