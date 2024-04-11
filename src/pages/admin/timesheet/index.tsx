@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { parseDateBr } from "@/services/services";
@@ -6,11 +7,14 @@ import { Box, Card, Stack, Tooltip, Typography, styled } from "@mui/material";
 import EmployeeTimesheetRender from "@/components/admin/timesheet/employee-timesheet-render";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import UserData from "@/atoms/userData";
+import { getTimesheetOfDay } from "@/axios/admin/timesheets";
+import { formatISO } from "date-fns";
 
 const TimesheetPage = () => {
   const [dateSelected, setDateSelected] = useState(new Date());
   const [hours, setHours] = useState("");
   const userData = useRecoilValue(UserData);
+  const [timesheetData, setTimesheetData] = useState<any | null>(null);
 
   const timeCount = () => {
     var today = new Date();
@@ -22,8 +26,23 @@ const TimesheetPage = () => {
     setHours(`${hour}:${minute}:${second}`);
   };
 
+  const handleGetTimesheetOfDayDetails = async () => {
+    return await getTimesheetOfDay(
+      formatISO(dateSelected).substring(0, 10)
+    ).then(
+      ({ data }) => {
+        const result = data?.data;
+        setTimesheetData(result);
+      },
+      (err) => console.log(err.response)
+    );
+  };
+
   useEffect(() => {
     setInterval(timeCount, 1000);
+  }, []);
+  useEffect(() => {
+    handleGetTimesheetOfDayDetails();
   }, []);
 
   return (
@@ -59,7 +78,9 @@ const TimesheetPage = () => {
         </Stack>
       </TitleCard>
 
-      {userData?.userType === "EMPLOYEE" && <EmployeeTimesheetRender />}
+      {userData?.userType === "EMPLOYEE" && (
+        <EmployeeTimesheetRender data={timesheetData} />
+      )}
     </Container>
   );
 };

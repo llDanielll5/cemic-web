@@ -197,9 +197,11 @@ const CashierAdmin = () => {
 
     const { data: openeds } = response.data;
 
-    if (openeds.length > 0)
-      return alert("Há caixas abertos que não foram fechados!");
-    else return setOpenCashier(true);
+    // if (openeds.length > 0)
+    //   return alert("Há caixas abertos que não foram fechados!");
+    // else return setOpenCashier(true);
+
+    setOpenCashier(true); //temporário
   };
 
   const handleCloseCashier = async () => {

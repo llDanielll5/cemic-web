@@ -12,13 +12,15 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
+import { grey } from "@mui/material/colors";
 
 interface CheckboxProps {
   text: string;
   hour?: string;
   modalMessage: string;
   defaultCheck: boolean;
-  onChangeChecked: (state: boolean) => void;
+  type: "startHour" | "endHour" | "startLunch" | "endLunch";
+  disabled?: boolean;
 }
 
 const CheckboxButton = (props: CheckboxProps) => {
@@ -26,19 +28,30 @@ const CheckboxButton = (props: CheckboxProps) => {
   const [modal, setModal] = useState(false);
 
   const handleConfirm = () => {
+    if (props.disabled) return;
+
     if (!state) setModal(true);
     else return;
   };
 
   useEffect(() => {
-    props.onChangeChecked(state);
+    console.log("pronto");
   }, [state]);
 
   return (
     <>
-      <Container elevation={7} onClick={handleConfirm}>
+      <Container
+        elevation={7}
+        onClick={handleConfirm}
+        disabled={props.disabled}
+      >
         <input type="checkbox" checked={state} onChange={handleConfirm} />
-        <Typography variant="subtitle1">{props.text}</Typography>
+        <Typography
+          variant="subtitle1"
+          color={props.disabled ? "grey" : "MenuText"}
+        >
+          {props.text}
+        </Typography>
 
         <Typography variant="body1">{props.hour ?? "--:--"}</Typography>
       </Container>
@@ -85,16 +98,16 @@ const CheckboxButton = (props: CheckboxProps) => {
   );
 };
 
-const Container = styled(Card)`
+const Container = styled(Card)<{ disabled?: boolean }>`
   padding: 1rem 1.5rem;
   border-radius: 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 2px solid ${colors.blue.A200};
+  border: 2px solid ${({ disabled }) => (disabled ? grey : colors.blue.A200)};
   max-width: 500px;
   min-width: 50%;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "inherit" : "pointer")};
   :hover {
     opacity: 0.7;
   }

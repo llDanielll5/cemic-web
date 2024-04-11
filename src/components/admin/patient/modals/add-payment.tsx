@@ -38,10 +38,12 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const patientData = useRecoilValue(PatientData);
   const [totalValue, setTotalValue] = useState<number>(0);
   const [discount, setDiscount] = useState<string>("");
+  const [creditAddition, setCreditAddition] = useState(10);
+  const [additionCreditVisible, setAdditionCreditVisible] = useState(false);
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
     "Clinico"
   );
-  const [discountVisible, setDiscountVisible] = useState(false);
+  // const [discountVisible, setDiscountVisible] = useState(false);
   const [bankCheckInfos, setBankCheckInfos] = useState<
     BankCheckInformationsInterface[]
   >([]);
@@ -115,8 +117,8 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
           (prev, curr) => prev + curr,
           0
         );
-        const percentPrices = (reduced * 10) / 100;
-        let percentCredit = (reduceCreditValues * 10) / 100;
+        const percentPrices = (reduced * creditAddition) / 100;
+        let percentCredit = (reduceCreditValues * creditAddition) / 100;
 
         if (percentCredit > percentPrices) {
           percentCredit = percentPrices;
@@ -133,7 +135,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         setTotalValue(reduced - valueDiscount);
       } else setTotalValue(reduced);
     },
-    [paymentShapes, discount]
+    [paymentShapes, discount, creditAddition]
   );
 
   const onChangePaymentShape = useCallback(
@@ -143,10 +145,14 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       );
       const hasCashOrPixPayment =
         paymentShapes.filter((item) => item.shape === "CASH").length > 0 ||
-        paymentShapes.filter((item) => item.shape === "PIX").length > 0;
+        paymentShapes.filter((item) => item.shape === "PIX").length > 0 ||
+        paymentShapes.filter((item) => item.shape === "DEBIT_CARD").length > 0;
+      // aqui se instalava a lógica de somente adicionar desconto em pagamento a vista
+      // if (hasCashOrPixPayment) setDiscountVisible(true);
+      // if (!hasCashOrPixPayment) setDiscountVisible(false);
 
-      if (hasCashOrPixPayment) setDiscountVisible(true);
-      if (!hasCashOrPixPayment) setDiscountVisible(false);
+      if (creditValues.length > 0) setAdditionCreditVisible(true);
+      else setAdditionCreditVisible(false);
 
       setPaymentShapes(paymentShape);
       if (creditValues.length > 0) getTotalValue(treatmentsForPayment);
@@ -337,26 +343,49 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
               onChangeBankCheckInfos={handleUpdateCheckInformations}
             />
 
-            {discountVisible ? (
+            <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
+              <Typography variant="subtitle1">
+                Vai oferecer algum desconto?
+              </Typography>
+              <Stack direction={"row"} alignItems="center" columnGap={2}>
+                <TextField
+                  title="Desconto a ser oferecido"
+                  type="number"
+                  label="Desconto (%)"
+                  value={discount}
+                  onChange={handleDiscountValidation}
+                  fullWidth
+                />
+                <Button variant="contained" onClick={() => setDiscount("")}>
+                  Resetar
+                </Button>
+              </Stack>
+            </Paper>
+
+            {additionCreditVisible && (
               <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
                 <Typography variant="subtitle1">
-                  Vai oferecer algum desconto?
+                  Decida o Percentual de Crédito
                 </Typography>
-                <Stack direction={"row"} alignItems="center" columnGap={2}>
-                  <TextField
-                    title="Desconto a ser oferecido"
-                    type="number"
-                    label="Desconto (%)"
-                    value={discount}
-                    onChange={handleDiscountValidation}
+                <Box
+                  display={"flex"}
+                  alignItems="center"
+                  justifyContent="space-between"
+                  columnGap={2}
+                >
+                  <Autocomplete
                     fullWidth
+                    value={creditAddition.toString()}
+                    options={["5", "10"]}
+                    onChange={(e, v: any) => setCreditAddition(+v!)}
+                    renderInput={(props) => (
+                      <TextField {...props} label="Percentual de Acréscimo" />
+                    )}
                   />
-                  <Button variant="contained" onClick={() => setDiscount("")}>
-                    Resetar
-                  </Button>
-                </Stack>
+                  <Typography variant="h6">%</Typography>
+                </Box>
               </Paper>
-            ) : null}
+            )}
 
             <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
               <Typography variant="subtitle1">

@@ -1,12 +1,29 @@
 import React from "react";
 import CheckboxButton from "@/components/checkboxButton";
-import { Box, Button, Divider, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  Stack,
+  Typography,
+  colors,
+} from "@mui/material";
 import Man4Icon from "@mui/icons-material/Man4";
 import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
 
-// import { Container } from './styles';
+const EmployeeTimesheetRender = (props: {
+  data: {
+    startHour?: string;
+    endHour?: string;
+    startLunch?: string;
+    endLunch?: string;
+  };
+}) => {
+  const { data } = props;
 
-const EmployeeTimesheetRender: React.FC = () => {
+  const handleAddTime = async () => {};
+
   return (
     <>
       <Stack
@@ -37,33 +54,54 @@ const EmployeeTimesheetRender: React.FC = () => {
         mx={"auto"}
       >
         <CheckboxButton
-          hour="11:00"
+          hour={data?.startHour ?? undefined}
           defaultCheck={false}
-          onChangeChecked={(checked) => console.log(checked)}
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Início de Trabalho"
         />
         <CheckboxButton
+          hour={data?.startLunch ?? undefined}
           defaultCheck={false}
-          onChangeChecked={(checked) => console.log(checked)}
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Início Almoço"
+          disabled
         />
         <CheckboxButton
+          hour={data?.endLunch ?? undefined}
           defaultCheck={false}
-          onChangeChecked={(checked) => console.log(checked)}
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Saída Almoço"
+          disabled
         />
         <CheckboxButton
+          hour={data?.endHour ?? undefined}
           defaultCheck={false}
-          onChangeChecked={(checked) => console.log(checked)}
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Saída Trabalho"
+          disabled
         />
       </Box>
 
       <Divider />
+
+      <Stack
+        direction={"row"}
+        alignItems="center"
+        columnGap={2}
+        justifyContent="center"
+        mt={2}
+      >
+        <Card elevation={7} sx={{ bgcolor: colors.lightBlue[200], p: 2 }}>
+          <Typography fontWeight="bold" variant="subtitle2">
+            Horas Trabalhadas Dia:
+          </Typography>
+        </Card>
+        <Card elevation={7} sx={{ bgcolor: colors.lightGreen[200], p: 2 }}>
+          <Typography fontWeight="bold" variant="subtitle2">
+            Horas Trabalhadas Mês:
+          </Typography>
+        </Card>
+      </Stack>
     </>
   );
 };
