@@ -58,6 +58,7 @@ const EmployeeTimesheetRender = (props: {
           defaultCheck={false}
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Início de Trabalho"
+          type="startHour"
         />
         <CheckboxButton
           hour={data?.startLunch ?? undefined}
@@ -65,6 +66,7 @@ const EmployeeTimesheetRender = (props: {
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Início Almoço"
           disabled
+          type="startLunch"
         />
         <CheckboxButton
           hour={data?.endLunch ?? undefined}
@@ -72,6 +74,7 @@ const EmployeeTimesheetRender = (props: {
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Saída Almoço"
           disabled
+          type="endLunch"
         />
         <CheckboxButton
           hour={data?.endHour ?? undefined}
@@ -79,6 +82,7 @@ const EmployeeTimesheetRender = (props: {
           modalMessage="Tem certeza que deseja iniciar o dia?"
           text="Saída Trabalho"
           disabled
+          type="endHour"
         />
       </Box>
 
