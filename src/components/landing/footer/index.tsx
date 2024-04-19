@@ -17,10 +17,8 @@ const Footer = (props: any) => {
       <Typography variant="caption">Todos Direitos Reservados.</Typography>
 
       <LinksContainer>
-        <LinkSingle href="#about">Sobre</LinkSingle>
-        <LinkSingle href="" onClick={(e) => props.setActiveTab(1)}>
-          Ajude-nos
-        </LinkSingle>
+        <LinkSingle href="/#about">Sobre</LinkSingle>
+        <LinkSingle href="/#help">Ajude-nos</LinkSingle>
         <LinkSingle href="/auth/login">Já é parceiro?</LinkSingle>
       </LinksContainer>
 
@@ -30,14 +28,14 @@ const Footer = (props: any) => {
           href="https://facebook.com/tratamentocemic"
           target="_blank"
         >
-          <SvgIcon fontSize="large">
+          <IconStyle fontSize="large">
             <Facebook />
-          </SvgIcon>
+          </IconStyle>
         </Link>
         <Link passHref href="https://instagram.com/cemic_" target="_blank">
-          <SvgIcon fontSize="large">
+          <IconStyle fontSize="large">
             <Instagram sx={{ color: "var(--dark-blue)" }} />
-          </SvgIcon>
+          </IconStyle>
         </Link>
       </LinksSocials>
 
@@ -91,18 +89,23 @@ const LinksSocials = styled(Box)`
   display: flex;
   column-gap: 1rem;
 `;
+
+const IconStyle = styled(SvgIcon)`
+  transition: 0.3s;
+  :hover {
+    scale: 2;
+  }
+  :hover :first-child {
+    color: var(--blue);
+  }
+`;
 const Facebook = styled(FacebookIcon)`
   color: var(--dark-blue);
-  font-size: 1rem;
-  :hover {
-    color: var(--red);
-  }
+  font-size: 16px;
 `;
 const Instagram = styled(InstagramIcon)`
   color: var(--dark-blue);
-  :hover {
-    color: var(--red);
-  }
+  font-size: 16px;
 `;
 
 export default Footer;

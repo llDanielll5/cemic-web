@@ -24,7 +24,7 @@ const BannerLanding = (props: BannerLandingInterface) => {
   const Container = styled(Box)`
     position: relative;
     background-image: ${props.coverImage && `url(${props.coverImage})`};
-    background-size: cover;
+    background-size: 100% 100%;
     background-repeat: no-repeat;
     min-height: 100vh;
   `;
@@ -33,20 +33,28 @@ const BannerLanding = (props: BannerLandingInterface) => {
     <Container>
       <BannerContainer>
         <Informations>
-          <Box display="flex" flexDirection="column" alignItems={"flex-start"}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems={"flex-start"}
+            zIndex={100}
+          >
             <TitleText variant="h2" textAlign={"left"}>
               O maior projeto <span>Social</span>
             </TitleText>
 
-            <SubText variant="subtitle1" my={4} color="white">
-              A CEMIC trabalha com a reabilitação oral de diversos pacientes por
-              meio de seu projeto para atendimentos de implantes dentários
-              Devolveu mais de 15 mil sorrisos para diversos paciente, e também
-              pode devolver a você! Para ter mais informações e saber como
-              participar, clique em saiba mais e fale com nossa equipe.
+            <SubText
+              variant="subtitle1"
+              my={4}
+              color="white"
+              fontWeight={"bold"}
+            >
+              A CEMIC trabalha com a reabilitação oral de diversos pacientes.
+              Por meio de seu projeto social, a CEMIC devolveu mais de 15 mil
+              sorrisos para diversos paciente, e também pode devolver a você!
             </SubText>
 
-            <Button
+            {/* <Button
               variant="contained"
               onClick={() => window.open(zapHref)}
               startIcon={<WhatsAppIcon />}
@@ -59,7 +67,7 @@ const BannerLanding = (props: BannerLandingInterface) => {
               }}
             >
               Saber mais
-            </Button>
+            </Button> */}
           </Box>
         </Informations>
       </BannerContainer>
@@ -81,9 +89,9 @@ const BannerContainer = styled(Box)`
   width: 100%;
   padding: 5rem;
 
-  @media screen and (max-width: 900px) {
+  /* @media screen and (max-width: 900px) {
     height: auto;
-  }
+  } */
 `;
 
 const Informations = styled(Box)`
@@ -92,7 +100,6 @@ const Informations = styled(Box)`
   height: 100%;
   align-items: center;
   justify-content: space-between;
-  z-index: 3;
 
   @media screen and (max-width: 760px) {
     justify-content: center;
@@ -100,14 +107,6 @@ const Informations = styled(Box)`
   }
 `;
 
-const IconDown = styled(SvgIcon)`
-  border-radius: 50%;
-  cursor: pointer;
-  transition: 0.3s;
-  :hover {
-    opacity: 0.8;
-  }
-`;
 const SubText = styled(Typography)`
   max-width: 45%;
   text-align: left;
@@ -141,33 +140,6 @@ const TitleText = styled(Typography)`
   }
   @media screen and (max-width: 600px) {
     font-size: 2rem;
-  }
-`;
-const StyledButton = styled(Button)`
-  width: fit-content;
-  height: 4rem;
-  border-radius: 1;
-  margin-top: 2;
-  font-size: 1.2rem;
-  @media screen and (max-width: 900px) {
-    font-size: 0.9rem;
-    height: 3rem;
-  }
-  @media screen and (max-width: 600px) {
-    font-size: 0.6rem;
-    height: 2rem;
-  }
-`;
-
-const ImageBannerMobile = styled("div")`
-  background-image: url("/images/clients7.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  margin-top: -3rem;
-  width: 100%;
-  height: 10rem;
-  @media screen and (max-width: 400px) {
-    display: none;
   }
 `;
 

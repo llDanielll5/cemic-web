@@ -109,9 +109,7 @@ const HeaderLanding = (props: HeaderLandingProps) => {
             </IconArrow>
           )}
         >
-          <div>
-            <BannerLanding coverImage="/images/v2/background.png" />
-          </div>
+          <BannerLanding coverImage="/images/v2/background.png" />
         </Carousel>
       </Box>
     </HeaderContainer>

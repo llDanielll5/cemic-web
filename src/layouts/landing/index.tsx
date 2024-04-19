@@ -27,10 +27,8 @@ export const LandingLayout = (props: any) => {
 
   const scrollUp = useCallback(() => {
     const scroll_up = document.getElementById("scroll_up");
-    if (currentScroll > 100) {
-      scroll_up?.classList.add("show-scroll");
-    } else scroll_up?.classList.remove("show-scroll");
-  }, [currentScroll]);
+    scroll_up?.classList.add("show-scroll");
+  }, []);
 
   const getActiveScroll = useCallback(() => {
     const about = document?.getElementById("about");

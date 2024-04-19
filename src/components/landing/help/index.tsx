@@ -4,6 +4,10 @@ import { Box, Button, Typography, styled } from "@mui/material";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 const Help = () => {
+  const msg = `Olá!! Realizei uma doação para a CEMIC, para ajudar no projeto social!`;
+  const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
+    msg
+  )}`;
   return (
     <section id={"help"}>
       <Box my={5} px={"4rem"}>
@@ -51,6 +55,7 @@ const Help = () => {
             variant="contained"
             sx={{ backgroundColor: "var(--dark-blue)", borderRadius: 5, mt: 2 }}
             startIcon={<WhatsAppIcon />}
+            onClick={() => window.open(zapHref, "_blank")}
           >
             Fiz a doação
           </Button>
