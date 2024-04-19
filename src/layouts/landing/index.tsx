@@ -9,6 +9,7 @@ import { useGetScrollPosition } from "@/hooks/useGetScrollPosition";
 import { useRouter } from "next/router";
 import Footer from "@/components/landing/footer";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import BannerLanding from "@/components/landing/banner";
 
 export const LandingLayout = (props: any) => {
   const { children } = props;
@@ -64,9 +65,7 @@ export const LandingLayout = (props: any) => {
   return (
     <Box position="relative" zIndex={0}>
       <HeadLanding />
-      {router.pathname === "/" && (
-        <ImageBanner src={"/images/clients7.jpg"} alt="" />
-      )}
+
       <HeaderLanding
         refMenu={refMenu}
         setTabIndex={setActiveTab}
@@ -88,17 +87,6 @@ export const LandingLayout = (props: any) => {
     </Box>
   );
 };
-
-const ImageBanner = styled("img")`
-  position: absolute;
-  right: 0;
-  top: 0;
-  min-height: 500px;
-  z-index: 0;
-  @media screen and (max-width: 900px) {
-    display: none;
-  }
-`;
 
 LandingLayout.prototypes = {
   children: PropTypes.node,

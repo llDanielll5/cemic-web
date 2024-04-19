@@ -5,24 +5,40 @@ import { Box, Button, SvgIcon, Typography, styled } from "@mui/material";
 import About from "../about";
 import Link from "next/link";
 import useWindowSize from "@/hooks/useWindowSize";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
-const BannerLanding = (props: { aboutRef: any }) => {
+interface BannerLandingInterface {
+  coverImage: string;
+  title?: string;
+  callText?: string;
+  callButton?: any;
+}
+
+const BannerLanding = (props: BannerLandingInterface) => {
   const size = useWindowSize();
   const msg = `Olá!! Gostaria de saber mais sobre a CEMIC.`;
   const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
     msg
   )}`;
 
+  const Container = styled(Box)`
+    position: relative;
+    background-image: ${props.coverImage && `url(${props.coverImage})`};
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  `;
+
   const renderImageBanner = () => (
-    <Box position="relative">
+    <Container>
       <BannerContainer>
         <Informations>
           <Box display="flex" flexDirection="column" alignItems={"flex-start"}>
-            <TitleText variant="h2">
+            <TitleText variant="h2" textAlign={"left"}>
               O maior projeto <span>Social</span>
             </TitleText>
 
-            <SubText variant="subtitle1" my={2}>
+            <SubText variant="subtitle1" my={4} color="white">
               A CEMIC trabalha com a reabilitação oral de diversos pacientes por
               meio de seu projeto para atendimentos de implantes dentários
               Devolveu mais de 15 mil sorrisos para diversos paciente, e também
@@ -30,29 +46,28 @@ const BannerLanding = (props: { aboutRef: any }) => {
               participar, clique em saiba mais e fale com nossa equipe.
             </SubText>
 
-            <StyledButton
+            <Button
               variant="contained"
               onClick={() => window.open(zapHref)}
+              startIcon={<WhatsAppIcon />}
+              sx={{
+                px: 10,
+                py: 0.5,
+                fontSize: "1rem",
+                borderRadius: 7,
+                backgroundColor: "var(--dark-blue)",
+              }}
             >
               Saber mais
-            </StyledButton>
+            </Button>
           </Box>
         </Informations>
       </BannerContainer>
 
-      {size?.width! < 900 && <ImageBannerMobile />}
-
-      <ArrowDownContainer>
-        <Typography variant="subtitle1">Arraste para baixo...</Typography>
-        <Link href={"#about"}>
-          <IconDown fontSize="large">
-            <ArrowDownwardIcon sx={{ color: "white" }} />
-          </IconDown>
-        </Link>
-      </ArrowDownContainer>
-
-      <About ref={props.aboutRef} />
-    </Box>
+      <ArrowDownwardIcon
+        sx={{ color: "var(--dark-blue)", position: "absolute", bottom: "42px" }}
+      />
+    </Container>
   );
 
   return (
@@ -64,8 +79,8 @@ const BannerLanding = (props: { aboutRef: any }) => {
 
 const BannerContainer = styled(Box)`
   width: 100%;
-  padding-top: 1rem;
-  background-color: white;
+  padding: 5rem;
+
   @media screen and (max-width: 900px) {
     height: auto;
   }
@@ -73,12 +88,10 @@ const BannerContainer = styled(Box)`
 
 const Informations = styled(Box)`
   display: flex;
-  padding: 32px;
+  padding: 4rem 2rem 2rem 2rem;
+  height: 100%;
   align-items: center;
   justify-content: space-between;
-  position: absolute;
-  top: -400px;
-  height: 400px;
   z-index: 3;
 
   @media screen and (max-width: 760px) {
@@ -86,18 +99,8 @@ const Informations = styled(Box)`
     flex-direction: column;
   }
 `;
-const ArrowDownContainer = styled(Box)`
-  width: 100%;
-  height: 50px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.5rem;
-`;
+
 const IconDown = styled(SvgIcon)`
-  background-color: var(--dark-blue);
   border-radius: 50%;
   cursor: pointer;
   transition: 0.3s;
@@ -107,6 +110,7 @@ const IconDown = styled(SvgIcon)`
 `;
 const SubText = styled(Typography)`
   max-width: 45%;
+  text-align: left;
   @media screen and (max-width: 900px) {
     max-width: 100%;
   }
@@ -118,12 +122,16 @@ const SubText = styled(Typography)`
   }
 `;
 const TitleText = styled(Typography)`
+  font-family: "Quicksand", sans-serif;
   max-width: 60%;
   font-size: 3rem;
   line-height: 4rem;
+  font-weight: normal;
+  color: white;
   span {
-    background-color: var(--blue);
-    color: white;
+    font-family: "Quicksand", sans-serif;
+    font-weight: bold;
+    color: var(--dark-blue);
     padding: 5px;
     border-radius: 20px;
   }

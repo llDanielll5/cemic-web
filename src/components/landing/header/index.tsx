@@ -1,15 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
 //@ts-nocheck
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { headerData } from "data";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/router";
 import useWindowSize from "@/hooks/useWindowSize";
-import { Box, ListItem, styled, Typography } from "@mui/material";
+import { Box, IconButton, styled, Typography } from "@mui/material";
+import { Carousel } from "react-responsive-carousel";
 import Image from "next/image";
 import Link from "next/link";
-import { getIP } from "@/services/getIp";
+import BannerLanding from "../banner";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 interface HeaderLandingProps {
   refMenu: any;
@@ -22,29 +26,29 @@ const HeaderLanding = (props: HeaderLandingProps) => {
   const size = useWindowSize();
   const [iconMenu, setIconMenu] = useState(true);
   const list = props.refMenu?.current?.style;
-  const [hasIp, setHasIp] = useState(null);
+  const [hasIp, setHasIp] = useState<boolean | null>(null);
 
   const HeaderContainer = styled(Box)`
-    width: 45%;
-    display: flex;
-    align-items: flex-start;
     position: relative;
-    min-height: ${router.pathname !== "/" ? "0px" : "500px"};
-    background-color: white;
-    @media screen and (max-width: 1200px) {
-      width: 56%;
-    }
-    @media screen and (max-width: 900px) {
-      width: 100%;
-    }
+    min-height: ${router.pathname !== "/" ? "0px" : "100vh"};
+    max-height: 100vh;
   `;
 
   const openMenu = (e?: any) => setIconMenu(!iconMenu);
 
   const listItem = ({ item, index }: any) => {
     return (
-      <ListBox key={index} passhref="true" href={item.path}>
-        <List variant="subtitle1" sx={{ cursor: "pointer" }}>
+      <ListBox
+        key={index}
+        passHref
+        href={item.path}
+        hasPath={router.pathname === item.path}
+      >
+        <List
+          variant="subtitle1"
+          sx={{ cursor: "pointer" }}
+          fontWeight={router.pathname === item.path && "bold"}
+        >
           {item.title}
         </List>
       </ListBox>
@@ -60,13 +64,11 @@ const HeaderLanding = (props: HeaderLandingProps) => {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    width: 100%;
     transition: 0.7s;
     @media screen and (max-width: 900px) {
       display: ${iconMenu ? "none" : "flex"};
       flex-direction: column;
-      background-color: white;
+      background-color: #222;
       z-index: 10;
       position: absolute;
       top: 100px;
@@ -75,60 +77,70 @@ const HeaderLanding = (props: HeaderLandingProps) => {
     }
   `;
 
-  const handleGetCemicIp = useCallback(async () => {
-    await getIP().then((ip) => {
-      if (ip !== process.env.CEMIC_PUBLIC_IP) setHasIp(false);
-      else setHasIp(true);
-    });
-  }, []);
-
-  useEffect(() => {
-    handleGetCemicIp();
-  }, [handleGetCemicIp]);
-
   return (
     <HeaderContainer>
       <HeaderListContainer>
         <StyledImg
           alt="cemic logo"
-          src={
-            size?.width! < 900 ? "/images/cemicLogo.png" : "/images/logo.png"
-          }
+          src={"/images/cemicLogo.png"}
           onClick={async () => await router.push("/")}
         />
         <ListContainer ref={props.refMenu}>
-          {headerData.map((item, index) => {
-            if (!hasIp && index < 4) return listItem({ item, index });
-            else if (hasIp) return listItem({ item, index });
-          })}
+          {headerData.map((item, index) => listItem({ item, index }))}
         </ListContainer>
-
-        {router.pathname === "/" && size?.width! > 900 && (
-          <SVGImage
-            priority
-            src={"/images/middle-landing.svg"}
-            width={300}
-            height={500}
-            alt=""
-          />
-        )}
 
         {size.width! < 900 && renderIconMenu()}
       </HeaderListContainer>
+      <Box>
+        <Carousel
+          autoPlay
+          animationHandler={"fade"}
+          infiniteLoop
+          showStatus={false}
+          showIndicators={false}
+          renderArrowNext={(handleClick) => (
+            <IconArrow direction="right" onClick={handleClick}>
+              <ArrowForwardIcon sx={{ color: "white" }} />
+            </IconArrow>
+          )}
+          renderArrowPrev={(handleClick) => (
+            <IconArrow direction="left" onClick={handleClick}>
+              <ArrowBackIcon sx={{ color: "white" }} />
+            </IconArrow>
+          )}
+        >
+          <div>
+            <BannerLanding coverImage="/images/v2/background.png" />
+          </div>
+        </Carousel>
+      </Box>
     </HeaderContainer>
   );
 };
 
+const IconArrow = styled(IconButton)<{ direction: "left" | "right" }>`
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: ${({ direction }) => (direction === "left" ? 0 : undefined)};
+  right: ${({ direction }) => (direction === "right" ? 0 : undefined)};
+  transform: translateY(-50%);
+`;
+
 const HeaderListContainer = styled(Box)`
   display: flex;
   align-items: center;
+  flex-direction: row;
   justify-content: space-between;
-  background-color: white;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
   width: 100%;
   padding: 1.5rem 4rem;
 `;
 
-const ListBox = styled(Link)`
+const ListBox = styled(Link)<{ hasPath: boolean }>`
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -136,10 +148,11 @@ const ListBox = styled(Link)`
   margin: 0 16px;
   transition: 0.3s;
   text-decoration: none;
-  color: var(--dark-blue);
+  color: ${({ hasPath }) => (hasPath ? "var(--dark-blue)" : "white")};
   :hover {
     color: var(--blue);
     font-weight: bold;
+    background-color: #555;
   }
 
   @media screen and (max-width: 900px) {
@@ -154,6 +167,7 @@ const List = styled(Typography)`
   @media screen and (max-width: 900px) {
     padding: 8px 0;
     z-index: 100000;
+    color: white;
     :last-child {
       margin-bottom: 6px;
     }
@@ -162,7 +176,7 @@ const List = styled(Typography)`
 
 const StyledImg = styled("img")`
   cursor: pointer;
-  width: 50px;
+  width: 208px;
   :hover {
     opacity: 0.8;
   }

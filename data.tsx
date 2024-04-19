@@ -24,9 +24,9 @@ export const defaultLectures = { "11:00": [], "17:00": [] };
 export const headerData = [
   { path: "/", title: "Inicio" },
   { path: "/#about", title: "Sobre" },
-  { path: "/help", title: "Ajudar" },
-  { path: "/contact", title: "Contatos" },
-  { path: "/auth/login", title: "Entrar" },
+  { path: "/#help", title: "Ajudar" },
+  { path: "/#address", title: "Endereços" },
+  // { path: "/auth/login", title: "Entrar" },
 ];
 
 export const dentalArch = {

@@ -21,6 +21,7 @@ const nextConfig = {
 
     return config;
   },
+  experimental: { serverComponentsExternalPackages: ["@react-pdf/renderer"] },
   reactStrictMode: true,
   env: {
     REACT_APP_ACCESS_TOKEN_MAP_BOX: process.env.REACT_APP_ACCESS_TOKEN_MAP_BOX,

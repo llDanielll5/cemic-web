@@ -11,7 +11,7 @@ const Footer = (props: any) => {
   return (
     <FooterContainer>
       <FooterLogo src={"/images/logo.png"} alt="" />
-      <Typography variant="subtitle2">
+      <Typography variant="subtitle1">
         CEMIC © Compartilhe essa ideia!
       </Typography>
       <Typography variant="caption">Todos Direitos Reservados.</Typography>
@@ -41,8 +41,8 @@ const Footer = (props: any) => {
         </Link>
       </LinksSocials>
 
-      <Typography variant="caption">
-        © 2023 desenvolvido por <Link href={sofx}>SOFX - Softwares</Link>
+      <Typography variant="caption" fontWeight={"bold"}>
+        © 2024 desenvolvido por <Link href={sofx}>SOFX - Softwares</Link>
       </Typography>
     </FooterContainer>
   );
@@ -57,11 +57,11 @@ const FooterContainer = styled("footer")`
   padding: 2rem 0 5rem 0;
 `;
 const FooterLogo = styled("img")`
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
 `;
 const LinksContainer = styled(Box)`
-  background-color: #e4e4e4;
+  background-color: var(--blue);
   width: 100%;
   justify-content: center;
   display: flex;
@@ -78,7 +78,9 @@ const LinksContainer = styled(Box)`
 `;
 const LinkSingle = styled(Link)`
   text-decoration: none;
-  color: var(--dark-blue);
+  font-family: "Quicksand", sans-serif;
+  font-weight: 700;
+  color: white;
   :hover {
     opacity: 0.8;
   }

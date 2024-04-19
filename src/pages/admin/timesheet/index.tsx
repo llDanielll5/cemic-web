@@ -79,7 +79,10 @@ const TimesheetPage = () => {
       </TitleCard>
 
       {userData?.userType === "EMPLOYEE" && (
-        <EmployeeTimesheetRender data={timesheetData} />
+        <EmployeeTimesheetRender
+          data={timesheetData}
+          refetch={handleGetTimesheetOfDayDetails}
+        />
       )}
     </Container>
   );

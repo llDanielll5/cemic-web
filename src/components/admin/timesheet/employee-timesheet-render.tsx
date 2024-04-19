@@ -13,6 +13,7 @@ import Man4Icon from "@mui/icons-material/Man4";
 import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
 
 const EmployeeTimesheetRender = (props: {
+  refetch: () => void;
   data: {
     startHour?: string;
     endHour?: string;
