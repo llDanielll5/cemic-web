@@ -16,6 +16,7 @@ const fixes = [
   "Foram realizadas correções em alguns problemas como, a questão de que não era possível atualizar o paciente com F5 ou CTRL+R pois isso bugava e ficava tudo em branco",
   "Também agora foi adicionado a possibilidade de o funcionário abrir o caixa diário (O funcionário com essa função)",
   "Pacientes podem ser adicionados sem CEP. Mas é obrigatório os dados básicos ainda.",
+  "Também já é possível você alterar sua senha. Basta Logar e ir no menu Opções, digite sua senha atual e a nova senha!",
   "Estou trabalhando para implementar para Segunda-Feira dia 29/04/24 a questão de impressão dos contratos já prontos com nome dos pacientes.",
   "Também junto estará para a mesma data a questão dos dentistas adicionarem os tratamentos, até lá os tratamentos serão lançados por nós.",
 ];
