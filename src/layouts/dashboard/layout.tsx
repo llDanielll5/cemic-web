@@ -10,7 +10,15 @@ import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/router";
 import { handlePersistLogin } from "@/axios/auth";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { Fab } from "@mui/material";
+import { Box, Button, Fab, Modal, Typography } from "@mui/material";
+
+const fixes = [
+  "Foram realizadas correções em alguns problemas como, a questão de que não era possível atualizar o paciente com F5 ou CTRL+R pois isso bugava e ficava tudo em branco",
+  "Também agora foi adicionado a possibilidade de o funcionário abrir o caixa diário (O funcionário com essa função)",
+  "Pacientes podem ser adicionados sem CEP. Mas é obrigatório os dados básicos ainda.",
+  "Estou trabalhando para implementar para Segunda-Feira dia 29/04/24 a questão de impressão dos contratos já prontos com nome dos pacientes.",
+  "Também junto estará para a mesma data a questão dos dentistas adicionarem os tratamentos, até lá os tratamentos serão lançados por nós.",
+];
 
 const SIDE_NAV_WIDTH = 280;
 
@@ -35,6 +43,8 @@ export const DashboardLayout = (props: any) => {
   const pathname = usePathname();
   const [openNav, setOpenNav] = useState(false);
   const [userData, setUserData] = useRecoilState(UserData);
+  const infosCookie = getCookie("infos1");
+  const [informations, setInformations] = useState(false);
   const router = useRouter();
 
   const handleAddPatient = () => {
@@ -50,9 +60,6 @@ export const DashboardLayout = (props: any) => {
     setCookie("jwt", undefined);
     setCookie("user", undefined);
     return await router.push("/auth/login");
-    // then((res) => {
-    //   if (res) setLoading((prev) => ({ isLoading: false, loadingMessage: "" }));
-    // });
   };
 
   const PersistLogin = async () => {
@@ -74,8 +81,52 @@ export const DashboardLayout = (props: any) => {
     PersistLogin();
   }, []);
 
+  useEffect(() => {
+    if (infosCookie === undefined) {
+      setCookie("infos1", true);
+      setInformations(true);
+    }
+  }, [infosCookie]);
+
   return (
     <>
+      <Modal
+        open={informations}
+        onClose={() => {
+          setCookie("infos1", false);
+          setInformations(false);
+        }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100vw",
+        }}
+      >
+        <Box width={"90%"} bgcolor={"white"} mx="auto" p={3}>
+          <Typography variant="h5" color="green" textAlign={"center"} mb={2}>
+            Atualizações de Sistema!
+          </Typography>
+
+          {fixes.map((v, i) => (
+            <Typography variant="h6" textAlign={"left"} key={i} p={1}>
+              {v}
+            </Typography>
+          ))}
+
+          <Button
+            sx={{ mt: 2 }}
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              setCookie("infos1", false);
+              setInformations(false);
+            }}
+          >
+            Li e entendi!
+          </Button>
+        </Box>
+      </Modal>
       <TopNav onNavOpen={() => setOpenNav(true)} logout={handleLogout} />
       <SideNav onClose={() => setOpenNav(false)} open={openNav} />
       <Fab
