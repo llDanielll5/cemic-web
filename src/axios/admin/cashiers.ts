@@ -39,7 +39,10 @@ export const handleGetMonthCashiersOfType = async (
 };
 
 export const handleOpenCashierDb = async (data: any) => {
-  return await axiosInstance.post("/cashiers", data);
+  return await axiosInstance.post(
+    `/cashiers/?populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*&populate[patient][fields][0]=name&populate[outInfo][populate]=*`,
+    data
+  );
 };
 
 export const generatePatientPaymentInCashier = async (data: any) => {

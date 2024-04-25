@@ -192,21 +192,16 @@ const CashierAdmin = () => {
     if (cashierData !== null) return alert("Caixa já aberto!");
     const startDate = formatISO(startOfMonth(dateSelected)).substring(0, 10);
     const endDate = formatISO(endOfMonth(dateSelected)).substring(0, 10);
-
     const response = await handleGetHasOpenedCashier(startDate, endDate, type);
-
     const { data: openeds } = response.data;
-
     // if (openeds.length > 0)
     //   return alert("Há caixas abertos que não foram fechados!");
     // else return setOpenCashier(true);
-
     setOpenCashier(true); //temporário
   };
 
   const handleCloseCashier = async () => {
     const data = { hasClosed: true };
-
     return await handleCloseCashierOfDay(cashierData?.id!, data).then(
       (res) => {
         getCashier();
@@ -431,14 +426,22 @@ const CashierAdmin = () => {
       </CModal>
       {/* END MODALS */}
 
-      <ReportsButtons
-        cashierType={cashierType}
-        dateSelected={dateSelected}
-        onOpenDateSelect={() => setCalendarVisible(true)}
-      />
+      {adminData?.userType === "ADMIN" ||
+      adminData?.userType === "SUPERADMIN" ? (
+        <ReportsButtons
+          cashierType={cashierType}
+          dateSelected={dateSelected}
+          onOpenDateSelect={() => setCalendarVisible(true)}
+        />
+      ) : null}
 
       {cashierData !== null && (
-        <CashierBody cashierData={cashierData} monthValues={monthValues} />
+        <>
+          {adminData?.userType === "ADMIN" ||
+          adminData?.userType === "SUPERADMIN" ? (
+            <CashierBody cashierData={cashierData} monthValues={monthValues} />
+          ) : null}
+        </>
       )}
 
       <CashierButtons

@@ -47,7 +47,7 @@ export const handleLogin = async (data: any) => {
 };
 
 export const handlePersistLogin = async () => {
-  let { data } = await axiosInstance.get(`/users/me`);
+  let { data } = await axiosInstance.get(`/users/me/?populate=*`);
   const authData = data;
   return authData;
 };
@@ -58,24 +58,6 @@ export const handleLogout = async (router: any) => {
   return await router.push("/auth/login");
 };
 
-const sendResetPassword = async () => {
-  // setIsLoading(true);
-  // setLoadingMessage("Estamos enviando um email para você!");
-  // sendPasswordResetEmail(auth, resetEmail)
-  //   .then(() => {
-  //     setIsLoading(false);
-  //     setResetEmail("");
-  //     changeResetModalVisible();
-  //   })
-  //   .catch((error) => {
-  //     setIsLoading(false);
-  //     const errorCode = error.code;
-  //     if (errorCode === "auth/invalid-email") {
-  //       return alert("E-mail não cadastrado ou errado");
-  //     } else if (errorCode === "auth/missing-email") {
-  //       return alert("Digite um e-mail");
-  //     } else if (errorCode === "auth/user-not-found") {
-  //       return alert("Usuário não cadastrado");
-  //     } else return alert(errorCode);
-  //   });
+export const changePasswordOption = async (data: any) => {
+  return await axiosInstance.post(`/auth/change-password`, data);
 };

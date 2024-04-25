@@ -1,6 +1,8 @@
 import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, Typography, styled } from "@mui/material";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 interface CashierButtonsProps {
   cashierData: any;
@@ -12,6 +14,8 @@ interface CashierButtonsProps {
 const CashierButtons = (props: CashierButtonsProps) => {
   const { cashierData, onAddInformations, onOpenCashier, onCloseCashier } =
     props;
+  const adminData = useRecoilValue(UserData);
+  const adminInfos = cashierData?.attributes?.adminInfos;
 
   const colorCashierInfo =
     cashierData === null
@@ -36,8 +40,22 @@ const CashierButtons = (props: CashierButtonsProps) => {
       >
         {cashierInfo}
       </Typography>
+      <Typography
+        width={"100%"}
+        variant="subtitle1"
+        fontWeight={"bold"}
+        color="chocolate"
+        textAlign={"center"}
+      >
+        {`Caixa aberto por ${
+          adminInfos?.created?.data?.attributes?.name ?? ""
+        } às ${adminInfos?.createTimestamp?.substring(11, 19) ?? ""}`}
+      </Typography>
       <Buttons>
-        {cashierData !== null && !cashierData?.attributes?.hasClosed ? (
+        {(cashierData !== null &&
+          !cashierData?.attributes?.hasClosed &&
+          adminData?.userType === "ADMIN") ||
+        adminData?.userType === "SUPERADMIN" ? (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -52,13 +70,18 @@ const CashierButtons = (props: CashierButtonsProps) => {
           </Button>
         )}
         {cashierData !== null && !cashierData?.attributes?.hasClosed ? (
-          <Button
-            variant="contained"
-            color={"warning"}
-            onClick={onCloseCashier}
-          >
-            Fechar Caixa
-          </Button>
+          <>
+            {adminData?.userType === "ADMIN" ||
+            adminData?.userType === "SUPERADMIN" ? (
+              <Button
+                variant="contained"
+                color={"warning"}
+                onClick={onCloseCashier}
+              >
+                Fechar Caixa
+              </Button>
+            ) : null}
+          </>
         ) : null}
       </Buttons>
     </ButtonsContainer>
