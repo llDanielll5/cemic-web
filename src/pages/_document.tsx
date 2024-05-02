@@ -19,6 +19,10 @@ export default function Document() {
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"
         />
+        <meta
+          http-equiv="Content-Security-Policy"
+          content="upgrade-insecure-requests"
+        />
       </Head>
       <body>
         <Main />
