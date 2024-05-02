@@ -86,7 +86,10 @@ const styles = StyleSheet.create({
   },
   tableRow: { display: "flex", flexDirection: "row" },
   table: (w: string): any => ({ width: w }),
-  textTable: { fontSize: "2vw", margin: "4px" },
+  textTable: {
+    fontSize: "2vw",
+    margin: "4px",
+  },
   tableAnamnese: {
     marginVertical: 2,
     border: "1px solid #d4d4d4",
@@ -178,7 +181,9 @@ const ExamplePdfRender = (props: {
           ))}
 
           <Text style={styles.author}></Text>
-          <Text style={styles.author}>Assinatura Paciente</Text>
+          <Text style={{ ...styles.author, marginBottom: 10 }}>
+            Assinatura Paciente
+          </Text>
           <Text style={{ alignSelf: "flex-end", fontSize: 10 }}>
             Brasilia: {new Date().toLocaleDateString()}
           </Text>
@@ -294,9 +299,9 @@ const ExamplePdfRender = (props: {
           {/* <Image style={styles.image} src="/images/quijote2.png" /> */}
           <Text style={styles.textMin}>
             Eu {attr?.name}, estou ciente que só paguei pela fase cirúrgica dos
-            impl antes, e me comprometo em retornar no período de 6 MESES ou
+            implantes, e me comprometo em retornar no período de 6 MESES ou
             indicado pelo implantodontista, após a colocação dos implantes, para
-            fazer as coroas definitivas de metalocerâmica ( em caso de dente
+            fazer as coroas definitivas de metalocerâmica (em caso de dente
             individual) ou o protocolo de resina (total). Onde pagarei por elas
             no dia do meu retorno. Estou ciente dos va lores e que pode haver
             acréscimo dos componentes protéticos, também estou ciente de que se
