@@ -14,6 +14,7 @@ import {
   PDFViewer,
   View,
 } from "@react-pdf/renderer";
+import { borderRight } from "@mui/system";
 
 Font.register({
   family: "Montserrat",
@@ -81,11 +82,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     border: "1px solid black",
-    padding: 8,
     marginVertical: 8,
   },
-  tableRow: { display: "flex", flexDirection: "row" },
-  table: (w: string): any => ({ width: w }),
+  tableRow: {
+    display: "flex",
+    flexDirection: "row",
+    borderBottom: "1px solid black",
+  },
+  table: (w: string): any => ({ width: w, borderRight: "1px solid black" }),
   textTable: {
     fontSize: "2vw",
     margin: "4px",
@@ -124,7 +128,7 @@ const ExamplePdfRender = (props: {
           </Text>
 
           <View style={styles.tableContainer}>
-            <View style={styles.tableRow}>
+            <View style={{ ...styles.tableRow }}>
               <View style={styles.table("100%")}>
                 <Text style={styles.textTable}>
                   Paciente: {attr?.name ?? ""}
