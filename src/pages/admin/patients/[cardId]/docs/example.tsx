@@ -6,7 +6,7 @@ import { handleGetSinglePatient } from "@/axios/admin/patients";
 // import { Container } from './styles';
 const PDFViewerWithNoSSR = dynamic(
   import("../../../../../components/pdf/example"),
-  { ssr: false }
+  { ssr: true }
 );
 
 const PDFExample = () => {
