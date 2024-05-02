@@ -135,13 +135,15 @@ const PatientsPage = () => {
               <Stack spacing={1}>
                 <Typography variant="h4">Pacientes</Typography>
               </Stack>
-              <Button
-                startIcon={<PersonAddAltIcon />}
-                onClick={handleChangePatientVisible}
-                variant="contained"
-              >
-                Add
-              </Button>
+              {adminData?.permissions?.patients?.permissions?.create && (
+                <Button
+                  startIcon={<PersonAddAltIcon />}
+                  onClick={handleChangePatientVisible}
+                  variant="contained"
+                >
+                  Add
+                </Button>
+              )}
             </Stack>
 
             <CustomersSearch

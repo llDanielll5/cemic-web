@@ -28,6 +28,13 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
     );
   };
 
+  const handleGenerateContract = () => {
+    return window.open(
+      `/admin/patients/${patientData?.attributes?.cardId}/docs/example`,
+      "_blank"
+    );
+  };
+
   return (
     <Container>
       <Stack direction={"row"} alignItems="flex-start">
@@ -64,6 +71,10 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
           </Typography>
         ) : null}
       </Box>
+
+      <Button variant="contained" onClick={handleGenerateContract}>
+        Gerar Contrato
+      </Button>
     </Container>
   );
 };

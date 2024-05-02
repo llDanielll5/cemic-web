@@ -278,6 +278,64 @@ const ExamplePdfRender = (props: {
             legalmente pela lei 8.069/90 pelo artigo 18 da lei n° 4.342/64
           </Text>
 
+          {/* Coroas Definitivas Termo */}
+
+          <Image style={styles.image} src="/images/cemicLogo.png" break />
+          <Text
+            style={{
+              fontSize: 14,
+              fontFamily: "Montserrat",
+              alignSelf: "center",
+            }}
+          >
+            FASE FINAL: COROAS DEFINITIVAS
+          </Text>
+
+          {/* <Image style={styles.image} src="/images/quijote2.png" /> */}
+          <Text style={styles.textMin}>
+            Eu {attr?.name}, estou ciente que só paguei pela fase cirúrgica dos
+            impl antes, e me comprometo em retornar no período de 6 MESES ou
+            indicado pelo implantodontista, após a colocação dos implantes, para
+            fazer as coroas definitivas de metalocerâmica ( em caso de dente
+            individual) ou o protocolo de resina (total). Onde pagarei por elas
+            no dia do meu retorno. Estou ciente dos va lores e que pode haver
+            acréscimo dos componentes protéticos, também estou ciente de que se
+            eu não retornar nesse período indicado pelo profissional, corro o
+            risco de perda dos implantes, sendo assim, assumo a responsabilidade
+            de comparecer na CEMIC – Centro Médico e de Implantes Comunitários –
+            no prazo citado. O meu não comparecimento retira toda
+            responsabilidade da CEMIC e do profissional que realizou a minha
+            cirurgia.
+          </Text>
+
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              margin: 10,
+            }}
+          >
+            <View>
+              <Text style={{ marginTop: 12, fontSize: 12 }}>
+                _________________________________________
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  textAlign: "justify",
+                  fontFamily: "Times-Roman",
+                }}
+              >
+                Assinatura do Paciente
+              </Text>
+            </View>
+            <Text style={styles.textMin}>
+              Data: {new Date().toLocaleDateString()}
+            </Text>
+          </View>
+
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) =>
