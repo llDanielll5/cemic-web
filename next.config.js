@@ -21,6 +21,7 @@ const nextConfig = {
 
     return config;
   },
+  swcMinify: false,
   experimental: { serverComponentsExternalPackages: ["@react-pdf/renderer"] },
   reactStrictMode: true,
   env: {
