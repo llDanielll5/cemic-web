@@ -49,7 +49,7 @@ const CashierButtons = (props: CashierButtonsProps) => {
       >
         {`Caixa aberto por ${
           adminInfos?.created?.data?.attributes?.name ?? ""
-        } às ${adminInfos?.createTimestamp?.substring(11, 19) ?? ""}`}
+        } em ${new Date(adminInfos?.createTimestamp).toLocaleString() ?? ""}`}
       </Typography>
       <Buttons>
         {(cashierData !== null &&
