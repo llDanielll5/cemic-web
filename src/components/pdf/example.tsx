@@ -14,11 +14,14 @@ import {
   PDFViewer,
   View,
 } from "@react-pdf/renderer";
-import { borderRight } from "@mui/system";
 
 Font.register({
   family: "Montserrat",
   src: "http://fonts.gstatic.com/s/montserrat/v7/Kqy6-utIpx_30Xzecmeo8_esZW2xOQ-xsNqO47m55DA.ttf",
+});
+Font.register({
+  family: "Times-Roman",
+  src: "https://www.grmw.org/static/fonts/Times%20New%20Roman.ttf",
 });
 
 const styles = StyleSheet.create({
@@ -91,22 +94,150 @@ const styles = StyleSheet.create({
   },
   table: (w: string): any => ({ width: w, borderRight: "1px solid black" }),
   textTable: {
-    fontSize: "2vw",
+    fontSize: "1.8vw",
     margin: "4px",
   },
   tableAnamnese: {
-    marginVertical: 2,
-    border: "1px solid #d4d4d4",
+    borderBottom: "1px solid black",
     padding: 2,
-    borderRadius: 4,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
   },
+  tableBudget: {
+    display: "flex",
+    flexDirection: "row",
+    border: "1px solid black",
+  },
+  tableBudgetTitle: {
+    fontSize: "2vw",
+    fontFamily: "Montserrat",
+    textAlign: "center",
+    padding: 3,
+  },
+  center: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
 
 const tableData = [];
+
+const headerPatient = (attr) => (
+  <View style={styles.tableContainer}>
+    <View style={{ ...styles.tableRow }}>
+      <View style={styles.table("100%")}>
+        <Text style={styles.textTable}>Paciente: {attr?.name ?? ""}</Text>
+      </View>
+    </View>
+    <View style={styles.tableRow}>
+      <View style={styles.table("40%")}>
+        <Text style={styles.textTable}>
+          Data Nasc: {parseDateIso(attr?.dateBorn)}
+        </Text>
+      </View>
+      <View style={styles.table("60%")}>
+        <Text style={styles.textTable}>
+          Endereço: {attr?.address?.address ?? ""}
+        </Text>
+      </View>
+    </View>
+    <View style={styles.tableRow}>
+      <View style={styles.table("40%")}>
+        <Text style={styles.textTable}>Bairro: {attr?.address?.neighbor}</Text>
+      </View>
+      <View style={styles.table("60%")}>
+        <Text style={styles.textTable}>CEP: {attr?.address?.cep}</Text>
+      </View>
+    </View>
+    <View style={styles.tableRow}>
+      <View style={styles.table("40%")}>
+        <Text style={styles.textTable}>Telefone: {attr?.phone}</Text>
+      </View>
+      <View style={styles.table("60%")}>
+        <Text style={styles.textTable}>Email: {attr?.email}</Text>
+      </View>
+    </View>
+    <View style={styles.tableRow}>
+      <View style={styles.table("40%")}>
+        <Text style={styles.textTable}>CPF: {attr?.cpf}</Text>
+      </View>
+      <View style={styles.table("60%")}>
+        <Text style={styles.textTable}>RG: {attr?.rg}</Text>
+      </View>
+    </View>
+  </View>
+);
+
+const headerBudgetTable = (titles: string[], isBold?: boolean) => (
+  <View style={styles.tableBudget}>
+    <View style={{ ...styles.table("20%"), ...styles.center }}>
+      <Text
+        style={{
+          ...styles.tableBudgetTitle,
+          fontFamily: isBold ? "Montserrat" : "Times-Roman",
+        }}
+      >
+        {titles[0]}
+      </Text>
+    </View>
+    <View style={{ ...styles.table("20%"), ...styles.center }}>
+      <Text
+        style={{
+          ...styles.tableBudgetTitle,
+          fontFamily: isBold ? "Montserrat" : "Times-Roman",
+        }}
+      >
+        {titles[1]}
+      </Text>
+    </View>
+    <View style={{ ...styles.table("20%"), ...styles.center }}>
+      <Text
+        style={{
+          ...styles.tableBudgetTitle,
+          fontFamily: isBold ? "Montserrat" : "Times-Roman",
+        }}
+      >
+        {titles[2]}
+      </Text>
+    </View>
+    <View style={{ ...styles.table("20%"), ...styles.center }}>
+      <Text
+        style={{
+          ...styles.tableBudgetTitle,
+          fontFamily: isBold ? "Montserrat" : "Times-Roman",
+        }}
+      >
+        {titles[3]}
+      </Text>
+    </View>
+    <View style={{ ...styles.table("20%"), ...styles.center }}>
+      <Text
+        style={{
+          ...styles.tableBudgetTitle,
+          fontFamily: isBold ? "Montserrat" : "Times-Roman",
+        }}
+      >
+        {titles[4]}
+      </Text>
+    </View>
+  </View>
+);
+
+const basicHeaderBudget = () => {
+  return headerBudgetTable(
+    [
+      "Procedimento",
+      "Qntd Orçada",
+      "Região Dentes",
+      "Valor Unitário",
+      "Valor Total",
+    ],
+    true
+  );
+};
 
 const ExamplePdfRender = (props: {
   patient: {
@@ -127,42 +258,49 @@ const ExamplePdfRender = (props: {
             ANAMNESE
           </Text>
 
+          {headerPatient(attr)}
+
+          <View style={{ border: "1px solid black", marginBottom: 20 }}>
+            {Object.values(anamsVal).map((text, index) => (
+              <View style={styles.tableAnamnese} key={index}>
+                <Text style={styles.textTable}>{text}</Text>
+                <Text style={styles.textTable}>
+                  {attr?.anamnese?.[text] as string}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          <Text style={{ fontSize: "2vw" }}>
+            OBS: <Text>{attr?.observations}</Text>
+          </Text>
+
+          <Text style={styles.author}></Text>
+          <Text style={{ ...styles.author, marginBottom: 10 }}>
+            Assinatura Paciente
+          </Text>
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ alignSelf: "center", fontSize: 10 }}>
+              _______________________________________
+            </Text>
+            <Text style={{ alignSelf: "flex-end", fontSize: 12 }}>
+              Brasilia: {new Date().toLocaleDateString()}
+            </Text>
+          </View>
+
+          {/* ORÇAMENTOS */}
+
+          <Image style={styles.image} src="/images/cemicLogo.png" break />
+          <Text style={{ ...styles.subtitle, textAlign: "center", margin: 0 }}>
+            Ficha Cadastral
+          </Text>
+
           <View style={styles.tableContainer}>
             <View style={{ ...styles.tableRow }}>
               <View style={styles.table("100%")}>
                 <Text style={styles.textTable}>
                   Paciente: {attr?.name ?? ""}
                 </Text>
-              </View>
-            </View>
-            <View style={styles.tableRow}>
-              <View style={styles.table("40%")}>
-                <Text style={styles.textTable}>
-                  Data Nasc: {parseDateIso(attr?.dateBorn)}
-                </Text>
-              </View>
-              <View style={styles.table("60%")}>
-                <Text style={styles.textTable}>
-                  Endereço: {attr?.address?.address ?? ""}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.tableRow}>
-              <View style={styles.table("40%")}>
-                <Text style={styles.textTable}>
-                  Bairro: {attr?.address?.neighbor}
-                </Text>
-              </View>
-              <View style={styles.table("60%")}>
-                <Text style={styles.textTable}>CEP: {attr?.address?.cep}</Text>
-              </View>
-            </View>
-            <View style={styles.tableRow}>
-              <View style={styles.table("40%")}>
-                <Text style={styles.textTable}>Telefone: {attr?.phone}</Text>
-              </View>
-              <View style={styles.table("60%")}>
-                <Text style={styles.textTable}>Email: {attr?.email}</Text>
               </View>
             </View>
             <View style={styles.tableRow}>
@@ -175,22 +313,70 @@ const ExamplePdfRender = (props: {
             </View>
           </View>
 
-          {Object.values(anamsVal).map((text, index) => (
-            <View style={styles.tableAnamnese} key={index}>
-              <Text style={styles.textTable}>{text}</Text>
-              <Text style={styles.textTable}>
-                {attr?.anamnese?.[text] as any}
-              </Text>
-            </View>
-          ))}
+          <Text style={{ ...styles.subtitle, textAlign: "center", margin: 0 }}>
+            Material
+          </Text>
 
-          <Text style={styles.author}></Text>
-          <Text style={{ ...styles.author, marginBottom: 10 }}>
-            Assinatura Paciente
+          <Text style={{ ...styles.subtitle, fontSize: "1.9vw", margin: 0 }}>
+            1ª Fase
           </Text>
-          <Text style={{ alignSelf: "flex-end", fontSize: 10 }}>
-            Brasilia: {new Date().toLocaleDateString()}
+          {basicHeaderBudget()}
+          {headerBudgetTable(
+            ["Levantamento Seio", "", "", "R$ 500,00", ""],
+            false
+          )}
+          {headerBudgetTable(
+            ["Enxerto Simples", "", "", "R$ 500,00", ""],
+            false
+          )}
+          {headerBudgetTable(
+            ["Enxerto Complexo", "", "", "R$ 1000,00", ""],
+            false
+          )}
+          {headerBudgetTable(["Membrana", "", "", "R$ 400,00", ""], false)}
+          {headerBudgetTable(
+            ["Osso Liofilizado", "", "", "R$ 400,00", ""],
+            false
+          )}
+          {headerBudgetTable(["Osso Bioss", "", "", "R$ 1300,00", ""], false)}
+
+          <Text style={{ ...styles.subtitle, fontSize: "1.9vw", margin: 0 }}>
+            2ª Fase
           </Text>
+          {basicHeaderBudget()}
+          {headerBudgetTable(["Implante", "", "", "R$ 450,00", ""], false)}
+          {headerBudgetTable(["Mini Implante", "", "", "R$ 250,00", ""], false)}
+          {headerBudgetTable(["Prótese Total", "", "", "R$ 450,00", ""], false)}
+          {headerBudgetTable(["Exodontia", "", "", "R$ 50,00", ""], false)}
+          {headerBudgetTable(["Over Denture", "", "", "R$ 3000,00", ""], false)}
+          {headerBudgetTable(
+            ["Sedação Médica Anestésica", "", "", "R$ 900,00", ""],
+            false
+          )}
+
+          <Text style={{ ...styles.subtitle, fontSize: "1.9vw", margin: 0 }}>
+            3ª Fase
+          </Text>
+          {basicHeaderBudget()}
+          {headerBudgetTable(
+            ["Coroa Definitiva Metalocerâmica", "", "", "R$ 700,00", ""],
+            false
+          )}
+          {headerBudgetTable(
+            ["Componentes Protéticos", "", "", "R$ 250,00", ""],
+            false
+          )}
+          {headerBudgetTable(
+            ["Protocolo Definitivo Superior Resina", "", "", "R$ 4500,00", ""],
+            false
+          )}
+          {headerBudgetTable(
+            ["Protocolo Definitivo Inferior Resina", "", "", "R$ 4000,00", ""],
+            false
+          )}
+          {headerBudgetTable(["Total Geral", "", "", "", ""], false)}
+
+          {/* FIM ORÇAMENTOS */}
 
           <Image style={styles.image} src="/images/cemicLogo.png" break />
           <Text
@@ -282,9 +468,19 @@ const ExamplePdfRender = (props: {
             </Text>
           </View>
 
-          <Text style={styles.text}>
-            Observação: Se o menor assinar o cirurgião dentista responderá
-            legalmente pela lei 8.069/90 pelo artigo 18 da lei n° 4.342/64
+          <Text
+            style={{
+              ...styles.text,
+              fontSize: "1.9vw",
+              fontWeight: "bold",
+              fontFamily: "Montserrat",
+            }}
+          >
+            Observação:{" "}
+            <Text style={{ ...styles.text, fontSize: "2vw" }}>
+              Se o menor assinar o cirurgião dentista responderá legalmente pela
+              lei 8.069/90 pelo artigo 18 da lei n° 4.342/64
+            </Text>
           </Text>
 
           {/* Coroas Definitivas Termo */}
@@ -297,24 +493,30 @@ const ExamplePdfRender = (props: {
               alignSelf: "center",
             }}
           >
-            FASE FINAL: COROAS DEFINITIVAS
+            TERMO DE CONSENTIMENTO PARA COROAS
           </Text>
 
           {/* <Image style={styles.image} src="/images/quijote2.png" /> */}
           <Text style={styles.textMin}>
-            Eu {attr?.name}, estou ciente que só paguei pela fase cirúrgica dos
-            implantes, e me comprometo em retornar no período de 6 MESES ou
-            indicado pelo implantodontista, após a colocação dos implantes, para
-            fazer as coroas definitivas de metalocerâmica (em caso de dente
-            individual) ou o protocolo de resina (total). Onde pagarei por elas
-            no dia do meu retorno. Estou ciente dos va lores e que pode haver
-            acréscimo dos componentes protéticos, também estou ciente de que se
-            eu não retornar nesse período indicado pelo profissional, corro o
-            risco de perda dos implantes, sendo assim, assumo a responsabilidade
-            de comparecer na CEMIC – Centro Médico e de Implantes Comunitários –
-            no prazo citado. O meu não comparecimento retira toda
-            responsabilidade da CEMIC e do profissional que realizou a minha
-            cirurgia.
+            Eu {attr?.name} estou ciente que só paguei pela fase cirúrgica do
+            meu tratamento de implantes, e me comprometo em retornar no período
+            de 6 meses ou a data definida pelo especialista, após a colocação
+            dos implantes para fazer as coroas definitiva de metalocerâmica em
+            caso de implantes individuais, ou prótese protocolo superior de
+            resina. Onde pagarei por elas no dia do meu retorno. Exceto nos
+            casos de carga imediata de prótese protocolo de resina na inferior.
+            Me comprometo que depois de instaladas minhas próteses definitivas,
+            de voltar ao especialista de 6 em 6 meses para fazer limpeza
+            (manutenções) das minhas próteses definitivas, próteses protocolos e
+            etc., e que pagarei por esses serviços no dia do meu retorno. Fui
+            informado que optando pelo, tratamentos com implantes dentários,
+            estarei sempre em tratamento sendo assim precisando de minha
+            colaboração, como higienização, manutenções, retornos caso sinta
+            dores incômodos ou caso precise de ajustes protéticas, infecções e
+            etc. Fui informado que, tratamento com implantes dentários não são
+            permanentes ou para sempre e que pode ter perdas ou rejeição dos
+            implantes da forma que li no meu risco cirúrgico. Ex: falta de
+            manutenções (limpeza).
           </Text>
 
           <View
@@ -344,6 +546,138 @@ const ExamplePdfRender = (props: {
               Data: {new Date().toLocaleDateString()}
             </Text>
           </View>
+
+          <Text
+            style={{
+              ...styles.text,
+              fontSize: "1.9vw",
+              fontWeight: "bold",
+              fontFamily: "Montserrat",
+            }}
+          >
+            Observação:{" "}
+            <Text style={{ ...styles.text, fontSize: "2vw" }}>
+              Se o menor assinar o cirurgião dentista responderá legalmente pela
+              lei 8.069/90 pelo artigo 18 da lei n° 4.342/64
+            </Text>
+          </Text>
+
+          <Image style={styles.image} src="/images/cemicLogo.png" break />
+          <Text
+            style={{
+              fontSize: 14,
+              fontFamily: "Montserrat",
+              alignSelf: "center",
+            }}
+          >
+            CONTROLE DE PROCEDIMENTOS
+          </Text>
+          <View style={styles.tableContainer}>
+            <View style={{ ...styles.tableRow }}>
+              <View style={styles.table("100%")}>
+                <Text style={styles.textTable}>
+                  Paciente: {attr?.name ?? ""}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.tableRow}>
+              <View style={styles.table("40%")}>
+                <Text style={styles.textTable}>CPF: {attr?.cpf}</Text>
+              </View>
+              <View style={styles.table("60%")}>
+                <Text style={styles.textTable}>RG: {attr?.rg}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.tableBudget}>
+            <View style={{ ...styles.table("15%"), ...styles.center }}>
+              <Text
+                style={{
+                  ...styles.tableBudgetTitle,
+                }}
+              >
+                Data
+              </Text>
+            </View>
+            <View style={{ ...styles.table("50%"), ...styles.center }}>
+              <Text
+                style={{
+                  ...styles.tableBudgetTitle,
+                }}
+              >
+                Procedimentos Realizados
+              </Text>
+            </View>
+            <View style={{ ...styles.table("20%"), ...styles.center }}>
+              <Text
+                style={{
+                  ...styles.tableBudgetTitle,
+                }}
+              >
+                CD
+              </Text>
+            </View>
+            <View style={{ ...styles.table("15%"), ...styles.center }}>
+              <Text
+                style={{
+                  ...styles.tableBudgetTitle,
+                }}
+              >
+                CEMIC
+              </Text>
+            </View>
+          </View>
+          {[
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+          ].map((v, i) => (
+            <View style={styles.tableBudget} key={i}>
+              <View style={{ ...styles.table("15%"), ...styles.center }}>
+                <Text style={{ ...styles.tableBudgetTitle, padding: 7 }}></Text>
+              </View>
+              <View style={{ ...styles.table("50%"), ...styles.center }}>
+                <Text style={{ ...styles.tableBudgetTitle, padding: 7 }}></Text>
+              </View>
+              <View style={{ ...styles.table("20%"), ...styles.center }}>
+                <Text style={{ ...styles.tableBudgetTitle, padding: 7 }}></Text>
+              </View>
+              <View style={{ ...styles.table("15%"), ...styles.center }}>
+                <Text style={{ ...styles.tableBudgetTitle, padding: 7 }}></Text>
+              </View>
+            </View>
+          ))}
 
           <Text
             style={styles.pageNumber}

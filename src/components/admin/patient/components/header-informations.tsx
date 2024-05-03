@@ -8,6 +8,8 @@ import HeaderTopPatientInformations from "./header-top-informations";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { parseDateIso } from "@/services/services";
 import { useRouter } from "next/router";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 
 interface HeaderPatientInterface {
   clientData: any;
@@ -28,9 +30,16 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
     );
   };
 
-  const handleGenerateContract = () => {
+  const handleGenerateAnamnese = () => {
     return window.open(
       `/admin/patients/${patientData?.attributes?.cardId}/docs/example`,
+      "_blank"
+    );
+  };
+
+  const handleGenerateContract = () => {
+    return window.open(
+      `/admin/patients/${patientData?.attributes?.cardId}/docs/contract`,
       "_blank"
     );
   };
@@ -72,9 +81,31 @@ const HeaderPatientInformations = (props: HeaderPatientInterface) => {
         ) : null}
       </Box>
 
-      <Button variant="contained" onClick={handleGenerateContract}>
-        Gerar Contrato
-      </Button>
+      <Stack
+        width={"100%"}
+        columnGap={2}
+        alignItems={"center"}
+        justifyContent={"space-between"}
+        direction={"row"}
+        p={2}
+      >
+        <Button
+          endIcon={<ChecklistRtlIcon />}
+          fullWidth
+          variant="contained"
+          onClick={handleGenerateAnamnese}
+        >
+          Gerar Anamnese
+        </Button>
+        <Button
+          fullWidth
+          endIcon={<PictureAsPdfIcon />}
+          variant="contained"
+          onClick={handleGenerateContract}
+        >
+          Gerar Contrato
+        </Button>
+      </Stack>
     </Container>
   );
 };
