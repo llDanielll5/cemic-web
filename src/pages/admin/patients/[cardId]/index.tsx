@@ -4,6 +4,11 @@ import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { useRouter } from "next/router";
 import { Box } from "@mui/material";
 import PatientDetails from "@/components/admin/patient";
+import dynamic from "next/dynamic";
+
+const SingleUser = dynamic(import("@/components/admin/patient"), {
+  ssr: true,
+});
 
 const PatientSingle = (props: any) => {
   const router = useRouter();
@@ -21,7 +26,7 @@ const PatientSingle = (props: any) => {
 
   return (
     <Box p={4}>
-      {patientCardId !== "" && <PatientDetails cardId={patientCardId} />}
+      {patientCardId !== "" ? <SingleUser cardId={patientCardId} /> : null}
     </Box>
   );
 };
