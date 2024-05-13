@@ -9,6 +9,7 @@ import RecentActorsIcon from "@mui/icons-material/RecentActors";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import HealingIcon from "@mui/icons-material/Healing";
 import PunchClockIcon from "@mui/icons-material/PunchClock";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { SvgIcon } from "@mui/material";
 
 export const SideNavLinks = (data: { userType: any; permissions: any }) => {
@@ -98,6 +99,17 @@ export const SideNavLinks = (data: { userType: any; permissions: any }) => {
       icon: (
         <SvgIcon fontSize="small">
           <PointOfSaleIcon />
+        </SvgIcon>
+      ),
+    });
+  }
+  if (data?.permissions?.whatsapp?.allowed) {
+    itens.push({
+      title: "Whatsapp Bot",
+      path: "/admin/whatsapp",
+      icon: (
+        <SvgIcon fontSize="small">
+          <WhatsAppIcon />
         </SvgIcon>
       ),
     });

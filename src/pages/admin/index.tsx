@@ -2,7 +2,13 @@
 import Head from "next/head";
 import UserData from "@/atoms/userData";
 import { endOfMonth, formatISO, startOfMonth } from "date-fns";
-import { Box, Container, Fab, Unstable_Grid2 as Grid } from "@mui/material";
+import {
+  Box,
+  Container,
+  Fab,
+  Unstable_Grid2 as Grid,
+  Typography,
+} from "@mui/material";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { OverviewBudget } from "src/components/new-admin/overview/overview-budget";
 import { OverviewLatestOrders } from "src/components/new-admin/overview/overview-latest-orders";
@@ -21,6 +27,9 @@ import {
 } from "@/axios/admin/cashiers";
 import { getCreditDiscount } from "@/services/services";
 import { handleGetCountPatientsByDate } from "@/axios/admin/patients";
+import { getTrafficDevice } from "@/axios/admin/dashboard";
+import { TotalChats } from "@/components/admin/dashboard/_components/total-chats";
+import { TotalSchedules } from "@/components/admin/dashboard/_components/total-schedules";
 
 const now = new Date();
 
@@ -51,6 +60,28 @@ const AdminPage = () => {
     totalBankCheck: 0,
     totalTransfer: 0,
   });
+
+  // TRAFFICS GRAPHS
+  const [traffics, setTraffics] = useState({
+    ios: 0,
+    android: 0,
+    web: 0,
+    total: 0,
+    scheduleds: 0,
+  });
+
+  const getDevicesTraffic = useCallback(async () => {
+    return await getTrafficDevice().then(
+      ({ android, ios, web, total, scheduleds }) =>
+        setTraffics({
+          ios: parseFloat(((ios / total) * 100).toFixed(2)),
+          android: parseFloat(((android / total) * 100).toFixed(2)),
+          web: parseFloat(((web / total) * 100).toFixed(2)),
+          total,
+          scheduleds,
+        })
+    );
+  }, []);
 
   const salesGraph = [
     {
@@ -214,7 +245,6 @@ const AdminPage = () => {
 
   const getDifferenceMonthValues = () => {
     const difference = ((totalMonth - totalLastMonth) / totalMonth) * 100;
-    console.log(difference);
     setMonthDifference(parseFloat(difference.toFixed(2)));
   };
 
@@ -232,6 +262,10 @@ const AdminPage = () => {
   }, []);
 
   useEffect(() => {
+    getDevicesTraffic();
+  }, [getDevicesTraffic]);
+
+  useEffect(() => {
     getDifferenceMonthValues();
   }, [totalMonth, totalLastMonth]);
 
@@ -244,6 +278,22 @@ const AdminPage = () => {
       <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
         <Container maxWidth="xl">
           <Grid container spacing={3}>
+            <Grid lg={6} sm={6} xs={12}>
+              <TotalChats
+                trend="up"
+                sx={{ height: "100%" }}
+                value={traffics.total.toString()}
+              />
+            </Grid>
+
+            <Grid lg={6} sm={6} xs={12}>
+              <TotalSchedules
+                trend="down"
+                sx={{ height: "100%" }}
+                value={traffics.scheduleds.toString()}
+              />
+            </Grid>
+
             {adminData?.userType === "ADMIN" ||
             adminData?.userType === "SUPERADMIN" ? (
               <>
@@ -274,17 +324,17 @@ const AdminPage = () => {
             </Grid> */}
             {/* <Grid xs={12} lg={8}>
               <OverviewSales chartSeries={salesGraph} sx={{ height: "100%" }} />
-            </Grid>
+            </Grid> */}
             <Grid xs={12} md={6} lg={4}>
               <OverviewTraffic
-                chartSeries={[63, 15, 22]}
-                labels={["Desktop", "Tablet", "Phone"]}
+                chartSeries={[traffics.web, traffics.android, traffics.ios]}
+                labels={["PC", "Android", "iPhone"]}
                 sx={{ height: "100%" }}
               />
-            </Grid> */}
+            </Grid>
             {adminData?.userType === "ADMIN" ||
             adminData?.userType === "SUPERADMIN" ? (
-              <Grid xs={12} md={12} lg={12}>
+              <Grid xs={12} md={6} lg={4}>
                 <OverviewLatestOrders
                   orders={lastPayments}
                   sx={{ height: "100%" }}

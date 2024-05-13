@@ -17,6 +17,7 @@ import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { getActualLectureDetails } from "@/axios/admin/lectures";
 import { Box, Typography, IconButton, Button, styled } from "@mui/material";
 import { Scheduler } from "@aldabil/react-scheduler";
+import LecturesTable from "@/components/table/lectures-table";
 
 interface PatientInfos {
   participant: string;
@@ -32,6 +33,15 @@ const defaultPatientValues = {
   hour: "11:00",
   cpf: "",
 };
+
+const tableData = [
+  {
+    hour: "11:00",
+    name: "Daniel Mota Benevides",
+    presence: "Sim",
+    register: "Não",
+  },
+];
 
 const LecturesAdmin = () => {
   const [dateSelected, setDateSelected] = useState(new Date());
@@ -188,7 +198,12 @@ const LecturesAdmin = () => {
         </Typography>
       </Box>
 
-      <Scheduler events={EVENTS} />
+      <Box p={4}>
+        <LecturesTable
+          tableData={tableData}
+          tableHeads={["Horário", "Paciente", "Compareceu?", "Cadastrou?"]}
+        />
+      </Box>
     </Container>
   );
 };
