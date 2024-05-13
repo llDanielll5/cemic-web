@@ -151,11 +151,12 @@ const WhatsappPage = (props: any) => {
         Foram encontrado(s) {pagination?.total} resultados.
       </Alert>
 
-      <Box sx={{ mx: "2%" }}>
+      <Box sx={{ mx: "2%", my: 2 }}>
         <WhatsappTable rows={cadastros} />
       </Box>
 
       <Stack
+        py={2}
         direction={"row"}
         columnGap={1}
         alignItems="center"
