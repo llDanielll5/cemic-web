@@ -96,7 +96,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const handleSubmitCredits = async () => {
     setIsLoading(true);
     setLoadingMessage("Adicionando Fundos de Crédito para o paciente!");
-    const adminInfos = { created: adminData.id, createTimestamp: new Date() };
+    const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
     const dataUpdate: any = {
       data: {
         adminInfos,
@@ -221,7 +221,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     setLoadingMessage("Criando Pagamento do Paciente...");
 
     const treatmentsIds = receiptValues?.treatmentsForPayment.map((v) => v.id)!;
-    const adminInfos = { created: adminData.id, createTimestamp: new Date() };
+    const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
     const dataUpdate: CreatePayment = {
       data: {
         adminInfos,

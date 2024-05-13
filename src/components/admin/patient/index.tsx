@@ -50,7 +50,7 @@ const PatientDetails = (props: { cardId: any }) => {
   const adminUpdate = {
     adminInfos: {
       ...(patientData?.attributes?.adminInfos ?? []),
-      updated: adminData.id,
+      updated: adminData?.id,
       updateTimestamp: new Date(),
     },
   };

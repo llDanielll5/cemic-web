@@ -15,7 +15,8 @@ import { LectureHours } from "types/lectures";
 import { parseDateBr, phoneMask } from "@/services/services";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { getActualLectureDetails } from "@/axios/admin/lectures";
-import { Box, Typography, IconButton, Button } from "@mui/material";
+import { Box, Typography, IconButton, Button, styled } from "@mui/material";
+import { Scheduler } from "@aldabil/react-scheduler";
 
 interface PatientInfos {
   participant: string;
@@ -126,8 +127,19 @@ const LecturesAdmin = () => {
     handleGetAllLecturesOfDay();
   }, [handleGetAllLecturesOfDay]);
 
+  const EVENTS = [
+    {
+      event_id: 1,
+      title: "Event 1",
+      start: new Date(new Date(new Date().setHours(9)).setMinutes(0)),
+      end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
+      disabled: true,
+      admin_id: [1, 2, 3, 4],
+    },
+  ];
+
   return (
-    <div className={styles.lectures}>
+    <Container>
       {/* MODALS */}
       {isScheduling && (
         <Box position="fixed" zIndex={9999} left={0} top={0}>
@@ -176,62 +188,17 @@ const LecturesAdmin = () => {
         </Typography>
       </Box>
 
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-around"
-        my={2}
-      >
-        <Button
-          endIcon={<PersonAddAlt1Icon />}
-          sx={{ borderRadius: "4px" }}
-          onClick={handleSchedule}
-          variant="contained"
-        >
-          Agendar Paciente
-        </Button>
-
-        <Button
-          endIcon={<CalendarMonthIcon />}
-          sx={{ borderRadius: "4px" }}
-          onClick={() => setCalendarVisible(true)}
-          variant="contained"
-        >
-          Selecionar Data
-        </Button>
-      </Box>
-
-      {hasWeekend ? (
-        <h3>Não há atendimentos no Final de Semana!</h3>
-      ) : notScheduleForThisDay ? (
-        <h3>Ninguém agendou para este dia!</h3>
-      ) : (
-        <div className={styles["hour-schedule"]}>
-          <div className={styles["hour-item"]}>
-            <h4>11:00</h4>
-            {lectureData["11:00"]?.length > 0
-              ? lectureData["11:00"]?.map((item, index) =>
-                  scheduleRender({ item, index })
-                )
-              : notHaveSchedule()}
-          </div>
-
-          <div className={styles["hour-item"]}>
-            <h4>17:00</h4>
-            {lectureData["17:00"]?.length > 0
-              ? lectureData["17:00"].map((item, index) =>
-                  scheduleRender({ item, index })
-                )
-              : notHaveSchedule()}
-          </div>
-        </div>
-      )}
-    </div>
+      <Scheduler events={EVENTS} />
+    </Container>
   );
 };
 
 LecturesAdmin.getLayout = (page: any) => (
   <DashboardLayout>{page}</DashboardLayout>
 );
+
+const Container = styled(Box)`
+  background-color: white;
+`;
 
 export default LecturesAdmin;

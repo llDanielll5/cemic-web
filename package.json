@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aldabil/react-scheduler": "^2.9.2",
     "@emotion/cache": "11.10.5",
     "@emotion/react": "^11.10.8",
     "@emotion/server": "^11.10.0",
@@ -19,7 +20,7 @@
     "@mui/material": "^5.12.3",
     "@mui/styles": "^5.13.2",
     "@mui/system": "5.11.9",
-    "@mui/x-date-pickers": "^6.4.0",
+    "@mui/x-date-pickers": "^7.3.2",
     "@react-pdf/renderer": "^3.4.2",
     "@types/leaflet": "^1.9.3",
     "@types/swiper": "^6.0.0",
