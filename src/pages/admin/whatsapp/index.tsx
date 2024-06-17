@@ -84,13 +84,20 @@ const WhatsappPage = (props: any) => {
     );
   }, [filterLocale, pagination.page, dateFilter]);
 
+  const getFilterByDentist =
+    adminData?.location === "DF" ? "BRASILIA-DF" : "UBERLANDIA-MG";
+
   useEffect(() => {
     getRegisters();
   }, [getRegisters]);
 
+  useEffect(() => {
+    if (adminData?.role === "DENTIST") setFilterLocale(getFilterByDentist);
+  }, [adminData?.role]);
+
   const regions =
     adminData?.role === "DENTIST"
-      ? [adminData?.location === "DF" ? "BRASILIA-DF" : "UBERLANDIA-MG"]
+      ? [getFilterByDentist]
       : ["BRASILIA-DF", "UBERLANDIA-MG", "OTHER"];
 
   return (
@@ -111,15 +118,17 @@ const WhatsappPage = (props: any) => {
           rowGap={2}
           pb={1}
         >
-          {regions.map((item, index) => (
-            <Chip
-              key={index}
-              label={item}
-              variant="filled"
-              onClick={() => changeLocale(item)}
-              color={filterLocale === item ? "primary" : "default"}
-            />
-          ))}
+          {adminData?.role === "ADMIN" || adminData?.role === "SUPERADMIN"
+            ? regions.map((item, index) => (
+                <Chip
+                  key={index}
+                  label={item}
+                  variant="filled"
+                  onClick={() => changeLocale(item)}
+                  color={filterLocale === item ? "primary" : "default"}
+                />
+              ))
+            : null}
         </Stack>
 
         <FilterStack direction="row">
