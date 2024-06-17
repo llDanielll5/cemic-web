@@ -49,9 +49,9 @@ const WhatsappPage = (props: any) => {
   const getRegisters = React.useCallback(async () => {
     let localeFilter =
       filterLocale !== "" ? `&filters[location][$eq]=${filterLocale}` : "";
-    let hourParams =
-      hourFilter !== "" ? `&filters[hour][$eq]=${hourFilter}` : "";
-    let dayParams = hourFilter !== "" ? `&filters[day][$eq]=${dateFilter}` : "";
+    // let hourParams =
+    //   hourFilter !== "" ? `&filters[hour][$eq]=${hourFilter}` : "";
+    let dayParams = dateFilter !== "" ? `&filters[day][$eq]=${dateFilter}` : "";
     let url = `/wa-schedules/?sort[0]=createdAt:desc&pagination[page]=${pagination.page}`;
 
     if (localeFilter !== "") {
@@ -60,11 +60,11 @@ const WhatsappPage = (props: any) => {
       url.replace(`&filters[location][$eq]=${filterLocale}`, "");
     }
 
-    if (hourFilter !== "") {
-      url += hourParams;
-    } else {
-      url.replace(`&filters[hour][$eq]=${hourFilter}`, "");
-    }
+    // if (hourFilter !== "") {
+    //   url += hourParams;
+    // } else {
+    //   url.replace(`&filters[hour][$eq]=${hourFilter}`, "");
+    // }
 
     if (dateFilter !== "") {
       url += dayParams;
@@ -79,7 +79,7 @@ const WhatsappPage = (props: any) => {
       },
       (err) => console.log(err)
     );
-  }, [filterLocale, pagination.page, dateFilter, hourFilter]);
+  }, [filterLocale, pagination.page, dateFilter]);
 
   useEffect(() => {
     getRegisters();
