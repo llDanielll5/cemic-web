@@ -294,8 +294,7 @@ const AdminPage = () => {
               />
             </Grid>
 
-            {adminData?.userType === "ADMIN" ||
-            adminData?.userType === "SUPERADMIN" ? (
+            {adminData?.userType === "SUPERADMIN" ? (
               <>
                 <Grid xs={12} sm={6} lg={6}>
                   <OverviewBudget
@@ -332,8 +331,7 @@ const AdminPage = () => {
                 sx={{ height: "100%" }}
               />
             </Grid>
-            {adminData?.userType === "ADMIN" ||
-            adminData?.userType === "SUPERADMIN" ? (
+            {adminData?.userType === "SUPERADMIN" ? (
               <Grid xs={12} md={6} lg={4}>
                 <OverviewLatestOrders
                   orders={lastPayments}
