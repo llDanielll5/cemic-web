@@ -15,6 +15,8 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 type Locale = "BRASILIA-DF" | "UBERLANDIA-MG" | "";
 interface PaginationInterface {
@@ -29,6 +31,7 @@ const WhatsappPage = (props: any) => {
   const [filterLocale, setFilterLocale] = useState<Locale>("");
   const [hourFilter, setHourFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const adminData = useRecoilValue(UserData);
   const [pagination, setPagination] = useState<PaginationInterface>({
     page: 1,
     total: 0,
@@ -85,6 +88,11 @@ const WhatsappPage = (props: any) => {
     getRegisters();
   }, [getRegisters]);
 
+  const regions =
+    adminData?.role === "DENTIST"
+      ? [adminData?.location === "DF" ? "BRASILIA-DF" : "UBERLANDIA-MG"]
+      : ["BRASILIA-DF", "UBERLANDIA-MG", "OTHER"];
+
   return (
     <Box>
       <Header>
@@ -103,7 +111,7 @@ const WhatsappPage = (props: any) => {
           rowGap={2}
           pb={1}
         >
-          {["BRASILIA-DF", "UBERLANDIA-MG", "OTHER"].map((item, index) => (
+          {regions.map((item, index) => (
             <Chip
               key={index}
               label={item}
