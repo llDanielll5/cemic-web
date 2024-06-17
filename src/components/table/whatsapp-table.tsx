@@ -54,7 +54,6 @@ export function WhatsappTable({ rows = [] }: WhatsappTableProps) {
           <TableHead>
             <TableRow>
               <TableCell>Nome</TableCell>
-              <TableCell>Feedback</TableCell>
               <TableCell>Local</TableCell>
               <TableCell>Telefone</TableCell>
               <TableCell>Data Agendada</TableCell>
@@ -113,9 +112,6 @@ export function WhatsappTable({ rows = [] }: WhatsappTableProps) {
                           : "------------------------"}
                       </Typography>
                     </Stack>
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid #d5d5d5" }} width={350}>
-                    {client.feedback}
                   </TableCell>
                   <TableCell sx={{ border: "1px solid #d5d5d5" }}>
                     <Chip
