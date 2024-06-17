@@ -92,11 +92,11 @@ const WhatsappPage = (props: any) => {
   }, [getRegisters]);
 
   useEffect(() => {
-    if (adminData?.role === "DENTIST") setFilterLocale(getFilterByDentist);
-  }, [adminData?.role]);
+    if (adminData?.userType === "DENTIST") setFilterLocale(getFilterByDentist);
+  }, [adminData?.userType]);
 
   const regions =
-    adminData?.role === "DENTIST"
+    adminData?.userType === "DENTIST"
       ? [getFilterByDentist]
       : ["BRASILIA-DF", "UBERLANDIA-MG", "OTHER"];
 
@@ -118,7 +118,8 @@ const WhatsappPage = (props: any) => {
           rowGap={2}
           pb={1}
         >
-          {adminData?.role === "ADMIN" || adminData?.role === "SUPERADMIN"
+          {adminData?.userType === "ADMIN" ||
+          adminData?.userType === "SUPERADMIN"
             ? regions.map((item, index) => (
                 <Chip
                   key={index}
