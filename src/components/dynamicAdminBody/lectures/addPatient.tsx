@@ -113,6 +113,7 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
           iconSize="large"
           tooltip="Buscar Paciente"
           // onClick={handleGetPatient}
+          onClick={() => {}}
         >
           <SearchIcon />
         </IconButton>
