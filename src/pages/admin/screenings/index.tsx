@@ -21,10 +21,7 @@ import ScreeningTable from "@/components/table/screening";
 import UserData from "@/atoms/userData";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import {
-  handleGetPatientByCPF,
-  handleUpdatePatient,
-} from "@/axios/admin/patients";
+import { handleUpdatePatient } from "@/axios/admin/patients";
 import {
   Autocomplete,
   Box,
@@ -111,14 +108,14 @@ const ScreeningsPage = () => {
     );
   };
 
-  async function handleGetPatient() {
-    if (patientSearch === "") return;
-    let cpf = patientSearch.replaceAll(".", "").replace("-", "");
-    return await handleGetPatientByCPF(cpf).then(
-      (res) => setPatientData(res.data.data[0]),
-      (err) => console.log(err.response)
-    );
-  }
+  // async function handleGetPatient() {
+  //   if (patientSearch === "") return;
+  //   let cpf = patientSearch.replaceAll(".", "").replace("-", "");
+  //   return await handleGetPatientByCPF(cpf).then(
+  //     (res) => setPatientData(res.data.data[0]),
+  //     (err) => console.log(err.response)
+  //   );
+  // }
 
   async function handleSelectPatient() {
     if (selectedPatient !== null) return setSelectedPatient(null);
@@ -321,13 +318,13 @@ const ScreeningsPage = () => {
                 fullWidth
                 onChange={(e) => setPatientSearch(e.target.value)}
                 onKeyDown={({ key }) => {
-                  if (key === "Enter") return handleGetPatient();
+                  // if (key === "Enter") return handleGetPatient();
                 }}
               />
               <IconButton
                 iconSize="large"
                 tooltip="Buscar Paciente"
-                onClick={handleGetPatient}
+                // onClick={handleGetPatient}
               >
                 <SearchIcon />
               </IconButton>

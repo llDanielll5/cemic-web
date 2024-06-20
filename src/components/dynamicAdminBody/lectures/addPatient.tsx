@@ -12,7 +12,7 @@ import {
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import IconButton from "@/components/iconButton";
 import SearchIcon from "@mui/icons-material/Search";
-import { handleGetPatientByCPF } from "@/axios/admin/patients";
+// import { handleGetPatientByCPF } from "@/axios/admin/patients";
 import { schedulePatientLecture } from "@/axios/admin/lectures";
 import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
@@ -50,16 +50,16 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
     setPatientValues((prev: any) => ({ ...prev, [type]: masked(value) }));
   };
 
-  async function handleGetPatient() {
-    if (patientValues.cpf === "") return;
-    let cpf = patientValues.cpf.replaceAll(".", "").replace("-", "");
-    return await handleGetPatientByCPF(cpf).then(
-      (res) => setData(res.data.data[0]),
-      (err) => {
-        console.log(err.response);
-      }
-    );
-  }
+  // async function handleGetPatient() {
+  //   if (patientValues.cpf === "") return;
+  //   let cpf = patientValues.cpf.replaceAll(".", "").replace("-", "");
+  //   return await handleGetPatientByCPF(cpf).then(
+  //     (res) => setData(res.data.data[0]),
+  //     (err) => {
+  //       console.log(err.response);
+  //     }
+  //   );
+  // }
   async function handleSelectPatient() {
     if (selectedPatient) {
       setSelectedPatient(false);
@@ -106,13 +106,13 @@ const AddPatientLecture = (props: AddPatientLectureProps) => {
           inputProps={{ maxLength: 14 }}
           onChange={(e) => handleMasked(e.target.value, "cpf")}
           onKeyDown={({ key }) => {
-            if (key === "Enter") return handleGetPatient();
+            // if (key === "Enter") return handleGetPatient();
           }}
         />
         <IconButton
           iconSize="large"
           tooltip="Buscar Paciente"
-          onClick={handleGetPatient}
+          // onClick={handleGetPatient}
         >
           <SearchIcon />
         </IconButton>
