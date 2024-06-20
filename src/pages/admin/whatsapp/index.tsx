@@ -165,12 +165,24 @@ const WhatsappPage = (props: any) => {
         </Stack>
       </SearchContainer>
 
-      <Alert severity="success" icon={<></>} sx={{ my: 2 }}>
-        Foram encontrado(s) {pagination?.total} resultados.
-      </Alert>
+      {adminData?.userType === "ADMIN" ||
+      adminData?.userType === "SUPERADMIN" ? (
+        <Alert severity="success" icon={<></>} sx={{ my: 2 }}>
+          Foram encontrado(s) {pagination?.total} resultados.
+        </Alert>
+      ) : null}
 
       <Box sx={{ mx: "2%", my: 2 }}>
-        <WhatsappTable rows={cadastros} />
+        {adminData?.userType === "ADMIN" ||
+        adminData?.userType === "SUPERADMIN" ? (
+          <WhatsappTable rows={cadastros} />
+        ) : (
+          <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
+            <Typography variant="h3">
+              Estamos em manutenção para melhorar o atendimento
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       <Stack
