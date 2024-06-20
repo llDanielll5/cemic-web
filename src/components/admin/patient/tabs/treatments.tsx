@@ -67,9 +67,17 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     getTreatments();
   }, [getTreatments]);
 
+  const updateTreatments = () => {
+    return;
+  };
+
+  useEffect(() => {
+    updateTreatments();
+  }, [onUpdatePatient]);
+
   return (
     <Box py={2} width="100%" overflow={"auto"}>
-      <PatientTreatmentsHistory />
+      <PatientTreatmentsHistory updateTreatments={updateTreatments} />
 
       {patientOdontogram === null && (
         <Box display="flex" alignItems="center" justifyContent="center" p={2}>

@@ -10,6 +10,18 @@ export const getRegionDetails = async (patientId: string, region: string) => {
   );
 };
 
+export const handleDeletePatientTreatmentById = async (treatmentId: string) => {
+  return await axiosInstance.delete(`/patient-treatments/${treatmentId}`);
+};
+
+export const handleGetHistoryPatientTreatmentById = async (
+  treatmentId: string
+) => {
+  return await axiosInstance.get(
+    `/patient-treatments/${treatmentId}/?populate[payment]=*`
+  );
+};
+
 export const handleGetTreatmentsOfPatientToFinish = async (
   patientId: string
 ) => {

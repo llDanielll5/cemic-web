@@ -6,6 +6,8 @@ import { formatISO } from "date-fns";
 import { dentalArch } from "data";
 import {
   getRegionDetails,
+  handleDeletePatientTreatmentById,
+  handleGetHistoryPatientTreatmentById,
   updatePatientTreatments,
 } from "@/axios/admin/patient-treatments";
 import {
@@ -21,6 +23,7 @@ import { useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import { updateOdontogramDetails } from "@/axios/admin/odontogram";
 import PatientData from "@/atoms/patient";
+import AlertModal from "@/components/modal/alert-modal";
 
 interface OdontogramPatientDetailsInterface {
   patientOdontogram: any;
@@ -59,7 +62,8 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
   const patientData = useRecoilValue(PatientData);
   const [toothDetails, setToothDetails] = useState<any>([]);
   const [addTreatmentVisible, setAddTreatmentVisible] = useState(false);
-
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
+  const [deleteTreatmentId, setDeleteTreatmentId] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [toothSingleTreatment, setToothSingleTreatment] = useState<any | null>(
     null
@@ -136,11 +140,30 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     ));
   };
 
-  const handleConfirmDelete = (i: number) => {};
+  const handleConfirmDelete = async () => {
+    let treatmentDetails = await handleGetHistoryPatientTreatmentById(
+      deleteTreatmentId
+    );
 
-  const handleDeleteRegion = async (id: string) => {
-    //deletar tratamento específico
-    // return await onSaveTreatments(tooths, patientOdontogram?.id);
+    if (treatmentDetails?.data?.data?.attributes?.payment?.data !== null) {
+      return alert("Não é possível excluir trabalho pago!");
+    }
+
+    return await handleDeletePatientTreatmentById(deleteTreatmentId).then(
+      (res) => {
+        setDeleteTreatmentId("");
+        setConfirmDeleteModal(false);
+        handleClose();
+        onUpdatePatient();
+        alert("Tratamento deletado com sucesso!");
+      },
+      (err) => console.log(err.response)
+    );
+  };
+
+  const handleDeleteTreatment = (id: string) => {
+    setConfirmDeleteModal(true);
+    setDeleteTreatmentId(id);
   };
 
   const handleSubmitTreatment = async (data: any, odontogramId: any) => {
@@ -189,6 +212,15 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
 
   return (
     <Container>
+      <AlertModal
+        open={confirmDeleteModal}
+        onClose={() => setConfirmDeleteModal(false)}
+        title={`Deseja realmente excluir o tratamento do paciente de ID: ${deleteTreatmentId}`}
+        onAccept={handleConfirmDelete}
+        onRefuse={() => setConfirmDeleteModal(false)}
+        content={<></>}
+      />
+
       <AddPatientTreatmentModal
         closeModal={handleCloseAddTreatment}
         onSaveTreatments={handleSubmitTreatment}
@@ -210,7 +242,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
 
           <ToothHistoryTable
             data={toothDetails}
-            onDelete={(id: string) => handleDeleteRegion(id)}
+            onDelete={(id: string) => handleDeleteTreatment(id)}
             messageNothing="Sem Histórico do Dente"
             onGetDetails={getToothSingleDetailsTreatment}
           />

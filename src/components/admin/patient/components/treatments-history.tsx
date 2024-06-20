@@ -51,7 +51,7 @@ const PatientTreatmentsHistory = (props: any) => {
 
   useEffect(() => {
     getPatientTreatments();
-  }, [getPatientTreatments]);
+  }, [getPatientTreatments, props.updateTreatments]);
 
   return (
     <Container>

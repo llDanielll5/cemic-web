@@ -20,7 +20,7 @@ interface TableProps {
 
 export default function ToothHistoryTable(props: TableProps) {
   const { data, onDelete, messageNothing, onGetDetails } = props;
-  const userData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
 
   return (
     <Card>
@@ -31,7 +31,10 @@ export default function ToothHistoryTable(props: TableProps) {
               <TableCell>Tratamento</TableCell>
               <TableCell>Pagou?</TableCell>
               <TableCell>Concluido?</TableCell>
-              {userData?.userType === "ADMIN" && <TableCell>Deletar</TableCell>}
+              {adminData?.userType === "ADMIN" ||
+              adminData?.userType === "SUPERADMIN" ? (
+                <TableCell>Deletar</TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -48,13 +51,14 @@ export default function ToothHistoryTable(props: TableProps) {
                   </TableCell>
                   <TableCell>{hasPayText}</TableCell>
                   <TableCell>{val.hasFinished ? "Sim" : "Não"}</TableCell>
-                  {userData?.userType === "ADMIN" && (
+                  {adminData?.userType === "ADMIN" ||
+                  adminData?.userType === "SUPERADMIN" ? (
                     <TableCell>
                       <IconButton onClick={() => onDelete(v?.id!)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
-                  )}
+                  ) : null}
                 </TableRow>
               );
             })}

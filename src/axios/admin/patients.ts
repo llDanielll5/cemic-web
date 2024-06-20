@@ -82,8 +82,10 @@ export const handleGetPatients = async (
   );
 };
 
-export const handleGetPatientByCPF = async (cpf: string) => {
-  return await axiosInstance.get(`/patients?filters[cpf]=${cpf}`);
+export const handleFilterPatientByNameOrCpf = async (searchValue: string) => {
+  return await axiosInstance.get(
+    `/patients?filters[$or][0][name][$containsi]=${searchValue}&filters[$or][1][cpf][$eq]=${searchValue}`
+  );
 };
 
 export const handleGetSinglePatient = async (cardId: string) => {

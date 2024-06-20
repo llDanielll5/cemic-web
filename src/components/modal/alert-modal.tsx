@@ -15,7 +15,7 @@ interface AlertModalProps {
   content?: string | React.ReactNode;
   onAccept?: () => void;
   onRefuse?: () => void;
-  ref: React.ForwardedRef<any>;
+  ref?: React.ForwardedRef<any>;
   hasFullScreen?: boolean;
 }
 
