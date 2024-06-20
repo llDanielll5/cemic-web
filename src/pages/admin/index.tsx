@@ -324,7 +324,7 @@ const AdminPage = () => {
             {/* <Grid xs={12} lg={8}>
               <OverviewSales chartSeries={salesGraph} sx={{ height: "100%" }} />
             </Grid> */}
-            <Grid xs={12} md={6} lg={4}>
+            <Grid xs={12} md={12} lg={12}>
               <OverviewTraffic
                 chartSeries={[traffics.web, traffics.android, traffics.ios]}
                 labels={["PC", "Android", "iPhone"]}
@@ -332,7 +332,7 @@ const AdminPage = () => {
               />
             </Grid>
             {adminData?.userType === "SUPERADMIN" ? (
-              <Grid xs={12} md={6} lg={4}>
+              <Grid xs={12} md={12} lg={12}>
                 <OverviewLatestOrders
                   orders={lastPayments}
                   sx={{ height: "100%" }}

@@ -14,10 +14,11 @@ import { useRouter } from "next/router";
 import { PaginationProps } from "types";
 import { PatientRole } from "types/patient";
 import {
-  handleGetPatientByCPF,
+  handleFilterPatientByNameOrCpf,
   handleGetPatients,
 } from "@/axios/admin/patients";
 import {
+  Alert,
   Autocomplete,
   Box,
   Button,
@@ -81,8 +82,8 @@ const PatientsPage = () => {
     getPatients(currPage, pageSize, sort);
   };
 
-  const getPatientByCPF = async () => {
-    return await handleGetPatientByCPF(searchPatientValue).then(
+  const getPatientFiltered = async () => {
+    return await handleFilterPatientByNameOrCpf(searchPatientValue).then(
       (res) => {
         let pagination = res.data.meta.pagination;
         setData(res.data.data);
@@ -106,8 +107,8 @@ const PatientsPage = () => {
     setNewPatientVisible(!newPatientVisible);
 
   useEffect(() => {
-    if (searchPatientValue.length < 11) getPatients(currPage, pageSize, sort);
-    else getPatientByCPF();
+    if (searchPatientValue.length === 0) getPatients(currPage, pageSize, sort);
+    else getPatientFiltered();
   }, [searchPatientValue]);
 
   useEffect(() => {
@@ -146,13 +147,19 @@ const PatientsPage = () => {
               )}
             </Stack>
 
+            {searchPatientValue.length > 0 && (
+              <Alert severity="warning" sx={{ my: 2 }}>
+                Apague o texto de busca para buscar todos pacientes!
+              </Alert>
+            )}
+
             <CustomersSearch
               value={searchPatientValue}
               onChange={(e: any) => setSearchPatientValue(e.target.value)}
-              onClick={() => getPatientByCPF()}
+              onClick={() => getPatientFiltered()}
               onKeyDown={({ key }: any) => {
                 if (key === "Enter") {
-                  return getPatientByCPF();
+                  return getPatientFiltered();
                 }
               }}
             />
