@@ -13,12 +13,10 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Box, Button, Fab, Modal, Typography } from "@mui/material";
 
 const fixes = [
-  "Foram realizadas correções em alguns problemas como, a questão de que não era possível atualizar o paciente com F5 ou CTRL+R pois isso bugava e ficava tudo em branco",
-  "Também agora foi adicionado a possibilidade de o funcionário abrir o caixa diário (O funcionário com essa função)",
-  "Pacientes podem ser adicionados sem CEP. Mas é obrigatório os dados básicos ainda.",
-  "Também já é possível você alterar sua senha. Basta Logar e ir no menu Opções, digite sua senha atual e a nova senha!",
-  "Estou trabalhando para implementar para Segunda-Feira dia 29/04/24 a questão de impressão dos contratos já prontos com nome dos pacientes.",
-  "Também junto estará para a mesma data a questão dos dentistas adicionarem os tratamentos, até lá os tratamentos serão lançados por nós.",
+  "Adicionado a possibilidade de buscar paciente por NOME ou CPF",
+  "Agora é possível Administrador deletar tratamento do Paciente dentro do sistema",
+  "Estamos atualizando a questão de gerenciamento de pacientes pelo Whatsapp",
+  "Realizado alguns ajustes de bugs do módulo de Pacientes",
 ];
 
 const SIDE_NAV_WIDTH = 280;
