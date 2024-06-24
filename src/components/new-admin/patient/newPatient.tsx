@@ -105,8 +105,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       userData.bornDate === "" ||
       userData.cpf?.length! < 14 ||
       userData?.name === "" ||
-      userData?.phone?.length! < 14 ||
-      userData?.rg?.length! < 4;
+      userData?.phone?.length! < 14;
 
     let hasFinishedAnamnese = false;
     for (let i = 0; i < anamsVal.length; i++) {
