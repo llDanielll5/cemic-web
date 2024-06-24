@@ -73,7 +73,7 @@ const UserForm = (props: UserFormProps) => {
       </Typography>
 
       <TextField
-        label="Nome Completo:"
+        label="Nome Completo*:"
         value={userData?.name!}
         sx={{ width: "100%", mb: 1.5 }}
         onChange={(e) => handleChange(e.target.value, "name", setUserData)}
@@ -86,7 +86,7 @@ const UserForm = (props: UserFormProps) => {
       />
       <InputsContainer>
         <TextField
-          label="CPF:"
+          label="CPF*:"
           value={cpfMask(userData?.cpf!)}
           onChange={(e) => handleChange(e.target.value, "cpf", setUserData)}
           inputProps={{ maxLength: 14 }}
