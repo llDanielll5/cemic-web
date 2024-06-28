@@ -15,29 +15,19 @@ import { anamneseQuestions, anamsVal } from "data";
 import PatientData from "@/atoms/patient";
 import AnamneseForm from "./anamnese-form";
 
-interface AnamneseDetailsInterface {
-  anamneseKeys?: any;
-  anamneseValues: any;
-}
-
-const PatientAnamneseDetails = (props: AnamneseDetailsInterface) => {
-  const { anamneseKeys, anamneseValues } = props;
+const PatientAnamneseDetails = () => {
   const [patientData, setPatientData] = useRecoilState(PatientData);
-  let client = patientData?.attributes;
-
   const [anamneseModal, setAnamneseModal] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [observations, setObservations] = useState(client?.observations ?? "");
   const [isLoading, setIsLoading] = useState(false);
   const [anamneseData, setAnamneseData] =
     useState<AnamneseQuestions>(anamneseQuestions);
-  const adminData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
+  const anamneseKeys: string[] = Object.keys(anamneseData);
+  let client = patientData?.attributes;
 
-  let anamneseNull = anamneseValues?.filter((v: any) => v == "");
-  const closeModal = () => {
-    setAnamneseModal(false);
-  };
-
+  const closeModal = () => setAnamneseModal(false);
   const handleAnswer = (value: AnswerType, question: string) => {
     return setAnamneseData((prev) => ({ ...prev, [question]: value }));
   };
@@ -108,7 +98,7 @@ const PatientAnamneseDetails = (props: AnamneseDetailsInterface) => {
 
       {anamneseKeys?.map((item: any, index: number) => (
         <AnamneseKey variant="subtitle1" key={index}>
-          {item} <span>{anamneseValues![index]}</span>
+          {item} <span>{anamneseData![item]}</span>
         </AnamneseKey>
       ))}
       <AnamneseKey variant="subtitle1">

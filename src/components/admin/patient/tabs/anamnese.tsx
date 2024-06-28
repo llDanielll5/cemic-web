@@ -29,10 +29,7 @@ const AnamneseTab = () => {
       >
         Anamnese
       </Typography>
-      <PatientAnamneseDetails
-        anamneseValues={anamneseValues}
-        anamneseKeys={anamneseKeys}
-      />
+      <PatientAnamneseDetails />
     </Box>
   );
 };

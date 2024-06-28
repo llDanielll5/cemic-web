@@ -90,7 +90,7 @@ const ContractPDF = (props: {
             </Text>
 
             <Text style={styles.clausule}>
-              1. A ficha de anamnese foi por mim preenchida e assinada,
+              1. A ficha de anamnese foi por mim CONFERIDA E ASSINADA,
               apresentando informações que correspondem à verdade dos fatos,
               especialmente no que diz respeito às minhas condições da saúde
               geral e bucal, não tendo omitido ou suprimido qualquer dado quanto

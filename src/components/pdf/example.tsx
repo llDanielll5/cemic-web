@@ -260,7 +260,7 @@ const ExamplePdfRender = (props: {
 
           {headerPatient(attr)}
 
-          <View style={{ border: "1px solid black", marginBottom: 20 }}>
+          <View style={{ border: "1px solid black", marginBottom: 17 }}>
             {Object.values(anamsVal).map((text, index) => (
               <View style={styles.tableAnamnese} key={index}>
                 <Text style={styles.textTable}>{text}</Text>
@@ -271,17 +271,21 @@ const ExamplePdfRender = (props: {
             ))}
           </View>
 
-          <Text style={{ fontSize: "2vw" }}>
-            OBS: <Text>{attr?.observations}</Text>
+          <Text style={{ fontSize: "12px" }}>
+            OBS:{" "}
+            <Text>
+              {attr?.observations === ""
+                ? "____________________________________________________________________"
+                : attr?.observations}
+            </Text>
           </Text>
 
-          <Text style={styles.author}></Text>
-          <Text style={{ ...styles.author, marginBottom: 10 }}>
-            Assinatura Paciente
-          </Text>
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 20 }}>
             <Text style={{ alignSelf: "center", fontSize: 10 }}>
               _______________________________________
+            </Text>
+            <Text style={{ ...styles.author, marginBottom: 10 }}>
+              Assinatura Paciente
             </Text>
             <Text style={{ alignSelf: "flex-end", fontSize: 12 }}>
               Brasilia: {new Date().toLocaleDateString()}
@@ -679,13 +683,13 @@ const ExamplePdfRender = (props: {
             </View>
           ))}
 
-          <Text
+          {/* <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) =>
               `${pageNumber} / ${totalPages}`
             }
             fixed
-          />
+          /> */}
         </Page>
       </Document>
     </PDFViewer>

@@ -16,7 +16,11 @@ export type allAnamneseQuestions =
   | "É alérgico a algum medicamento?"
   | "Já teve algum problema com anestésicos?"
   | "Tem ansiedade?"
-  | "Faz uso de AAS?";
+  | "Faz uso de AAS?"
+  | "É fumante?"
+  | "Consome bebidas alcoólicas?"
+  | "É Hipertenso?"
+  | "Está gravida?";
 
 export interface AnamneseQuestions {
   "Está tomando alguma medicação no momento?": AnswerType;
@@ -31,6 +35,10 @@ export interface AnamneseQuestions {
   "Já teve algum problema com anestésicos?": AnswerType;
   "Tem ansiedade?": AnswerType;
   "Faz uso de AAS?": AnswerType;
+  "É fumante?": AnswerType;
+  "Consome bebidas alcoólicas?": AnswerType;
+  "É Hipertenso?": AnswerType;
+  "Está gravida?": AnswerType;
 }
 
 export interface PatientTreatments {

@@ -235,6 +235,10 @@ export const anamneseQuestions: AnamneseQuestions = {
   "Já teve algum problema com anestésicos?": "",
   "Tem ansiedade?": "",
   "Faz uso de AAS?": "",
+  "É fumante?": "",
+  "Consome bebidas alcoólicas?": "",
+  "É Hipertenso?": "",
+  "Está gravida?": "",
 };
 
 export const anamsVal = [
@@ -250,6 +254,10 @@ export const anamsVal = [
   "Já teve algum problema com anestésicos?",
   "Tem ansiedade?",
   "Faz uso de AAS?",
+  "É fumante?",
+  "Consome bebidas alcoólicas?",
+  "É Hipertenso?",
+  "Está gravida?",
 ];
 
 export const defaultClientData = {

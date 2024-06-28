@@ -126,7 +126,11 @@ const Anamnese = (props: AnamneseProps) => {
       anamneseData["Já esteve hospitalizado por algum motivo?"] !== "" &&
       anamneseData["Tem anemia?"] !== "" &&
       anamneseData["É alérgico a algum medicamento?"] !== "" &&
-      anamneseData["Já teve algum problema com anestésicos?"] !== "";
+      anamneseData["Já teve algum problema com anestésicos?"] !== "" &&
+      anamneseData["Consome bebidas alcoólicas?"] !== "" &&
+      anamneseData["Está gravida?"] !== "" &&
+      anamneseData["É Hipertenso?"] !== "" &&
+      anamneseData["É fumante?"] !== "";
 
     if (page === 0) {
       if (notUserCompleted)
