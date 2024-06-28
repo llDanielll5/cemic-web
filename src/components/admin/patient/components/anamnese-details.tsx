@@ -19,13 +19,13 @@ const PatientAnamneseDetails = () => {
   const [patientData, setPatientData] = useRecoilState(PatientData);
   const [anamneseModal, setAnamneseModal] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  let client = patientData?.attributes;
   const [observations, setObservations] = useState(client?.observations ?? "");
   const [isLoading, setIsLoading] = useState(false);
   const [anamneseData, setAnamneseData] =
     useState<AnamneseQuestions>(anamneseQuestions);
   const adminData = useRecoilValue(UserData);
   const anamneseKeys: string[] = Object.keys(anamneseData);
-  let client = patientData?.attributes;
 
   const closeModal = () => setAnamneseModal(false);
   const handleAnswer = (value: AnswerType, question: string) => {
@@ -44,8 +44,10 @@ const PatientAnamneseDetails = () => {
 
     return await handleUpdatePatient(patientId, anamneseValues).then(
       async (res) => {
-        await handleGetSinglePatient(patientData?.id!).then((result) => {
-          setPatientData(result.data.data);
+        const cardId = res.data.data.attributes.cardId;
+        await handleGetSinglePatient(cardId).then((result) => {
+          const updt = result.data.data[0];
+          setPatientData(updt);
           closeModal();
         });
       },
@@ -68,6 +70,10 @@ const PatientAnamneseDetails = () => {
       [anamsVal[9]]: client?.anamnese[`${anamsVal[9]}`],
       [anamsVal[10]]: client?.anamnese[`${anamsVal[10]}`],
       [anamsVal[11]]: client?.anamnese[`${anamsVal[11]}`],
+      [anamsVal[12]]: client?.anamnese[`${anamsVal[12]}`],
+      [anamsVal[13]]: client?.anamnese[`${anamsVal[13]}`],
+      [anamsVal[14]]: client?.anamnese[`${anamsVal[14]}`],
+      [anamsVal[15]]: client?.anamnese[`${anamsVal[15]}`],
     }));
     setObservations(client?.observations!);
   }, [client?.anamnese, client?.observations, patientData]);
@@ -79,42 +85,44 @@ const PatientAnamneseDetails = () => {
       </Box>
     );
 
-  return (
-    <Container elevation={9}>
-      <Modal
-        visible={anamneseModal}
-        closeModal={closeModal}
-        styles={{ height: "95vh", overflow: "auto", width: "90vw" }}
-      >
-        <AnamneseForm
-          anamneseData={anamneseData}
-          handleAnswer={handleAnswer}
-          handleBackPage={closeModal}
-          handleNextPage={handleSubmit}
-          observations={observations}
-          setObservations={setObservations}
-        />
-      </Modal>
+  if (!client) return <></>;
+  else
+    return (
+      <Container elevation={9}>
+        <Modal
+          visible={anamneseModal}
+          closeModal={closeModal}
+          styles={{ height: "95vh", overflow: "auto", width: "90vw" }}
+        >
+          <AnamneseForm
+            anamneseData={anamneseData}
+            handleAnswer={handleAnswer}
+            handleBackPage={closeModal}
+            handleNextPage={handleSubmit}
+            observations={observations}
+            setObservations={setObservations}
+          />
+        </Modal>
 
-      {anamneseKeys?.map((item: any, index: number) => (
-        <AnamneseKey variant="subtitle1" key={index}>
-          {item} <span>{anamneseData![item]}</span>
+        {anamneseKeys?.map((item: any, index: number) => (
+          <AnamneseKey variant="subtitle1" key={index}>
+            {item} <span>{client?.anamnese![item]}</span>
+          </AnamneseKey>
+        ))}
+        <AnamneseKey variant="subtitle1">
+          Observações: <span>{client?.observations}</span>
         </AnamneseKey>
-      ))}
-      <AnamneseKey variant="subtitle1">
-        Observações: <span>{client?.observations}</span>
-      </AnamneseKey>
 
-      <Button
-        variant="contained"
-        sx={{ mt: 2 }}
-        endIcon={<EditIcon sx={{ color: "white" }} />}
-        onClick={() => setAnamneseModal(true)}
-      >
-        Editar Anamnese
-      </Button>
-    </Container>
-  );
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          endIcon={<EditIcon sx={{ color: "white" }} />}
+          onClick={() => setAnamneseModal(true)}
+        >
+          Editar Anamnese
+        </Button>
+      </Container>
+    );
 };
 
 const Container = styled(Card)`
