@@ -56,9 +56,9 @@ const PatientsPage = () => {
   const getPatients = useCallback(
     async (currPage?: number, pageSize?: number, sort?: string) => {
       if (!adminData) return;
-      const location =
-        adminData?.userType !== "SUPERADMIN" ? adminData.location : undefined;
-      return await handleGetPatients(location, currPage, pageSize, sort).then(
+      const filial =
+        adminData?.userType !== "SUPERADMIN" ? adminData.filial : undefined;
+      return await handleGetPatients(filial, currPage, pageSize, sort).then(
         (res: any) => {
           let pagination = res.data.meta.pagination;
           setData(res.data.data);
@@ -69,7 +69,7 @@ const PatientsPage = () => {
         (error) => console.log(error.response)
       );
     },
-    [adminData?.location]
+    [adminData?.filial]
   );
 
   const handleChangePage = (e: any, value: number) => {
@@ -83,7 +83,12 @@ const PatientsPage = () => {
   };
 
   const getPatientFiltered = async () => {
-    return await handleFilterPatientByNameOrCpf(searchPatientValue).then(
+    const filial =
+      adminData?.userType !== "SUPERADMIN" ? adminData.filial : undefined;
+    return await handleFilterPatientByNameOrCpf(
+      searchPatientValue,
+      filial
+    ).then(
       (res) => {
         let pagination = res.data.meta.pagination;
         setData(res.data.data);

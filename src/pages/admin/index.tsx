@@ -57,8 +57,6 @@ const AdminPage = () => {
   const [totalGainYear, setTotalGainYear] =
     useState<TotalYearGainInterface | null>(null);
 
-  console.log(totalGainYear);
-
   const [monthValues, setMonthValues] = useState({
     totalDebit: 0,
     totalCredit: 0,

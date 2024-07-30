@@ -64,7 +64,7 @@ export const handleCreatePatient = async (data: any) => {
 };
 
 export const handleGetPatients = async (
-  location?: string,
+  filial?: string,
   currPage?: number,
   pageSize?: number,
   sort?: any
@@ -76,17 +76,21 @@ export const handleGetPatients = async (
   if (page === 0) page = 1;
   if (size === undefined) size = 10;
   if (!ord || ord === undefined) sort = "asc";
-  if (location !== undefined)
-    locationFilter = `&filters[location][$eq]=${location}`;
+  if (filial !== undefined) locationFilter = `&filters[filial][$eq]=${filial}`;
 
   return await axiosInstance.get(
     `/patients?pagination[page]=${page}&pagination[pageSize]=${size}&populate=*&sort[0]=name:${sort}${locationFilter}`
   );
 };
 
-export const handleFilterPatientByNameOrCpf = async (searchValue: string) => {
+export const handleFilterPatientByNameOrCpf = async (
+  searchValue: string,
+  filial?: string
+) => {
+  let locationFilter = "";
+  if (filial !== undefined) locationFilter = `&filters[filial][$eq]=${filial}`;
   return await axiosInstance.get(
-    `/patients?filters[$or][0][name][$containsi]=${searchValue}&filters[$or][1][cpf][$eq]=${searchValue}`
+    `/patients?filters[$or][0][name][$containsi]=${searchValue}&filters[$or][1][cpf][$eq]=${searchValue}${locationFilter}`
   );
 };
 
