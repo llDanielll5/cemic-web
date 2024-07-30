@@ -7,6 +7,7 @@ import {
   Container,
   Fab,
   Unstable_Grid2 as Grid,
+  Skeleton,
   Typography,
 } from "@mui/material";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
@@ -30,11 +31,22 @@ import { handleGetCountPatientsByDate } from "@/axios/admin/patients";
 import { getTrafficDevice } from "@/axios/admin/dashboard";
 import { TotalChats } from "@/components/admin/dashboard/_components/total-chats";
 import { TotalSchedules } from "@/components/admin/dashboard/_components/total-schedules";
+import axios from "axios";
+import { getCookie } from "cookies-next";
 
 const now = new Date();
 
+interface TotalYearGainInterface {
+  brasilia: {
+    [t: string]: number;
+  };
+  uberlandia: {
+    [t: string]: number;
+  };
+}
+
 const AdminPage = () => {
-  const adminData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
   const [budget, setBudget] = useState(null);
   const [totalMonth, setTotalMonth] = useState(0);
   const [totalLastMonth, setTotalLastMonth] = useState(0);
@@ -42,6 +54,11 @@ const AdminPage = () => {
   const [newPatients, setNewPatients] = useState(0);
   const [lastMonthNewPatients, setLastMonthNewPatients] = useState(0);
   const [lastPayments, setLastPayments] = useState([]);
+  const [totalGainYear, setTotalGainYear] =
+    useState<TotalYearGainInterface | null>(null);
+
+  console.log(totalGainYear);
+
   const [monthValues, setMonthValues] = useState({
     totalDebit: 0,
     totalCredit: 0,
@@ -85,12 +102,38 @@ const AdminPage = () => {
 
   const salesGraph = [
     {
-      name: "Esse ano",
-      data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
+      name: "Filial Brasilia",
+      data: [
+        totalGainYear?.brasilia?.jan,
+        totalGainYear?.brasilia?.fev,
+        totalGainYear?.brasilia?.mar,
+        totalGainYear?.brasilia?.abr,
+        totalGainYear?.brasilia?.mai,
+        totalGainYear?.brasilia?.jun,
+        totalGainYear?.brasilia?.jul,
+        totalGainYear?.brasilia?.ago,
+        totalGainYear?.brasilia?.set,
+        totalGainYear?.brasilia?.out,
+        totalGainYear?.brasilia?.nov,
+        totalGainYear?.brasilia?.dez,
+      ],
     },
     {
-      name: "Último ano",
-      data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
+      name: "Filial Uberlandia",
+      data: [
+        totalGainYear?.uberlandia?.jan,
+        totalGainYear?.uberlandia?.fev,
+        totalGainYear?.uberlandia?.mar,
+        totalGainYear?.uberlandia?.abr,
+        totalGainYear?.uberlandia?.mai,
+        totalGainYear?.uberlandia?.jun,
+        totalGainYear?.uberlandia?.jul,
+        totalGainYear?.uberlandia?.ago,
+        totalGainYear?.uberlandia?.set,
+        totalGainYear?.uberlandia?.out,
+        totalGainYear?.uberlandia?.nov,
+        totalGainYear?.uberlandia?.dez,
+      ],
     },
   ];
 
@@ -100,66 +143,35 @@ const AdminPage = () => {
     );
   };
 
+  const getFullYearData = async () => {
+    const { data } = await axios.post("/api/cashier/getYearlyCashierGraph", {
+      filial: adminData?.filial,
+      jwt: getCookie("jwt"),
+    });
+
+    setTotalGainYear(data.data.monthResults);
+  };
+
   const handleGetMonthValue = async (date: Date) => {
     const startDate = formatISO(startOfMonth(date)).substring(0, 10);
     const endDate = formatISO(endOfMonth(date)).substring(0, 10);
 
-    const { data: result } = await handleGetMonthCashiers(startDate, endDate);
-    const { data: monthCashArr } = result;
+    const { data } = await axios.post("/api/cashier/getMonthValues", {
+      startDate,
+      endDate,
+      filial: adminData?.filial,
+      jwt: getCookie("jwt"),
+    });
 
-    if (monthCashArr.length === 0) return;
-
-    let monthCash: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.cash
-    );
-    let monthDebit: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.debit
-    );
-    let monthCredit: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.credit
-    );
-    let monthPix: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.pix
-    );
-    let monthBankCheck: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.bank_check
-    );
-    let monthTransfer: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.transfer
-    );
-    let monthOut: any[] = monthCashArr.map(
-      (v: any) => v.attributes.total_values.out
-    );
-
-    let totalCash = 0;
-    let totalDebit = 0;
-    let totalCredit = 0;
-    let totalPix = 0;
-    let totalOut = 0;
-    let totalBankCheck = 0;
-    let totalTransfer = 0;
-
-    totalCash = monthCash.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalDebit = monthDebit.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalCredit = monthCredit.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalPix = monthPix.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalOut = monthOut.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalBankCheck = monthBankCheck.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
-    totalTransfer = monthTransfer.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0);
+    const {
+      totalDebit,
+      totalCash,
+      totalCredit,
+      totalOut,
+      totalPix,
+      totalBankCheck,
+      totalTransfer,
+    } = data.data;
 
     if (date !== now) {
       setLastMonthValues({
@@ -254,12 +266,14 @@ const AdminPage = () => {
   }, [getMonthTotal]);
 
   useEffect(() => {
+    if (!adminData) return;
     handleGetMonthValue(now);
     handleGetMonthValue(new Date(now.getFullYear(), now.getMonth() - 1, 1));
     handleGetAllPatients(now);
     handleGetAllPatients(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+    getFullYearData();
     getLastPayments();
-  }, []);
+  }, [adminData]);
 
   useEffect(() => {
     getDevicesTraffic();
@@ -321,9 +335,16 @@ const AdminPage = () => {
             <Grid xs={12} sm={6} lg={3}>
               <OverviewTotalProfit sx={{ height: "100%" }} value="$15k" />
             </Grid> */}
-            <Grid xs={12} lg={12}>
-              <OverviewSales chartSeries={salesGraph} sx={{ height: "100%" }} />
-            </Grid>
+            {totalGainYear === null ? (
+              <Skeleton width={"100%"} height={"400px"} />
+            ) : (
+              <Grid xs={12} lg={12}>
+                <OverviewSales
+                  chartSeries={salesGraph}
+                  sx={{ height: "100%" }}
+                />
+              </Grid>
+            )}
             {/*<Grid xs={12} md={12} lg={12}>
               <OverviewTraffic
                 chartSeries={[traffics.web, traffics.android, traffics.ios]}

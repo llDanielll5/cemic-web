@@ -48,6 +48,7 @@ export const handleLogin = async (data: any) => {
 
 export const handlePersistLogin = async () => {
   let { data } = await axiosInstance.get(`/users/me/?populate=*`);
+
   const authData = data;
   return authData;
 };

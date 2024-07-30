@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import { Chart } from "src/components/new-admin/comps/chart";
+import { parseToBrl } from "@/components/admin/patient/modals/receipt-preview";
 
 const useChartOptions = () => {
   const theme = useTheme();
@@ -24,10 +25,7 @@ const useChartOptions = () => {
         show: false,
       },
     },
-    colors: [
-      theme.palette.primary.main,
-      alpha(theme.palette.primary.main, 0.25),
-    ],
+    colors: [theme.palette.primary.main, "orangered", "green"],
     dataLabels: {
       enabled: false,
     },
@@ -97,7 +95,8 @@ const useChartOptions = () => {
     },
     yaxis: {
       labels: {
-        formatter: (value: any) => (value > 0 ? `${value} mil` : `${value}`),
+        formatter: (value: any) =>
+          value > 0 ? `${parseToBrl(value)}` : `${parseToBrl(value)}`,
         offsetX: -10,
         style: {
           colors: theme.palette.text.secondary,
