@@ -53,6 +53,8 @@ interface CreatePayment {
     payment_shapes: PaymentShapesInterface[];
     adminInfos: AdminInfosInterface;
     treatments: any[];
+    filial?: string;
+    location?: "DF" | "MG" | "";
   };
 }
 
@@ -234,6 +236,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         treatments: treatmentsIds,
         payment_shapes: receiptValues?.paymentShapes!,
         bank_check_infos: receiptValues?.bankCheckInfos ?? [],
+        location: adminData?.location as "DF" | "MG",
+        filial: adminData?.filial,
       },
     };
 
@@ -340,6 +344,9 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     );
     let usedVal = 0;
     if (creditWallet) usedVal = creditWallet.price;
+
+
+
 
     return await createPatientPayment(dataUpdate).then(
       async (res) => {
