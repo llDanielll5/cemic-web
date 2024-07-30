@@ -61,7 +61,7 @@ interface CreatePayment {
 const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const { onUpdatePatient } = props;
   const patientData = useRecoilValue(PatientData);
-  const adminData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
   const patient = patientData?.attributes;
   const paymentsPatient = patient?.payments?.data;
 
@@ -336,6 +336,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         verifyBy: null,
         total_values: values,
         patient: patientData?.id!,
+        location: adminData?.location as "DF" | "MG",
+        filial: adminData?.filial,
       },
     };
 
@@ -345,8 +347,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     let usedVal = 0;
     if (creditWallet) usedVal = creditWallet.price;
 
-
-
+    setIsLoading(false);
 
     return await createPatientPayment(dataUpdate).then(
       async (res) => {

@@ -30,6 +30,9 @@ const nextConfig = {
     DEV_SERVER_URL: process.env.DEV_SERVER_URL,
     PRODUCTION_SERVER_URL: process.env.PRODUCTION_SERVER_URL,
     CEMIC_PUBLIC_IP: process.env.CEMIC_PUBLIC_IP,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
+    STRAPI_ACCESS_KEY: process.env.STRAPI_ACCESS_KEY,
   },
 };
 
