@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { ChangeEvent, forwardRef, useEffect, useState } from "react";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import CModal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import * as Yup from "yup";
 import {
+  Alert,
   Box,
   Button,
   InputAdornment,
@@ -25,6 +26,9 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import axiosInstance from "@/axios";
+import { EnterpriseBrancheLocation, EnterpriseBranches } from "types/company";
+import axios, { AxiosError } from "axios";
 
 const roleValues = [
   {
@@ -44,6 +48,10 @@ const roleValues = [
     label: "Protético",
   },
 ];
+
+export async function getAllEnterpriseAddress() {
+  return await axiosInstance.get("/companies");
+}
 
 export const regionsSelect = [
   { value: "DF", label: "Distrito Federal" },
@@ -92,15 +100,24 @@ export const TextPhoneCustom = forwardRef<HTMLInputElement, CustomProps>(
   }
 );
 
+export interface AxiosErrorResponseData {
+  data?: any;
+  error: { details: string; message: string; name: string; status: number };
+}
+
 const RegisterPage = () => {
   const router = useRouter();
   const [userData, setUserData] = useRecoilState(UserData);
   const [code, setCode] = useState("");
   const [chances, setChances] = useState(3);
+  const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPartnerModal, setConfirmPartnerModal] = useState(true);
+  const [enterpriseBranches, setEnterpriseBranches] = useState<
+    { attributes: EnterpriseBranches; id: string }[]
+  >([]);
 
   const formik = useFormik({
     initialValues: {
@@ -113,6 +130,7 @@ const RegisterPage = () => {
       rg: "",
       dateBorn: "",
       role: "",
+      filial: "",
       location: "",
       submit: null,
     },
@@ -146,6 +164,7 @@ const RegisterPage = () => {
         password,
         role,
         username,
+        filial,
         location,
       } = values;
       const phoneReplaced = phone!
@@ -170,24 +189,25 @@ const RegisterPage = () => {
         rg: rg.toString(),
         password,
         role,
+        filial,
         location,
       };
 
       try {
-        return await handleRegister(data)
-          .then(() => {
+        return await axios.post("/api/auth/register", data).then(
+          (res) => {
             setIsLoading(false);
             return router.push("/auth/login");
-          })
-          .catch((error) => {
-            if (error.response) console.log(error.response.data.error.details);
-            console.log(error.response);
+          },
+          (error: AxiosError<AxiosErrorResponseData, any>) => {
             setIsLoading(false);
-            return alert("Erroooooo");
-          });
-      } catch (err: any) {
+            const details = error.response?.data.error.details;
+            setErrorMsg(details as string);
+          }
+        );
+      } catch (error: any) {
         helpers.setStatus({ success: false });
-        helpers.setErrors({ submit: err.message });
+        helpers.setErrors({ submit: error.message });
         helpers.setSubmitting(false);
       }
     },
@@ -211,36 +231,61 @@ const RegisterPage = () => {
     if (key === "Enter") return handleVerify();
   };
 
+  useEffect(() => {
+    if (!confirmPartnerModal) {
+      getAllEnterpriseAddress().then((res) =>
+        setEnterpriseBranches(res.data.data)
+      );
+    }
+  }, [confirmPartnerModal]);
+
+  if (confirmPartnerModal)
+    return (
+      <Stack alignItems={"center"} justifyContent={"center"}>
+        <CModal visible={confirmPartnerModal} closeModal={() => {}}>
+          <Typography variant="subtitle1">
+            Digite o código de administrador:
+          </Typography>
+          <TextField
+            onChange={(e) => setCode(e.target.value)}
+            label="Código de Parceiro"
+            value={code}
+            onKeyDown={handlePressVerify}
+            type={"password"}
+            fullWidth
+            sx={{ mt: 2 }}
+          />
+          <Button
+            fullWidth
+            size="large"
+            sx={{ mt: 3 }}
+            type="submit"
+            variant="contained"
+            onClick={handleVerify}
+          >
+            Verificar código
+          </Button>
+        </CModal>
+      </Stack>
+    );
+
+  const onChangeLocation = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    formik.handleChange(e);
+    const finded = enterpriseBranches.find(
+      (find) => find.attributes.filial === e.target.value
+    );
+    formik.values.location = finded?.attributes.location as string;
+  };
+
   return (
     <>
       <Head>
         <title>Registrar sua conta na CEMIC!</title>
       </Head>
       {isLoading && <Loading message={loadingMessage} />}
-      <CModal visible={confirmPartnerModal} closeModal={() => {}}>
-        <Typography variant="subtitle1">
-          Digite o código de administrador:
-        </Typography>
-        <TextField
-          onChange={(e) => setCode(e.target.value)}
-          label="Código de Parceiro"
-          value={code}
-          onKeyDown={handlePressVerify}
-          type={"password"}
-          fullWidth
-          sx={{ mt: 2 }}
-        />
-        <Button
-          fullWidth
-          size="large"
-          sx={{ mt: 3 }}
-          type="submit"
-          variant="contained"
-          onClick={handleVerify}
-        >
-          Verificar código
-        </Button>
-      </CModal>
+
       <Container>
         <InnerContainer>
           <div>
@@ -258,6 +303,7 @@ const RegisterPage = () => {
                 </Link>
               </Typography>
             </Stack>
+
             <form noValidate onSubmit={formik.handleSubmit}>
               <Stack spacing={3}>
                 <TextField
@@ -382,18 +428,21 @@ const RegisterPage = () => {
 
                 <TextField
                   label="Especifique a região que trabalha*"
-                  name="location"
-                  error={!!(formik.touched.location && formik.errors.location)}
+                  name="filial"
+                  error={!!(formik.touched.filial && formik.errors.filial)}
                   select
-                  onChange={formik.handleChange}
-                  value={formik.values.location}
+                  onChange={onChangeLocation}
+                  value={formik.values.filial}
                   fullWidth
-                  helperText={formik.touched.location && formik.errors.location}
+                  helperText={formik.touched.filial && formik.errors.filial}
                   onBlur={formik.handleBlur}
                 >
-                  {regionsSelect.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
+                  {enterpriseBranches.map((option) => (
+                    <MenuItem
+                      key={option.attributes.filial}
+                      value={option.attributes.filial}
+                    >
+                      {option.attributes.filial}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -403,10 +452,21 @@ const RegisterPage = () => {
                   {formik.errors.submit}
                 </Typography>
               )}
+              {!!errorMsg && (
+                <Alert
+                  variant="filled"
+                  color="error"
+                  severity="error"
+                  onClose={() => setErrorMsg("")}
+                  sx={{ mt: 2 }}
+                >
+                  {errorMsg}
+                </Alert>
+              )}
               <Button
                 fullWidth
                 size="large"
-                sx={{ mt: 3 }}
+                sx={{ mt: 2 }}
                 type="submit"
                 variant="contained"
               >

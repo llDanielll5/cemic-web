@@ -49,6 +49,7 @@ export interface AdminType {
   firstLetter: string;
   role: UserRole;
   location: "" | "DF" | "MG";
+  filial?: string;
   dateBorn: string;
   userType: UserRole;
   permissions: UserPermissionsJsonInterface;

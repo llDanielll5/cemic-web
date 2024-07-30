@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { SyntheticEvent, useCallback, useEffect, useState } from "react";
 import "react-calendar/dist/Calendar.css";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
@@ -18,6 +18,18 @@ import { getActualLectureDetails } from "@/axios/admin/lectures";
 import { Box, Typography, IconButton, Button, styled } from "@mui/material";
 import { Scheduler } from "@aldabil/react-scheduler";
 import LecturesTable from "@/components/table/lectures-table";
+
+// import React, {ReactNode, SyntheticEvent} from 'react';
+import ApiCalendar from "react-google-calendar-api";
+
+const config = {
+  clientId: process.env.GOOGLE_CLIENT_ID!,
+  apiKey: process.env.GOOGLE_API_KEY!,
+  scope: "https://www.googleapis.com/auth/calendar",
+  discoveryDocs: [
+    "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+  ],
+};
 
 interface PatientInfos {
   participant: string;
@@ -54,6 +66,8 @@ const LecturesAdmin = () => {
   const [lectureData, setLectureData] = useState<LectureHours>(defaultLectures);
   const [patientValues, setPatientValues] =
     useState<PatientInfos>(defaultPatientValues);
+
+  const apiCalendar = new ApiCalendar(config);
 
   const notScheduleForThisDay =
     lectureData["11:00"]?.length === 0 &&
@@ -148,6 +162,14 @@ const LecturesAdmin = () => {
     },
   ];
 
+  function handleItemClick(event: SyntheticEvent<any>, name: string): void {
+    if (name === "sign-in") {
+      apiCalendar.handleAuthClick();
+    } else if (name === "sign-out") {
+      apiCalendar.handleSignoutClick();
+    }
+  }
+
   return (
     <Container>
       {/* MODALS */}
@@ -198,12 +220,15 @@ const LecturesAdmin = () => {
         </Typography>
       </Box>
 
-      <Box p={4}>
+      <button onClick={(e) => handleItemClick(e, "sign-in")}>sign-in</button>
+      <button onClick={(e) => handleItemClick(e, "sign-out")}>sign-out</button>
+
+      {/* <Box p={4}>
         <LecturesTable
           tableData={tableData}
           tableHeads={["Horário", "Paciente", "Compareceu?", "Cadastrou?"]}
         />
-      </Box>
+      </Box> */}
     </Container>
   );
 };
