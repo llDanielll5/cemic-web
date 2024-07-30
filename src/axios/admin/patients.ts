@@ -20,6 +20,7 @@ export const handleCreatePatient = async (data: any) => {
     createdBy,
     cardId,
     location,
+    filial,
   } = data;
 
   const phoneReplaced = phone!
@@ -55,6 +56,7 @@ export const handleCreatePatient = async (data: any) => {
       cpf: cpfReplaced,
       phone: phoneReplaced,
       location,
+      filial,
       adminInfos: { created: createdBy, createTimestamp: new Date() },
     },
   };

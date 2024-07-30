@@ -187,6 +187,7 @@ const NewPatientForm = (props: AnamneseProps) => {
       createdBy: adminData.id,
       cardId,
       location: adminData.location,
+      filial: adminData?.filial,
       slug: userData?.name?.replaceAll(" ", "-").toLowerCase(),
     };
 
