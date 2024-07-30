@@ -71,15 +71,6 @@ export const defaultEmployeePermissions = {
       all: false,
     },
   },
-  whatsapp: {
-    allowed: false,
-    permissions: {
-      read: false,
-      create: false,
-      update: false,
-      all: false,
-    },
-  },
 };
 
 export const defaultAdminPermissions = {
@@ -147,15 +138,6 @@ export const defaultAdminPermissions = {
     },
   },
   warehouse: {
-    allowed: true,
-    permissions: {
-      read: true,
-      create: true,
-      update: true,
-      all: true,
-    },
-  },
-  whatsapp: {
     allowed: true,
     permissions: {
       read: true,

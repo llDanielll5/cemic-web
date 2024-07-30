@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { PatientAttributes } from "types/patient";
 import { AddressType } from "types";
-import { Box, Button, Divider, styled, Tabs } from "@mui/material";
+import { Box, Button, Divider } from "@mui/material";
 import Tab from "@mui/material/Tab";
 import TabList from "@mui/lab/TabList";
 import Loading from "@/components/loading";
@@ -32,10 +32,9 @@ import PatientFinanceTab from "./tabs/finance";
 import PatientExams from "./tabs/exams";
 import PatientProblems from "./tabs/problems";
 import PatientAttachments from "./tabs/attachments";
-import { Scrollbar } from "@/components/new-admin/comps/scrollbar";
 
-const PatientDetails = (props: { cardId: string }) => {
-  const adminData = useRecoilValue(UserData);
+const PatientDetails = (props: { cardId: any }) => {
+  const adminData: any = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
   const [clientData, setClientData] =
     useState<PatientAttributes>(defaultClientData);
@@ -43,6 +42,8 @@ const PatientDetails = (props: { cardId: string }) => {
     useState<AddressType>(defaultAddress);
 
   const [addressModal, setAddressModal] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [loadingMessage, setLoadingMessage] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const currTabs =
     adminData?.userType !== "DENTIST" ? adminTabs : professionalTabs;
@@ -54,14 +55,11 @@ const PatientDetails = (props: { cardId: string }) => {
     },
   };
 
-  const handleChange = (val: string, field: string) =>
+  const handleChange = (val: any, field: any) =>
     setClientData((prev) => ({ ...prev, [field]: val }));
-  const handleChangeAddress = (val: string, field: string) =>
+  const handleChangeAddress = (val: any, field: any) =>
     setClientAddress((prev) => ({ ...prev, [field]: val }));
-  const handleChangeTab = (
-    e: React.SyntheticEvent<Element, Event>,
-    nVal: string
-  ) => setTabIndex(parseInt(nVal));
+  const handleChangeTab = (e: any, nVal: string) => setTabIndex(parseInt(nVal));
 
   const handleGetPatient = async () => {
     return await handleGetSinglePatient(props.cardId).then(
@@ -176,34 +174,23 @@ const PatientDetails = (props: { cardId: string }) => {
   };
 
   return (
-    <TabContainer value={tabIndex.toString()}>
+    <TabContext value={tabIndex.toString()}>
       {patientData !== null && (
         <HeaderPatientInformations clientData={clientData} />
       )}
 
       <Divider sx={{ mt: 2 }} />
-
-      <InnerTabContainer
-        onChange={handleChangeTab}
-        variant="scrollable"
-        scrollButtons="auto"
-      >
-        {currTabs.map((v, i) => (
-          <Tab key={i} label={v} value={i.toString()} />
-        ))}
-      </InnerTabContainer>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <TabList onChange={handleChangeTab}>
+          {currTabs.map((v, i) => (
+            <Tab key={i} label={v} value={i.toString()} />
+          ))}
+        </TabList>
+      </Box>
 
       {renderPatientTabs(tabIndex.toString())}
-    </TabContainer>
+    </TabContext>
   );
 };
-
-const TabContainer = styled(TabContext)`
-  overflow: auto;
-  width: 100%;
-`;
-const InnerTabContainer = styled(Tabs)`
-  border-bottom: 1px solid ${({ theme }) => theme.palette.divider};
-`;
 
 export default PatientDetails;

@@ -28,7 +28,7 @@ const PatientSingle = (props: any) => {
   return (
     <Box p={4}>
       {!!card ? (
-        <SingleUser cardId={patientCardId as string} />
+        <SingleUser cardId={patientCardId} />
       ) : (
         <Loading message="Carregando Informações do Usuário" />
       )}

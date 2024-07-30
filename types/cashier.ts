@@ -49,8 +49,6 @@ export interface CreateCashierInfosInterface {
     cashier?: any | null;
     outInfo?: any | null;
     patient?: any | null;
-    location?: "DF" | "MG";
-    filial?: string;
     //adicionar pagamento de profisisonal
   };
 }

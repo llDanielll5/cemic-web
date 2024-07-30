@@ -9,7 +9,6 @@ import {
   CardActions,
   CardHeader,
   Divider,
-  styled,
   SvgIcon,
   Table,
   TableBody,
@@ -46,49 +45,49 @@ export const OverviewLatestOrders = (props: any) => {
   };
 
   return (
-    <CardContainer sx={sx}>
+    <Card sx={sx}>
       <CardHeader title="Últimos Pagamentos" />
-
-      <Box sx={{ minWidth: 800 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Caixa</TableCell>
-              <TableCell>Paciente</TableCell>
-              <TableCell sortDirection="desc">Data</TableCell>
-              <TableCell>Valor R$</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orders.map((order: any) => {
-              const attr = order.attributes;
-              const cashier = attr?.cashier?.data?.attributes?.type;
-              const patient = attr?.patient?.data?.attributes?.name;
-              const datePayment = format(
-                new Date(attr?.date),
-                "dd/MM/yyyy HH:mm"
-              );
-              return (
-                <TableRow hover key={order.id}>
-                  <TableCell>
-                    <SeverityPill color={cashierType[cashier]}>
-                      {cashierName[cashier]}
-                    </SeverityPill>
-                  </TableCell>
-                  <TableCell>{patient}</TableCell>
-                  <TableCell>{datePayment}</TableCell>
-                  <TableCell>
-                    {parseToBrl(sumAllValues(attr?.total_values))}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </Box>
-
+      <Scrollbar sx={{ flexGrow: 1 }}>
+        <Box sx={{ minWidth: 800 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Caixa</TableCell>
+                <TableCell>Paciente</TableCell>
+                <TableCell sortDirection="desc">Data</TableCell>
+                <TableCell>Valor R$</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {orders.map((order: any) => {
+                const attr = order.attributes;
+                const cashier = attr?.cashier?.data?.attributes?.type;
+                const patient = attr?.patient?.data?.attributes?.name;
+                const datePayment = format(
+                  new Date(attr?.date),
+                  "dd/MM/yyyy HH:mm"
+                );
+                return (
+                  <TableRow hover key={order.id}>
+                    <TableCell>
+                      <SeverityPill color={cashierType[cashier]}>
+                        {cashierName[cashier]}
+                      </SeverityPill>
+                    </TableCell>
+                    <TableCell>{patient}</TableCell>
+                    <TableCell>{datePayment}</TableCell>
+                    <TableCell>
+                      {parseToBrl(sumAllValues(attr?.total_values))}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Box>
+      </Scrollbar>
       <Divider />
-      <CardActions>
+      <CardActions sx={{ justifyContent: "flex-end" }}>
         <Button
           color="inherit"
           endIcon={
@@ -102,13 +101,9 @@ export const OverviewLatestOrders = (props: any) => {
           Ver Todos
         </Button>
       </CardActions>
-    </CardContainer>
+    </Card>
   );
 };
-
-const CardContainer = styled(Card)`
-  overflow: auto;
-`;
 
 OverviewLatestOrders.prototype = {
   orders: PropTypes.array,
