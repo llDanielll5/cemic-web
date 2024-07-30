@@ -321,9 +321,9 @@ const AdminPage = () => {
             <Grid xs={12} sm={6} lg={3}>
               <OverviewTotalProfit sx={{ height: "100%" }} value="$15k" />
             </Grid> */}
-            <Grid xs={12} lg={12}>
+            {/* <Grid xs={12} lg={8}>
               <OverviewSales chartSeries={salesGraph} sx={{ height: "100%" }} />
-            </Grid>
+            </Grid> */}
             {/*<Grid xs={12} md={12} lg={12}>
               <OverviewTraffic
                 chartSeries={[traffics.web, traffics.android, traffics.ios]}

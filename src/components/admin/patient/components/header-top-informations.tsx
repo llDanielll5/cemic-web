@@ -10,6 +10,8 @@ const HeaderTopPatientInformations = (props: { patient?: any }) => {
   const { width } = useWindowSize();
   let dateBornDate = new Date(patient?.dateBorn);
 
+  console.log(dateBornDate);
+
   return (
     <Container>
       <Box>

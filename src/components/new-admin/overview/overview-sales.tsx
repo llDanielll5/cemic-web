@@ -76,17 +76,17 @@ const useChartOptions = () => {
       },
       categories: [
         "Jan",
-        "Fev",
+        "Feb",
         "Mar",
-        "Abr",
-        "Mai",
+        "Apr",
+        "May",
         "Jun",
         "Jul",
-        "Ago",
-        "Set",
-        "Out",
+        "Aug",
+        "Sep",
+        "Oct",
         "Nov",
-        "Dez",
+        "Dec",
       ],
       labels: {
         offsetY: 5,
@@ -97,7 +97,7 @@ const useChartOptions = () => {
     },
     yaxis: {
       labels: {
-        formatter: (value: any) => (value > 0 ? `${value} mil` : `${value}`),
+        formatter: (value: any) => (value > 0 ? `${value}K` : `${value}`),
         offsetX: -10,
         style: {
           colors: theme.palette.text.secondary,
@@ -113,7 +113,22 @@ export const OverviewSales = (props: any) => {
 
   return (
     <Card sx={sx}>
-      <CardHeader title="Vendas" />
+      <CardHeader
+        action={
+          <Button
+            color="inherit"
+            size="small"
+            startIcon={
+              <SvgIcon fontSize="small">
+                <ArrowPathIcon />
+              </SvgIcon>
+            }
+          >
+            Atualizar
+          </Button>
+        }
+        title="Vendas"
+      />
       <CardContent>
         <Chart
           height={350}
