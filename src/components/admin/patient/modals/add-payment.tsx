@@ -20,11 +20,11 @@ import { parseToothRegion } from "@/services/services";
 import { ToothsInterface } from "types/odontogram";
 import AddPaymentShape from "../components/add-payment-shape";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import AddBoxIcon from "@mui/icons-material/AddBox";
 import PaymentTypesPatient from "../components/payment-types";
 import { useRecoilValue } from "recoil";
 import PatientData from "@/atoms/patient";
-import { DateField } from "@mui/x-date-pickers/DateField";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import { formatISO } from "date-fns";
 
 interface AddPaymentPatientModal {
@@ -41,6 +41,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const [discount, setDiscount] = useState<string>("");
   const [creditAddition, setCreditAddition] = useState(10);
   const [dateSelected, setDateSelected] = useState(new Date());
+  const [dateSelectedModal, setDateSelectedModal] = useState(false);
   const [additionCreditVisible, setAdditionCreditVisible] = useState(false);
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
     "Clinico"
@@ -247,7 +248,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         name: v.name,
         serie_number: v.serie_number,
         price: parseValue,
-        dateSelected,
       };
     });
 
@@ -259,9 +259,16 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       discount: parseInt(discount),
       cashierType: cashierType === "Clinico" ? "clinic" : "implant",
       creditsUsed: wallets.length > 0 ? walletReduce : null,
+      dateSelected,
     };
 
     onPassReceiptValues(dataUpdate);
+  };
+
+  const handleChangeDate = (e: any) => {
+    setDateSelected(e);
+    setDateSelectedModal(false);
+    return;
   };
 
   const hasCheckPayment =
@@ -294,6 +301,18 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         sx={{ position: "relative" }}
         pt={1}
       >
+        <CModal
+          visible={dateSelectedModal}
+          closeModal={() => setDateSelectedModal(false)}
+        >
+          <Box display="flex" alignItems="center" flexDirection="column">
+            <Typography variant="subtitle1" mb={1} textAlign="center">
+              Selecione a data desejada:
+            </Typography>
+            <Calendar onChange={handleChangeDate} value={dateSelected} />
+          </Box>
+        </CModal>
+
         <Typography variant="subtitle1">Gerar Pagamento</Typography>
 
         {treatmentsOfPatient.length > 0 && (
@@ -423,17 +442,23 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                     <TextField {...props} label="Caixa" />
                   )}
                 />
-
-                <TextField
-                  fullWidth
-                  type={"date"}
-                  label="Data para lançamento:"
-                  value={formatISO(dateSelected).substring(0, 10)}
-                  InputLabelProps={{ shrink: true }}
-                  onChange={(e) => setDateSelected(new Date(e.target.value))}
-                />
+                <Button
+                  variant="contained"
+                  sx={{ width: "35%" }}
+                  onClick={() => setDateSelectedModal(true)}
+                >
+                  Selecionar Data
+                </Button>
               </Stack>
             </Paper>
+
+            <Typography variant="h6">
+              Data Selecionada:{" "}
+              {formatISO(dateSelected).substring(0, 10) ===
+              formatISO(new Date()).substring(0, 10)
+                ? "Hoje"
+                : dateSelected.toLocaleDateString()}
+            </Typography>
           </>
         )}
 

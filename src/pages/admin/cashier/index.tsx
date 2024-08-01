@@ -226,7 +226,7 @@ const CashierAdmin = () => {
   };
 
   const handleConfirmOpenCashier = async () => {
-    const date = formatISO(new Date()).substring(0, 10);
+    const date = formatISO(dateSelected).substring(0, 10);
     const adminInfos = { created: adminData?.id!, createTimestamp: new Date() };
     setCookie("oldDate", dateSelected);
 
@@ -270,6 +270,9 @@ const CashierAdmin = () => {
     const { data: result } = await handleGetMonthCashiersOfType(
       startDate,
       endDate,
+      adminData?.userType === "SUPERADMIN"
+        ? filialSelection
+        : adminData?.filial!,
       type
     );
     const { data: monthCashArr } = result;

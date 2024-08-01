@@ -212,7 +212,7 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
           width="100%"
           mt={5}
         >
-          Brasília {new Date().toLocaleDateString()}
+          Brasília {receiptValues?.dateSelected?.toLocaleDateString()}
         </Typography>
 
         <Typography

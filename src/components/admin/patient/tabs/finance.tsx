@@ -194,6 +194,9 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       },
     };
 
+    if (receiptValues?.dateSelected! > new Date())
+      return alert("A data selecionada não pode ser futura.");
+
     return await createPatientPayment(dataUpdate).then(
       async (res) => {
         setLoadingMessage("Atualizando o caixa do Dia!");
@@ -390,6 +393,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   };
 
   const handleGetReceiptValues = (receiptValues: any) => {
+    console.log(receiptValues);
     setReceiptValues(receiptValues);
     setReceiptPreviewVisible(true);
   };

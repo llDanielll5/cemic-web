@@ -33,10 +33,11 @@ export const handleGetMonthCashiers = async (
 export const handleGetMonthCashiersOfType = async (
   startDate: string,
   endDate: string,
+  filial: string,
   type?: "clinic" | "implant"
 ) => {
   return await axiosInstance.get(
-    `/cashiers/?filters[date][$gte]=${startDate}&filters[date][$lte]=${endDate}&filters[type]=${type}&populate[cashierInfos][populate]=*&populate[adminInfos][populate]=*`
+    `/cashiers/?filters[date][$gte]=${startDate}&filters[date][$lte]=${endDate}&filters[type]=${type}&filters[filial][$eq]=${filial}&populate[cashierInfos][populate]=*&populate[adminInfos][populate]=*`
   );
 };
 
