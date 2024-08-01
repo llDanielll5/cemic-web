@@ -14,7 +14,7 @@ import { CashTable } from "@/components/new-admin/cash/cashTable";
 import { useRecoilValue } from "recoil";
 import { getCookie, setCookie } from "cookies-next";
 import { useFormik } from "formik";
-import { endOfMonth, formatISO, startOfMonth } from "date-fns";
+import { endOfMonth, formatISO, startOfDay, startOfMonth } from "date-fns";
 import { useRouter } from "next/navigation";
 import Calendar from "react-calendar";
 import UserData from "@/atoms/userData";
@@ -204,8 +204,17 @@ const CashierAdmin = () => {
 
   const handleOpenCashier = async () => {
     if (cashierData !== null) return alert("Caixa já aberto!");
+
     const startDate = formatISO(startOfMonth(dateSelected)).substring(0, 10);
     const endDate = formatISO(endOfMonth(dateSelected)).substring(0, 10);
+
+    if (
+      formatISO(new Date()).substring(0, 10) <
+      formatISO(dateSelected).substring(0, 10)
+    ) {
+      return alert("Não é possível abrir caixa de dias posteriores");
+    }
+
     const response = await handleGetHasOpenedCashier(startDate, endDate, type);
     const { data: openeds } = response.data;
     // if (openeds.length > 0)
@@ -471,14 +480,11 @@ const CashierAdmin = () => {
       </CModal>
       {/* END MODALS */}
 
-      {adminData?.userType === "ADMIN" ||
-      adminData?.userType === "SUPERADMIN" ? (
-        <ReportsButtons
-          cashierType={cashierType}
-          dateSelected={dateSelected}
-          onOpenDateSelect={() => setCalendarVisible(true)}
-        />
-      ) : null}
+      <ReportsButtons
+        cashierType={cashierType}
+        dateSelected={dateSelected}
+        onOpenDateSelect={() => setCalendarVisible(true)}
+      />
 
       {cashierData !== null && (
         <>

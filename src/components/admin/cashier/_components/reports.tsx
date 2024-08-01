@@ -4,6 +4,8 @@ import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import useWindowSize from "@/hooks/useWindowSize";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 interface ReportsButtonsProps {
   cashierType: number;
@@ -12,8 +14,10 @@ interface ReportsButtonsProps {
 }
 
 const ReportsButtons = (props: ReportsButtonsProps) => {
-  const { cashierType, dateSelected, onOpenDateSelect } = props;
   const { width } = useWindowSize();
+  const { cashierType, dateSelected, onOpenDateSelect } = props;
+  const adminData = useRecoilValue(UserData);
+
   let dateIso = formatISO(dateSelected).substring(0, 10);
   let type = cashierType === 0 ? "clinic" : "implant";
 
@@ -30,13 +34,18 @@ const ReportsButtons = (props: ReportsButtonsProps) => {
       </Typography>
 
       <Box display="flex" columnGap={2} alignItems={"center"}>
-        <Button variant="contained" color={"info"} onClick={getMonthReport}>
-          {width! > 760 ? "Relatório Mensal" : "Mensal"}
-        </Button>
+        {adminData?.userType === "ADMIN" ||
+        adminData?.userType === "SUPERADMIN" ? (
+          <>
+            <Button variant="contained" color={"info"} onClick={getMonthReport}>
+              {width! > 760 ? "Relatório Mensal" : "Mensal"}
+            </Button>
 
-        <Button variant="contained" color="info" onClick={getAnnualReport}>
-          {width! > 760 ? "Relatório Anual" : "Anual"}
-        </Button>
+            <Button variant="contained" color="info" onClick={getAnnualReport}>
+              {width! > 760 ? "Relatório Anual" : "Anual"}
+            </Button>
+          </>
+        ) : null}
         <Button
           variant="outlined"
           onClick={onOpenDateSelect}
