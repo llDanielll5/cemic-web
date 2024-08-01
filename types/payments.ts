@@ -85,5 +85,6 @@ export interface ReceiptValues {
   bankCheckInfos: BankCheckInformationsInterface[];
   totalValue?: number;
   discount?: number;
+  dateSelected?: Date;
   cashierType: "clinic" | "implant";
 }

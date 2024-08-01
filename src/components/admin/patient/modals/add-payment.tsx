@@ -24,7 +24,8 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import PaymentTypesPatient from "../components/payment-types";
 import { useRecoilValue } from "recoil";
 import PatientData from "@/atoms/patient";
-import AlertModal from "@/components/modal/alert-modal";
+import { DateField } from "@mui/x-date-pickers/DateField";
+import { formatISO } from "date-fns";
 
 interface AddPaymentPatientModal {
   visible: boolean;
@@ -39,6 +40,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const [totalValue, setTotalValue] = useState<number>(0);
   const [discount, setDiscount] = useState<string>("");
   const [creditAddition, setCreditAddition] = useState(10);
+  const [dateSelected, setDateSelected] = useState(new Date());
   const [additionCreditVisible, setAdditionCreditVisible] = useState(false);
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
     "Clinico"
@@ -171,6 +173,8 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     setBankCheckInfos(v);
 
   const handleViewPayment = () => {
+    if (!dateSelected)
+      return alert("Adicione a data correspondente para o caixa");
     const notPriced = paymentShapes.map((v) => v.price === 0);
     const notShape = paymentShapes.map((v) => v.shape === "");
     const prices = paymentShapes.map((v) => v.price);
@@ -243,6 +247,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         name: v.name,
         serie_number: v.serie_number,
         price: parseValue,
+        dateSelected,
       };
     });
 
@@ -403,13 +408,31 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
               <Typography variant="subtitle1">
                 Escolha o tipo de Caixa
               </Typography>
-              <Autocomplete
-                fullWidth
-                value={cashierType}
-                options={["Clinico", "Implantes"]}
-                onChange={(e, v: any) => setCashierType(v!)}
-                renderInput={(props) => <TextField {...props} label="Caixa" />}
-              />
+              <Stack
+                direction={"row"}
+                alignItems="center"
+                justifyContent="space-between"
+                columnGap={2}
+              >
+                <Autocomplete
+                  fullWidth
+                  value={cashierType}
+                  options={["Clinico", "Implantes"]}
+                  onChange={(e, v: any) => setCashierType(v!)}
+                  renderInput={(props) => (
+                    <TextField {...props} label="Caixa" />
+                  )}
+                />
+
+                <TextField
+                  fullWidth
+                  type={"date"}
+                  label="Data para lançamento:"
+                  value={formatISO(dateSelected).substring(0, 10)}
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => setDateSelected(new Date(e.target.value))}
+                />
+              </Stack>
             </Paper>
           </>
         )}

@@ -3,19 +3,21 @@ import axiosInstance from "..";
 
 export const handleGetCashierOpened = async (
   dateIso: string,
-  type: "clinic" | "implant"
+  type: "clinic" | "implant",
+  filial: string
 ) => {
   return await axiosInstance.get(
-    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${type}&filters[hasClosed]=false&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*`
+    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${type}&filters[hasClosed]=false&filters[filial][$eq]=${filial}&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*`
   );
 };
 
 export const handleGetCashierOpenedWithType = async (
   dateIso: string,
-  cashierType: string
+  cashierType: string,
+  filial: string
 ) => {
   return await axiosInstance.get(
-    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${cashierType}&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*&populate[patient][fields][0]=name&populate[outInfo][populate]=*`
+    `/cashiers/?filters[date][$eq]=${dateIso}&filters[type][$eq]=${cashierType}&filters[filial][$eq]=${filial}&populate[adminInfos][populate]=*&populate[cashierInfos][populate]=*&populate[patient][fields][0]=name&populate[outInfo][populate]=*`
   );
 };
 

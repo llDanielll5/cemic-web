@@ -36,6 +36,8 @@ export interface CreateCashierInterface {
     date: string;
     type: string;
     total_values: TotalValues;
+    filial?: string;
+    location?: string;
   };
 }
 

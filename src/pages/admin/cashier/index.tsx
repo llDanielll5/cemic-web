@@ -2,7 +2,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { CashierInterface, CreateCashierInterface } from "types/cashier";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { CashTable } from "@/components/new-admin/cash/cashTable";
 import { useRecoilValue } from "recoil";
 import { getCookie, setCookie } from "cookies-next";
@@ -33,10 +40,11 @@ const CashierAdmin = () => {
   const router = useRouter();
   const cookieDate: any = getCookie("oldDate");
   const cookieCashier: any = getCookie("cashierType");
-  const adminData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
   let hasCookieDate = !cookieDate ? new Date() : new Date(cookieDate);
   let hasCookieCashier = !cookieCashier ? null : parseInt(cookieCashier);
 
+  const [filialSelection, setFilialSelection] = useState("");
   const [addVisible, setAddVisible] = useState(false);
   const [openCashier, setOpenCashier] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false);
@@ -173,7 +181,13 @@ const CashierAdmin = () => {
   };
 
   const getCashier = async () => {
-    return await handleGetCashierOpenedWithType(dateIso, type).then(
+    return await handleGetCashierOpenedWithType(
+      dateIso,
+      type,
+      adminData?.userType === "SUPERADMIN"
+        ? filialSelection
+        : adminData?.filial!
+    ).then(
       (res) => {
         if (res.data.data.length > 0) setCashierData(res.data.data[0]);
         else setCashierData(null);
@@ -233,6 +247,8 @@ const CashierAdmin = () => {
         cashierInfos: [],
         hasClosed: false,
         total_values: values,
+        filial: adminData?.filial,
+        location: adminData?.location,
       },
     };
 
@@ -343,7 +359,7 @@ const CashierAdmin = () => {
 
   useEffect(() => {
     getCashier();
-  }, [cashierType, dateSelected]);
+  }, [cashierType, dateSelected, filialSelection]);
 
   useEffect(() => {
     handleGetMonthValue();
@@ -353,6 +369,11 @@ const CashierAdmin = () => {
     setCashierType(type);
     setCookie("cashierType", type);
   };
+
+  useEffect(() => {
+    if (adminData?.userType === "SUPERADMIN")
+      setFilialSelection(adminData?.filial!);
+  }, [adminData?.userType]);
 
   if (cashierType === null)
     return (
@@ -387,14 +408,35 @@ const CashierAdmin = () => {
 
   return (
     <Box p={2}>
-      <Button
-        sx={{ mx: 2, mb: 2 }}
-        variant="contained"
-        color="success"
-        onClick={handleChangeCashierType}
+      <Stack
+        direction={"row"}
+        alignItems="center"
+        justifyContent="space-between"
+        columnGap={2}
+        mb={2}
       >
-        Trocar tipo de Caixa
-      </Button>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handleChangeCashierType}
+          fullWidth
+        >
+          Trocar tipo de Caixa
+        </Button>
+
+        {adminData?.userType === "SUPERADMIN" && (
+          <Autocomplete
+            disablePortal
+            fullWidth
+            options={["Brasilia", "Uberlandia"]}
+            value={filialSelection}
+            onChange={(e, v) => setFilialSelection(v as string)}
+            renderInput={(params) => (
+              <TextField {...params} label="Região para depuração" />
+            )}
+          />
+        )}
+      </Stack>
 
       {/* BEGIN MODALS */}
       <AddCashModal

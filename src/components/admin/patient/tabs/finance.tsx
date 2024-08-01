@@ -125,7 +125,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     const isoDate = formatISO(new Date()).substring(0, 10);
     const { data: resData } = await handleGetCashierOpened(
       isoDate,
-      cashierType
+      cashierType,
+      adminData?.filial!
     );
     setLoadingMessage("Estamos verificando o Caixa do Dia!");
     const { data: hasOpenedCashier } = resData;
@@ -227,7 +228,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     const dataUpdate: CreatePayment = {
       data: {
         adminInfos,
-        date: new Date(),
+        date: receiptValues?.dateSelected!,
         patient: patientData?.id,
         total_value: receiptValues!.totalValue!,
         discount: Number.isNaN(receiptValues?.discount)
@@ -249,10 +250,11 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       setIsLoading(false);
     };
     const cashierType: "clinic" | "implant" = receiptValues?.cashierType!;
-    const isoDate = formatISO(new Date()).substring(0, 10);
+    const isoDate = formatISO(receiptValues?.dateSelected!).substring(0, 10);
     const { data: resData } = await handleGetCashierOpened(
       isoDate,
-      cashierType
+      cashierType,
+      adminData?.filial!
     );
     setLoadingMessage("Estamos verificando o Caixa do Dia!");
     const { data: hasOpenedCashier } = resData;
@@ -328,7 +330,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
     const cashierInfoData: CreateCashierInfosInterface = {
       data: {
-        date: new Date(),
+        date: receiptValues?.dateSelected!,
         description,
         type: "IN",
         cashier: hasOpenedCashier[0].id!,
