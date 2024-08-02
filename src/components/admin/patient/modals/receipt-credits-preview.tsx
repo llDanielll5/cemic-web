@@ -27,7 +27,7 @@ export const parseToBrl = (val?: number) => {
 const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
   const { closeModal, visible, receiptCredits, onSubmit } = props;
   const patientData = useRecoilValue(PatientData);
-  const adminData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
   const patient = patientData?.attributes;
   const payShapes = receiptCredits?.paymentShapes;
 
@@ -206,7 +206,7 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
           width="100%"
           mt={5}
         >
-          Brasília {new Date().toLocaleDateString()}
+          {adminData?.filial} {new Date().toLocaleDateString()}
         </Typography>
 
         <Typography

@@ -10,6 +10,7 @@ import { PaymentShapeTypes } from "types/payments";
 import { parseToBrl } from "./receipt-preview";
 import { parseToothRegion } from "@/services/services";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import UserData from "@/atoms/userData";
 
 interface ReceiptSingleProps {
   visible: boolean;
@@ -23,6 +24,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
   const patient = patientData?.attributes;
   const receipt = receiptSingleValues?.attributes;
   const payShapes = receiptSingleValues?.attributes?.payment_shapes;
+  const adminData = useRecoilValue(UserData);
 
   const getTotal = receipt?.total_value!.toLocaleString("pt-br", {
     style: "currency",
@@ -215,7 +217,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           width="100%"
           mt={5}
         >
-          Brasília {new Date().toLocaleDateString()}
+          {adminData?.filial} {new Date().toLocaleDateString()}
         </Typography>
 
         <Typography
