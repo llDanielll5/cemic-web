@@ -64,6 +64,7 @@ export const DashboardLayout = (props: any) => {
   const PersistLogin = async () => {
     let persistance = await handlePersistLogin();
     if (persistance === null) return await handleLogout();
+    setCookie("user", persistance);
     return setUserData(persistance);
   };
 

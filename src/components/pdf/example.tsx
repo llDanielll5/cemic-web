@@ -14,6 +14,9 @@ import {
   PDFViewer,
   View,
 } from "@react-pdf/renderer";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { getCookie } from "cookies-next";
 
 Font.register({
   family: "Montserrat",
@@ -247,6 +250,8 @@ const ExamplePdfRender = (props: {
 }) => {
   const patient = props.patient;
   const attr = patient?.attributes;
+  const adminData = getCookie("user");
+  const adminParsed = JSON.parse(adminData);
 
   return (
     <PDFViewer style={styles.viewer}>
@@ -287,8 +292,9 @@ const ExamplePdfRender = (props: {
             <Text style={{ ...styles.author, marginBottom: 10 }}>
               Assinatura Paciente
             </Text>
-            <Text style={{ alignSelf: "flex-end", fontSize: 12 }}>
-              Brasilia: {new Date().toLocaleDateString()}
+            <Text style={{ alignSelf: "flex-end", fontSize: 11 }}>
+              {adminParsed.filial}-{adminParsed.location}:{" "}
+              {new Date().toLocaleDateString()}
             </Text>
           </View>
 

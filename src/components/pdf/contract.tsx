@@ -10,7 +10,8 @@ import {
   PDFViewer,
   View,
 } from "@react-pdf/renderer";
-import { cpfMask, parseDateBr, parseDateIso } from "@/services/services";
+import { cpfMask, parseDateBr } from "@/services/services";
+import { getCookie } from "cookies-next";
 
 const ContractPDF = (props: {
   patient: {
@@ -20,6 +21,9 @@ const ContractPDF = (props: {
 }) => {
   const patient = props.patient;
   const attr = patient?.attributes;
+  const adminData = getCookie("user");
+  const adminParsed: any = JSON.parse(adminData as string);
+
   Font.register({
     family: "Montserrat",
     src: "http://fonts.gstatic.com/s/montserrat/v7/Kqy6-utIpx_30Xzecmeo8_esZW2xOQ-xsNqO47m55DA.ttf",
@@ -79,14 +83,17 @@ const ContractPDF = (props: {
               {attr?.address?.address}, CEP: {attr?.address?.cep}, declaro que o
               (a)
               cirurgião(ã)-dentista_____________________________________________,
-              devidamente inscrito(a) no Conselho Regional de Odontologia do
-              Distrito Federal sob o nº _________, com consultório à
+              devidamente inscrito(a) no Conselho Regional de Odontologia{" "}
+              {adminParsed.filial === "Brasilia"
+                ? "do Distrito Federal"
+                : "de Minas Gerais"}{" "}
+              sob o nº _________, com consultório à
               _________________________________________________, (cidade)
-              _____________, DF, CEP ____________, profissional parceiro
-              comunitário da CEMIC e escolhido para realizar o tratamento
-              descrito no planejamento de tratamento e planejamento de custos,
-              constante em meu prontuário, cuja cópia encontra-se em meu poder e
-              sob a minha guarda, declaro que:
+              _____________, {adminParsed.location}, CEP ____________,
+              profissional parceiro comunitário da CEMIC e escolhido para
+              realizar o tratamento descrito no planejamento de tratamento e
+              planejamento de custos, constante em meu prontuário, cuja cópia
+              encontra-se em meu poder e sob a minha guarda, declaro que:
             </Text>
 
             <Text style={styles.clausule}>
@@ -425,7 +432,8 @@ const ContractPDF = (props: {
             <Text style={styles.clausule}>( ) Sim ( ) Não</Text>
 
             <Text style={{ ...styles.clausule, textAlign: "center" }}>
-              Brasília , {parseDateBr(new Date().toLocaleDateString())}
+              {adminParsed.filial}-{adminParsed.location} ,{" "}
+              {parseDateBr(new Date().toLocaleDateString())}
             </Text>
             <Text style={{ ...styles.clausule, textAlign: "center" }}>
               ____________________________________________________
