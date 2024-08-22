@@ -146,6 +146,10 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
           }
 
           setTotalValue(reduced + percentCredit);
+          if (parseInt(discount) > 0 || parseInt(discount) < 9) {
+            var valueDiscount = (reduced * parseInt(discount)) / 100;
+            setTotalValue(reduced - valueDiscount + percentCredit);
+          }
         } else {
           const mapValues = creditValues.map((v) => v.price);
           const reduceCreditValues = mapValues.reduce(
