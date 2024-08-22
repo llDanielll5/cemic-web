@@ -26,7 +26,18 @@ export default async function registerNewUser(
 
   const monthCashArr = data.data;
 
-  if (monthCashArr.length === 0) return;
+  if (monthCashArr.length === 0)
+    res.status(200).json({
+      data: {
+        totalDebit: 0,
+        totalCash: 0,
+        totalCredit: 0,
+        totalOut: 0,
+        totalPix: 0,
+        totalBankCheck: 0,
+        totalTransfer: 0,
+      },
+    });
 
   let monthCash: any[] = monthCashArr.map(
     (v: any) => v.attributes.total_values.cash

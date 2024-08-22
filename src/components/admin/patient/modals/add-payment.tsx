@@ -114,6 +114,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const getTotalValue = useCallback(
     (arr: ToothsInterface[]) => {
       const prices: number[] = [];
+
       arr?.map((v) => prices.push(v.attributes.price));
       let reduced = prices?.reduce((prev, curr) => prev + curr, 0);
 
@@ -122,23 +123,47 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       );
 
       if (creditValues.length > 0) {
-        const mapValues = creditValues.map((v) => v.price);
-        const reduceCreditValues = mapValues.reduce(
-          (prev, curr) => prev + curr,
-          0
-        );
-        const percentPrices = (reduced * creditAddition) / 100;
-        let percentCredit = (reduceCreditValues * creditAddition) / 100;
+        if (paymentShapes.length > 1) {
+          let otherValues = paymentShapes.filter(
+            (item) => item.shape !== "CREDIT_CARD"
+          );
+          const mapOther = otherValues.map((v) => v.price);
+          const reduceOther = mapOther.reduce((prev, curr) => prev + curr, 0);
 
-        if (percentCredit > percentPrices) {
-          percentCredit = percentPrices;
-        }
+          const mapValues = creditValues.map((v) => v.price);
+          const reduceCreditValues = mapValues.reduce(
+            (prev, curr) => prev + curr,
+            0
+          );
 
-        setTotalValue(reduced + percentCredit);
+          let rest = reduced - reduceOther;
 
-        if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-          var valueDiscount = (reduced * parseInt(discount)) / 100;
-          setTotalValue(reduced - valueDiscount + percentCredit);
+          const percentPrices = (rest * creditAddition) / 100;
+          let percentCredit = (reduceCreditValues * creditAddition) / 100;
+
+          if (percentCredit > percentPrices) {
+            percentCredit = percentPrices;
+          }
+
+          setTotalValue(reduced + percentCredit);
+        } else {
+          const mapValues = creditValues.map((v) => v.price);
+          const reduceCreditValues = mapValues.reduce(
+            (prev, curr) => prev + curr,
+            0
+          );
+          const percentPrices = (reduced * creditAddition) / 100;
+          let percentCredit = (reduceCreditValues * creditAddition) / 100;
+
+          if (percentCredit > percentPrices) {
+            percentCredit = percentPrices;
+          }
+
+          setTotalValue(reduced + percentCredit);
+          if (parseInt(discount) > 0 || parseInt(discount) < 9) {
+            var valueDiscount = (reduced * parseInt(discount)) / 100;
+            setTotalValue(reduced - valueDiscount + percentCredit);
+          }
         }
       } else if (parseInt(discount) > 0 || parseInt(discount) < 9) {
         var valueDiscount = (reduced * parseInt(discount)) / 100;
