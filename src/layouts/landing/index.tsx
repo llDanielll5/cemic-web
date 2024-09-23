@@ -9,7 +9,7 @@ import { useGetScrollPosition } from "@/hooks/useGetScrollPosition";
 import { useRouter } from "next/router";
 import Footer from "@/components/landing/footer";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import BannerLanding from "@/components/landing/banner";
+import BannerLanding, { WHATSAPP_CEMIC } from "@/components/landing/banner";
 
 export const LandingLayout = (props: any) => {
   const { children } = props;
@@ -21,7 +21,7 @@ export const LandingLayout = (props: any) => {
   const router = useRouter();
 
   const msg = `Olá!! Gostaria de realizar o agendamento para conhecer melhor o projeto social que a CEMIC faz.`;
-  const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
+  const zapHref = `https://api.whatsapp.com/send?phone=${WHATSAPP_CEMIC}&text=${encodeURIComponent(
     msg
   )}`;
 

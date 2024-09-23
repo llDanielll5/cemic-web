@@ -2,10 +2,11 @@
 import React from "react";
 import { Box, Button, Typography, styled } from "@mui/material";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { WHATSAPP_CEMIC } from "../banner";
 
 const Help = () => {
   const msg = `Olá!! Realizei uma doação para a CEMIC, para ajudar no projeto social!`;
-  const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
+  const zapHref = `https://api.whatsapp.com/send?phone=${WHATSAPP_CEMIC}&text=${encodeURIComponent(
     msg
   )}`;
   return (

@@ -14,10 +14,12 @@ interface BannerLandingInterface {
   callButton?: any;
 }
 
+export const WHATSAPP_CEMIC = "556192156775";
+
 const BannerLanding = (props: BannerLandingInterface) => {
   const size = useWindowSize();
   const msg = `Olá!! Gostaria de saber mais sobre a CEMIC.`;
-  const zapHref = `https://api.whatsapp.com/send?phone=5561986573056&text=${encodeURIComponent(
+  const zapHref = `https://api.whatsapp.com/send?phone=${WHATSAPP_CEMIC}&text=${encodeURIComponent(
     msg
   )}`;
 
