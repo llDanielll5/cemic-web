@@ -77,26 +77,26 @@ const PatientInformations = (props: PatientInformationsInterface) => {
         fullWidth
         onChange={(e) => handleChange(e.target.value, "email")}
       />
-      {adminData?.userType === "ADMIN" && (
-        <Double>
-          <TextField
-            label="CPF"
-            margin="dense"
-            placeholder="CPF do Paciente"
-            value={cpfMask(clientData?.cpf)}
-            fullWidth
-          />
-          <TextField
-            label="RG"
-            placeholder="RG do Paciente"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            onChange={({ target }) => handleChange(target.value, "rg")}
-            value={clientData?.rg === "" ? "" : clientData?.rg}
-            margin="dense"
-          />
-        </Double>
-      )}
+      {/* {adminData?.userType === "ADMIN" && ( */}
+      <Double>
+        <TextField
+          label="CPF"
+          margin="dense"
+          placeholder="CPF do Paciente"
+          value={cpfMask(clientData?.cpf)}
+          fullWidth
+        />
+        <TextField
+          label="RG"
+          placeholder="RG do Paciente"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          onChange={({ target }) => handleChange(target.value, "rg")}
+          value={clientData?.rg === "" ? "" : clientData?.rg}
+          margin="dense"
+        />
+      </Double>
+      {/* )} */}
 
       <Double>
         <TextField
