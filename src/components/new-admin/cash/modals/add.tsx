@@ -1,11 +1,14 @@
-//@ts-nocheck
-import React from "react";
+import React, { useState } from "react";
 import CModal from "@/components/modal";
 import { Box, Button, TextField, Typography, styled } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { maskValue, phoneMask } from "@/services/services";
 
 const AddCashModal = (props: any) => {
-  const { closeModal, visible, formik } = props;
+  const { closeModal, visible, formik, onSubmit } = props;
+
   return (
     <CModal closeModal={closeModal} visible={visible} styles={{ width: "80%" }}>
       <Typography variant="h6" mb={1}>
@@ -41,17 +44,36 @@ const AddCashModal = (props: any) => {
       />
 
       <TextField
-        type="number"
         error={!!(formik.touched.out && formik.errors.out)}
         fullWidth
         helperText={formik.touched.out && formik.errors.out}
         label="Saída"
         name="out"
         onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
+        onChange={({ target }) =>
+          formik.setFieldValue("out", maskValue(target.value))
+        }
         value={formik.values.out}
         margin="dense"
       />
+
+      {/* <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
+        <Typography variant="subtitle1">Escolha o tipo de Caixa</Typography>
+        <Stack
+          direction={"row"}
+          alignItems="center"
+          justifyContent="space-between"
+          columnGap={2}
+        >
+          <Button
+            variant="contained"
+            sx={{ width: "35%" }}
+            onClick={() => setDateSelectedModal(true)}
+          >
+            Selecionar Data
+          </Button>
+        </Stack>
+      </Paper> */}
 
       <Box width="100%" display="flex" justifyContent={"center"} mt={2}>
         <Button

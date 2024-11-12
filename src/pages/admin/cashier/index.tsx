@@ -1,7 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
-import { CashierInterface, CreateCashierInterface } from "types/cashier";
+import {
+  CashierInfosInterface,
+  CashierInterface,
+  CreateCashierInfosInterface,
+  CreateCashierInterface,
+} from "types/cashier";
 import {
   Autocomplete,
   Box,
@@ -69,17 +74,8 @@ const CashierAdmin = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
       description: "",
-      date: "",
-      timestamp: null,
-      cashIn: 0,
-      pix: 0,
-      out: 0,
-      cardIn: 0,
-      creditIn: 0,
-      isChecked: false,
-      idCashier: "",
+      out: "",
       submit: null,
     },
     validationSchema: Yup.object({
@@ -88,7 +84,7 @@ const CashierAdmin = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        await handleSubmit(values);
+        await handleSubmit(values as any);
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -98,26 +94,27 @@ const CashierAdmin = () => {
   });
 
   const handleSubmit = async (values: {
-    cashIn: number;
-    out: number;
-    cardIn: number;
-    creditIn: number;
     description: string;
-    name: string;
-    pix: number;
+    out: string;
+    submit: null;
   }) => {
-    const { cashIn, out, cardIn, description, name, pix, creditIn } = values;
-    console.log("submit");
-    // if (
-    //   cashIn === 0 &&
-    //   cardIn === 0 &&
-    //   out === 0 &&
-    //   pix === 0 &&
-    //   creditIn === 0
-    // )
-    //   return alert("Adicione as informações de valores");
+    const { out, description } = values;
 
-    // if (cashierData === null) return alert("Caixa não aberto!");
+    const parsedOut: number = parseFloat(out);
+    const date: Date = hasCookieDate;
+
+    console.log({ values, date });
+
+    if (cashierData === null) return alert("Caixa não aberto!");
+
+    if (parsedOut === 0) return alert("Adicione as informações de valores");
+
+    // const cashierInfoData: CreateCashierInfosInterface = {
+    //   data: {
+    //     date, description, total_values: { out: parsedOut, bank_check: 0, cash: 0, credit: 0, debit: 0, pix: 0, transfer: 0 },
+    //     type: 'OUT', cashier: cashierData.id, filial: adminData?.filial, location: adminData?.location as any, outInfo:
+    //   }
+    // }
 
     // setCookie("oldDate", dateSelected);
 
