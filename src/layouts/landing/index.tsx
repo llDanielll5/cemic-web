@@ -64,11 +64,11 @@ export const LandingLayout = (props: any) => {
     <Box position="relative" zIndex={0}>
       <HeadLanding />
 
-      <HeaderLanding
+      {/* <HeaderLanding
         refMenu={refMenu}
         setTabIndex={setActiveTab}
         activeTab={activeTab}
-      />
+      /> */}
 
       {children}
       <Footer setActiveTab={setActiveTab} />
