@@ -3,7 +3,7 @@ import React from "react";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import Link from "next/link";
-import { Box, styled, SvgIcon, Typography } from "@mui/material";
+import { Box, Card, styled, SvgIcon, Typography } from "@mui/material";
 
 const Footer = (props: any) => {
   let sofx = "https://sofx.vercel.app";
@@ -16,7 +16,7 @@ const Footer = (props: any) => {
       </Typography>
       <Typography variant="caption">Todos Direitos Reservados.</Typography>
 
-      <LinksContainer>
+      <LinksContainer elevation={10}>
         <LinkSingle href="/#about">Sobre</LinkSingle>
         <LinkSingle href="/#help">Ajude-nos</LinkSingle>
         <LinkSingle href="/auth/login">Já é parceiro?</LinkSingle>
@@ -58,8 +58,9 @@ const FooterLogo = styled("img")`
   width: 70px;
   height: 70px;
 `;
-const LinksContainer = styled(Box)`
-  background-color: var(--blue);
+const LinksContainer = styled(Card)`
+  background-color: #f5f5f5;
+  border-radius: 0;
   width: 100%;
   justify-content: center;
   display: flex;
@@ -78,7 +79,7 @@ const LinkSingle = styled(Link)`
   text-decoration: none;
   font-family: "Quicksand", sans-serif;
   font-weight: 700;
-  color: white;
+  color: #0c1c30;
   :hover {
     opacity: 0.8;
   }

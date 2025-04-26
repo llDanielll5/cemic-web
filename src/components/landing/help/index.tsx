@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
-import { Box, Button, Typography, styled } from "@mui/material";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { Box, Button, Card, Stack, Typography, styled } from "@mui/material";
 import { WHATSAPP_CEMIC } from "../banner";
+import { motion } from "framer-motion";
 
 const Help = () => {
   const msg = `Olá!! Realizei uma doação para a CEMIC, para ajudar no projeto social!`;
@@ -10,13 +11,13 @@ const Help = () => {
     msg
   )}`;
   return (
-    <section id={"help"}>
-      <Box my={5} px={"4rem"}>
+    <section id={"help"} style={{ padding: "2rem" }}>
+      <Box>
         <Typography variant="h3">Ajude-nos</Typography>
 
         <DoubleContainer>
           <W50>
-            <Typography variant="subtitle2" fontWeight={"bold"}>
+            <Typography variant="subtitle1" fontWeight={"bold"}>
               Se você acha nosso trabalho importante, ajude-nos a multiplicar
               nossos atendimentos. <br />
               <br />
@@ -38,30 +39,52 @@ const Help = () => {
         </DoubleContainer>
       </Box>
 
-      <PixContainer>
-        <PixImage src="/images/qrcodepix.png" alt="qrcode pix" />
-        <PixName variant="subtitle2" fontWeight={"bold"}>
-          Centro Médico e de Implantes Comunitário <br /> Pix CNPJ:
-          23.147.717/0001-66
-        </PixName>
-        <PixInfos>
-          <Typography variant="subtitle2" fontWeight={"bold"}>
-            <p>
-              <br />
-              Ao realizar a doação, favor entrar em contato no nosso whatsapp.
-            </p>
-          </Typography>
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ backgroundColor: "var(--dark-blue)", borderRadius: 5, mt: 2 }}
-            startIcon={<WhatsAppIcon />}
-            onClick={() => window.open(zapHref, "_blank")}
-          >
-            Fiz a doação
-          </Button>
-        </PixInfos>
-      </PixContainer>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <PixContainer elevation={10}>
+          <PixImage src="/images/qrcodepix.png" alt="qrcode pix" />
+          <Stack direction={"column"} width={"100%"}>
+            <PixName variant="h5" fontWeight={"bold"}>
+              Centro Médico e de Implantes Comunitário <br /> Pix CNPJ:
+              23.147.717/0001-66
+            </PixName>
+            <PixInfos>
+              <Typography variant="subtitle2" fontWeight={"bold"}>
+                <p>
+                  <br />
+                  Ao realizar a doação, favor entrar em contato no nosso
+                  whatsapp.
+                </p>
+              </Typography>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                style={{ marginTop: "3rem" }}
+              >
+                <Button
+                  variant="contained"
+                  startIcon={<WhatsAppIcon />}
+                  onClick={() => window.open(zapHref, "_blank")}
+                  sx={{
+                    background: "linear-gradient(to right, #0c1c30, #0c1c30)",
+                    color: "white",
+                    px: 6,
+                    py: 1.5,
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontSize: "1rem",
+                  }}
+                >
+                  Fiz a doação
+                </Button>
+              </motion.div>
+            </PixInfos>
+          </Stack>
+        </PixContainer>
+      </motion.div>
     </section>
   );
 };
@@ -72,7 +95,7 @@ const DoubleContainer = styled(Box)`
   justify-content: space-between;
   width: 100%;
   column-gap: 8rem;
-  margin-top: 2rem;
+  margin-top: 0.5rem;
 
   @media screen and (max-width: 760px) {
     flex-direction: column;
@@ -88,16 +111,12 @@ const StyledImg = styled("img")`
   height: 270px;
 `;
 
-const PixContainer = styled(Box)`
-  width: 85%;
+const PixContainer = styled(Card)`
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid var(--blue);
   border-radius: 1rem;
-  padding: 1.5rem;
-  margin: 3rem 4rem;
-  column-gap: 1.4rem;
 
   @media screen and (max-width: 760px) {
     flex-direction: column;
@@ -107,15 +126,12 @@ const PixContainer = styled(Box)`
 `;
 
 const PixImage = styled("img")`
-  border: 3px solid var(--blue);
   border-radius: 1rem;
-  width: 170px;
-  height: 170px;
+  width: 40%;
 `;
 
 const PixName = styled(Typography)`
-  width: 20%;
-
+  width: 90%;
   @media screen and (max-width: 760px) {
     width: 100%;
     text-align: center;
@@ -124,8 +140,7 @@ const PixName = styled(Typography)`
 `;
 
 const PixInfos = styled(Box)`
-  width: 20%;
-
+  width: 90%;
   @media screen and (max-width: 760px) {
     width: 100%;
     text-align: center;
