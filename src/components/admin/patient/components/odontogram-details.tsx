@@ -24,6 +24,7 @@ import UserData from "@/atoms/userData";
 import { updateOdontogramDetails } from "@/axios/admin/odontogram";
 import PatientData from "@/atoms/patient";
 import AlertModal from "@/components/modal/alert-modal";
+import { toast } from "react-toastify";
 
 interface OdontogramPatientDetailsInterface {
   patientOdontogram: any;
@@ -146,7 +147,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     );
 
     if (treatmentDetails?.data?.data?.attributes?.payment?.data !== null) {
-      return alert("Não é possível excluir trabalho pago!");
+      return toast.error("Não é possível excluir trabalho pago!");
     }
 
     return await handleDeletePatientTreatmentById(deleteTreatmentId).then(
@@ -155,7 +156,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
         setConfirmDeleteModal(false);
         handleClose();
         onUpdatePatient();
-        alert("Tratamento deletado com sucesso!");
+        toast.error("Tratammento deletado com sucesso!");
       },
       (err) => console.log(err.response)
     );
@@ -202,7 +203,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
             onUpdatePatient();
             handleCloseAddTreatment();
             handleClose();
-            return alert("Tratamento atualizado!");
+            return toast.success("Tratamento atualizado!");
           },
           (err) => console.log(err.response)
         ),

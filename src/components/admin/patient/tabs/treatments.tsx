@@ -9,6 +9,7 @@ import OdontogramPatientDetails from "../components/odontogram-details";
 import PatientTreatmentsHistory from "../components/treatments-history";
 import PatientData from "@/atoms/patient";
 import UserData from "@/atoms/userData";
+import { toast } from "react-toastify";
 
 interface ClientTreatmentsInterface {
   onUpdatePatient: any;
@@ -42,7 +43,7 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     if (patientOdontogram === null) {
       return await handleCreateOdontogram(patientData?.id, adminData?.id!).then(
         (res) => {
-          alert("Odontograma do paciente criado!");
+          toast.success("Odontograma do paciente criado com sucesso!");
           onUpdatePatient();
         },
         (err) => console.log(err.response)

@@ -1,26 +1,40 @@
 import * as React from "react";
 import Head from "next/head";
-import { createTheme } from "../services/theme";
 import CssBaseline from "@mui/material/CssBaseline";
 import createEmotionCache from "../services/createEmotionCache";
-import { ThemeProvider } from "@mui/material/styles";
+import { BaseContext, NextPageContext } from "next/dist/shared/lib/utils";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { CacheProvider, EmotionCache } from "@emotion/react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
+import { ThemeProvider } from "@mui/material/styles";
 import { useNProgress } from "@/hooks/useNProgress";
-import { CacheProvider } from "@emotion/react";
+import { createTheme } from "../services/theme";
+import { ToastContainer } from "react-toastify";
 import { RecoilRoot } from "recoil";
+import { AppProps } from "next/app";
 import "@/styles/globals.css";
 
 const clientSideEmotionCache = createEmotionCache();
 
-export default function App(props: any) {
+export type CustomNextComponentType<
+  Context extends BaseContext = NextPageContext,
+  InitialProps = {},
+  Props = {}
+> = React.ComponentType<Props> & {
+  getInitialProps?(context: Context): InitialProps | Promise<InitialProps>;
+  getLayout: (c: React.ReactElement) => React.ReactElement;
+};
+
+interface CustomAppProps extends Omit<AppProps, "Component"> {
+  emotionCache: EmotionCache;
+  Component: CustomNextComponentType<NextPageContext, any, any>;
+}
+
+export default function App(props: CustomAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-
   useNProgress();
-
-  const getLayout = Component.getLayout ?? ((page: any) => page);
-
   const theme = createTheme();
+  const getLayout = Component.getLayout ?? ((page: React.ReactElement) => page);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -32,6 +46,7 @@ export default function App(props: any) {
           <ThemeProvider theme={theme}>
             <CssBaseline />
             {getLayout(<Component {...pageProps} />)}
+            <ToastContainer />
           </ThemeProvider>
         </RecoilRoot>
       </CacheProvider>

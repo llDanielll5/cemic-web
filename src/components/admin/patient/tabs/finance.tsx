@@ -222,6 +222,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       (err) => console.log(err.response)
     );
   };
+
   const handleSubmitReceipt = async () => {
     setIsLoading(true);
     setLoadingMessage("Criando Pagamento do Paciente...");
