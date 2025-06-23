@@ -56,6 +56,9 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
         width: "90vw",
         overflowX: "auto",
         overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       <Box
@@ -63,9 +66,11 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
         alignItems="center"
         justifyContent="center"
         textAlign="center"
-        minWidth={"100%"}
+        minWidth={"50%"}
+        maxWidth={800}
         flexDirection={"column"}
         overflow={"auto"}
+        p={2}
       >
         <img
           src="/images/cemicLogo.png"
@@ -82,7 +87,7 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
           fontWeight={"bold"}
           textAlign="left"
           m={1}
-          width={"95%"}
+          width={"90%"}
           {...colorBlue}
         >
           Recebi de {patient?.name} a quantia de R$ {getTotal} referente a:
@@ -212,7 +217,7 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
         <Typography
           variant="subtitle1"
           textAlign="right"
-          m={1}
+          p={1}
           width="100%"
           display={"flex"}
           justifyContent={"flex-end"}
@@ -243,7 +248,7 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
           onClick={onSubmit}
           fullWidth
           variant="contained"
-          sx={{ my: 2 }}
+          sx={{ my: 2, p: 2 }}
         >
           Gerar Pagamento
         </Button>

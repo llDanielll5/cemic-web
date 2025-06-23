@@ -2,7 +2,19 @@ import React, { useEffect, useState } from "react";
 import CModal from "@/components/modal";
 import SaveIcon from "@mui/icons-material/Save";
 import { handleGetTreatments } from "@/axios/admin/treatments";
-import { Autocomplete, Box, Button, Typography, styled } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Stack,
+  Switch,
+  TextField,
+  Typography,
+  styled,
+} from "@mui/material";
 import { TextInput } from "@/components/dynamicAdminBody/screening/screeningDetails";
 import {
   OdontogramRegions,
@@ -11,6 +23,9 @@ import {
 } from "types/odontogram";
 import { useRecoilValue } from "recoil";
 import PatientData from "@/atoms/patient";
+import CustomTextField from "@/components/customTextField";
+import { Formik } from "formik";
+import { parseToBrl } from "./receipt-preview";
 
 interface AddPatientTreatmentModalInterface {
   visible: boolean;
@@ -31,9 +46,17 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
 
   const patientData = useRecoilValue(PatientData);
   const [treatments, setTreatments] = useState<any[]>([]);
-  const [treatmentToAdd, setTreatmentToAdd] = useState(null);
+  const [treatmentToAdd, setTreatmentToAdd] = useState<any | null>(null);
+  const [selectMode, setSelectMode] = useState(true);
 
-  const handleSubmit = async () => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectMode(event.target.checked);
+  };
+
+  const handleSubmit = async (
+    mode: "formik" | "submit",
+    values?: { name: string; price: string }
+  ) => {
     if (selectedRegion === null) return;
 
     let rg = "";
@@ -54,10 +77,27 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
       rg = `t${selectedRegion}`;
     }
 
-    let { name, price }: any = treatmentToAdd;
+    let submitValues = { name: "", price: 0 };
+
+    if (mode === "submit") {
+      submitValues = {
+        name: treatmentToAdd.name,
+        price: treatmentToAdd.price,
+      };
+    } else {
+      submitValues = {
+        name: values!.name,
+        price: parseFloat(
+          values!.price
+            .replaceAll("R$ ", "")
+            .replaceAll(".", "")
+            .replaceAll(",", ".")
+        ),
+      };
+    }
     let newTreatment: TreatmentsPatientInterface = {
-      name,
-      price,
+      name: submitValues.name,
+      price: submitValues.price,
       obs: "",
       finishedAt: null,
       finishedBy: null,
@@ -88,6 +128,7 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
       };
     });
     let dataUpdate = { treatments: oldHistories, region: rg, newTreatment };
+
     return await onSaveTreatments(dataUpdate, patientOdontogram?.id).then((r) =>
       setTreatmentToAdd(null)
     );
@@ -130,25 +171,111 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
         flexDirection={"column"}
         rowGap={2}
       >
-        <Typography variant="subtitle1">Escolha o Tratamento</Typography>
-        <Autocomplete
-          options={treatments}
-          sx={{ width: "100%" }}
-          limitTags={2}
-          value={treatmentToAdd}
-          getOptionLabel={(option) => option.name}
-          isOptionEqualToValue={(option, value) =>
-            option.name === value?.name && option.price === value.price
-          }
-          onChange={(e, v) => setTreatmentToAdd(v)}
-          renderInput={(params) => (
-            <TextInput
-              {...params}
-              placeholder="Selecione o tratamento."
-              variant="standard"
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+          width={"100%"}
+        >
+          <Typography variant="subtitle1">Escolha o Tratamento</Typography>
+          <FormControl component="fieldset" variant="standard">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={selectMode}
+                  onChange={handleChange}
+                  name="Mudar Seleção de Tratamento"
+                />
+              }
+              label={
+                selectMode
+                  ? "Desejo Selecionar o Tratamento"
+                  : "Desejo Adicionar um Tratamento"
+              }
             />
-          )}
-        />
+          </FormControl>
+        </Stack>
+        {!!selectMode && (
+          <Autocomplete
+            options={treatments}
+            sx={{ width: "100%" }}
+            limitTags={2}
+            value={treatmentToAdd}
+            getOptionLabel={(option) =>
+              `${option.name} => ${parseToBrl(option.price)}`
+            }
+            isOptionEqualToValue={(option, value) =>
+              option.name === value?.name && option.price === value.price
+            }
+            onChange={(e, v) => setTreatmentToAdd(v)}
+            renderInput={(params) => (
+              <TextInput
+                {...params}
+                placeholder="Selecione o tratamento."
+                variant="standard"
+              />
+            )}
+          />
+        )}
+
+        {!selectMode && (
+          <Formik
+            initialValues={{ name: "", price: "" }}
+            onSubmit={(values) => {}}
+          >
+            {({ setFieldValue, values }) => (
+              <Stack
+                direction={"column"}
+                width={"100%"}
+                gap={2}
+                component={"form"}
+              >
+                <Stack>
+                  <Typography variant="subtitle1">
+                    Qual Tratamento a ser adicionado?
+                  </Typography>
+
+                  <CustomTextField
+                    name="name"
+                    label="Tratamento"
+                    value={values.name}
+                    onChange={(e) => setFieldValue("name", e.target.value)}
+                    fullWidth
+                  />
+                </Stack>
+                <Stack>
+                  <Typography variant="subtitle1">
+                    Qual o Valor do Tratamento?
+                  </Typography>
+
+                  <CustomTextField
+                    mask="currency"
+                    label="Valor R$"
+                    value={values.price.toString()}
+                    onChange={({ target }) =>
+                      setFieldValue("price", target.value)
+                    }
+                    name="price"
+                  />
+                </Stack>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  endIcon={<SaveIcon />}
+                  onClick={(e) => handleSubmit("formik", values)}
+                  disabled={
+                    values.name.length === 0 || values.price.length === 0
+                  }
+                >
+                  Salvar
+                </Button>
+              </Stack>
+            )}
+          </Formik>
+        )}
 
         {treatmentToAdd !== null && (
           <Button
@@ -157,7 +284,7 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
             fullWidth
             sx={{ mt: 1 }}
             endIcon={<SaveIcon />}
-            onClick={handleSubmit}
+            onClick={() => handleSubmit("submit")}
           >
             Salvar
           </Button>
