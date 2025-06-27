@@ -17,6 +17,7 @@ import Link from "next/link";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/router";
+import { handleOpenWhatsappMessage } from "@/services/services";
 
 const people = [
   "https://images.pexels.com/photos/8528708/pexels-photo-8528708.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
@@ -200,6 +201,7 @@ const HeroHeader = () => {
 
           <Button
             variant="contained"
+            onClick={handleOpenWhatsappMessage}
             sx={{
               background: "linear-gradient(to right, white, white)",
               color: "#1b2738",

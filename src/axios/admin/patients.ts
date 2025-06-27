@@ -137,6 +137,10 @@ export const handleUpdatePatient = async (id: string, data: any) => {
   return await axiosInstance.put(`/patients/${id}`, data);
 };
 
+export const handleGetPatientCredits = async (id: string) => {
+  return await axiosInstance.get(`/patients/${id}`);
+};
+
 export const handleGetPatientTreatments = async (id: string) => {
   return await axiosInstance.get(
     `/patients/${id}?populate[treatments][populate]=*&populate[screening][populate]=*`

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Loading from "@/components/loading";
 import PatientData from "@/atoms/patient";
 import AddTreatment from "../modals/add-payment";
@@ -22,11 +22,20 @@ import UserData from "@/atoms/userData";
 import { AdminInfosInterface } from "types/admin";
 import ReceiptSinglePatient from "../modals/receipt-single";
 import {
+  handleGetPatientCredits,
   handleUpdateHasPayedTreatments,
   handleUpdatePatient,
 } from "@/axios/admin/patients";
 import { CreateCashierInfosInterface } from "types/cashier";
-import { Box, Typography, styled, Button, Card, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  styled,
+  Button,
+  Card,
+  Alert,
+  Stack,
+} from "@mui/material";
 import { formatISO } from "date-fns";
 import {
   ReceiptSingle,
@@ -38,6 +47,7 @@ import {
 } from "@/axios/admin/cashiers";
 import AddCreditToPatientModal from "../modals/add-credits";
 import ReceiptCreditsPreview from "../modals/receipt-credits-preview";
+import { toast } from "react-toastify";
 
 interface PatientFinaceTabProps {
   onUpdatePatient: any;
@@ -195,7 +205,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     };
 
     if (receiptValues?.dateSelected! > new Date())
-      return alert("A data selecionada não pode ser futura.");
+      return toast.error("A data selecionada não pode ser futura.");
 
     return await createPatientPayment(dataUpdate).then(
       async (res) => {
@@ -203,8 +213,13 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         return await generatePatientPaymentInCashier(cashierInfoData).then(
           async (res) => {
             setLoadingMessage("Estamos atualizando informações do paciente...");
+
+            const { data } = await handleGetPatientCredits(patientData?.id!);
+
+            const oldCredits = data.data?.attributes?.credits;
+
             return await handleUpdatePatient(patientData?.id!, {
-              data: { credits: receiptCredits!.totalValue },
+              data: { credits: oldCredits + receiptCredits!.totalValue },
             }).then(
               async () => handleConclusion(),
               (err) => {
@@ -394,7 +409,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   };
 
   const handleGetReceiptValues = (receiptValues: any) => {
-    console.log(receiptValues);
     setReceiptValues(receiptValues);
     setReceiptPreviewVisible(true);
   };
@@ -473,14 +487,18 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
         <HeaderContainer elevation={10}>
           <Typography variant="h5">Histórico Financeiro</Typography>
-          <Box display={"flex"} alignItems="center" columnGap={2}>
+          <Stack
+            direction={{ md: "row", xs: "column" }}
+            alignItems="center"
+            gap={2}
+          >
             <Button
               title={"Adicionar Pagamento"}
               variant="contained"
               onClick={handleGeneratePayment}
               startIcon={<AttachMoneyIcon />}
             >
-              Add
+              Pagamento Total
             </Button>
 
             <Button
@@ -489,9 +507,9 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
               onClick={handleAddCredits}
               startIcon={<PaymentsSharpIcon />}
             >
-              Fund
+              Pagamento Parcial
             </Button>
-          </Box>
+          </Stack>
         </HeaderContainer>
 
         {paymentsPatient?.length > 0 && (

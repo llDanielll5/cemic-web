@@ -1,5 +1,6 @@
 "use client";
 
+import { handleOpenWhatsappMessage } from "@/services/services";
 import {
   Box,
   Typography,
@@ -90,6 +91,7 @@ export default function TargetAudienceSection() {
       >
         <Button
           variant="contained"
+          onClick={handleOpenWhatsappMessage}
           sx={{
             background: "linear-gradient(to right, #0c1c30, #0c1c30)",
             color: "white",

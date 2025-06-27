@@ -67,7 +67,9 @@ const Help = () => {
                 <Button
                   variant="contained"
                   startIcon={<WhatsAppIcon />}
-                  onClick={() => window.open(zapHref, "_blank")}
+                  onClick={() =>
+                    window.open(zapHref, "_blank", "noopener noreferrer")
+                  }
                   sx={{
                     background: "linear-gradient(to right, #0c1c30, #0c1c30)",
                     color: "white",

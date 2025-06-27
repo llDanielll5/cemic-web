@@ -1,3 +1,4 @@
+import { handleOpenWhatsappMessage } from "@/services/services";
 import { Box, Typography, Button, Grid, Paper } from "@mui/material";
 import { motion } from "framer-motion";
 
@@ -77,6 +78,7 @@ export default function AboutUsSection() {
           >
             <Button
               variant="contained"
+              onClick={handleOpenWhatsappMessage}
               sx={{
                 bgcolor: "white",
                 color: "#0c1c30",
