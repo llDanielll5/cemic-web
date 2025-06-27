@@ -389,7 +389,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         return await generatePatientPaymentInCashier(cashierInfoData).then(
           async (res) => {
             setLoadingMessage("Estamos atualizando informações do paciente...");
-
             return await handleUpdatePatient(patientData?.id!, {
               data: {
                 role: "PATIENT",
