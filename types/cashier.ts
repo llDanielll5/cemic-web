@@ -53,6 +53,7 @@ export interface CreateCashierInfosInterface {
     patient?: any | null;
     location?: "DF" | "MG";
     filial?: string;
+    payment?: any;
     //adicionar pagamento de profisisonal
   };
 }

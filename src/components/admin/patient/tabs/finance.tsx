@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Loading from "@/components/loading";
 import PatientData from "@/atoms/patient";
 import AddTreatment from "../modals/add-payment";
@@ -109,7 +109,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     setIsLoading(true);
     setLoadingMessage("Adicionando Fundos de Crédito para o paciente!");
     const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
-    const dataUpdate: any = {
+    const dataUpdate: { data: PaymentsInterface } = {
       data: {
         adminInfos,
         date: new Date(),
@@ -121,6 +121,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         description: receiptCredits.description,
         payment_shapes: receiptCredits?.paymentShapes!,
         bank_check_infos: receiptCredits?.bankCheckInfos ?? [],
+        hasFundCredit: true,
       },
     };
 
@@ -238,6 +239,17 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     );
   };
 
+  const getPatientCredits = useCallback(async () => {
+    const fundCredits = (patient?.payments?.data as any[]).filter(
+      (filt) => filt.attributes.hasFundCredit
+    );
+
+    if (fundCredits.length === 0) return;
+    const fundCreditsArr = fundCredits.map((v) => v.attributes.total_value);
+
+    return fundCreditsArr.reduce((prev, curr) => prev + curr, 0);
+  }, [patient?.payments]);
+
   const handleSubmitReceipt = async () => {
     setIsLoading(true);
     setLoadingMessage("Criando Pagamento do Paciente...");
@@ -347,21 +359,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       })
       .join(" ");
 
-    const cashierInfoData: CreateCashierInfosInterface = {
-      data: {
-        date: receiptValues?.dateSelected!,
-        description,
-        type: "IN",
-        cashier: hasOpenedCashier[0].id!,
-        outInfo: null,
-        verifyBy: null,
-        total_values: values,
-        patient: patientData?.id!,
-        location: adminData?.location as "DF" | "MG",
-        filial: adminData?.filial,
-      },
-    };
-
     const creditWallet = receiptValues?.paymentShapes?.find(
       (s) => s.shape === "WALLET_CREDIT"
     );
@@ -371,8 +368,24 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     setIsLoading(false);
 
     return await createPatientPayment(dataUpdate).then(
-      async (res) => {
+      async ({ data: paymentData }) => {
+        const paymentId = paymentData.data.id;
         setLoadingMessage("Atualizando o caixa do Dia!");
+        const cashierInfoData: CreateCashierInfosInterface = {
+          data: {
+            date: receiptValues?.dateSelected!,
+            description,
+            type: "IN",
+            cashier: hasOpenedCashier[0].id!,
+            outInfo: null,
+            verifyBy: null,
+            total_values: values,
+            patient: patientData?.id!,
+            location: adminData?.location as "DF" | "MG",
+            filial: adminData?.filial,
+            payment: paymentId,
+          },
+        };
         return await generatePatientPaymentInCashier(cashierInfoData).then(
           async (res) => {
             setLoadingMessage("Estamos atualizando informações do paciente...");
