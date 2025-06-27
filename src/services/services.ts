@@ -1,3 +1,4 @@
+import { WHATSAPP_CEMIC } from "@/components/landing/banner";
 import { UserRole } from "types";
 
 export function makeid(length: number) {
@@ -177,4 +178,13 @@ export const parseToothRegion = (rg: string) => {
   }
 
   return replaced;
+};
+
+export const handleOpenWhatsappMessage = () => {
+  const msg = `Olá!! Realizei uma doação para a CEMIC, para ajudar no projeto social!`;
+  const zapHref = `https://api.whatsapp.com/send?phone=${WHATSAPP_CEMIC}&text=${encodeURIComponent(
+    msg
+  )}`;
+
+  return window.open(zapHref, "_blank", "noopener noreferrer");
 };

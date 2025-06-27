@@ -14,7 +14,7 @@ interface BannerLandingInterface {
   callButton?: any;
 }
 
-export const WHATSAPP_CEMIC = "556192156775";
+export const WHATSAPP_CEMIC = "556193367555";
 
 const BannerLanding = (props: BannerLandingInterface) => {
   const size = useWindowSize();
