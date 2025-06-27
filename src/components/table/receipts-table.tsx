@@ -4,6 +4,7 @@ import { useRecoilValue } from "recoil";
 import {
   Box,
   Button,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { AdminInfosInterface } from "types/admin";
 import { PaymentShapesInterface } from "types/payments";
 import { ToothsInterface } from "types/odontogram";
+import { Delete, Visibility } from "@mui/icons-material";
 
 export interface ReceiptSingle {
   id: string;
@@ -52,9 +54,12 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
             <TableRow>
               <TableCell>Data Pagamento</TableCell>
               <TableCell>Valor Pago</TableCell>
-              <TableCell>Ver Detalhes</TableCell>
+              <TableCell>Ver</TableCell>
               {adminData?.userType === "ADMIN" && (
-                <TableCell>Editar Pagamento</TableCell>
+                <>
+                  <TableCell>Editar </TableCell>
+                  <TableCell>Excluir </TableCell>
+                </>
               )}
             </TableRow>
           </TableHead>
@@ -73,20 +78,25 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
                       {parseToBrl(receipt.total_value)}
                     </Typography>
                   </StyledTable>
-                  <StyledTable>
-                    <Button
-                      variant="contained"
-                      startIcon={<AddIcon />}
-                      onClick={() => onGetValues(val)}
-                    >
-                      Detalhes
-                    </Button>
+                  <StyledTable align="center">
+                    <IconButton onClick={() => onGetValues(val)}>
+                      <Visibility color="primary" />
+                    </IconButton>
                   </StyledTable>
-                  <StyledTable>
-                    <Button variant="contained" startIcon={<CreateIcon />}>
-                      Editar
-                    </Button>
-                  </StyledTable>
+                  {adminData?.userType === "ADMIN" && (
+                    <>
+                      <StyledTable align="center">
+                        <IconButton>
+                          <CreateIcon color="primary" />
+                        </IconButton>
+                      </StyledTable>
+                      <StyledTable align="center">
+                        <IconButton>
+                          <Delete color="primary" />
+                        </IconButton>
+                      </StyledTable>
+                    </>
+                  )}
                 </TableRow>
               );
             })}
