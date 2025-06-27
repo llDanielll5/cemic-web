@@ -44,7 +44,10 @@ interface ReceiptsProps {
 
 export const ReceiptsPatientTable = (props: ReceiptsProps) => {
   const { items = [], onGetValues, onEditValues } = props;
-  const adminData: any = useRecoilValue(UserData);
+  const adminData = useRecoilValue(UserData);
+
+  const hasAdmin =
+    adminData?.userType === "ADMIN" || adminData?.userType === "SUPERADMIN";
 
   return (
     <Paper elevation={10} sx={{ minWidth: 700, maxWidth: 900, mt: 3 }}>
@@ -55,7 +58,7 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
               <TableCell>Data Pagamento</TableCell>
               <TableCell>Valor Pago</TableCell>
               <TableCell>Ver</TableCell>
-              {adminData?.userType === "ADMIN" && (
+              {hasAdmin && (
                 <>
                   <TableCell>Editar </TableCell>
                   <TableCell>Excluir </TableCell>
@@ -83,7 +86,7 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
                       <Visibility color="primary" />
                     </IconButton>
                   </StyledTable>
-                  {adminData?.userType === "ADMIN" && (
+                  {hasAdmin && (
                     <>
                       <StyledTable align="center">
                         <IconButton>

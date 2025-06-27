@@ -296,15 +296,16 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
             width="100%"
           >
             <Typography variant="h5">Tratamentos Finalizados</Typography>
-            {adminData?.userType === "ADMIN" && (
-              <Button
-                variant="contained"
-                endIcon={<CheckIcon />}
-                onClick={() => setFinishTreatmentsModal(true)}
-              >
-                Finalizar Tratamentos
-              </Button>
-            )}
+            {adminData?.userType === "ADMIN" &&
+              adminData?.userType === "SUPERADMIN" && (
+                <Button
+                  variant="contained"
+                  endIcon={<CheckIcon />}
+                  onClick={() => setFinishTreatmentsModal(true)}
+                >
+                  Finalizar Tratamentos
+                </Button>
+              )}
           </Stack>
 
           <FinishedsTreatmentsPatientTable

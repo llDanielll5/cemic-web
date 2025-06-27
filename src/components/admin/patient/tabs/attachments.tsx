@@ -280,20 +280,21 @@ const PatientAttachments = () => {
       </Button>
 
       <ListTitle variant="h5">Lista de documentos</ListTitle>
-      {adminData?.userType === "ADMIN" && (
-        <Box display={"flex"} flexDirection={"row"} marginLeft={3.6}>
-          <Checkbox
-            sx={{ marginRight: 0 }}
-            checked={checkBoxList.every((e) => e === true)}
-            indeterminate={checkBoxList.every((e) => e === true)}
-            onChange={changeAllItems}
-          />
+      {adminData?.userType === "ADMIN" &&
+        adminData?.userType === "SUPERADMIN" && (
+          <Box display={"flex"} flexDirection={"row"} marginLeft={3.6}>
+            <Checkbox
+              sx={{ marginRight: 0 }}
+              checked={checkBoxList.every((e) => e === true)}
+              indeterminate={checkBoxList.every((e) => e === true)}
+              onChange={changeAllItems}
+            />
 
-          <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
-            <DeleteIcon color={isDisabled ? "disabled" : "error"} />
-          </IconButton>
-        </Box>
-      )}
+            <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
+              <DeleteIcon color={isDisabled ? "disabled" : "error"} />
+            </IconButton>
+          </Box>
+        )}
 
       <ListBox elevation={15}>
         {checkBoxList?.length === 0 && (
