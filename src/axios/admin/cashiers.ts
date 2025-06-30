@@ -52,6 +52,16 @@ export const generatePatientPaymentInCashier = async (data: any) => {
   return await axiosInstance.post(`/cashier-infos/`, data);
 };
 
+export const getCashierInfo = async (id: string) => {
+  return await axiosInstance.get(
+    `/cashier-infos/${id}?populate[cashier][populate]=*`
+  );
+};
+
+export const deleteCashierInfo = async (id: string) => {
+  return await axiosInstance.delete(`/cashier-infos/${id}`);
+};
+
 export const handleGetHasOpenedCashier = async (
   startDate: string,
   endDate: string,
@@ -70,4 +80,12 @@ export const handleGetLastPayments = async () => {
   return await axiosInstance.get(
     `/cashier-infos/?populate=*&sort[0]=date:desc&pagination[pageSize]=10&filters[type]=IN`
   );
+};
+
+export const updateCashierValues = async (id: string, data: any) => {
+  return await axiosInstance.put(`/cashiers/${id}`, { data });
+};
+
+export const updateCashierInfoValues = async (id: string, data: any) => {
+  return await axiosInstance.put(`/cashier-infos/${id}`, { data });
 };

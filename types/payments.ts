@@ -1,5 +1,5 @@
 import { AdminInfosInterface } from "./admin";
-import { ToothsInterface } from "./odontogram";
+import { ToothsInterface, TreatmentsPatientInterface } from "./odontogram";
 
 export interface PaymentShape {
   type: PaymentTypes;
@@ -55,6 +55,7 @@ export interface PaymentInfosInterface {
   bank_check_value: number;
   bank_check_split_times: number;
   bank_check_informations: BankCheckInformationsInterface[];
+  treatments?: TreatmentsPatientInterface[];
 }
 
 export interface PaymentShapesInterface {
@@ -62,6 +63,7 @@ export interface PaymentShapesInterface {
   shape: PaymentShapeTypes;
   price: number;
   split_times?: number;
+  creditAdditional?: number;
 }
 
 export interface PaymentInterface {

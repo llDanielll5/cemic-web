@@ -24,6 +24,7 @@ import {
 import RenderBankCheckInfos from "./renderBankCheckInfos";
 import { useRecoilValue } from "recoil";
 import PatientData from "@/atoms/patient";
+import { toast } from "react-toastify";
 
 interface PaymentTypesProps {
   index: number;
@@ -50,8 +51,16 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
   const [price, setPrice] = useState("0,00");
   const [splitTimes, setSplitTimes] = useState<string | null>(null);
   const [paymentShape, setPaymentShape] = useState<PaymentShapeTypes>("");
+  const [creditAdditional, setCreditAdditional] = useState(0);
   const [modal, setModal] = useState(false);
   const handleCloseModal = () => setModal(false);
+
+  const handleCreditValidation = (e: any) => {
+    const reg = new RegExp("[0-9]");
+    if (reg.test(e.target.value)) {
+      setCreditAdditional(e.target.value);
+    }
+  };
 
   const updateSplitBankCheck = (e: any) => setSplitTimes(e.target.value);
   const handleChange = (event: SelectChangeEvent) => {
@@ -60,7 +69,7 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
         patientData?.attributes?.credits === null ||
         patientData?.attributes?.credits === 0
       ) {
-        return alert("Paciente não possui créditos!");
+        return toast.error("Paciente não possui créditos!");
       }
     }
 
@@ -81,8 +90,9 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
       shape: paymentShape,
       price: priceNum,
       split_times: splitTimes === null ? null : splitToFloat,
+      creditAdditional,
     });
-  }, [paymentShape, price, splitTimes]);
+  }, [paymentShape, price, splitTimes, creditAdditional]);
 
   return (
     <>
@@ -131,6 +141,17 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
             </Select>
           </FormControl>
         ) : null}
+
+        {paymentShape === "CREDIT_CARD" && (
+          <TextField
+            title="Acréscimo de Crédito"
+            type="number"
+            label="Acréscimo (%)"
+            value={creditAdditional}
+            onChange={handleCreditValidation}
+            sx={{ width: "30%" }}
+          />
+        )}
 
         <IconButton onClick={() => onRemoveShape(index)}>
           <DeleteIcon color="error" />

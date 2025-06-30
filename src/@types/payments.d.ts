@@ -7,6 +7,7 @@ interface PaymentsInterface {
   description: string;
   payment_shapes: any;
   bank_check_infos: any[];
+  cashier_info?: any;
   hasFundCredit?: boolean;
   hasFundPayed?: boolean;
 }

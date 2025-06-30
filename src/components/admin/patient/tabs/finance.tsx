@@ -1,32 +1,25 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Loading from "@/components/loading";
 import PatientData from "@/atoms/patient";
-import AddTreatment from "../modals/add-payment";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PostAddIcon from "@mui/icons-material/PostAdd";
+import UserData from "@/atoms/userData";
+import { toast } from "react-toastify";
 import { useRecoilValue } from "recoil";
-import {
-  BankCheckInformationsInterface,
-  PaymentInfosInterface,
-  PaymentShapesInterface,
-  ReceiptValues,
-} from "types/payments";
+import { AdminInfosInterface } from "types/admin";
 import { createPatientPayment } from "@/axios/admin/payments";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import { handleGetTreatmentsToPay } from "@/axios/admin/odontogram";
+import { CreateCashierInfosInterface } from "types/cashier";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import AddPaymentPatientModal from "../modals/add-payment";
 import ReceiptPreview, { parseToBrl } from "../modals/receipt-preview";
+import ReceiptCreditsPreview from "../modals/receipt-credits-preview";
 import PaymentsSharpIcon from "@mui/icons-material/PaymentsSharp";
-import UserData from "@/atoms/userData";
-import { AdminInfosInterface } from "types/admin";
+import AddCreditToPatientModal from "../modals/add-credits";
 import ReceiptSinglePatient from "../modals/receipt-single";
 import {
   handleGetPatientCredits,
   handleUpdateHasPayedTreatments,
   handleUpdatePatient,
 } from "@/axios/admin/patients";
-import { CreateCashierInfosInterface } from "types/cashier";
 import {
   Box,
   Typography,
@@ -36,6 +29,11 @@ import {
   Alert,
   Stack,
 } from "@mui/material";
+import {
+  BankCheckInformationsInterface,
+  PaymentShapesInterface,
+  ReceiptValues,
+} from "types/payments";
 import { formatISO } from "date-fns";
 import {
   ReceiptSingle,
@@ -44,10 +42,8 @@ import {
 import {
   generatePatientPaymentInCashier,
   handleGetCashierOpened,
+  updateCashierInfoValues,
 } from "@/axios/admin/cashiers";
-import AddCreditToPatientModal from "../modals/add-credits";
-import ReceiptCreditsPreview from "../modals/receipt-credits-preview";
-import { toast } from "react-toastify";
 
 interface PatientFinaceTabProps {
   onUpdatePatient: any;
@@ -65,6 +61,8 @@ interface CreatePayment {
     treatments: any[];
     filial?: string;
     location?: "DF" | "MG" | "";
+    hasFundCredit?: boolean;
+    hasFundPayed?: boolean;
   };
 }
 
@@ -122,6 +120,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         payment_shapes: receiptCredits?.paymentShapes!,
         bank_check_infos: receiptCredits?.bankCheckInfos ?? [],
         hasFundCredit: true,
+        hasFundPayed: false,
       },
     };
 
@@ -144,7 +143,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
     if (hasOpenedCashier.length === 0) {
       setIsLoading(false);
-      alert("Não há caixa aberto ou já possui caixa fechado de hoje!");
+      toast.error("Não há caixa aberto ou já possui caixa fechado de hoje!");
       return;
     }
 
@@ -209,15 +208,20 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       return toast.error("A data selecionada não pode ser futura.");
 
     return await createPatientPayment(dataUpdate).then(
-      async (res) => {
+      async ({ data: paymentData }) => {
         setLoadingMessage("Atualizando o caixa do Dia!");
         return await generatePatientPaymentInCashier(cashierInfoData).then(
-          async (res) => {
+          async ({ data: cashierInfoData }) => {
             setLoadingMessage("Estamos atualizando informações do paciente...");
 
             const { data } = await handleGetPatientCredits(patientData?.id!);
-
             const oldCredits = data.data?.attributes?.credits;
+            const cashierInfoId = cashierInfoData.data.id;
+            const paymentId = paymentData?.data?.id;
+
+            await updateCashierInfoValues(cashierInfoId, {
+              payment: paymentId,
+            });
 
             return await handleUpdatePatient(patientData?.id!, {
               data: { credits: oldCredits + receiptCredits!.totalValue },
@@ -231,7 +235,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           },
           (err) => {
             setIsLoading(false);
-            console.log(err.response);
+            console.log(err);
           }
         );
       },
@@ -270,6 +274,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         bank_check_infos: receiptValues?.bankCheckInfos ?? [],
         location: adminData?.location as "DF" | "MG",
         filial: adminData?.filial,
+        hasFundCredit: false,
+        hasFundPayed: false,
       },
     };
 
@@ -292,7 +298,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
     if (hasOpenedCashier.length === 0) {
       setIsLoading(false);
-      alert("Não há caixa aberto ou já possui caixa fechado de hoje!");
+      toast.error("Não há caixa aberto ou já possui caixa fechado de hoje!");
       return;
     }
 
@@ -528,6 +534,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           <ReceiptsPatientTable
             onGetValues={onGetReceiptSingle}
             items={paymentsPatient}
+            onDeleteValues={onUpdatePatient}
           />
         )}
       </Container>

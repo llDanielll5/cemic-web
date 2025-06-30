@@ -26,7 +26,17 @@ export interface CashierInterface {
   };
 }
 
-export interface CashierInfosInterface {}
+export interface CashierInfosInterface {
+  type: TransactionType;
+  date: string;
+  total_values: TotalValues;
+  description: string;
+  location: any | null;
+  filial: string | null;
+  createdAt: string;
+  updatedAt: string;
+  cashier: CashierInterface;
+}
 
 export interface CreateCashierInterface {
   data: {

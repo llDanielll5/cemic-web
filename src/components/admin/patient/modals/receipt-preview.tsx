@@ -4,11 +4,12 @@ import CModal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import PatientData from "@/atoms/patient";
 import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Stack, styled, Typography } from "@mui/material";
 import { parseToothRegion } from "@/services/services";
 import { PaymentShapeTypes, ReceiptValues } from "types/payments";
 import { useRecoilValue } from "recoil";
 import { BankInformationsTable } from "@/components/table/bank-informations";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 interface ReceiptPreviewProps {
   visible: any;
@@ -91,18 +92,31 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
 
         <Box my={2} width="100%">
           {receiptValues?.treatmentsForPayment.map((v, i: number) => (
-            <Typography
+            <Stack
               key={i}
-              variant="subtitle2"
-              textAlign="left"
-              ml={3}
-              my={0.5}
-              pl={"16px"}
+              direction={"row"}
+              width={"100%"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
             >
-              {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
-                v.attributes.name
-              }`}
-            </Typography>
+              <Typography
+                variant="subtitle1"
+                textAlign="left"
+                ml={3}
+                my={0.5}
+                pl={"16px"}
+              >
+                {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
+                  v.attributes.name
+                }`}
+              </Typography>
+
+              <Line>
+                <IconForward />
+              </Line>
+
+              <Typography>{parseToBrl(v.attributes.price)}</Typography>
+            </Stack>
           ))}
         </Box>
 
@@ -131,7 +145,12 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
             {payShapes?.length === 1 &&
               payShapes?.map((v) => {
                 if (v.shape === "CREDIT_CARD") {
-                  return `No ${parseShape(v.shape)} em ${v.split_times}x`;
+                  return `No ${parseShape(v.shape)} em ${v.split_times}x${
+                    typeof v.creditAdditional === "string" &&
+                    parseInt(v?.creditAdditional) > 0
+                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      : ""
+                  }`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `No ${parseShape(v.shape)} em ${
                     v.split_times
@@ -144,7 +163,12 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
                 if (v.shape === "CREDIT_CARD") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
-                  }x${hasSpace}`;
+                  }x${v.creditAdditional}${
+                    typeof v.creditAdditional === "string" &&
+                    parseInt(v?.creditAdditional) > 0
+                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      : ""
+                  }${hasSpace}`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
@@ -258,5 +282,22 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
     </CModal>
   );
 };
+
+const Line = styled(Box)`
+  height: 1px;
+  width: 50%;
+  background-color: #d5d5d5;
+  border-radius: 5rem;
+  position: relative;
+  margin: 0 1rem;
+`;
+
+const IconForward = styled(ArrowForwardIcon)`
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: 1px;
+`;
 
 export default ReceiptPreview;

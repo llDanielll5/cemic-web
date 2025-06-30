@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CModal from "@/components/modal";
 import {
   Autocomplete,
@@ -18,14 +18,14 @@ import {
 } from "types/payments";
 import { parseToothRegion } from "@/services/services";
 import { ToothsInterface } from "types/odontogram";
-import AddPaymentShape from "../components/add-payment-shape";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import PaymentTypesPatient from "../components/payment-types";
 import { useRecoilValue } from "recoil";
+import { formatISO } from "date-fns";
+import { parseToBrl } from "./receipt-preview";
 import PatientData from "@/atoms/patient";
 import Calendar from "react-calendar";
+import AddPaymentShape from "../components/add-payment-shape";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import "react-calendar/dist/Calendar.css";
-import { formatISO } from "date-fns";
 
 interface AddPaymentPatientModal {
   visible: boolean;
@@ -42,11 +42,9 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const [creditAddition, setCreditAddition] = useState(10);
   const [dateSelected, setDateSelected] = useState(new Date());
   const [dateSelectedModal, setDateSelectedModal] = useState(false);
-  const [additionCreditVisible, setAdditionCreditVisible] = useState(false);
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
     "Clinico"
   );
-  // const [discountVisible, setDiscountVisible] = useState(false);
   const [bankCheckInfos, setBankCheckInfos] = useState<
     BankCheckInformationsInterface[]
   >([]);
@@ -59,6 +57,10 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const [paymentShapes, setPaymentShapes] = useState<PaymentShapesInterface[]>(
     []
   );
+
+  const totalValueReceipt = useMemo(() => {
+    return paymentShapes.reduce((acc, curr) => acc + curr.price, 0);
+  }, [paymentShapes]);
 
   const getTotal = totalValue.toLocaleString("pt-br", {
     style: "currency",
@@ -122,57 +124,59 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         (item) => item.shape === "CREDIT_CARD"
       );
 
-      if (creditValues.length > 0) {
-        if (paymentShapes.length > 1) {
-          let otherValues = paymentShapes.filter(
-            (item) => item.shape !== "CREDIT_CARD"
-          );
-          const mapOther = otherValues.map((v) => v.price);
-          const reduceOther = mapOther.reduce((prev, curr) => prev + curr, 0);
+      setTotalValue(reduced);
 
-          const mapValues = creditValues.map((v) => v.price);
-          const reduceCreditValues = mapValues.reduce(
-            (prev, curr) => prev + curr,
-            0
-          );
+      // if (creditValues.length > 0) {
+      //   if (paymentShapes.length > 1) {
+      //     let otherValues = paymentShapes.filter(
+      //       (item) => item.shape !== "CREDIT_CARD"
+      //     );
+      //     const mapOther = otherValues.map((v) => v.price);
+      //     const reduceOther = mapOther.reduce((prev, curr) => prev + curr, 0);
 
-          let rest = reduced - reduceOther;
+      //     const mapValues = creditValues.map((v) => v.price);
+      //     const reduceCreditValues = mapValues.reduce(
+      //       (prev, curr) => prev + curr,
+      //       0
+      //     );
 
-          const percentPrices = (rest * creditAddition) / 100;
-          let percentCredit = (reduceCreditValues * creditAddition) / 100;
+      //     let rest = reduced - reduceOther;
 
-          if (percentCredit > percentPrices) {
-            percentCredit = percentPrices;
-          }
+      //     const percentPrices = (rest * creditAddition) / 100;
+      //     let percentCredit = (reduceCreditValues * creditAddition) / 100;
 
-          setTotalValue(reduced + percentCredit);
-          if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-            var valueDiscount = (reduced * parseInt(discount)) / 100;
-            setTotalValue(reduced - valueDiscount + percentCredit);
-          }
-        } else {
-          const mapValues = creditValues.map((v) => v.price);
-          const reduceCreditValues = mapValues.reduce(
-            (prev, curr) => prev + curr,
-            0
-          );
-          const percentPrices = (reduced * creditAddition) / 100;
-          let percentCredit = (reduceCreditValues * creditAddition) / 100;
+      //     if (percentCredit > percentPrices) {
+      //       percentCredit = percentPrices;
+      //     }
 
-          if (percentCredit > percentPrices) {
-            percentCredit = percentPrices;
-          }
+      //     setTotalValue(reduced + percentCredit);
+      //     if (parseInt(discount) > 0 || parseInt(discount) < 9) {
+      //       var valueDiscount = (reduced * parseInt(discount)) / 100;
+      //       setTotalValue(reduced - valueDiscount + percentCredit);
+      //     }
+      //   } else {
+      //     const mapValues = creditValues.map((v) => v.price);
+      //     const reduceCreditValues = mapValues.reduce(
+      //       (prev, curr) => prev + curr,
+      //       0
+      //     );
+      //     const percentPrices = (reduced * creditAddition) / 100;
+      //     let percentCredit = (reduceCreditValues * creditAddition) / 100;
 
-          setTotalValue(reduced + percentCredit);
-          if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-            var valueDiscount = (reduced * parseInt(discount)) / 100;
-            setTotalValue(reduced - valueDiscount + percentCredit);
-          }
-        }
-      } else if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-        var valueDiscount = (reduced * parseInt(discount)) / 100;
-        setTotalValue(reduced - valueDiscount);
-      } else setTotalValue(reduced);
+      //     if (percentCredit > percentPrices) {
+      //       percentCredit = percentPrices;
+      //     }
+
+      //     setTotalValue(reduced + percentCredit);
+      //     if (parseInt(discount) > 0 || parseInt(discount) < 9) {
+      //       var valueDiscount = (reduced * parseInt(discount)) / 100;
+      //       setTotalValue(reduced - valueDiscount + percentCredit);
+      //     }
+      //   }
+      // } else if (parseInt(discount) > 0 || parseInt(discount) < 9) {
+      //   var valueDiscount = (reduced * parseInt(discount)) / 100;
+      //   setTotalValue(reduced - valueDiscount);
+      // } else setTotalValue(reduced);
     },
     [paymentShapes, discount, creditAddition]
   );
@@ -182,16 +186,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       const creditValues = paymentShape.filter(
         (item) => item.shape === "CREDIT_CARD"
       );
-      const hasCashOrPixPayment =
-        paymentShapes.filter((item) => item.shape === "CASH").length > 0 ||
-        paymentShapes.filter((item) => item.shape === "PIX").length > 0 ||
-        paymentShapes.filter((item) => item.shape === "DEBIT_CARD").length > 0;
-      // aqui se instalava a lógica de somente adicionar desconto em pagamento a vista
-      // if (hasCashOrPixPayment) setDiscountVisible(true);
-      // if (!hasCashOrPixPayment) setDiscountVisible(false);
-
-      if (creditValues.length > 0) setAdditionCreditVisible(true);
-      else setAdditionCreditVisible(false);
 
       setPaymentShapes(paymentShape);
       if (creditValues.length > 0) getTotalValue(treatmentsForPayment);
@@ -222,17 +216,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         "É obrigatório informar o valor de todas formas de pagamento!"
       );
 
-    if (pricesReduced > totalValue)
-      return alert("O valor digitado não pode ultrapassar o valor total!");
-    if (pricesReduced < totalValue)
-      return alert(
-        "Os valores digitados não podem ser menor que o valor total!"
-      );
-    if (parseInt(discount) < 0 || parseInt(discount) > 9)
-      return alert("Desconto não liberado!");
-    if (creditAddition > 10) {
-      return alert("Não é possível adicionar acréscimo acima de 10%");
-    }
     if (creditAddition < 0) {
       return alert("Não é possível adicionar acréscimo menor que 0");
     }
@@ -284,7 +267,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       paymentShapes,
       treatmentsForPayment,
       bankCheckInfos: parsedBankCheckInfos ?? [],
-      totalValue,
+      totalValue: totalValueReceipt,
       discount: parseInt(discount),
       cashierType: cashierType === "Clinico" ? "clinic" : "implant",
       creditsUsed: wallets.length > 0 ? walletReduce : null,
@@ -304,7 +287,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     paymentShapes.filter((v) => v.shape === "BANK_CHECK").length > 0;
 
   useEffect(() => {
-    if (discount !== "") getTotalValue(treatmentsForPayment);
     getTotalValue(treatmentsForPayment);
   }, [getTotalValue, treatmentsForPayment, discount]);
 
@@ -400,7 +382,8 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                   </TreatmentsChoiceds>
                 ))}
             </Box>
-            <h3>Total: {getTotal}</h3>
+            <h3>Total Tratamentos: {getTotal}</h3>
+            <h3>Total Recibo: {parseToBrl(totalValueReceipt)}</h3>
 
             <AddPaymentShape
               paymentShapes={paymentShapes}
@@ -427,30 +410,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                 </Button>
               </Stack>
             </Paper>
-
-            {additionCreditVisible && (
-              <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
-                <Typography variant="subtitle1">
-                  Qual o valor de Acréscimo?
-                </Typography>
-                <Stack direction={"row"} alignItems="center" columnGap={2}>
-                  <TextField
-                    title="Acréscimo de Crédito"
-                    type="number"
-                    label="Acréscimo (%)"
-                    value={creditAddition}
-                    onChange={handleCreditValidation}
-                    fullWidth
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={() => setCreditAddition(10)}
-                  >
-                    Resetar
-                  </Button>
-                </Stack>
-              </Paper>
-            )}
 
             <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
               <Typography variant="subtitle1">
