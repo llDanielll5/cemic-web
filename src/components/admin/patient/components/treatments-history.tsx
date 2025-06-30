@@ -1,23 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Divider,
-  Paper,
-  SvgIcon,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Box, Paper, Typography, styled } from "@mui/material";
 import { useRecoilValue } from "recoil";
 import { parseDateIso, parseToothRegion } from "@/services/services";
 import { ToothsInterface } from "types/odontogram";
-import HistoryIcon from "@mui/icons-material/History";
-import PatientData from "@/atoms/patient";
-import axiosInstance from "@/axios";
-import Link from "next/link";
 import { handleGetTreatmentsOfPatient } from "@/axios/admin/treatments";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import UserData from "@/atoms/userData";
+import PatientData from "@/atoms/patient";
 
 const PatientTreatmentsHistory = (props: any) => {
   const patientData = useRecoilValue(PatientData);

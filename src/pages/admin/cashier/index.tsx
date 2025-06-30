@@ -40,6 +40,7 @@ import {
   handleGetMonthCashiersOfType,
   handleOpenCashierDb,
 } from "@/axios/admin/cashiers";
+import { toast } from "react-toastify";
 
 const CashierAdmin = () => {
   const router = useRouter();
@@ -195,7 +196,7 @@ const CashierAdmin = () => {
 
   const handleOpenAddInformations = () => {
     if (cashierData === null)
-      return alert("Não há caixa aberto para lançamento!");
+      return toast.error("Não há caixa aberto para lançamento!");
     else setAddVisible(true);
   };
 

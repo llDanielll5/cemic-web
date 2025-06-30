@@ -9,3 +9,7 @@ export const getPatientsFinishedsForDentist = async (dentistId: string) => {
     `/patients/?filters[finishedTreatments][dentist][id][$eq]=${dentistId}&filters[payments][treatments][finishedHistory][dentist][id][$eq]=${dentistId}&populate[payments][populate][treatments][populate][finishedHistory][populate]=*`
   );
 };
+
+export const deletePatientPayment = async (id: string) => {
+  return await axiosInstance.delete(`/payments/${id}`);
+};

@@ -4,13 +4,14 @@ import PatientData from "@/atoms/patient";
 import CModal from "@/components/modal";
 import { BankInformationsTable } from "@/components/table/bank-informations";
 import { ReceiptSingle } from "@/components/table/receipts-table";
-import { Box, Button, Typography, styled } from "@mui/material";
+import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import { useRecoilValue } from "recoil";
 import { PaymentShapeTypes } from "types/payments";
 import { parseToBrl } from "./receipt-preview";
 import { parseToothRegion } from "@/services/services";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import UserData from "@/atoms/userData";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 interface ReceiptSingleProps {
   visible: boolean;
@@ -85,18 +86,31 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
         <Box my={2} width="100%">
           {receipt?.description === null &&
             receipt?.treatments?.data.map((v, i: number) => (
-              <Typography
+              <Stack
                 key={i}
-                variant="subtitle2"
-                textAlign="left"
-                ml={3}
-                my={0.5}
-                pl={"16px"}
+                direction={"row"}
+                width={"100%"}
+                alignItems={"center"}
+                justifyContent={"space-between"}
               >
-                {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
-                  v.attributes.name
-                }`}
-              </Typography>
+                <Typography
+                  variant="subtitle1"
+                  textAlign="left"
+                  ml={3}
+                  my={0.5}
+                  pl={"16px"}
+                >
+                  {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
+                    v.attributes.name
+                  }`}
+                </Typography>
+
+                <Line>
+                  <IconForward />
+                </Line>
+
+                <Typography>{parseToBrl(v.attributes.price)}</Typography>
+              </Stack>
             ))}
 
           {receipt?.description !== null && (
@@ -137,7 +151,12 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
             {payShapes?.length === 1 &&
               payShapes?.map((v) => {
                 if (v.shape === "CREDIT_CARD") {
-                  return `No ${parseShape(v.shape)} em ${v.split_times}x`;
+                  return `No ${parseShape(v.shape)} em ${v.split_times}x${
+                    typeof v.creditAdditional === "number" &&
+                    v?.creditAdditional > 0
+                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      : ""
+                  }`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `No ${parseShape(v.shape)} em ${
                     v.split_times
@@ -150,7 +169,12 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                 if (v.shape === "CREDIT_CARD") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
-                  }x${hasSpace}`;
+                  }x${v.creditAdditional}${
+                    typeof v.creditAdditional === "number" &&
+                    v?.creditAdditional > 0
+                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      : ""
+                  }${hasSpace}`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
@@ -217,7 +241,8 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           width="100%"
           mt={5}
         >
-          {adminData?.filial} {new Date().toLocaleDateString()}
+          {adminData?.filial}{" "}
+          {new Date(receipt?.date as string).toLocaleDateString()}
         </Typography>
 
         <Typography
@@ -264,6 +289,23 @@ const StyledButton = styled(Button)`
   :active {
     opacity: 0;
   }
+`;
+
+const Line = styled(Box)`
+  height: 1px;
+  width: 50%;
+  background-color: #d5d5d5;
+  border-radius: 5rem;
+  position: relative;
+  margin: 0 1rem;
+`;
+
+const IconForward = styled(ArrowForwardIcon)`
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: 1px;
 `;
 
 export default ReceiptSinglePatient;

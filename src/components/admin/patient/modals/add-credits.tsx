@@ -112,7 +112,7 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
       let values = paymentShape.map((shape) => {
         if (shape.shape === "CREDIT_CARD") {
           const diff = (creditAddition / 100) * shape.price;
-          return shape.price - diff;
+          return shape.price + diff;
         } else return shape.price;
       });
 

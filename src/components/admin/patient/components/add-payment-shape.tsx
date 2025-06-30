@@ -19,7 +19,7 @@ const AddPaymentShape = (props: AddPaymentShapeInterface) => {
   } = props;
 
   const handleUpdateShapes = (shape: any, index: number) => {
-    const paymentShapeClone = paymentShapes;
+    const paymentShapeClone = [...paymentShapes];
     const indexPaymentShape = paymentShapes.findIndex((val, i) => i === index);
     paymentShapeClone[indexPaymentShape] = shape;
     onChangePaymentShape(paymentShapeClone);
