@@ -3,6 +3,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   IconButton,
   InputAdornment,
+  MenuItem,
+  Select,
   TextField,
   TextFieldProps,
 } from "@mui/material";
@@ -10,13 +12,17 @@ import { useField } from "formik";
 import { forwardRef, useState } from "react";
 import { IMaskInput as IMask } from "react-imask";
 
+// ---------- Máscaras ----------
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
   name: string;
 }
 
-export const TextCurrencyBRLCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCurrencyBRLCustom(props, ref) {
+const masks = {
+  currency: forwardRef<HTMLInputElement, CustomProps>(function Mask(
+    props,
+    ref
+  ) {
     const { onChange, ...other } = props;
     return (
       <IMask
@@ -32,189 +38,146 @@ export const TextCurrencyBRLCustom = forwardRef<HTMLInputElement, CustomProps>(
             normalizeZeros: true,
           },
         }}
-        definitions={{
-          "#": /[1-9]/,
-        }}
         inputRef={ref}
         onAccept={(value: any) =>
           onChange({ target: { name: props.name, value } })
         }
       />
     );
-  }
-);
+  }),
+  phone: forwardRef<HTMLInputElement, CustomProps>(function Mask(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="(00) 00000-0000"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  cep: forwardRef<HTMLInputElement, CustomProps>(function Mask(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="00000-000"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  cpf: forwardRef<HTMLInputElement, CustomProps>(function Mask(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="000.000.000-00"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  hour: forwardRef<HTMLInputElement, CustomProps>(function Mask(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="00:00"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  hourMinutes: forwardRef<HTMLInputElement, CustomProps>(function Mask(
+    props,
+    ref
+  ) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="00:00:00"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  cnpj: forwardRef<HTMLInputElement, CustomProps>(function Mask(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="00.000.000/0000-00"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  cardNumber: forwardRef<HTMLInputElement, CustomProps>(function Mask(
+    props,
+    ref
+  ) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="0000 0000 0000 0000"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  cvv: forwardRef<HTMLInputElement, CustomProps>(function Mask(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="000"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+  cardValidation: forwardRef<HTMLInputElement, CustomProps>(function Mask(
+    props,
+    ref
+  ) {
+    const { onChange, ...other } = props;
+    return (
+      <IMask
+        {...other}
+        mask="00/0000"
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+      />
+    );
+  }),
+};
 
-export const TextPhoneCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextPhoneCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"(00) 00000-0000"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-
-export const TextCepCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCepCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"00000-000"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-
-export const TextCNPJCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCNPJCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"00.000.000/0000-00"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-
-export const TextHourCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextPhoneCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"00:00"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-
-export const TextHourMinutesCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextPhoneCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"00:00:00"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-
-export const TextCPFCustom = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCPFCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"000.000.000-00"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-export const TextCardNumberMask = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCardNumberMask(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"0000 0000 0000 0000"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-export const TextCVVMask = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCVVMask(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"000"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-export const TextCardValidation = forwardRef<HTMLInputElement, CustomProps>(
-  function TextCardValidation(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMask
-        {...other}
-        mask={"00/0000"}
-        definitions={{
-          "#": /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-      />
-    );
-  }
-);
-
+// ---------- Tipagem ----------
 type CustomTextFieldProps = TextFieldProps & {
-  name: string; // Obrigatório para identificar o campo no Formik
+  name: string;
   hasPassword?: boolean;
+  croUfAddon?: boolean;
   mask?:
     | "cnpj"
     | "cep"
@@ -228,63 +191,108 @@ type CustomTextFieldProps = TextFieldProps & {
     | "cardValidation";
 };
 
+// ---------- Componente Principal ----------
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
   name,
+  croUfAddon,
+  mask,
+  hasPassword,
   ...props
 }) => {
   const [field, meta] = useField(name);
   const [showPassword, setShowPassword] = useState(false);
+  const [croUf, setCroUf] = useState("DF");
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
+
+  const handleCroChange = (e: any) => {
+    const rawCro = field.value.split("-")[0] || "";
+    const newCro = `${rawCro}-${e.target.value}`;
+    setCroUf(e.target.value);
+    field.onChange({ target: { name, value: newCro } });
+  };
+
+  const handleCroNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onlyNumber = e.target.value.replace(/\D/g, "");
+    field.onChange({ target: { name, value: `${onlyNumber}-${croUf}` } });
+  };
+
+  const ufList = [
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
+  ];
+
+  const inputProps =
+    mask && masks[mask]
+      ? { inputComponent: masks[mask] as any }
+      : hasPassword
+      ? {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={handleClickShowPassword}>
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }
+      : croUfAddon
+      ? {
+          endAdornment: (
+            <InputAdornment position="end">
+              <Select
+                value={croUf}
+                onChange={handleCroChange}
+                size="small"
+                variant="standard"
+                disableUnderline
+              >
+                {ufList.map((uf) => (
+                  <MenuItem key={uf} value={uf}>
+                    {uf}
+                  </MenuItem>
+                ))}
+              </Select>
+            </InputAdornment>
+          ),
+        }
+      : undefined;
 
   return (
     <TextField
       {...field}
       {...props}
       fullWidth
-      type={
-        props.hasPassword ? (showPassword ? "text" : "password") : props.type
-      }
+      type={hasPassword ? (showPassword ? "text" : "password") : props.type}
       error={Boolean(meta.touched && meta.error)}
       helperText={meta.touched && meta.error}
-      InputProps={
-        props.mask
-          ? props.mask === "cnpj"
-            ? { inputComponent: TextCNPJCustom as any }
-            : props.mask === "cep"
-            ? { inputComponent: TextCepCustom as any }
-            : props.mask === "cpf"
-            ? { inputComponent: TextCPFCustom as any }
-            : props.mask === "phone"
-            ? { inputComponent: TextPhoneCustom as any }
-            : props.mask === "hour"
-            ? { inputComponent: TextHourCustom as any }
-            : props.mask === "currency"
-            ? { inputComponent: TextCurrencyBRLCustom as any }
-            : props.mask === "cvv"
-            ? { inputComponent: TextCVVMask as any }
-            : props.mask === "cardNumber"
-            ? { inputComponent: TextCardNumberMask as any }
-            : props.mask === "cardValidation"
-            ? { inputComponent: TextCardValidation as any }
-            : props.mask === "hourMinutes"
-            ? { inputComponent: TextHourMinutesCustom as any }
-            : undefined
-          : props.hasPassword
-          ? {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                  >
-                    {!showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }
-          : undefined
-      }
+      value={field.value}
+      onChange={croUfAddon ? handleCroNumberChange : field.onChange}
+      InputProps={inputProps}
     />
   );
 };

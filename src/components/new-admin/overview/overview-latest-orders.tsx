@@ -20,6 +20,9 @@ import {
 import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
 import { SeverityPill } from "src/components/new-admin/comps/severity-pill";
 import { parseToBrl } from "@/components/admin/patient/modals/receipt-preview";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
+import { useRouter } from "next/router";
 
 const cashierType = {
   clinic: "primary",
@@ -29,9 +32,19 @@ const cashierName = {
   clinic: "Clínico",
   implant: "Implante",
 };
+const patientLocationColor = {
+  DF: "primary",
+  MG: "secondary",
+};
+const patientLocationName = {
+  DF: "Brasília",
+  MG: "Minas Gerais",
+};
 
 export const OverviewLatestOrders = (props: any) => {
   const { orders = [], sx } = props;
+  const { push } = useRouter();
+  const adminData = useRecoilValue(UserData);
 
   const sumAllValues = (values: any) => {
     let total =
@@ -57,6 +70,9 @@ export const OverviewLatestOrders = (props: any) => {
               <TableCell>Paciente</TableCell>
               <TableCell sortDirection="desc">Data</TableCell>
               <TableCell>Valor R$</TableCell>
+              {adminData?.userType === "SUPERADMIN" && (
+                <TableCell>Filial</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -80,6 +96,23 @@ export const OverviewLatestOrders = (props: any) => {
                   <TableCell>
                     {parseToBrl(sumAllValues(attr?.total_values))}
                   </TableCell>
+                  {adminData?.userType === "SUPERADMIN" && (
+                    <TableCell>
+                      <SeverityPill
+                        color={
+                          patientLocationColor[
+                            order?.attributes?.location as "MG" | "DF"
+                          ]
+                        }
+                      >
+                        {
+                          patientLocationName[
+                            order?.attributes?.location as "MG" | "DF"
+                          ]
+                        }
+                      </SeverityPill>
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}
@@ -91,6 +124,7 @@ export const OverviewLatestOrders = (props: any) => {
       <CardActions>
         <Button
           color="inherit"
+          onClick={() => push("/admin/payments/last-payments")}
           endIcon={
             <SvgIcon fontSize="small">
               <ArrowRightIcon />

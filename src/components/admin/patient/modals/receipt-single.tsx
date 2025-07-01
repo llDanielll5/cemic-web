@@ -94,11 +94,15 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                 justifyContent={"space-between"}
               >
                 <Typography
-                  variant="subtitle1"
+                  variant="subtitle2"
                   textAlign="left"
                   ml={3}
                   my={0.5}
-                  pl={"16px"}
+                  pl="16px"
+                  maxWidth="max-content"
+                  textOverflow="ellipsis"
+                  overflow="hidden"
+                  // whiteSpace="nowrap"
                 >
                   {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
                     v.attributes.name
@@ -293,7 +297,7 @@ const StyledButton = styled(Button)`
 
 const Line = styled(Box)`
   height: 1px;
-  width: 50%;
+  width: max-content;
   background-color: #d5d5d5;
   border-radius: 5rem;
   position: relative;

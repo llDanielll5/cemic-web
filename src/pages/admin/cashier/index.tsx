@@ -1,12 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
-import {
-  CashierInfosInterface,
-  CashierInterface,
-  CreateCashierInfosInterface,
-  CreateCashierInterface,
-} from "types/cashier";
+import { CashierInterface, CreateCashierInterface } from "types/cashier";
 import {
   Autocomplete,
   Box,
@@ -19,7 +14,7 @@ import { CashTable } from "@/components/new-admin/cash/cashTable";
 import { useRecoilValue } from "recoil";
 import { getCookie, setCookie } from "cookies-next";
 import { useFormik } from "formik";
-import { endOfMonth, formatISO, startOfDay, startOfMonth } from "date-fns";
+import { endOfMonth, formatISO, startOfMonth } from "date-fns";
 import { useRouter } from "next/navigation";
 import Calendar from "react-calendar";
 import UserData from "@/atoms/userData";
@@ -32,7 +27,6 @@ import OpenCashierModal from "../../../components/new-admin/cash/modals/open";
 import CashierBody from "@/components/admin/cashier/_components/cashier-body";
 import ReportsButtons from "@/components/admin/cashier/_components/reports";
 import CashierButtons from "@/components/admin/cashier/_components/cashier-buttons";
-import "react-calendar/dist/Calendar.css";
 import {
   handleCloseCashierOfDay,
   handleGetCashierOpenedWithType,
@@ -41,6 +35,7 @@ import {
   handleOpenCashierDb,
 } from "@/axios/admin/cashiers";
 import { toast } from "react-toastify";
+import "react-calendar/dist/Calendar.css";
 
 const CashierAdmin = () => {
   const router = useRouter();
@@ -103,8 +98,6 @@ const CashierAdmin = () => {
 
     const parsedOut: number = parseFloat(out);
     const date: Date = hasCookieDate;
-
-    console.log({ values, date });
 
     if (cashierData === null) return alert("Caixa não aberto!");
 
@@ -178,7 +171,7 @@ const CashierAdmin = () => {
     // );
   };
 
-  const getCashier = async () => {
+  const getCashier = useCallback(async () => {
     return await handleGetCashierOpenedWithType(
       dateIso,
       type,
@@ -190,9 +183,12 @@ const CashierAdmin = () => {
         if (res.data.data.length > 0) setCashierData(res.data.data[0]);
         else setCashierData(null);
       },
-      (err) => console.log(err.response)
+      (err) => {
+        toast.error("Erro ao carregar os dados de caixa!");
+        console.log({ ERRO: err.response });
+      }
     );
-  };
+  }, [dateSelected, filialSelection, cashierType]);
 
   const handleOpenAddInformations = () => {
     if (cashierData === null)
@@ -201,7 +197,7 @@ const CashierAdmin = () => {
   };
 
   const handleOpenCashier = async () => {
-    if (cashierData !== null) return alert("Caixa já aberto!");
+    if (cashierData !== null) return toast.error("Caixa já aberto!");
 
     const startDate = formatISO(startOfMonth(dateSelected)).substring(0, 10);
     const endDate = formatISO(endOfMonth(dateSelected)).substring(0, 10);
@@ -210,7 +206,7 @@ const CashierAdmin = () => {
       formatISO(new Date()).substring(0, 10) <
       formatISO(dateSelected).substring(0, 10)
     ) {
-      return alert("Não é possível abrir caixa de dias posteriores");
+      return toast.error("Não é possível abrir caixa de dias posteriores");
     }
 
     const response = await handleGetHasOpenedCashier(startDate, endDate, type);
@@ -226,7 +222,7 @@ const CashierAdmin = () => {
     return await handleCloseCashierOfDay(cashierData?.id!, data).then(
       (res) => {
         getCashier();
-        alert("Caixa fechado com sucesso!");
+        toast.error("Caixa fechado com sucesso!");
       },
       (err) => console.log(err.response)
     );
@@ -369,7 +365,7 @@ const CashierAdmin = () => {
 
   useEffect(() => {
     getCashier();
-  }, [cashierType, dateSelected, filialSelection]);
+  }, [getCashier]);
 
   useEffect(() => {
     handleGetMonthValue();

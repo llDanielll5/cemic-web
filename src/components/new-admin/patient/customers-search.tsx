@@ -23,7 +23,6 @@ export const CustomersSearch = (props: CustomerSearchInterface) => (
       onKeyDown={props.onKeyDown}
       fullWidth
       placeholder="Buscar paciente por Nome ou CPF Completo"
-      inputProps={{ maxLength: 11 }}
       startAdornment={
         <InputAdornment position="start">
           <SvgIcon color="action" fontSize="small">
