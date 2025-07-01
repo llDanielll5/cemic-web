@@ -32,7 +32,7 @@ export const CashTable = (props: {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">Paciente</TableCell>
+                {/* <TableCell padding="checkbox">Paciente</TableCell> */}
                 <TableCell>Fluxo</TableCell>
                 <TableCell>Paciente/Parceiro</TableCell>
                 <TableCell>Descrição</TableCell>
@@ -49,8 +49,8 @@ export const CashTable = (props: {
               {items.map((item: any, index: number) => {
                 const cashier = item?.attributes;
                 return (
-                  <TableRow key={index}>
-                    <TableCell padding="checkbox">
+                  <TableRow key={index} onClick={() => props.onSelect?.(item)}>
+                    {/* <TableCell padding="checkbox">
                       <Checkbox
                         checked={cashier.verifyBy?.data !== null}
                         disabled={cashier.verifyBy?.data !== null}
@@ -61,7 +61,7 @@ export const CashTable = (props: {
                           }
                         }}
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <StyledTable>
                       <Stack alignItems="center" direction="row" spacing={2}>
                         <Typography

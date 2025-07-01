@@ -105,6 +105,8 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
                 ml={3}
                 my={0.5}
                 pl={"16px"}
+                textOverflow={"ellipsis"}
+                overflow={"hidden"}
               >
                 {`♦ Região ${parseToothRegion(v.attributes.region)} => ${
                   v.attributes.name
@@ -163,7 +165,7 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
                 if (v.shape === "CREDIT_CARD") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
-                  }x${v.creditAdditional}${
+                  }x${
                     typeof v.creditAdditional === "string" &&
                     parseInt(v?.creditAdditional) > 0
                       ? ` (C/ ${v.creditAdditional}% de acréscimo)`
