@@ -16,9 +16,11 @@ import {
   PaymentShapesInterface,
   ReceiptValues,
 } from "types/payments";
+import { getPatientFundCredits } from "@/axios/admin/payments";
 import { parseToothRegion } from "@/services/services";
 import { ToothsInterface } from "types/odontogram";
 import { useRecoilValue } from "recoil";
+import { toast } from "react-toastify";
 import { formatISO } from "date-fns";
 import { parseToBrl } from "./receipt-preview";
 import PatientData from "@/atoms/patient";
@@ -42,6 +44,9 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const [creditAddition, setCreditAddition] = useState(10);
   const [dateSelected, setDateSelected] = useState(new Date());
   const [dateSelectedModal, setDateSelectedModal] = useState(false);
+  const [fundCredits, setFundCredits] = useState<
+    StrapiData<FundCreditsInterface>[]
+  >([]);
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
     "Clinico"
   );
@@ -59,6 +64,22 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   );
 
   const totalValueReceipt = useMemo(() => {
+    const creditValues = paymentShapes.filter(
+      (item) => item.shape === "CREDIT_CARD"
+    );
+
+    if (creditValues.length > 0) {
+      const mapAdditionalValues = creditValues.map(
+        (item) => item.creditAdditionalValue ?? 0
+      );
+      const creditAdditionalReduced = mapAdditionalValues.reduce(
+        (prev, curr) => prev + curr,
+        0
+      );
+      const total = totalValue + creditAdditionalReduced;
+
+      return total;
+    }
     return paymentShapes.reduce((acc, curr) => acc + curr.price, 0);
   }, [paymentShapes]);
 
@@ -101,16 +122,19 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       getTotalValue(treatmentsForPayment);
     }
   };
-  const handleCreditValidation = (e: any) => {
-    const reg = new RegExp("[0-9]");
-    if (reg.test(e.target.value)) {
-      setCreditAddition(e.target.value);
-      getTotalValue(treatmentsForPayment);
-    }
-  };
+
   const handleAddPaymentShape = () => {
     let defaultValues: PaymentShapesInterface = { price: 0, shape: "" };
     setPaymentShapes((prev) => [...(prev ?? []), defaultValues]);
+  };
+
+  const handleGetPatientFundCredits = async () => {
+    const {
+      data,
+    }: { data: StrapiListRelation<StrapiData<FundCreditsInterface>> } =
+      await getPatientFundCredits(patientData?.id as string);
+
+    setFundCredits(data.data);
   };
 
   const getTotalValue = useCallback(
@@ -119,10 +143,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
 
       arr?.map((v) => prices.push(v.attributes.price));
       let reduced = prices?.reduce((prev, curr) => prev + curr, 0);
-
-      const creditValues = paymentShapes.filter(
-        (item) => item.shape === "CREDIT_CARD"
-      );
 
       setTotalValue(reduced);
 
@@ -199,6 +219,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   const handleViewPayment = () => {
     if (!dateSelected)
       return alert("Adicione a data correspondente para o caixa");
+
     const notPriced = paymentShapes.map((v) => v.price === 0);
     const notShape = paymentShapes.map((v) => v.shape === "");
     const prices = paymentShapes.map((v) => v.price);
@@ -206,27 +227,51 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     const walletPrice = wallets.map((v) => v.price);
     const walletReduce = walletPrice.reduce((acc, curr) => acc + curr, 0);
     const pricesReduced = prices.reduce((prev, curr) => prev + curr, 0);
+    const totalWalletsPrice = wallets.reduce((total, wallet) => {
+      return total + (wallet?.price ?? 0);
+    }, 0);
 
     if (notShape.find((v) => v === true))
-      return alert(
+      return toast.error(
         "É necessário informar como será pago para todas formas de pagamento."
       );
     if (notPriced.find((v) => v === true))
-      return alert(
+      return toast.error(
         "É obrigatório informar o valor de todas formas de pagamento!"
       );
 
     if (creditAddition < 0) {
-      return alert("Não é possível adicionar acréscimo menor que 0");
+      return toast.error("Não é possível adicionar acréscimo menor que 0");
     }
 
-    if (wallets.length > 1) {
-      return alert(
-        "Não é possível adicionar duas formas de pagamento de fundo de carteira, adicione somente 1 com o valor até o limite da carteira!"
+    if (pricesReduced < totalValue)
+      return toast.error(
+        "Os valores digitados não podem ser menor que o valor total!"
       );
+
+    for (let i = 0; i < paymentShapes.length; i++) {
+      const w = paymentShapes[i];
+
+      if (
+        !!w.fundCredits &&
+        w.price + w.fundCredits?.attributes?.used_value >
+          (
+            w.fundCredits?.attributes.payment as unknown as StrapiRelation<
+              StrapiData<PaymentsInterface>
+            >
+          ).data.attributes.total_value
+      ) {
+        return toast.error(
+          `Crédito do dia ${new Date(
+            (
+              w.fundCredits?.attributes?.payment as unknown as StrapiRelation<
+                StrapiData<PaymentsInterface>
+              >
+            ).data.attributes.date
+          ).toLocaleDateString()} está ultrapassando o valor que o paciente possui de crédito`
+        );
+      }
     }
-    if (walletReduce > patientData?.attributes?.credits!)
-      return alert("Valor acima do fundo de crédito do paciente!");
 
     if (bankCheckInfos.length > 0) {
       const priceTotalCheck = paymentShapes.find(
@@ -241,11 +286,11 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       );
 
       if (pricesCheckReduced > priceTotalCheck!)
-        return alert(
+        return toast.error(
           "Os valores somados de cheques não podem ultrapassar o total"
         );
       if (pricesCheckReduced < priceTotalCheck!)
-        return alert(
+        return toast.error(
           "Os valores somados de cheques não podem ser inferior ao total"
         );
     }
@@ -285,6 +330,10 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
 
   const hasCheckPayment =
     paymentShapes.filter((v) => v.shape === "BANK_CHECK").length > 0;
+
+  useEffect(() => {
+    handleGetPatientFundCredits();
+  }, []);
 
   useEffect(() => {
     getTotalValue(treatmentsForPayment);
@@ -357,10 +406,10 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
           <>
             <Box
               p={2}
-              sx={{ background: "#f3f3f3" }}
-              width="100%"
               my={2}
+              width="100%"
               borderRadius={2}
+              sx={{ background: "#f3f3f3" }}
             >
               <Typography variant="subtitle1" my={1} color="orangered">
                 Os tratamentos a pagar serão:
@@ -387,6 +436,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
 
             <AddPaymentShape
               paymentShapes={paymentShapes}
+              fundCredits={fundCredits}
               handleAddPaymentShape={handleAddPaymentShape}
               onChangePaymentShape={onChangePaymentShape}
               onChangeBankCheckInfos={handleUpdateCheckInformations}

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { useRouter } from "next/router";
 import { Box } from "@mui/material";
-import PatientDetails from "@/components/admin/patient";
 import dynamic from "next/dynamic";
 import Loading from "@/components/loading";
 
@@ -11,7 +10,7 @@ const SingleUser = dynamic(import("@/components/admin/patient"), {
   ssr: false,
 });
 
-const PatientSingle = (props: any) => {
+const PatientSingle = () => {
   const router = useRouter();
   const card = router?.query?.cardId ?? "";
   const [patientCardId, setPatientCardId] = useState(card);

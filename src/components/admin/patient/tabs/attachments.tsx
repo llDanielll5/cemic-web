@@ -315,8 +315,9 @@ const PatientAttachments = () => {
 
               <Link
                 passHref
-                href={`http://localhost:17000${attachments?.[i]?.file?.data?.attributes?.url}`}
+                href={`${attachments?.[i]?.file?.data?.attributes?.url}`}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <Button variant="contained">Visualizar</Button>
               </Link>

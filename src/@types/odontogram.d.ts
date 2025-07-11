@@ -1,22 +1,11 @@
-export interface ToothsInterface {
-  id?: string;
-  attributes: {
-    name: string;
-    price: number;
-    hasPayed?: boolean | null;
-    hasFinished?: boolean | null;
-    hasAbsent?: boolean | null; //dente ausente
-    obs: string;
-    finishedAt?: string | null;
-    finishedBy?: any | null; //dentista
-    patient?: any | null;
-    paymentProfessional?: any | null;
-    region: OdontogramRegions;
-    odontogram?: any | null;
-  };
-}
+type PatientTreatmentStatus =
+  | "WAITING"
+  | "IN_PROGRESS"
+  | "CANCELLED"
+  | "FINISHED"
+  | "SURGERY_SCHEDULED";
 
-export type OdontogramRegions =
+type OdontogramRegions =
   | "t18"
   | "t17"
   | "t16"
@@ -57,14 +46,31 @@ export type OdontogramRegions =
   | "sup_dir"
   | "total";
 
-export interface OdontogramInterface {
+interface PatientTreatmentInterface {
+  finishedAt?: string | null;
+  finishedBy?: any | null; //dentista
+  hasAbsent?: boolean | null; //dente ausente
+  hasFinished?: boolean | null;
+  hasPayed?: boolean | null;
+  name: string;
+  obs: string;
+  odontogram?: any | null;
+  patient?: any | null;
+  payment?: any | null;
+  paymentsProfessional?: any | null;
+  forwardeds?: any | null;
+  price: number;
+  region: OdontogramRegions;
+  status: PatientTreatmentStatus;
+}
+
+interface OdontogramInterface {
   patient: any;
   treatments: ToothsInterface[];
   adminInfos?: AdminInfosInterface;
 }
 
-export interface TreatmentsPatientInterface {
-  id?: string;
+interface ToothsInterface {
   name: string;
   price: number;
   hasPayed?: boolean | null;
@@ -74,8 +80,7 @@ export interface TreatmentsPatientInterface {
   finishedAt?: string | null;
   finishedBy?: any | null; //dentista
   patient?: any | null;
-  paymentsProfessional?: any | null;
+  paymentProfessional?: any | null;
   region: OdontogramRegions;
   odontogram?: any | null;
-  payment?: any | null;
 }

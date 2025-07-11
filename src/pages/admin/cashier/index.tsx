@@ -36,6 +36,7 @@ import {
 } from "@/axios/admin/cashiers";
 import { toast } from "react-toastify";
 import "react-calendar/dist/Calendar.css";
+import Head from "next/head";
 
 const CashierAdmin = () => {
   const router = useRouter();
@@ -389,6 +390,9 @@ const CashierAdmin = () => {
         justifyContent="center"
         p={2}
       >
+        <Head>
+          <title>Caixa · CEMIC</title>
+        </Head>
         <Typography variant="h3" textAlign="center">
           Escolha o tipo de caixa
         </Typography>
@@ -414,6 +418,9 @@ const CashierAdmin = () => {
 
   return (
     <Box p={2}>
+      <Head>
+        <title>Caixa · CEMIC</title>
+      </Head>
       <Stack
         direction={"row"}
         alignItems="center"

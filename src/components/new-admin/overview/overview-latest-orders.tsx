@@ -85,7 +85,11 @@ export const OverviewLatestOrders = (props: any) => {
                 "dd/MM/yyyy HH:mm"
               );
               return (
-                <TableRow hover key={order.id}>
+                <TableRow
+                  hover
+                  key={order.id}
+                  onClick={() => console.log(order)}
+                >
                   <TableCell>
                     <SeverityPill color={cashierType[cashier]}>
                       {cashierName[cashier]}
@@ -101,13 +105,15 @@ export const OverviewLatestOrders = (props: any) => {
                       <SeverityPill
                         color={
                           patientLocationColor[
-                            order?.attributes?.location as "MG" | "DF"
+                            order?.attributes?.patient?.data?.attributes
+                              ?.location as LOCATION_FILIAL
                           ]
                         }
                       >
                         {
                           patientLocationName[
-                            order?.attributes?.location as "MG" | "DF"
+                            order?.attributes?.patient?.data?.attributes
+                              ?.location as LOCATION_FILIAL
                           ]
                         }
                       </SeverityPill>

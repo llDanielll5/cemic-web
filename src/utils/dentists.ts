@@ -1,0 +1,22 @@
+export const DENTIST_SPECIALTIES_LABELS: Record<DENTIST_SPECIALTIES, string> = {
+  GENERAL: "Clínico Geral",
+  ORTHODONTIC: "Ortodontia",
+  IMPLANT: "Implantodontia",
+  PROSTHESIS: "Prótese",
+  ENDODONTIC: "Endodontia",
+  PERIODONTIC: "Periodontia",
+  PEDIATRIC: "Odontopediatria",
+  SURGERY: "Cirurgia Bucomaxilofacial",
+  RADIOLOGY: "Radiologia Odontológica",
+  PATHOLOGY: "Patologia Bucal",
+  PUBLIC_HEALTH: "Saúde Coletiva",
+  STOMATOLOGY: "Estomatologia",
+  DENTAL_AESTHETICS: "Dentística",
+  GERIATRIC: "Odontogeriatria",
+  FORENSIC: "Odontologia Legal",
+  ACUPUNCTURE: "Acupuntura Odontológica",
+  LASER: "Laserterapia",
+  HOMEOPATHY: "Homeopatia",
+  HYPNOSIS: "Hipnose Odontológica",
+  "": "", // Caso vazio
+};

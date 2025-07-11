@@ -49,7 +49,7 @@ export const handleOpenCashierDb = async (data: any) => {
 };
 
 export const generatePatientPaymentInCashier = async (data: any) => {
-  return await axiosInstance.post(`/cashier-infos/`, data);
+  return await axiosInstance.post(`/cashier-infos/`, { data });
 };
 
 export const getCashierInfo = async (id: string) => {

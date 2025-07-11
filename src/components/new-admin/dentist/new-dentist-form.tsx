@@ -5,32 +5,76 @@ import {
   Typography,
   Divider,
   Grid,
-  TextField,
   Button,
   Stack,
   MenuItem,
 } from "@mui/material";
-import { allAnamneseQuestions } from "types/patient";
-import { getViaCepInfo } from "@/axios/viacep";
 import { makeid } from "@/services/services";
 import { useRecoilValue } from "recoil";
-import { anamsVal } from "data";
-import { Formik, FormikConfig, useFormik } from "formik";
-import UserForm from "@/components/userForm";
-import UserData from "@/atoms/userData";
-import AnamneseForm from "@/components/admin/patient/components/anamnese-form";
-import {
-  getPatientWithSameCardId,
-  handleCreatePatient,
-} from "@/axios/admin/patients";
-import * as Yup from "yup";
-import CustomTextField from "@/components/customTextField";
+import { Formik, FormikHelpers } from "formik";
 import { getAllEnterpriseAddress } from "@/pages/auth/register";
 import { EnterpriseBranches } from "types/company";
+import { DENTIST_SPECIALTIES_LABELS } from "@/utils/dentists";
+import { AdminType, UserRole } from "types";
+import { unmaskText } from "@/utils";
+import { createNewDentist } from "@/axios/admin/dentists";
+import UserData from "@/atoms/userData";
+import * as Yup from "yup";
+import CustomTextField from "@/components/customTextField";
+import axiosInstance from "@/axios";
+import { UserPermissionsJsonInterface } from "types/admin";
+import { defaultDentistPermissions } from "@/_mock/users";
+import { toast } from "react-toastify";
 
 interface AnamneseProps {
   onClose: () => void;
 }
+
+interface RegisterNewUser {
+  email: string;
+  password: string;
+  name: string;
+  phone: string;
+  cpf: string;
+  rg: string;
+  userType: UserRole;
+  firstLetter: string;
+  dateBorn: string;
+  username: string;
+  location: string;
+  filial: string;
+  permissions: UserPermissionsJsonInterface;
+}
+
+const formFields = [
+  "name",
+  "phone",
+  "cpf",
+  "rg",
+  "dateBorn",
+  "email",
+  "cro",
+  "percent",
+  "specialty",
+  "filial",
+] as const;
+interface ProfessionalSubmitValues {
+  name: string;
+  phone: string;
+  cpf: string;
+  rg: string;
+  dateBorn: string;
+  email: string;
+  userType: UserRole;
+  cro: string;
+  percent: string;
+  specialty: DENTIST_SPECIALTIES;
+  filial: string;
+  location?: string;
+}
+
+type ProfessionalField = (typeof formFields)[number];
+// type ProfessionalValuesType = keyof typeof initialValues;
 
 const LabelBr = {
   name: "Nome Completo*",
@@ -43,7 +87,6 @@ const LabelBr = {
   percent: "Porcentagem",
   specialty: "Especialidade",
   filial: "Filial",
-  location: "Localização",
 };
 
 const NewDentistForm = (props: AnamneseProps) => {
@@ -53,7 +96,7 @@ const NewDentistForm = (props: AnamneseProps) => {
     { attributes: EnterpriseBranches; id: string }[]
   >([]);
 
-  const initialValues = {
+  const initialValues: ProfessionalSubmitValues = {
     name: "",
     phone: "",
     cpf: "",
@@ -66,18 +109,6 @@ const NewDentistForm = (props: AnamneseProps) => {
     specialty: "",
     filial: "",
     location: "",
-
-    //   locationData: {
-    //     neighbor: "",
-    //     cep: "",
-    //     city: "",
-    //     complement: "",
-    //     line1: "",
-    //     uf: "",
-    //     number: "",
-    //     address: "",
-    //   },
-    submit: null,
   };
 
   const validationSchema = Yup.object({
@@ -92,41 +123,95 @@ const NewDentistForm = (props: AnamneseProps) => {
     percent: Yup.string().required("A porcentagem do dentista é obrigatória"),
     specialty: Yup.string().required("Escolha a especialidade do dentista"),
     filial: Yup.string().required("Qual a filial o dentista trabalhará?"),
+    rg: Yup.string().optional(),
   });
 
-  const handleSubmit = async (values: any, helpers: any) => {
+  const handleSubmit = async (
+    values: ProfessionalSubmitValues,
+    helpers: FormikHelpers<ProfessionalSubmitValues>
+  ) => {
     try {
       let partnerId: string = "";
       partnerId = makeid(13);
 
-      return console.log({ values });
+      const location = enterpriseBranches.find(
+        (t: any) => t.attributes.filial === values.filial
+      )?.attributes?.location;
 
-      const clientData = {
-        cpf: values.userData.cpf,
-        name: values.userData.name,
-        phone: values.userData.phone,
-        rg: values.userData.rg,
-        dateBorn: values.userData.dateBorn,
-        email: values.userData.email,
-        userType: "DENTIST",
-        cro: values.userData.cro,
-        percent: values.userData.percent,
-        specialty: values.userData.specialty,
-        filial: values.userData.filial,
-        location: values.userData.location,
+      const formikData = {
+        cpf: unmaskText(values.cpf),
+        name: values.name,
+        phone: unmaskText(values.phone),
+        rg: values.rg,
+        dateBorn: values.dateBorn,
+        email: values.email,
+        userType: "DENTIST" as UserRole,
+        cro: values.cro,
+        percent: values.percent,
+        specialty: values.specialty,
+        filial: values.filial,
+        location,
       };
 
-      return await handleCreatePatient(clientData).then(
-        (res: any) => {
-          if (!!res.alert) return alert(res.alert ?? res.error);
-          props.onClose();
-        },
-        (err) => console.log(err.response)
+      const {
+        cpf,
+        cro,
+        dateBorn,
+        email,
+        filial,
+        name,
+        percent,
+        phone,
+        rg,
+        specialty,
+        userType,
+      } = formikData;
+
+      const dentistData = {
+        cro,
+        percent,
+        specialty,
+      };
+
+      const userData: RegisterNewUser = {
+        email,
+        password: "cemic123",
+        name,
+        phone,
+        cpf,
+        rg,
+        userType,
+        firstLetter: name.charAt(0).toUpperCase(),
+        dateBorn,
+        username: name.replaceAll(" ", "-").toLowerCase(),
+        location: location as string,
+        filial,
+        permissions: defaultDentistPermissions,
+      };
+
+      const { data }: { data: { jwt: string; user: Partial<AdminType> } } =
+        await axiosInstance.post(`/auth/local/register`, userData);
+
+      const userId = data?.user?.id;
+
+      const { data: axiosData } = await createNewDentist({
+        user: userId,
+        ...dentistData,
+      });
+
+      if (!!axiosData.alert)
+        return toast.error(axiosData.alert ?? axiosData?.error);
+
+      toast.success("Dentista cadastrado com sucesso!");
+      props.onClose();
+    } catch (error: any) {
+      console.log({ error: error?.response ?? error });
+      toast.error(
+        error?.alert ??
+          error?.response?.error ??
+          error?.response?.alert ??
+          "Erro ao cadastrar novo Dentista"
       );
-    } catch (err: any) {
-      helpers.setStatus({ success: false });
-      helpers.setErrors({ submit: err.message });
-      helpers.setSubmitting(false);
     }
   };
 
@@ -155,6 +240,12 @@ const NewDentistForm = (props: AnamneseProps) => {
   //   }
   // };
 
+  useEffect(() => {
+    getAllEnterpriseAddress().then((res) =>
+      setEnterpriseBranches(res.data.data)
+    );
+  }, []);
+
   return (
     <Container elevation={10}>
       <Typography variant="h5" textAlign="center" mb={2}>
@@ -168,13 +259,14 @@ const NewDentistForm = (props: AnamneseProps) => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ handleBlur, values, handleSubmit, setFieldValue }) => (
+        {({ handleBlur, values, handleSubmit: EnterSubmit, setFieldValue }) => (
           <Stack gap={2}>
             <Grid container spacing={2}>
-              {Object.keys(LabelBr).map((item, index) => (
+              {formFields.map((item, index) => (
                 <Grid item xs={12} lg={6} md={6} sm={6} key={index}>
                   <CustomTextField
                     fullWidth
+                    select={item === "filial" || item === "specialty"}
                     type={item === "dateBorn" ? "date" : undefined}
                     name={item}
                     mask={
@@ -191,28 +283,42 @@ const NewDentistForm = (props: AnamneseProps) => {
                       item === "dateBorn" ? { shrink: true } : undefined
                     }
                     croUfAddon={item === "cro"}
-                    value={(values as any)[item] as any}
+                    value={values[item]}
                     onKeyDown={({ key }) => {
-                      if (key === "Enter") return handleSubmit();
+                      if (key === "Enter") return EnterSubmit();
                     }}
                   >
-                    {item === "filial" ? (
-                      enterpriseBranches.map((option) => (
-                        <MenuItem
-                          key={option.attributes.filial}
-                          value={option.attributes.filial}
-                        >
-                          {option.attributes.filial}
-                        </MenuItem>
-                      ))
-                    ) : item === "specialty" ? (
-                      <></>
-                    ) : undefined}
+                    {item === "filial"
+                      ? enterpriseBranches.map((option, i) => (
+                          <MenuItem key={i} value={option.attributes.filial}>
+                            {option.attributes.filial}
+                          </MenuItem>
+                        ))
+                      : item === "specialty"
+                      ? Object.keys(DENTIST_SPECIALTIES_LABELS).map(
+                          (spec, index) => (
+                            <MenuItem key={index} value={spec}>
+                              {
+                                DENTIST_SPECIALTIES_LABELS[
+                                  spec as DENTIST_SPECIALTIES
+                                ]
+                              }
+                            </MenuItem>
+                          )
+                        )
+                      : undefined}
                   </CustomTextField>
                 </Grid>
               ))}
             </Grid>
-            <Button type="submit" variant="contained">
+
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                EnterSubmit();
+              }}
+              variant="contained"
+            >
               Cadastrar Dentista
             </Button>
           </Stack>

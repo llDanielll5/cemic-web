@@ -30,28 +30,22 @@ import {
   CashierInterface,
   TotalValues,
 } from "types/cashier";
-import { deletePatientPayment } from "@/axios/admin/payments";
+import {
+  deletePatientFundCredit,
+  deletePatientPayment,
+  deletePatientUsedFundCredit,
+  updatePatientFundCredit,
+  updatePatientUsedFundCredit,
+} from "@/axios/admin/payments";
 import { toast } from "react-toastify";
 import { handleUpdatePatient } from "@/axios/admin/patients";
 import PatientData from "@/atoms/patient";
 
-export interface ReceiptSingle {
-  id: string;
-  attributes: {
-    adminInfos: AdminInfosInterface;
-    date: string;
-    discount?: number;
-    payment_shapes: PaymentShapesInterface[];
-    total_value?: number;
-    treatments?: { data: ToothsInterface[] };
-    updatedAt?: string;
-    description?: string;
-  };
-}
+export type ReceiptSingle = StrapiRelation<PaymentsInterface>;
 
 interface ReceiptsProps {
   items: any[];
-  onGetValues: (values: ReceiptSingle) => void;
+  onGetValues: (values: StrapiData<PaymentsInterface>) => void;
   onEditValues?: () => void;
   onDeleteValues?: () => void;
 }
@@ -91,36 +85,69 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
       const cashierId = (
         cashier_infos.cashier as unknown as Record<"data", CashierInterface>
       )?.data?.id;
-      const totalValuesToRemove: PaymentValues = cashier_infos?.total_values;
-      const cashierTotalValues: PaymentValues = (
+      let totalValuesToRemove: PaymentValues = cashier_infos?.total_values;
+      let cashierTotalValues: PaymentValues = (
         cashier_infos?.cashier as unknown as Record<"data", CashierInterface>
       )?.data?.attributes?.total_values;
 
-      const finalValues: PaymentValues = {} as PaymentValues;
+      let finalValues: PaymentValues = {} as PaymentValues;
 
       (Object.keys(cashierTotalValues) as PaymentMethod[]).forEach((method) => {
         finalValues[method] =
           cashierTotalValues[method] - totalValuesToRemove[method];
       });
 
+      const credits =
+        patientData?.attributes?.credits! - val?.attributes?.total_value;
+
+      type FundCreditsDataType = StrapiListRelationData<FundCreditsInterface>;
+      const fundUseds = val?.attributes?.fund_useds as FundCreditsDataType;
+
+      if (
+        !val?.attributes?.hasFundCredit &&
+        (fundUseds as FundCreditsDataType).data.length > 0
+      ) {
+        for (let i = 0; i < fundUseds.data.length; i++) {
+          const element = fundUseds.data[i];
+          const fundCreditPaymentUsed = element.attributes
+            .fund_credit_payment_useds as StrapiListRelationData<FundCreditPaymentUsedInterface>;
+          for (let j = 0; j < fundCreditPaymentUsed.data.length; j++) {
+            const fUsed = fundCreditPaymentUsed.data[j];
+            const fUsedValue = fUsed.attributes.used_value;
+            const calculate = element.attributes.used_value - fUsedValue;
+            Promise.all([
+              await updatePatientFundCredit(String(element.id), {
+                used_value: calculate,
+                status: calculate === 0 ? "CREATED" : "PARTIAL_USED",
+                hasUsed: !(calculate < element.attributes.max_used_value),
+              }),
+              await deletePatientUsedFundCredit(String(fUsed.id)),
+            ]);
+          }
+        }
+      }
       if (!!val?.attributes?.hasFundCredit) {
-        await handleUpdatePatient(patientData?.id!, {
-          data: {
-            credits:
-              patientData?.attributes?.credits! - val?.attributes?.total_value,
-          },
-        });
+        const fundCredit = val?.attributes
+          ?.fund_credit as unknown as StrapiRelationData<FundCreditsInterface>;
+        Promise.all([
+          await handleUpdatePatient(patientData?.id!, { data: { credits } }),
+          await deletePatientFundCredit(String(fundCredit?.data.id)),
+        ]);
       }
       Promise.all([
         await deleteCashierInfo(cashierInfoId),
         await deletePatientPayment(paymentId),
         await updateCashierValues(cashierId, { total_values: finalValues }),
       ]);
-      toast.success("Dados de recibo removidos com sucesso!");
+      toast.success("Recibo do paciente excluído com sucesso!");
       onDeleteValues?.();
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast.error("Erro ao deletar o pagamento!");
+      toast.error(
+        error?.response?.message ??
+          error?.response ??
+          "Erro ao deletar o pagamento!"
+      );
     }
   };
 
@@ -142,18 +169,41 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((val: any, index: number) => {
+            {items.map((val: StrapiData<PaymentsInterface>, index: number) => {
               const receipt = val?.attributes;
+              const haveWalletCredit =
+                receipt.payment_shapes.filter(
+                  (k) => k.shape === "WALLET_CREDIT"
+                ).length > 0;
+
+              const notWalletValues = receipt.payment_shapes.filter(
+                (k) => k.shape !== "WALLET_CREDIT"
+              );
+
+              const paymentShapesValues = notWalletValues.map(
+                (k) => k.price + (k.creditAdditionalValue || (0 as number))
+              );
+              const reducedPaymentShapes = paymentShapesValues.reduce(
+                (prev, curr) => prev + curr,
+                0
+              );
+
+              const totalValue = haveWalletCredit
+                ? reducedPaymentShapes
+                : receipt.total_value;
+
               return (
                 <TableRow key={index}>
                   <StyledTable>
                     <Typography textAlign="center" variant="body2">
-                      {parseDateIso(receipt.date.substring(0, 10))}
+                      {parseDateIso(
+                        (receipt.date as unknown as string).substring(0, 10)
+                      )}
                     </Typography>
                   </StyledTable>
                   <StyledTable>
                     <Typography textAlign="center" variant="body2">
-                      {parseToBrl(receipt.total_value)}
+                      {parseToBrl(totalValue)}
                     </Typography>
                   </StyledTable>
                   <StyledTable align="center">

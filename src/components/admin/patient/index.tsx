@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { PatientAttributes } from "types/patient";
 import { AddressType } from "types";
-import { Box, Button, Divider, styled, Tabs } from "@mui/material";
+import { Divider, styled, Tabs } from "@mui/material";
 import { useRecoilState, useRecoilValue } from "recoil";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
@@ -29,7 +29,7 @@ import PatientFinanceTab from "./tabs/finance";
 import PatientExams from "./tabs/exams";
 import PatientProblems from "./tabs/problems";
 import PatientAttachments from "./tabs/attachments";
-import { Scrollbar } from "@/components/new-admin/comps/scrollbar";
+import { AdminInfosInterface } from "types/admin";
 
 const PatientDetails = (props: { cardId: string }) => {
   const adminData = useRecoilValue(UserData);
@@ -41,11 +41,13 @@ const PatientDetails = (props: { cardId: string }) => {
 
   const [addressModal, setAddressModal] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
-  const currTabs =
+  const currTabs: string[] =
     adminData?.userType !== "DENTIST" ? adminTabs : professionalTabs;
-  const adminUpdate = {
+  const adminUpdate: { adminInfos: AdminInfosInterface } = {
     adminInfos: {
-      ...(patientData?.attributes?.adminInfos ?? []),
+      ...(((patientData?.attributes?.adminInfos as
+        | AdminInfosInterface
+        | undefined) ?? []) as AdminInfosInterface),
       updated: adminData?.id,
       updateTimestamp: new Date(),
     },

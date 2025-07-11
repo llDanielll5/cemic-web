@@ -1,4 +1,6 @@
-export const defaultEmployeePermissions = {
+import { UserPermissionsJsonInterface } from "types/admin";
+
+export const defaultEmployeePermissions: UserPermissionsJsonInterface = {
   patients: {
     allowed: true,
     permissions: {
@@ -82,7 +84,7 @@ export const defaultEmployeePermissions = {
   },
 };
 
-export const defaultAdminPermissions = {
+export const defaultAdminPermissions: UserPermissionsJsonInterface = {
   patients: {
     allowed: true,
     permissions: {
@@ -166,7 +168,7 @@ export const defaultAdminPermissions = {
   },
 };
 
-const defaultDentistPermissions = {
+export const defaultDentistPermissions: UserPermissionsJsonInterface = {
   patients: {
     allowed: false,
     permissions: {
@@ -237,6 +239,15 @@ const defaultDentistPermissions = {
       create: false,
       update: false,
       all: false,
+    },
+  },
+  whatsapp: {
+    allowed: false,
+    permissions: {
+      all: false,
+      create: false,
+      read: false,
+      update: false,
     },
   },
 };

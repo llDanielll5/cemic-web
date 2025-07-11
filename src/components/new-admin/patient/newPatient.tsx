@@ -28,12 +28,12 @@ interface UserDefaultEdit {
   id: string;
   phone: string;
   profileImage: string;
-  role: "PATIENT" | "PRE-REGISTER" | "SELECTED";
+  role: PatientRole;
   dateBorn: string;
   sexo: string;
   anamnese: any | null;
   screeningDate: string;
-  location: "" | "DF" | "MG";
+  location: LOCATION_FILIAL;
 }
 
 interface AnamneseProps {

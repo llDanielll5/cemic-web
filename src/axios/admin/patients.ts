@@ -95,6 +95,9 @@ export const handleFilterPatientByNameOrCpf = async (
 };
 
 export const handleGetSinglePatient = async (cardId: string) => {
+  const populatePayments = (level: number, model: string) => {
+    return `populate[payments][populate][${level}]=${model}`;
+  };
   const populates = {
     lecture: "populate[lectures][populate]=*",
     address: "populate[address]=*",
@@ -107,7 +110,16 @@ export const handleGetSinglePatient = async (cardId: string) => {
     exams: "populate[exams][populate]=*",
     problems: "populate[problems][populate]=*",
     attachments: "populate[attachments][populate]=*",
-    payments: "populate[payments][populate]=*",
+    payments: `${populatePayments(0, "cashier_info")}&${populatePayments(
+      1,
+      "adminInfos"
+    )}&${populatePayments(2, "patient")}&${populatePayments(
+      3,
+      "bank_check_infos"
+    )}&${populatePayments(4, "treatments")}&${populatePayments(
+      5,
+      "payment_shapes"
+    )}&populate[payments][populate][6]=fund_credit&populate[payments][populate][7]=fund_credit.payment&populate[payments][populate][8]=fund_credit.payment_used&populate[payments][populate][9]=fund_useds&populate[payments][populate][10]=fund_useds.payment&populate[payments][populate][11]=fund_useds.payment.payment_shapes&populate[payments][populate][12]=fund_credit_payment_useds&populate[payments][populate][13]=fund_credit_payment_useds.fund_credit&populate[payments][populate][14]=fund_useds.fund_credit_payment_useds`,
     treatments: "populate[treatments][populate]=*",
     forwardedTreatments: "populate[forwardedTreatments][populate]=*",
   };
@@ -134,7 +146,7 @@ export const handleGetSinglePatient = async (cardId: string) => {
 };
 
 export const handleUpdatePatient = async (id: string, data: any) => {
-  return await axiosInstance.put(`/patients/${id}`, data);
+  return await axiosInstance.put(`/patients/${id}`, { data });
 };
 
 export const handleGetPatientCredits = async (id: string) => {

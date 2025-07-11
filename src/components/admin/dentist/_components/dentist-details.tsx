@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from "react";
-import CModal from "@/components/modal";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import {
   Box,
@@ -13,18 +12,17 @@ import {
 } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import { useRouter } from "next/router";
+import Head from "next/head";
 
 interface PaymentsDentistModalProps {
-  visible: boolean;
-  closeModal: any;
-  dentistInfos: any | null;
+  dentistInfos: StrapiData<DentistStrapiAttributes> | null;
 }
 
-const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
+const DentistDetailsSingle = (props: PaymentsDentistModalProps) => {
   const router = useRouter();
-  const { closeModal, visible, dentistInfos } = props;
+  const { dentistInfos } = props;
   const [tabIndex, setTabIndex] = useState(0);
-  const forwardeds = dentistInfos?.forwardedTreatments;
+  const forwardeds = dentistInfos?.attributes?.forwarded_treatments;
 
   const handleChangeTab = (e: any, nVal: string) => setTabIndex(parseInt(nVal));
 
@@ -40,12 +38,9 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
   };
 
   return (
-    <CModal
-      visible={visible}
-      closeModal={closeModal}
-      styles={{ width: "95vw", height: "90vh", overflow: "auto" }}
-    >
-      {/* <AlertModal
+    <Stack>
+      <Container>
+        {/* <AlertModal
         ref={modalRef}
         title="Criar um novo pagamento"
         content={renderNewPayment()}
@@ -54,9 +49,15 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
         open={modalPayment}
         
       /> */}
+        <Head>
+          <title>Dentista · nome · CEMIC</title>
+        </Head>
 
-      <Container>
-        <Paper elevation={5}>
+        <Button fullWidth onClick={router.back} variant="contained">
+          Voltar
+        </Button>
+
+        <Paper elevation={5} sx={{ mt: 4 }}>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -70,7 +71,7 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
               onClick={() =>
                 router.push({
                   pathname: "/admin/dentists/generate-payment",
-                  query: { dentist: dentistInfos.id! },
+                  query: { dentist: dentistInfos?.id! },
                 })
               }
             >
@@ -91,7 +92,7 @@ const PaymentsDentistModal = (props: PaymentsDentistModalProps) => {
 
         {renderDentistHistories(tabIndex.toString())}
       </TabContext>
-    </CModal>
+    </Stack>
   );
 };
 
@@ -126,4 +127,4 @@ const TreatmentsFinisheds = styled(Paper)`
   width: 100%;
 `;
 
-export default PaymentsDentistModal;
+export default DentistDetailsSingle;

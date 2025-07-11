@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CModal from "@/components/modal";
 import {
   Autocomplete,
@@ -22,6 +22,8 @@ import AddPaymentShape from "../components/add-payment-shape";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import PaymentTypesPatient from "../components/payment-types";
+import { parseToBrl } from "./receipt-preview";
+import Calendar from "react-calendar";
 
 interface AddCreditToPatientProps {
   visible: boolean;
@@ -36,6 +38,8 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
   const [description, setDescription] = useState<string>("");
   const [creditAddition, setCreditAddition] = useState(10);
   const [additionCreditVisible, setAdditionCreditVisible] = useState(false);
+  const [dateSelected, setDateSelected] = useState(new Date());
+  const [dateSelectedModal, setDateSelectedModal] = useState(false);
   const [cashierType, setCashierType] = useState<"Clinico" | "Implantes">(
     "Clinico"
   );
@@ -57,11 +61,10 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
       setDiscount(e.target.value);
     }
   };
-  const handleCreditValidation = (e: any) => {
-    const reg = new RegExp("[0-9]");
-    if (reg.test(e.target.value)) {
-      setCreditAddition(e.target.value);
-    }
+  const handleChangeDate = (e: any) => {
+    setDateSelected(e);
+    setDateSelectedModal(false);
+    return;
   };
   const handleUpdateCheckInformations = (v: BankCheckInformationsInterface[]) =>
     setBankCheckInfos(v);
@@ -83,41 +86,64 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
     const dataUpdate: any = {
       paymentShapes,
       bankCheckInfos: parsedBankCheckInfos ?? [],
-      totalValue,
+      totalValue: totalValueReceipt,
       discount: discount === "" ? 0 : parseInt(discount),
       cashierType: cashierType === "Clinico" ? "clinic" : "implant",
       description,
+      dateSelected,
     };
 
     onPassReceiptValues(dataUpdate);
   };
+
+  const totalValueReceipt = useMemo(() => {
+    const creditValues = paymentShapes.filter(
+      (item) => item.shape === "CREDIT_CARD"
+    );
+
+    const some = paymentShapes.reduce((acc, curr) => acc + curr.price, 0);
+
+    if (creditValues.length > 0) {
+      const mapAdditionalValues = creditValues.map(
+        (item) => item.creditAdditionalValue ?? 0
+      );
+      const creditAdditionalReduced = mapAdditionalValues.reduce(
+        (prev, curr) => prev + curr,
+        0
+      );
+      const total = some + creditAdditionalReduced;
+
+      return total;
+    }
+    return some;
+  }, [paymentShapes]);
 
   const onChangePaymentShape = useCallback(
     (paymentShape: PaymentShapesInterface[]) => {
       const creditValues = paymentShape.filter(
         (item) => item.shape === "CREDIT_CARD"
       );
-      const hasCashOrPixPayment =
-        paymentShapes.filter((item) => item.shape === "CASH").length > 0 ||
-        paymentShapes.filter((item) => item.shape === "PIX").length > 0;
-
-      // if (hasCashOrPixPayment) setDiscountVisible(true);
-      // if (!hasCashOrPixPayment) setDiscountVisible(false);
-
-      if (creditValues.length > 0) setAdditionCreditVisible(true);
-      else setAdditionCreditVisible(false);
 
       setPaymentShapes(paymentShape);
 
+      if (creditValues.length > 0) {
+        const mapAdditionalValues = creditValues.map(
+          (item) => item.creditAdditionalValue ?? 0
+        );
+        const creditAdditionalReduced = mapAdditionalValues.reduce(
+          (prev, curr) => prev + curr,
+          0
+        );
+        const total = totalValue + creditAdditionalReduced;
+        setTotalValue(total);
+        return;
+      }
+
       let values = paymentShape.map((shape) => {
-        if (shape.shape === "CREDIT_CARD") {
-          const diff = (creditAddition / 100) * shape.price;
-          return shape.price + diff;
-        } else return shape.price;
+        return shape.price;
       });
 
       let reduced = values.reduce((acc, curr) => acc + curr, 0);
-
       setTotalValue(reduced);
     },
     [totalValue, creditAddition]
@@ -135,10 +161,6 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
     if (!hasCheckPayment) setBankCheckInfos([]);
   }, [paymentShapes]);
 
-  useEffect(() => {
-    onChangePaymentShape(paymentShapes);
-  }, [creditAddition, onChangePaymentShape]);
-
   return (
     <CModal
       visible={visible}
@@ -152,15 +174,27 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
         sx={{ position: "relative" }}
         pt={1}
       >
+        <CModal
+          visible={dateSelectedModal}
+          closeModal={() => setDateSelectedModal(false)}
+        >
+          <Box display="flex" alignItems="center" flexDirection="column">
+            <Typography variant="subtitle1" mb={1} textAlign="center">
+              Selecione a data desejada:
+            </Typography>
+            <Calendar onChange={handleChangeDate} value={dateSelected} />
+          </Box>
+        </CModal>
         <Typography variant="subtitle1">Adicionar Créditos</Typography>
 
-        <h3>Total: {getTotal}</h3>
+        <h3>Total: {parseToBrl(totalValueReceipt)}</h3>
 
         <AddPaymentShape
           paymentShapes={paymentShapes}
           handleAddPaymentShape={handleAddPaymentShape}
           onChangePaymentShape={onChangePaymentShape}
           onChangeBankCheckInfos={handleUpdateCheckInformations}
+          fundCredits={[]}
         />
 
         <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
@@ -182,36 +216,29 @@ const AddCreditToPatientModal = (props: AddCreditToPatientProps) => {
           </Stack>
         </Paper>
 
-        {additionCreditVisible && (
-          <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
-            <Typography variant="subtitle1">
-              Qual o valor de Acréscimo?
-            </Typography>
-            <Stack direction={"row"} alignItems="center" columnGap={2}>
-              <TextField
-                title="Acréscimo de Crédito"
-                type="number"
-                label="Acréscimo (%)"
-                value={creditAddition}
-                onChange={handleCreditValidation}
-                fullWidth
-              />
-              <Button variant="contained" onClick={() => setCreditAddition(10)}>
-                Resetar
-              </Button>
-            </Stack>
-          </Paper>
-        )}
-
         <Paper sx={{ width: "100%", my: 2, p: 2 }} elevation={10}>
           <Typography variant="subtitle1">Escolha o tipo de Caixa</Typography>
-          <Autocomplete
-            fullWidth
-            value={cashierType}
-            options={["Clinico", "Implantes"]}
-            onChange={(e, v: any) => setCashierType(v!)}
-            renderInput={(props) => <TextField {...props} label="Caixa" />}
-          />
+          <Stack
+            direction={"row"}
+            alignItems="center"
+            justifyContent="space-between"
+            columnGap={2}
+          >
+            <Autocomplete
+              fullWidth
+              value={cashierType}
+              options={["Clinico", "Implantes"]}
+              onChange={(e, v: any) => setCashierType(v!)}
+              renderInput={(props) => <TextField {...props} label="Caixa" />}
+            />
+            <Button
+              variant="contained"
+              sx={{ width: "35%" }}
+              onClick={() => setDateSelectedModal(true)}
+            >
+              Selecionar Data
+            </Button>
+          </Stack>
         </Paper>
 
         <TextField

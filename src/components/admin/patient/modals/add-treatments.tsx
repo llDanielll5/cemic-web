@@ -113,7 +113,7 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
     let data = { ...patientOdontogram };
     let { attributes } = data;
     let treatments = attributes?.treatments.data;
-    const oldHistories = treatments.map((v: any) => {
+    const oldHistories: PatientTreatmentInterface = treatments.map((v: any) => {
       const attr = v.attributes;
       return {
         name: attr.name,

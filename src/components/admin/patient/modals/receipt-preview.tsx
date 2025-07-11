@@ -4,12 +4,12 @@ import CModal from "@/components/modal";
 import UserData from "@/atoms/userData";
 import PatientData from "@/atoms/patient";
 import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
-import { Box, Button, Divider, Stack, styled, Typography } from "@mui/material";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { Box, Button, Stack, styled, Typography } from "@mui/material";
 import { parseToothRegion } from "@/services/services";
 import { PaymentShapeTypes, ReceiptValues } from "types/payments";
 import { useRecoilValue } from "recoil";
 import { BankInformationsTable } from "@/components/table/bank-informations";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 interface ReceiptPreviewProps {
   visible: any;
@@ -143,42 +143,77 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
             width="100%"
             {...colorBlue}
           >
-            <b>Forma de Pagamento:</b> Sendo pagos{" "}
+            <b>Forma de Pagamento:</b> Sendo{" "}
             {payShapes?.length === 1 &&
               payShapes?.map((v) => {
+                const valueAdditional = (v.price / 100) * v.creditAdditional!;
                 if (v.shape === "CREDIT_CARD") {
-                  return `No ${parseShape(v.shape)} em ${v.split_times}x${
+                  return `pagos no ${parseShape(v.shape)} em ${v.split_times}x${
                     typeof v.creditAdditional === "string" &&
                     parseInt(v?.creditAdditional) > 0
-                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      ? ` (C/ ${
+                          v.creditAdditional
+                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
                       : ""
                   }`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `No ${parseShape(v.shape)} em ${
                     v.split_times
                   }x, sendo os cheques informados abaixo:`;
+                } else if (v.shape === "WALLET_CREDIT") {
+                  console.log({ v });
+                  const payment = v.fundCredits?.attributes
+                    ?.payment as unknown as StrapiRelation<
+                    StrapiData<PaymentsInterface>
+                  >;
+                  const maxValue = parseToBrl(
+                    v.fundCredits?.attributes.max_used_value
+                  );
+                  const price = parseToBrl(v.price);
+                  const day = new Date(
+                    payment.data.attributes.date
+                  ).toLocaleDateString();
+                  return `usado ${price} do crédito de ${maxValue} do paciente pago no dia ${day}`;
                 } else return `No ${parseShape(v.shape)}`;
               })}
             {payShapes?.length! > 1 &&
               payShapes?.map((v, i) => {
                 const hasSpace = i === payShapes?.length - 1 ? "" : " + ";
+                const valueAdditional = (v.price / 100) * v.creditAdditional!;
                 if (v.shape === "CREDIT_CARD") {
-                  return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
-                    v.split_times
-                  }x${
+                  return ` ${parseToBrl(v.price)} no ${parseShape(
+                    v.shape
+                  )} em ${v.split_times}x${
                     typeof v.creditAdditional === "string" &&
                     parseInt(v?.creditAdditional) > 0
-                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      ? ` (C/ ${
+                          v.creditAdditional
+                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
                       : ""
                   }${hasSpace}`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
                   }x, sendo os cheques informados abaixo${hasSpace}`;
-                } else
-                  return `${parseToBrl(v.price)} no(a) ${parseShape(
+                } else if (v.shape === "WALLET_CREDIT") {
+                  const p = v.fundCredits?.attributes
+                    ?.payment as unknown as StrapiRelation<
+                    StrapiData<PaymentsInterface>
+                  >;
+
+                  const maxValue = parseToBrl(
+                    v.fundCredits?.attributes.max_used_value
+                  );
+                  const price = parseToBrl(v.price);
+                  const day = new Date(
+                    p.data.attributes.date
+                  ).toLocaleDateString();
+                  return `usado ${price} do crédito de ${maxValue} do paciente pago no dia ${day}${hasSpace}`;
+                } else {
+                  return ` ${parseToBrl(v.price)} no(a) ${parseShape(
                     v.shape
                   )}${hasSpace}`;
+                }
               })}
           </Typography>
         )}
