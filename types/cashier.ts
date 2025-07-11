@@ -52,20 +52,18 @@ export interface CreateCashierInterface {
 }
 
 export interface CreateCashierInfosInterface {
-  data: {
-    type: "IN" | "OUT";
-    date: Date | string;
-    total_values: TotalValues;
-    description: string;
-    verifyBy?: any | null;
-    cashier?: any | null;
-    outInfo?: any | null;
-    patient?: any | null;
-    location?: "DF" | "MG";
-    filial?: string;
-    payment?: any;
-    //adicionar pagamento de profisisonal
-  };
+  type: "IN" | "OUT";
+  date: Date | string;
+  total_values: TotalValues;
+  description: string;
+  verifyBy?: any | null;
+  cashier?: any | null;
+  outInfo?: any | null;
+  patient?: any | null;
+  location?: LOCATION_FILIAL;
+  filial?: string;
+  payment?: any;
+  //adicionar pagamento de profisisonal
 }
 
 export interface LastPaymentsAdminDashboard {

@@ -16,7 +16,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 interface ReceiptSingleProps {
   visible: boolean;
   closeModal: any;
-  receiptSingleValues?: ReceiptSingle;
+  receiptSingleValues?: StrapiData<PaymentsInterface>;
 }
 
 const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
@@ -26,6 +26,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
   const receipt = receiptSingleValues?.attributes;
   const payShapes = receiptSingleValues?.attributes?.payment_shapes;
   const adminData = useRecoilValue(UserData);
+  const fundCredit = receipt?.fund_credit;
 
   const getTotal = receipt?.total_value!.toLocaleString("pt-br", {
     style: "currency",
@@ -43,6 +44,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
     if (shape === "TRANSFER") return "Transferência Bancária TED/DOC";
     if (shape === "WALLET_CREDIT") return "Carteira de Crédito";
   };
+
   return (
     <CModal
       visible={visible}
@@ -85,7 +87,11 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
 
         <Box my={2} width="100%">
           {receipt?.description === null &&
-            receipt?.treatments?.data.map((v, i: number) => (
+            (
+              receipt?.treatments as unknown as StrapiListRelation<
+                StrapiData<PatientTreatmentInterface>
+              >
+            ).data.map((v, i: number) => (
               <Stack
                 key={i}
                 direction={"row"}
@@ -153,32 +159,149 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           >
             <b>Forma de Pagamento:</b> Sendo pagos{" "}
             {payShapes?.length === 1 &&
-              payShapes?.map((v) => {
+              payShapes?.map((v: PaymentShapesInterface) => {
+                const valueAdditional = (v.price / 100) * v.creditAdditional!;
                 if (v.shape === "CREDIT_CARD") {
-                  return `No ${parseShape(v.shape)} em ${v.split_times}x${
+                  return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
+                    v.split_times
+                  }x${
                     typeof v.creditAdditional === "number" &&
                     v?.creditAdditional > 0
-                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      ? ` (C/ ${
+                          v.creditAdditional
+                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
                       : ""
                   }`;
+                } else if (v.shape === "WALLET_CREDIT") {
+                  return (
+                    v.fundCredits?.attributes
+                      ?.payment as unknown as StrapiRelation<
+                      StrapiData<PaymentsInterface>
+                    >
+                  ).data.attributes.payment_shapes.map(
+                    (w: PaymentShapesInterface, index: number) => {
+                      const p = v.fundCredits?.attributes
+                        ?.payment as unknown as StrapiRelation<
+                        StrapiData<PaymentsInterface>
+                      >;
+                      const paymentId = p.data.id;
+                      const payment = p.data.attributes;
+                      const equalsValue = v.price === payment.total_value;
+                      const valueAdditional =
+                        (w.price / 100) * w.creditAdditional!;
+
+                      if (w.shape === "CREDIT_CARD") {
+                        return `${
+                          equalsValue
+                            ? "No"
+                            : `${parseToBrl(v.price)} de ${parseToBrl(
+                                (payment.total_value -
+                                  v.fundCredits?.attributes
+                                    ?.used_value!) as number
+                              )} do`
+                        } ${parseShape(w.shape)} em ${w.split_times}x${
+                          typeof w.creditAdditional === "string" &&
+                          parseInt(w?.creditAdditional) > 0
+                            ? ` (C/ ${
+                                w.creditAdditional
+                              }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                            : ""
+                        } do crédito do paciente do dia ${new Date(
+                          payment.date
+                        ).toLocaleDateString()}`;
+                      } else if (w.shape === "BANK_CHECK") {
+                        return `No ${parseShape(w.shape)} em ${
+                          w.split_times
+                        }x, sendo os cheques informados abaixo:`;
+                      } else
+                        return `
+                                        ${
+                                          equalsValue
+                                            ? "No"
+                                            : `${parseToBrl(
+                                                v.price
+                                              )} de ${parseToBrl(
+                                                (payment.total_value -
+                                                  v.fundCredits?.attributes
+                                                    ?.used_value!) as number
+                                              )}`
+                                        } no ${parseShape(
+                          w.shape
+                        )} do crédito do paciente do dia ${new Date(
+                          payment.date
+                        ).toLocaleDateString()}`;
+                    }
+                  );
                 } else if (v.shape === "BANK_CHECK") {
                   return `No ${parseShape(v.shape)} em ${
                     v.split_times
                   }x, sendo os cheques informados abaixo:`;
-                } else return `No ${parseShape(v.shape)}`;
+                } else return `No(a) ${parseShape(v.shape)}`;
               })}
             {payShapes?.length! > 1 &&
-              payShapes?.map((v, i) => {
+              payShapes?.map((v: PaymentShapesInterface, i: number) => {
                 const hasSpace = i === payShapes?.length - 1 ? "" : " + ";
+                const valueAdditional = (v.price / 100) * v.creditAdditional!;
                 if (v.shape === "CREDIT_CARD") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
-                  }x${v.creditAdditional}${
+                  }x${
                     typeof v.creditAdditional === "number" &&
                     v?.creditAdditional > 0
-                      ? ` (C/ ${v.creditAdditional}% de acréscimo)`
+                      ? ` (C/ ${
+                          v.creditAdditional
+                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
                       : ""
                   }${hasSpace}`;
+                } else if (v.shape === "WALLET_CREDIT") {
+                  return receipt?.payment_shapes.map(
+                    (w: PaymentShapesInterface, index: number) => {
+                      const equalsValue = v.price === receipt.total_value;
+                      const valueAdditional =
+                        (w.price / 100) * w.creditAdditional!;
+
+                      if (w.shape === "CREDIT_CARD") {
+                        return `${
+                          equalsValue
+                            ? "No"
+                            : `${parseToBrl(v.price)} de ${parseToBrl(
+                                (receipt.total_value -
+                                  v.fundCredits?.attributes
+                                    ?.used_value!) as number
+                              )} do`
+                        } ${parseShape(w.shape)} em ${w.split_times}x${
+                          typeof w.creditAdditional === "string" &&
+                          parseInt(w?.creditAdditional) > 0
+                            ? ` (C/ ${
+                                w.creditAdditional
+                              }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                            : ""
+                        } do crédito do paciente do dia ${new Date(
+                          receipt.date
+                        ).toLocaleDateString()}`;
+                      } else if (w.shape === "BANK_CHECK") {
+                        return `No ${parseShape(w.shape)} em ${
+                          w.split_times
+                        }x, sendo os cheques informados abaixo:`;
+                      } else
+                        return `
+                                        ${
+                                          equalsValue
+                                            ? `${parseToBrl(v.price)}`
+                                            : `${parseToBrl(
+                                                v.price
+                                              )} de ${parseToBrl(
+                                                (receipt.total_value -
+                                                  v.fundCredits?.attributes
+                                                    ?.used_value!) as number
+                                              )}`
+                                        } no ${parseShape(
+                          w.shape
+                        )} do crédito do paciente do dia ${new Date(
+                          receipt.date
+                        ).toLocaleDateString()}${hasSpace}`;
+                    }
+                  );
                 } else if (v.shape === "BANK_CHECK") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
@@ -246,7 +369,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
           mt={5}
         >
           {adminData?.filial}{" "}
-          {new Date(receipt?.date as string).toLocaleDateString()}
+          {new Date(receipt?.date as unknown as string).toLocaleDateString()}
         </Typography>
 
         <Typography

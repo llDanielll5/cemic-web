@@ -64,6 +64,8 @@ export interface PaymentShapesInterface {
   price: number;
   split_times?: number;
   creditAdditional?: number;
+  fundCredits?: StrapiData<FundCreditsInterface>;
+  creditAdditionalValue?: number;
 }
 
 export interface PaymentInterface {
@@ -88,5 +90,6 @@ export interface ReceiptValues {
   totalValue?: number;
   discount?: number;
   dateSelected?: Date;
-  cashierType: "clinic" | "implant";
+  cashierType: CASHIER_TYPE;
+  creditsUsed?: number;
 }

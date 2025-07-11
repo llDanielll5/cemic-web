@@ -1,12 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { maskValue } from "@/services/services";
 import { parcelado } from "data";
-import {
-  BankCheckInformationsInterface,
-  PaymentShapeTypes,
-} from "types/payments";
+import { PaymentShapeTypes } from "types/payments";
 import {
   Box,
   styled,
@@ -20,14 +17,18 @@ import {
   Paper,
   Typography,
   Button,
+  Autocomplete,
 } from "@mui/material";
 import RenderBankCheckInfos from "./renderBankCheckInfos";
-import { useRecoilValue } from "recoil";
 import PatientData from "@/atoms/patient";
+import { useRecoilValue } from "recoil";
 import { toast } from "react-toastify";
+import { parseToBrl } from "../modals/receipt-preview";
+import CurrencyInput, { formatCurrencyBRL } from "@/components/currencyInput";
 
 interface PaymentTypesProps {
   index: number;
+  fundCredits: StrapiData<FundCreditsInterface>[];
   onChangeShape: (v: any) => void;
   onRemoveShape: (i: number) => void;
   onChangeBankCheckInformations: (v: any) => void;
@@ -44,14 +45,28 @@ const _mock = [
 ];
 
 const PaymentTypesPatient = (props: PaymentTypesProps) => {
-  const { onChangeShape, index, onRemoveShape, onChangeBankCheckInformations } =
-    props;
+  const {
+    onChangeShape,
+    index,
+    fundCredits,
+    onRemoveShape,
+    onChangeBankCheckInformations,
+  } = props;
   const patientData = useRecoilValue(PatientData);
   const [paymentShapeString, setPaymentShapeString] = useState("");
   const [price, setPrice] = useState("0,00");
+  const [priceFloat, setPriceFloat] = useState(0);
   const [splitTimes, setSplitTimes] = useState<string | null>(null);
   const [paymentShape, setPaymentShape] = useState<PaymentShapeTypes>("");
   const [creditAdditional, setCreditAdditional] = useState(0);
+  const [creditAdditionalValue, setCreditAdditionalValue] = useState({
+    string: "",
+    number: 0,
+  });
+  const [selectedFundCredits, setSelectedFundCredits] =
+    useState<StrapiData<FundCreditsInterface> | null>(null);
+  const [fundCreditUsed, setFundCreditUsed] = useState(0);
+  const [stringFundCreditUsed, setStringFundCreditUsed] = useState("");
   const [modal, setModal] = useState(false);
   const handleCloseModal = () => setModal(false);
 
@@ -65,12 +80,13 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
   const updateSplitBankCheck = (e: any) => setSplitTimes(e.target.value);
   const handleChange = (event: SelectChangeEvent) => {
     if (event.target.value === "Fundos de Crédito") {
-      if (
-        patientData?.attributes?.credits === null ||
-        patientData?.attributes?.credits === 0
-      ) {
-        return toast.error("Paciente não possui créditos!");
-      }
+      // console.log(patientData?.attributes);
+      // if (
+      //   patientData?.attributes?.credits === null ||
+      //   patientData?.attributes?.credits === 0
+      // ) {
+      //   return toast.error("Paciente não possui créditos!");
+      // }
     }
 
     const value: any = event.target.value;
@@ -83,16 +99,23 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
   };
 
   useEffect(() => {
-    let priceNum = parseFloat(price.replace(".", "").replace(",", "."));
     let parseSplit = splitTimes?.replaceAll("x", "");
     let splitToFloat = parseFloat?.(parseSplit ?? "");
     onChangeShape({
       shape: paymentShape,
-      price: priceNum,
+      price: priceFloat,
       split_times: splitTimes === null ? null : splitToFloat,
       creditAdditional,
+      fundCredits: selectedFundCredits,
+      creditAdditionalValue: creditAdditionalValue.number,
     });
-  }, [paymentShape, price, splitTimes, creditAdditional]);
+  }, [
+    paymentShape,
+    price,
+    splitTimes,
+    creditAdditional,
+    creditAdditionalValue,
+  ]);
 
   return (
     <>
@@ -114,13 +137,87 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
           </Select>
         </FormControl>
 
-        <TextField
+        {paymentShape === "WALLET_CREDIT" && (
+          <Autocomplete
+            options={fundCredits}
+            fullWidth
+            isOptionEqualToValue={(option, value) => option?.id === value?.id}
+            getOptionLabel={(option) => {
+              const payment = option.attributes
+                .payment as unknown as StrapiRelation<
+                StrapiData<PaymentsInterface>
+              >;
+              const strapiPayment = payment.data.attributes;
+              const fundCredit = option.attributes;
+              const totalValue =
+                fundCredit.max_used_value - fundCredit.used_value;
+
+              return `${new Date(
+                strapiPayment.date as Date
+              ).toLocaleDateString()} => Crédito de ${parseToBrl(
+                totalValue || 0
+              )}`;
+            }}
+            onChange={(e, v) => {
+              if (v === null) return;
+              const strapiPayment = v?.attributes
+                .payment as unknown as StrapiRelation<
+                StrapiData<PaymentsInterface>
+              >;
+              const hasCreditCard =
+                strapiPayment.data.attributes.payment_shapes.filter(
+                  (k) => k.shape === "CREDIT_CARD"
+                ).length > 0;
+
+              const paymentShapesValues =
+                strapiPayment.data.attributes.payment_shapes.map(
+                  (k) => k.price
+                );
+              const reducedPaymentShapes = paymentShapesValues.reduce(
+                (prev, curr) => prev + curr,
+                0
+              );
+
+              const totalValue = hasCreditCard
+                ? reducedPaymentShapes
+                : strapiPayment.data.attributes.total_value;
+              const value = totalValue - v?.attributes?.used_value || 0;
+              const stringValue = formatCurrencyBRL(value);
+              setSelectedFundCredits(v);
+              setPriceFloat(value);
+              setPrice(stringValue as string);
+            }}
+            renderInput={(props) => (
+              <TextField
+                {...props}
+                label="Pagamentos Parciais antigos"
+                title="Selecione um ou vários pagamentos anteriores do paciente"
+              />
+            )}
+          />
+        )}
+
+        <CurrencyInput
           label="Preço"
           value={price}
-          onChange={(e) => setPrice(maskValue(e.target.value))}
+          onChange={(formatted, numeric) => {
+            setPrice(formatted);
+            setPriceFloat(numeric);
+          }}
           sx={{ width: "100%" }}
           inputProps={{ maxLength: 10 }}
         />
+        {paymentShape === "CREDIT_CARD" && (
+          <CurrencyInput
+            label="Valor Acréscimo"
+            value={creditAdditionalValue.string}
+            onChange={(formatted, numeric) => {
+              setCreditAdditionalValue({ string: formatted, number: numeric });
+            }}
+            sx={{ width: "100%" }}
+            inputProps={{ maxLength: 10 }}
+          />
+        )}
 
         {paymentShape === "CREDIT_CARD" || paymentShape === "BANK_CHECK" ? (
           <FormControl sx={{ width: "40%" }}>

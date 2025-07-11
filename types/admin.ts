@@ -1,81 +1,45 @@
+import { AdminType } from "types";
+
 export interface AdminInfosInterface {
   created: any;
   updated?: any;
   createTimestamp?: Date;
   updateTimestamp?: Date;
+  history?: AdminHistoryOfDay;
 }
 
-export interface UserPermissionsJsonInterface {
-  patients: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  dentists: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  partners: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  screenings: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  treatments: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  lectures: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  cashier: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
-  warehouse: {
-    allowed: boolean;
-    permissions: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      all: boolean;
-    };
-  };
+interface AdminDateHistory {
+  date: string;
+  admin: Pick<AdminType, "name" | "id" | "role">;
+  updates: PatientTreatmentInterface[];
 }
+
+export type AdminHistoryOfDay = Record<string, AdminDateHistory>;
+
+interface Permissions {
+  read: boolean;
+  create: boolean;
+  update: boolean;
+  all: boolean;
+}
+
+interface AllowPermissions {
+  allowed: boolean;
+  permissions: Permissions;
+}
+
+type ModulesForPermissions =
+  | "patients"
+  | "dentists"
+  | "partners"
+  | "screenings"
+  | "treatments"
+  | "lectures"
+  | "cashier"
+  | "warehouse"
+  | "whatsapp";
+
+export type UserPermissionsJsonInterface = Record<
+  ModulesForPermissions,
+  AllowPermissions
+>;

@@ -22,24 +22,7 @@ export type allAnamneseQuestions =
   | "É Hipertenso?"
   | "Está gravida?";
 
-export interface AnamneseQuestions {
-  "Está tomando alguma medicação no momento?": AnswerType;
-  "Sofre ou sofreu de algum problema no coração?": AnswerType;
-  "É diabético?": AnswerType;
-  "Possui dificuldade de cicatrização?": AnswerType;
-  "Tem ou teve alguma doença nos rins ou fígado?": AnswerType;
-  "Sofre de epilepsia?": AnswerType;
-  "Já esteve hospitalizado por algum motivo?": AnswerType;
-  "Tem anemia?": AnswerType;
-  "É alérgico a algum medicamento?": AnswerType;
-  "Já teve algum problema com anestésicos?": AnswerType;
-  "Tem ansiedade?": AnswerType;
-  "Faz uso de AAS?": AnswerType;
-  "É fumante?": AnswerType;
-  "Consome bebidas alcoólicas?": AnswerType;
-  "É Hipertenso?": AnswerType;
-  "Está gravida?": AnswerType;
-}
+export type AnamneseQuestions = Record<allAnamneseQuestions, AnswerType>;
 
 export interface PatientTreatments {
   all: TreatmentPlanInterface[];

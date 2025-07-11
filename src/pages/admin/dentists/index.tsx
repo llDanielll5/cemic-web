@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { Box, Button, Stack, Typography, styled } from "@mui/material";
-import { getDentistSingle, getListOfDentists } from "@/axios/admin/dentists";
+import {
+  getAllDentists,
+  getDentistSingle,
+  getListOfDentists,
+} from "@/axios/admin/dentists";
 import { CompaniesSearch } from "@/components/new-admin/companies/companies-search";
 import CardDentist from "@/components/admin/dentist/_components/card-dentist";
 import PaymentsDentistModal from "@/components/admin/dentist/modals/payments";
@@ -9,8 +13,11 @@ import AddIcon from "@mui/icons-material/Add";
 import CModal from "@/components/modal";
 import NewDentistForm from "@/components/new-admin/dentist/new-dentist-form";
 import Head from "next/head";
+import { DentistTable } from "@/components/table/dentist-table";
+import { useRouter } from "next/router";
 
 const DentistPage = () => {
+  const { push } = useRouter();
   const [dentists, setDentists] = useState<any[]>([]);
   const [filterValue, setFilterValue] = useState("");
   const [paymentModal, setPaymentModal] = useState(false);
@@ -18,18 +25,14 @@ const DentistPage = () => {
   const [newDentistVisible, setNewDentistVisible] = useState(false);
 
   const handleGetAllDentists = async () => {
-    return await getListOfDentists().then(
-      (res) => setDentists(res.data),
+    return await getAllDentists().then(
+      (res) => setDentists(res.data.data),
       (err) => console.log(err.response)
     );
   };
 
   const handleGetDentistPayments = async (id: string) => {
-    setPaymentModal(true);
-    return await getDentistSingle(id).then(
-      (res) => setDentistSingle(res.data),
-      (err) => console.log(err.response)
-    );
+    return await push(`/admin/dentists/${id}`);
   };
 
   const handleChangeDentistVisible = () =>
@@ -37,7 +40,7 @@ const DentistPage = () => {
 
   const handleDentistAdded = async () => {
     handleChangeDentistVisible();
-    // return await getPatients(currPage, pageSize, sort);
+    await handleGetAllDentists();
   };
 
   useEffect(() => {
@@ -50,12 +53,6 @@ const DentistPage = () => {
         <title>Dentistas · CEMIC</title>
       </Head>
 
-      <PaymentsDentistModal
-        visible={paymentModal}
-        closeModal={() => setPaymentModal(false)}
-        dentistInfos={dentistSingle}
-      />
-
       <CModal
         styles={{ width: "90vw", overflow: "auto", height: "95vh" }}
         visible={newDentistVisible}
@@ -64,7 +61,7 @@ const DentistPage = () => {
         <NewDentistForm onClose={handleDentistAdded} />
       </CModal>
 
-      <Stack maxWidth={"xl"} spacing={3}>
+      <Stack maxWidth={"xl"} spacing={3} mb={4}>
         <Stack
           alignItems="center"
           justifyContent="space-between"
@@ -86,16 +83,19 @@ const DentistPage = () => {
         />
       </Stack>
 
-      <GridContainer>
-        {dentists?.map((val, index) => (
-          <CardDentist
-            key={index}
-            dentistInfos={val}
-            onGetDetails={(id) => console.log(id)}
-            onGetPayments={handleGetDentistPayments}
-          />
-        ))}
-      </GridContainer>
+      <Stack gap={2}>
+        <DentistTable
+          items={dentists}
+          onClick={(t) => console.log(t)}
+          onGetPaymentDetails={handleGetDentistPayments}
+        />
+      </Stack>
+      {/*  <CardDentist
+             key={index}
+             dentistInfos={val}
+             onGetDetails={(id) => console.log(id)}
+             onGetPayments={handleGetDentistPayments}
+           /> */}
     </Container>
   );
 };

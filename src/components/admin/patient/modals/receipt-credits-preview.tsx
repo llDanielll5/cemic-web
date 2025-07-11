@@ -128,9 +128,18 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
           >
             <b>Forma de Pagamento:</b> Sendo pagos{" "}
             {payShapes?.length === 1 &&
-              payShapes?.map((v: any) => {
+              payShapes?.map((v: PaymentShapesInterface) => {
                 if (v.shape === "CREDIT_CARD") {
-                  return `No ${parseShape(v.shape)} em ${v.split_times}x`;
+                  const valueAdditional = (v.price / 100) * v.creditAdditional!;
+
+                  return `No ${parseShape(v.shape)} em ${v.split_times}x${
+                    typeof v.creditAdditional === "string" &&
+                    parseInt(v?.creditAdditional) > 0
+                      ? ` (C/ ${
+                          v.creditAdditional
+                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                      : ""
+                  }`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `No ${parseShape(v.shape)} em ${
                     v.split_times
@@ -140,10 +149,18 @@ const ReceiptCreditsPreview = (props: ReceiptCreditsPreviewProps) => {
             {payShapes?.length! > 1 &&
               payShapes?.map((v: any, i: number) => {
                 const hasSpace = i === payShapes?.length - 1 ? "" : " + ";
+                const valueAdditional = (v.price / 100) * v.creditAdditional!;
                 if (v.shape === "CREDIT_CARD") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times
-                  }x${hasSpace}`;
+                  }x${
+                    typeof v.creditAdditional === "string" &&
+                    parseInt(v?.creditAdditional) > 0
+                      ? ` (C/ ${
+                          v.creditAdditional
+                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                      : ""
+                  }${hasSpace}`;
                 } else if (v.shape === "BANK_CHECK") {
                   return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
                     v.split_times

@@ -25,7 +25,16 @@ axiosInstance.interceptors.request.use(
 );
 export default axiosInstance;
 
+const fundCreditPaymentUseds = "fund-credit-payment-useds";
+
 export const endpoints = {
   HOME: "/",
   ADMIN: "/admin",
+  FUND_CREDIT_PAYMENT_USED: {
+    FIND: `/${fundCreditPaymentUseds}`,
+    FIND_ONE: (id: string) => `/${fundCreditPaymentUseds}/${id}`,
+    DELETE: (id: string) => `/${fundCreditPaymentUseds}/${id}`,
+    CREATE: `/${fundCreditPaymentUseds}`,
+    UPDATE: (id: string) => `/${fundCreditPaymentUseds}/${id}`,
+  },
 };

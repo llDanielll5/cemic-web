@@ -3,7 +3,9 @@ import { Modal, Box, Typography } from "@mui/material";
 
 interface ModalInterface {
   visible: any;
-  closeModal: any;
+  closeModal:
+    | ((event: {}, reason: "backdropClick" | "escapeKeyDown") => void)
+    | undefined;
   children: React.ReactNode;
   styles?: React.CSSProperties;
 }

@@ -18,3 +18,19 @@ export const getDentistSingle = async (dentistId: string) => {
 export const handleCreateForwardPatientTreatments = async (data: any) => {
   return await axiosInstance.post(`/forwarded-treatments`, { data });
 };
+
+export const createNewDentist = async (data: any) => {
+  return await axiosInstance.post(`/dentists`, { data });
+};
+
+export const getAllDentists = async () => {
+  return await axiosInstance.get(
+    `/dentists?populate[user]=*&populate[forwarded_treatments]=*&populate[patients]=*`
+  );
+};
+
+export const getSingleDentist = async (id: string) => {
+  return await axiosInstance.get(
+    `/dentists/${id}?populate[user]=*&populate[forwarded_treatments]=*&populate[patients]=*`
+  );
+};

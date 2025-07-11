@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
+import React, { useState } from "react";
+import AlertModal from "@/components/modal/alert-modal";
 import ToothHistoryTable from "@/components/table/toothHistory";
 import AddPatientTreatmentModal from "../modals/add-treatments";
 import { formatISO } from "date-fns";
@@ -19,12 +19,12 @@ import {
   Menu,
   Autocomplete,
 } from "@mui/material";
-import { useRecoilValue } from "recoil";
-import UserData from "@/atoms/userData";
-import { updateOdontogramDetails } from "@/axios/admin/odontogram";
 import PatientData from "@/atoms/patient";
-import AlertModal from "@/components/modal/alert-modal";
+import UserData from "@/atoms/userData";
 import { toast } from "react-toastify";
+import { useRecoilValue } from "recoil";
+import { updateOdontogramDetails } from "@/axios/admin/odontogram";
+import { AdminHistoryOfDay, AdminInfosInterface } from "types/admin";
 
 interface OdontogramPatientDetailsInterface {
   patientOdontogram: any;
@@ -156,7 +156,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
         setConfirmDeleteModal(false);
         handleClose();
         onUpdatePatient();
-        toast.error("Tratammento deletado com sucesso!");
+        toast.success("Tratamento deletado com sucesso!");
       },
       (err) => console.log(err.response)
     );
@@ -167,14 +167,20 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     setDeleteTreatmentId(id);
   };
 
-  const handleSubmitTreatment = async (data: any, odontogramId: any) => {
-    const toothValues: any[] = [];
-
+  const handleSubmitTreatment = async (
+    data: {
+      newTreatment: PatientTreatmentInterface;
+      treatments: PatientTreatmentInterface[];
+      region: string;
+    },
+    odontogramId: any
+  ) => {
     const { treatments, newTreatment } = data;
 
     let newDate = formatISO(new Date()).substring(0, 10);
-    let history = {};
-    let oldHistories = patientOdontogram?.attributes?.adminInfos?.history;
+    let history: AdminHistoryOfDay = {};
+    let oldHistories: AdminHistoryOfDay =
+      patientOdontogram?.attributes?.adminInfos?.history;
 
     history = {
       ...(oldHistories ?? {}),
@@ -190,25 +196,26 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     };
 
     const dataUpdate = { data: newTreatment };
-    let adminInfos = {
+    let adminInfos: Partial<AdminInfosInterface> = {
       updated: adminData?.id,
       updateTimestamp: new Date(),
       history,
     };
 
-    return await updatePatientTreatments(dataUpdate).then(
-      async () =>
-        await updateOdontogramDetails(odontogramId, adminInfos).then(
-          () => {
-            onUpdatePatient();
-            handleCloseAddTreatment();
-            handleClose();
-            return toast.success("Tratamento atualizado!");
-          },
-          (err) => console.log(err.response)
-        ),
-      (err) => console.log(err.response)
-    );
+    try {
+      Promise.all([
+        await updatePatientTreatments(dataUpdate),
+        await updateOdontogramDetails(odontogramId, adminInfos),
+      ]);
+
+      onUpdatePatient();
+      handleCloseAddTreatment();
+      handleClose();
+      return toast.success("Tratamento atualizado!");
+    } catch (error: any) {
+      console.log({ error: error.response ?? error });
+      return toast.error("Erro ao criar tratamento do paciente!");
+    }
   };
 
   return (

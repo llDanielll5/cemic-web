@@ -1,20 +1,19 @@
-import { useCallback, useState, useRef, useEffect } from "react";
+import { useCallback, useState, useRef } from "react";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { Layout as AuthLayout } from "src/layouts/auth/layout";
+import { handleLogin } from "@/axios/auth";
 import Loading from "@/components/loading";
 import CModal from "@/components/modal";
-import { handleLogin } from "@/axios/auth";
-import { sendPasswordResetEmail } from "firebase/auth";
+import * as Yup from "yup";
 
+import UserData from "@/atoms/userData";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getCookie, setCookie } from "cookies-next";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import UserData from "@/atoms/userData";
 import {
   Box,
   Button,
@@ -27,7 +26,8 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { getIP } from "@/services/getIp";
+import { toast } from "react-toastify";
+import { AdminType } from "types";
 
 const Page = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,33 +70,29 @@ const Page = () => {
     const { email, password } = values;
     setIsLoading(true);
     setLoadingMessage("Estamos realizando o seu login.");
-    return await handleLogin({ email, password })
-      .then(
-        async (res: any) => {
-          let jwt = res.data.jwt;
-          let user = res.data.user;
 
-          setCookie("jwt", jwt, { maxAge: 86400 });
-          setCookie("user", user, { maxAge: 86400 });
-          setUserData(user);
+    try {
+      const { data } = await handleLogin({ email, password });
+      let jwt = data.jwt;
+      let user: AdminType = data.user;
 
-          if (user.userType === "ADMIN" || user.userType === "SUPERADMIN") {
-            return router.push("/admin");
-          } else {
-            return router.push("/admin/patients");
-          }
-        },
-        (error) => {
-          setIsLoading(false);
-          if (
-            error.response.data.error.message ===
-            "Invalid identifier or password"
-          )
-            return alert("Email ou Senha incorretos!");
-          if (error.response) console.log(error.response.data.error.details);
-        }
+      setCookie("jwt", jwt, { maxAge: 86400 });
+      setCookie("user", user, { maxAge: 86400 });
+      setUserData(user);
+
+      if (user.userType === "ADMIN" || user.userType === "SUPERADMIN")
+        return router.push("/admin");
+      else return router.push("/admin/patients");
+    } catch (error: any) {
+      setIsLoading(false);
+      if (
+        error.response.data.error.message === "Invalid identifier or password"
       )
-      .finally(() => setIsLoading(false));
+        return toast.error("Email ou Senha incorretos!");
+      if (error.response) console.log(error.response.data.error.details);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleMethodChange = useCallback((event: any, value: any) => {

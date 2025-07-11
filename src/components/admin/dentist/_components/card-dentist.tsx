@@ -35,12 +35,13 @@ const CardDentist = (props: CardDentistProps) => {
         }
         sx={{ pt: 1 }}
       />
-      <CardMedia
+
+      {/* <CardMedia
         component="img"
         sx={{ maxHeight: 300 }}
         image={dentistInfos.profileImage ?? "/images/background-dentist.png"}
         alt={dentistInfos.name}
-      />
+      /> */}
 
       <CardActions sx={{ justifyContent: "center" }}>
         <Button

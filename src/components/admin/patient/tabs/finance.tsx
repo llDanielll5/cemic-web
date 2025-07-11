@@ -1,11 +1,15 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Loading from "@/components/loading";
 import PatientData from "@/atoms/patient";
 import UserData from "@/atoms/userData";
 import { toast } from "react-toastify";
 import { useRecoilValue } from "recoil";
 import { AdminInfosInterface } from "types/admin";
-import { createPatientPayment } from "@/axios/admin/payments";
+import {
+  createPatientFundCredit,
+  createPatientPayment,
+  updateFundCreditsUsedValues,
+} from "@/axios/admin/payments";
 import { handleGetTreatmentsToPay } from "@/axios/admin/odontogram";
 import { CreateCashierInfosInterface } from "types/cashier";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -34,16 +38,15 @@ import {
   PaymentShapesInterface,
   ReceiptValues,
 } from "types/payments";
-import { formatISO } from "date-fns";
-import {
-  ReceiptSingle,
-  ReceiptsPatientTable,
-} from "@/components/table/receipts-table";
+import { ReceiptsPatientTable } from "@/components/table/receipts-table";
 import {
   generatePatientPaymentInCashier,
   handleGetCashierOpened,
   updateCashierInfoValues,
 } from "@/axios/admin/cashiers";
+import { someArrValues } from "@/utils";
+import { formatISO } from "date-fns";
+import { ToothsInterface } from "types/odontogram";
 
 interface PatientFinaceTabProps {
   onUpdatePatient: any;
@@ -60,9 +63,10 @@ interface CreatePayment {
     adminInfos: AdminInfosInterface;
     treatments: any[];
     filial?: string;
-    location?: "DF" | "MG" | "";
+    location?: LOCATION_FILIAL;
     hasFundCredit?: boolean;
     hasFundPayed?: boolean;
+    fund_useds?: number[];
   };
 }
 
@@ -78,9 +82,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const [addCreditModal, setAddCreditModal] = useState(false);
   const [treatmentsToPay, setTreatmentsToPay] = useState<any>([]);
   const [receiptPreviewVisible, setReceiptPreviewVisible] = useState(false);
-  const [receiptSingle, setReceiptSingle] = useState<ReceiptSingle | null>(
-    null
-  );
+  const [receiptSingle, setReceiptSingle] =
+    useState<StrapiData<PaymentsInterface> | null>(null);
   const [receiptValues, setReceiptValues] = useState<ReceiptValues | null>(
     null
   );
@@ -96,21 +99,27 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
     setIsLoading(false);
     if (notPayeds.length === 0)
-      return alert("Não há tratamentos sem pagamento deste paciente!");
+      return toast.error("Não há tratamentos sem pagamento deste paciente!");
     setTreatmentsToPay(notPayeds);
   };
   const handleAddCredits = async () => {
     setAddCreditModal(true);
   };
 
+  const getSomeValues: (arr: any[]) => number = (arr: any[]) => {
+    if (arr.length > 0) return someArrValues(arr);
+    return 0;
+  };
+
   const handleSubmitCredits = async () => {
     setIsLoading(true);
     setLoadingMessage("Adicionando Fundos de Crédito para o paciente!");
     const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
+    const creditDate: Date = receiptCredits.dateSelected;
     const dataUpdate: { data: PaymentsInterface } = {
       data: {
         adminInfos,
-        date: new Date(),
+        date: creditDate,
         patient: patientData?.id,
         total_value: receiptCredits!.totalValue!,
         discount: Number.isNaN(receiptCredits?.discount)
@@ -132,7 +141,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       setIsLoading(false);
     };
     const cashierType: "clinic" | "implant" = receiptCredits?.cashierType!;
-    const isoDate = formatISO(new Date()).substring(0, 10);
+    const isoDate = formatISO(new Date(creditDate)).substring(0, 10);
+
     const { data: resData } = await handleGetCashierOpened(
       isoDate,
       cashierType,
@@ -147,114 +157,156 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       return;
     }
 
-    let cashValues: any[] = [];
-    let creditValues: any[] = [];
-    let debitValues: any[] = [];
-    let pixValues: any[] = [];
-    let bankCheckValues: any[] = [];
-    let transferValues: any[] = [];
+    let cashValues: number[] = [];
+    let creditValues: number[] = [];
+    let debitValues: number[] = [];
+    let pixValues: number[] = [];
+    let bankCheckValues: number[] = [];
+    let transferValues: number[] = [];
+    let creditAdditionalValues: number[] = [];
 
-    receiptCredits?.paymentShapes?.forEach((v: any) => {
+    receiptCredits?.paymentShapes?.forEach((v: PaymentShapesInterface) => {
       if (v.shape === "CASH") cashValues.push(v.price);
       if (v.shape === "BANK_CHECK") bankCheckValues.push(v.price);
-      if (v.shape === "CREDIT_CARD") creditValues.push(v.price);
       if (v.shape === "DEBIT_CARD") debitValues.push(v.price);
       if (v.shape === "TRANSFER") transferValues.push(v.price);
       if (v.shape === "PIX") pixValues.push(v.price);
+      if (v.shape === "CREDIT_CARD") {
+        creditValues.push(v.price);
+        creditAdditionalValues.push(v.creditAdditionalValue || (0 as number));
+      }
     });
 
     const values = {
-      bank_check:
-        bankCheckValues.length > 0
-          ? bankCheckValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
-      cash:
-        cashValues.length > 0
-          ? cashValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
+      bank_check: getSomeValues(bankCheckValues),
+      transfer: getSomeValues(transferValues),
       credit:
-        creditValues.length > 0
-          ? creditValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
-      debit:
-        debitValues.length > 0
-          ? debitValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
+        getSomeValues(creditValues) + getSomeValues(creditAdditionalValues),
+      debit: getSomeValues(debitValues),
+      cash: getSomeValues(cashValues),
+      pix: getSomeValues(pixValues),
       out: 0,
-      pix:
-        pixValues.length > 0
-          ? pixValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
-      transfer:
-        transferValues.length > 0
-          ? transferValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
     };
 
     const cashierInfoData: CreateCashierInfosInterface = {
-      data: {
-        date: new Date(),
-        description: receiptCredits.description,
-        type: "IN",
-        cashier: hasOpenedCashier[0].id!,
-        outInfo: null,
-        verifyBy: null,
-        total_values: values,
-        patient: patientData?.id!,
-      },
+      date: new Date(),
+      description: receiptCredits.description,
+      type: "IN",
+      cashier: hasOpenedCashier[0].id!,
+      outInfo: null,
+      verifyBy: null,
+      total_values: values,
+      patient: patientData?.id!,
     };
 
     if (receiptValues?.dateSelected! > new Date())
       return toast.error("A data selecionada não pode ser futura.");
 
-    return await createPatientPayment(dataUpdate).then(
-      async ({ data: paymentData }) => {
-        setLoadingMessage("Atualizando o caixa do Dia!");
-        return await generatePatientPaymentInCashier(cashierInfoData).then(
-          async ({ data: cashierInfoData }) => {
-            setLoadingMessage("Estamos atualizando informações do paciente...");
+    try {
+      const {
+        data: paymentData,
+      }: { data: StrapiRelation<StrapiData<PaymentsInterface>> } =
+        await createPatientPayment(dataUpdate);
+      setLoadingMessage("Atualizando o caixa do Dia!");
 
-            const { data } = await handleGetPatientCredits(patientData?.id!);
-            const oldCredits = data.data?.attributes?.credits;
-            const cashierInfoId = cashierInfoData.data.id;
-            const paymentId = paymentData?.data?.id;
+      const {
+        data: cashierInfoAxiosData,
+      }: { data: StrapiRelation<StrapiData<CashierInfosInterface>> } =
+        await generatePatientPaymentInCashier(cashierInfoData);
+      setLoadingMessage("Estamos atualizando informações do paciente...");
 
-            await updateCashierInfoValues(cashierInfoId, {
-              payment: paymentId,
-            });
+      const { data } = await handleGetPatientCredits(patientData?.id!);
+      const oldCredits = data.data?.attributes?.credits;
+      const cashierInfoId = cashierInfoAxiosData.data.id;
+      const paymentId = paymentData?.data?.id;
 
-            return await handleUpdatePatient(patientData?.id!, {
-              data: { credits: oldCredits + receiptCredits!.totalValue },
-            }).then(
-              async () => handleConclusion(),
-              (err) => {
-                setIsLoading(false);
-                console.log(err.response);
-              }
-            );
-          },
-          (err) => {
-            setIsLoading(false);
-            console.log(err);
-          }
-        );
-      },
-      (err) => console.log(err.response)
-    );
+      await updateCashierInfoValues(String(cashierInfoId), {
+        payment: paymentId,
+      });
+
+      await handleUpdatePatient(patientData?.id!, {
+        data: { credits: oldCredits + receiptCredits!.totalValue },
+      });
+
+      await createPatientFundCredit({
+        payment: paymentId,
+        status: "CREATED",
+        patient: patientData?.id as string,
+        used_value: 0,
+        hasUsed: false,
+        max_used_value: (
+          receiptCredits?.paymentShapes as PaymentShapesInterface[]
+        )
+          ?.map((i) => i.price)
+          .reduce((p, c) => p + c, 0),
+      });
+
+      handleConclusion();
+    } catch (err: any) {
+      toast.error(
+        err?.response?.message ??
+          err?.response ??
+          "Erro ao criar Fundo de Crédito para o paciente!"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const getPatientCredits = useCallback(async () => {
-    const fundCredits = (patient?.payments?.data as any[]).filter(
-      (filt) => filt.attributes.hasFundCredit
-    );
+  const getPatientCredits = useCallback(() => {
+    const fundCredits: StrapiData<PaymentsInterface>[] =
+      (patient?.payments?.data).filter(
+        (filt: StrapiData<Omit<PaymentsInterface, "fund_credit">>) =>
+          filt.attributes.hasFundCredit
+      );
 
-    if (fundCredits.length === 0) return;
-    const fundCreditsArr = fundCredits.map((v) => v.attributes.total_value);
+    if (fundCredits.length === 0) return 0;
 
-    return fundCreditsArr.reduce((prev, curr) => prev + curr, 0);
+    const fundCreditsArr = fundCredits.map((v) => {
+      const fundCredit = v?.attributes
+        ?.fund_credit as unknown as StrapiRelation<
+        StrapiData<FundCreditsInterface>
+      >;
+      const haveCreditCard =
+        v?.attributes?.payment_shapes.filter((k) => k.shape === "CREDIT_CARD")
+          .length > 0;
+
+      const paymentShapesValues = v?.attributes?.payment_shapes.map(
+        (k) => k.price
+      );
+      const reducedPaymentShapes = paymentShapesValues.reduce(
+        (prev, curr) => prev + curr,
+        0
+      );
+
+      const paymentTotalValue = haveCreditCard
+        ? reducedPaymentShapes
+        : v.attributes.total_value;
+      const fundCreditUsed = fundCredit?.data?.attributes?.used_value;
+
+      return paymentTotalValue - fundCreditUsed || 0; //TODO_ REMOVER ESSE 0
+    });
+
+    const value = fundCreditsArr.reduce((prev, curr) => prev + curr, 0);
+
+    return value;
   }, [patient?.payments]);
 
   const handleSubmitReceipt = async () => {
+    if (receiptValues === null) return;
+
+    const walletCreditsArr = receiptValues?.paymentShapes?.filter(
+      (p) => p.shape === "WALLET_CREDIT"
+    );
+    const walletsIds = walletCreditsArr?.map(
+      (item) => item.fundCredits?.id as number
+    );
+    const hasWalletCredit = walletCreditsArr?.length! > 0;
+
+    const walletsFundCredits = walletCreditsArr?.map(
+      (item) => item.fundCredits as StrapiData<FundCreditsInterface>
+    );
+
     setIsLoading(true);
     setLoadingMessage("Criando Pagamento do Paciente...");
 
@@ -276,6 +328,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         filial: adminData?.filial,
         hasFundCredit: false,
         hasFundPayed: false,
+        ...(hasWalletCredit ? { fund_useds: walletsIds } : {}),
       },
     };
 
@@ -285,8 +338,10 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       setReceiptValues(null);
       onUpdatePatient();
       setIsLoading(false);
+      toast.success("Sucesso ao gerar pagamento do paciente");
     };
-    const cashierType: "clinic" | "implant" = receiptValues?.cashierType!;
+
+    const cashierType: CASHIER_TYPE = receiptValues!.cashierType;
     const isoDate = formatISO(receiptValues?.dateSelected!).substring(0, 10);
     const { data: resData } = await handleGetCashierOpened(
       isoDate,
@@ -304,6 +359,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
     let cashValues: any[] = [];
     let creditValues: any[] = [];
+    let creditAdditionalValues: number[] = [];
     let debitValues: any[] = [];
     let pixValues: any[] = [];
     let bankCheckValues: any[] = [];
@@ -312,43 +368,29 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     receiptValues?.paymentShapes?.forEach((v) => {
       if (v.shape === "CASH") cashValues.push(v.price);
       if (v.shape === "BANK_CHECK") bankCheckValues.push(v.price);
-      if (v.shape === "CREDIT_CARD") creditValues.push(v.price);
       if (v.shape === "DEBIT_CARD") debitValues.push(v.price);
       if (v.shape === "TRANSFER") transferValues.push(v.price);
       if (v.shape === "PIX") pixValues.push(v.price);
+      if (v.shape === "CREDIT_CARD") {
+        creditValues.push(v.price);
+        creditAdditionalValues.push(v.creditAdditionalValue || (0 as number));
+      }
     });
 
     const values = {
-      bank_check:
-        bankCheckValues.length > 0
-          ? bankCheckValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
-      cash:
-        cashValues.length > 0
-          ? cashValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
       credit:
-        creditValues.length > 0
-          ? creditValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
-      debit:
-        debitValues.length > 0
-          ? debitValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
+        getSomeValues(creditValues) + getSomeValues(creditAdditionalValues),
+      bank_check: getSomeValues(bankCheckValues),
+      transfer: getSomeValues(transferValues),
+      debit: getSomeValues(debitValues),
+      cash: getSomeValues(cashValues),
+      pix: getSomeValues(pixValues),
       out: 0,
-      pix:
-        pixValues.length > 0
-          ? pixValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
-      transfer:
-        transferValues.length > 0
-          ? transferValues.reduce((prev, curr) => prev + curr, 0)
-          : 0,
     };
 
     let equalsNames: any = {};
 
-    receiptValues?.treatmentsForPayment.map((item: any) => {
+    receiptValues?.treatmentsForPayment.map((item: ToothsInterface) => {
       equalsNames[item.attributes.name] = [
         ...(equalsNames[item.attributes.name] ?? []),
         item.attributes.name,
@@ -369,61 +411,51 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       (s) => s.shape === "WALLET_CREDIT"
     );
     let usedVal = 0;
-    if (creditWallet) usedVal = creditWallet.price;
+    if (creditWallet) usedVal = creditWallet?.price!;
 
-    setIsLoading(false);
+    try {
+      const { data: paymentData } = await createPatientPayment(dataUpdate);
 
-    return await createPatientPayment(dataUpdate).then(
-      async ({ data: paymentData }) => {
-        const paymentId = paymentData.data.id;
-        setLoadingMessage("Atualizando o caixa do Dia!");
-        const cashierInfoData: CreateCashierInfosInterface = {
-          data: {
-            date: receiptValues?.dateSelected!,
-            description,
-            type: "IN",
-            cashier: hasOpenedCashier[0].id!,
-            outInfo: null,
-            verifyBy: null,
-            total_values: values,
-            patient: patientData?.id!,
-            location: adminData?.location as "DF" | "MG",
-            filial: adminData?.filial,
-            payment: paymentId,
-          },
-        };
-        return await generatePatientPaymentInCashier(cashierInfoData).then(
-          async (res) => {
-            setLoadingMessage("Estamos atualizando informações do paciente...");
-            return await handleUpdatePatient(patientData?.id!, {
-              data: {
-                role: "PATIENT",
-                credits: patientData?.attributes?.credits! - usedVal,
-              },
-            }).then(
-              async () => {
-                return await handleUpdateHasPayedTreatments(treatmentsIds).then(
-                  () => handleConclusion(),
-                  (err) => {
-                    setIsLoading(false);
-                    console.log(err.response);
-                  }
-                );
-              },
-              (err) => {
-                setIsLoading(false);
-                console.log(err.response);
-              }
-            );
-          },
-          (err) => console.log(err.response)
-        );
-      },
-      (err) => {
-        setIsLoading(false);
-        console.log(err.response);
-      }
-    );
+      const paymentId = paymentData.data.id;
+      await updateFundCreditsUsedValues({
+        fund_credits: walletsIds,
+        paymentId,
+        fundCredits: walletsFundCredits,
+        paymentShapes: walletCreditsArr,
+        patient: patientData?.id!,
+      });
+
+      setLoadingMessage("Atualizando o caixa do Dia!");
+      const cashierInfoData: CreateCashierInfosInterface = {
+        date: receiptValues?.dateSelected!,
+        description,
+        type: "IN",
+        cashier: hasOpenedCashier[0].id!,
+        outInfo: null,
+        verifyBy: null,
+        total_values: values,
+        patient: patientData?.id!,
+        location: adminData?.location as LOCATION_FILIAL,
+        filial: adminData?.filial,
+        payment: paymentId,
+      };
+
+      await generatePatientPaymentInCashier(cashierInfoData);
+      setLoadingMessage("Estamos atualizando informações do paciente...");
+      await handleUpdatePatient(patientData?.id!, {
+        role: "PATIENT",
+        credits: patientData?.attributes?.credits! - usedVal,
+      });
+
+      if (creditWallet) await handleUpdateHasPayedTreatments(treatmentsIds);
+
+      handleConclusion();
+    } catch (error: any) {
+      console.log(error.response ?? error);
+      toast.error("Erro ao gerar recibo do paciente!");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGetReceiptValues = (receiptValues: any) => {
@@ -443,9 +475,14 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     setReceiptCreditsPreview(false);
   };
 
-  const onGetReceiptSingle = (receipt: ReceiptSingle) =>
+  const onGetReceiptSingle = (receipt: StrapiData<PaymentsInterface>) => {
     setReceiptSingle(receipt);
+  };
   const handleCloseReceiptSingle = () => setReceiptSingle(null);
+
+  useEffect(() => {
+    const val = getPatientCredits();
+  }, [getPatientCredits]);
 
   if (isLoading)
     return (
@@ -492,13 +529,16 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           />
         )}
 
-        {patient?.credits === null || patient?.credits === 0 ? null : (
+        {patient?.credits === null || getPatientCredits() === 0 ? null : (
           <Alert
             severity="warning"
             sx={{ width: "100%", mb: 2, bgcolor: "rgba(255, 200, 10, 0.2)" }}
           >
             <Typography variant="subtitle2">
-              O paciente possui um crédito de: {parseToBrl(patient?.credits)}
+              O paciente possui um crédito de:{" "}
+              {getPatientCredits() > 0
+                ? parseToBrl(getPatientCredits())
+                : parseToBrl(patient?.credits)}
             </Typography>
           </Alert>
         )}

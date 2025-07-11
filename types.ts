@@ -33,9 +33,10 @@ export interface AddressType {
   number?: string;
 }
 
-export type XRaysType = {
-  [date: string]: any[];
-};
+// export type XRaysType = {
+//   [date: string]: any[];
+// };
+export type XRaysType = Record<string, any[]>;
 
 export interface AdminType {
   uid: string;
@@ -48,7 +49,7 @@ export interface AdminType {
   profileImage: string;
   firstLetter: string;
   role: UserRole;
-  location: "" | "DF" | "MG";
+  location: LOCATION_FILIAL;
   filial?: string;
   dateBorn: string;
   userType: UserRole;
@@ -99,5 +100,5 @@ export interface ProfessionalData {
   payments: string[];
   protocols: string[];
   role: UserRole;
-  specialty: DentistSpecialties;
+  specialty: DENTIST_SPECIALTIES;
 }

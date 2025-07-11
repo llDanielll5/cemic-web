@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
-import { Button, Paper, Typography, styled } from "@mui/material";
+import React from "react";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import PaymentTypesPatient from "./payment-types";
+import { Button, Paper, Typography, styled } from "@mui/material";
 
 interface AddPaymentShapeInterface {
   paymentShapes: any[];
+  fundCredits: StrapiData<FundCreditsInterface>[];
   handleAddPaymentShape: any;
   onChangePaymentShape: (val: any) => void;
   onChangeBankCheckInfos: (v: any) => void;
@@ -47,6 +48,7 @@ const AddPaymentShape = (props: AddPaymentShapeInterface) => {
           <PaymentTypesPatient
             key={i}
             index={i}
+            fundCredits={props.fundCredits}
             onChangeShape={(shape) => handleUpdateShapes(shape, i)}
             onChangeBankCheckInformations={onChangeBankCheckInfos}
             onRemoveShape={handleDeleteShape}
