@@ -105,7 +105,7 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
 
       if (
         !val?.attributes?.hasFundCredit &&
-        (fundUseds as FundCreditsDataType).data.length > 0
+        (fundUseds as FundCreditsDataType)?.data.length > 0
       ) {
         for (let i = 0; i < fundUseds.data.length; i++) {
           const element = fundUseds.data[i];
