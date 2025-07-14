@@ -1,10 +1,8 @@
 import axios from "axios";
 import axiosInstance, { serverUrl } from "..";
 
-export const getActualLectureDetails = async (dateString: string) => {
-  let data = { dateString };
-
-  return await axiosInstance.post(`/lectures/getLecturesByDay`, data);
+export const getActualLectureDetails = async (date: Date) => {
+  return await axiosInstance.get(`/lectures?filters[date][$eq]=${date}`);
 };
 
 export const schedulePatientLecture = async (data: any) => {

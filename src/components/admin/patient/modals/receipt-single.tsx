@@ -169,71 +169,39 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                   )} em ${v.split_times}x${
                     typeof v.creditAdditional === "number" &&
                     v?.creditAdditional > 0
-                      ? ` (C/ ${
-                          v.creditAdditional
-                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                      ? ` (${parseToBrl(v.price)} + ${parseToBrl(
+                          v.creditAdditionalValue
+                        )} (${v.creditAdditional}% de acréscimo))`
                       : ""
                   }`;
                 } else if (v.shape === "WALLET_CREDIT") {
-                  return (
-                    v.fundCredits?.attributes
-                      ?.payment as unknown as StrapiRelation<
-                      StrapiData<PaymentsInterface>
-                    >
-                  ).data.attributes.payment_shapes.map(
-                    (w: PaymentShapesInterface, index: number) => {
-                      const p = v.fundCredits?.attributes
-                        ?.payment as unknown as StrapiRelation<
-                        StrapiData<PaymentsInterface>
-                      >;
-                      const paymentId = p.data.id;
-                      const payment = p.data.attributes;
-                      const equalsValue = v.price === payment.total_value;
-                      const valueAdditional =
-                        (w.price / 100) * w.creditAdditional!;
+                  for (let i = 0; i < receipt?.payment_shapes?.length!; i++) {
+                    const w = receipt?.payment_shapes[i];
+                    if (!w) return ``;
 
-                      if (w.shape === "CREDIT_CARD") {
-                        return `${
-                          equalsValue
-                            ? "No"
-                            : `${parseToBrl(v.price)} de ${parseToBrl(
-                                (payment.total_value -
-                                  v.fundCredits?.attributes
-                                    ?.used_value!) as number
-                              )} do`
-                        } ${parseShape(w.shape)} em ${w.split_times}x${
-                          typeof w.creditAdditional === "string" &&
-                          parseInt(w?.creditAdditional) > 0
-                            ? ` (C/ ${
-                                w.creditAdditional
-                              }% de acréscimo + ${parseToBrl(valueAdditional)})`
-                            : ""
-                        } do crédito do paciente do dia ${new Date(
-                          payment.date
-                        ).toLocaleDateString()}`;
-                      } else if (w.shape === "BANK_CHECK") {
-                        return `No ${parseShape(w.shape)} em ${
-                          w.split_times
-                        }x, sendo os cheques informados abaixo:`;
-                      } else
-                        return `
-                                        ${
-                                          equalsValue
-                                            ? "No"
-                                            : `${parseToBrl(
-                                                v.price
-                                              )} de ${parseToBrl(
-                                                (payment.total_value -
-                                                  v.fundCredits?.attributes
-                                                    ?.used_value!) as number
-                                              )}`
-                                        } no ${parseShape(
-                          w.shape
-                        )} do crédito do paciente do dia ${new Date(
-                          payment.date
-                        ).toLocaleDateString()}`;
-                    }
-                  );
+                    const price = parseToBrl(w!.price);
+
+                    const paymentsUseds =
+                      (receipt?.fund_useds as StrapiListRelationData<FundCreditsInterface>) ??
+                      [];
+
+                    if (paymentsUseds.data.length === 0) return;
+
+                    const pUseds = paymentsUseds.data;
+                    // const pay = p.attributes
+                    //   .payment as StrapiRelationData<PaymentsInterface>;
+
+                    return pUseds.flatMap((p) => {
+                      const maxValue = parseToBrl(p.attributes.max_used_value);
+                      const value = p.attributes.used_value;
+                      const paymentt = p.attributes
+                        .payment as StrapiRelationData<PaymentsInterface>;
+
+                      return `usados ${price} do crédito de ${maxValue} pagos pelo paciente no dia ${new Date(
+                        paymentt.data.attributes.date
+                      ).toLocaleDateString()}`;
+                    });
+                  }
                 } else if (v.shape === "BANK_CHECK") {
                   return `pagos no ${parseShape(v.shape)} em ${
                     v.split_times
@@ -243,17 +211,16 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
             {payShapes?.length! > 1 &&
               payShapes?.map((v: PaymentShapesInterface, i: number) => {
                 const hasSpace = i === payShapes?.length - 1 ? "" : " + ";
-                const valueAdditional = (v.price / 100) * v.creditAdditional!;
 
                 if (v.shape === "CREDIT_CARD") {
-                  return `pagos ${parseToBrl(v.price)} no ${parseShape(
-                    v.shape
-                  )} em ${v.split_times}x${
+                  return `pagos ${parseToBrl(
+                    v.price + ((v.creditAdditionalValue as number) ?? 0)
+                  )} no ${parseShape(v.shape)} em ${v.split_times}x${
                     typeof v.creditAdditional === "number" &&
                     v?.creditAdditional > 0
-                      ? ` (C/ ${
-                          v.creditAdditional
-                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                      ? ` (${parseToBrl(v.price)} + ${parseToBrl(
+                          v.creditAdditionalValue
+                        )} (${v.creditAdditional}% de acréscimo))`
                       : ""
                   }${hasSpace}`;
                 } else if (v.shape === "WALLET_CREDIT") {
