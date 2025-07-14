@@ -151,9 +151,9 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
                   return `pagos no ${parseShape(v.shape)} em ${v.split_times}x${
                     typeof v.creditAdditional === "string" &&
                     parseInt(v?.creditAdditional) > 0
-                      ? ` (C/ ${
-                          v.creditAdditional
-                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                      ? `(${parseToBrl(v.price)} + ${parseToBrl(
+                          v.creditAdditionalValue
+                        )} (${v.creditAdditional}% de acréscimo))`
                       : ""
                   }`;
                 } else if (v.shape === "BANK_CHECK") {
@@ -186,9 +186,9 @@ const ReceiptPreview = (props: ReceiptPreviewProps) => {
                   )} em ${v.split_times}x${
                     typeof v.creditAdditional === "string" &&
                     parseInt(v?.creditAdditional) > 0
-                      ? ` (C/ ${
-                          v.creditAdditional
-                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                      ? `(${parseToBrl(v.price)} + ${parseToBrl(
+                          v.creditAdditionalValue
+                        )} (${v.creditAdditional}% de acréscimo))`
                       : ""
                   }${hasSpace}`;
                 } else if (v.shape === "BANK_CHECK") {
