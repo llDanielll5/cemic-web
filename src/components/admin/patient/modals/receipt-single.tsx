@@ -246,7 +246,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                 const valueAdditional = (v.price / 100) * v.creditAdditional!;
 
                 if (v.shape === "CREDIT_CARD") {
-                  return `pagos no ${parseToBrl(v.price)} no ${parseShape(
+                  return `pagos ${parseToBrl(v.price)} no ${parseShape(
                     v.shape
                   )} em ${v.split_times}x${
                     typeof v.creditAdditional === "number" &&
@@ -285,11 +285,13 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                     });
                   }
                 } else if (v.shape === "BANK_CHECK") {
-                  return `${parseToBrl(v.price)} no ${parseShape(v.shape)} em ${
+                  return `pagos ${parseToBrl(v.price)} no ${parseShape(
+                    v.shape
+                  )} em ${
                     v.split_times
                   }x, sendo os cheques informados abaixo${hasSpace}`;
                 } else
-                  return `${parseToBrl(v.price)} no(a) ${parseShape(
+                  return `pagos ${parseToBrl(v.price)} no(a) ${parseShape(
                     v.shape
                   )}${hasSpace}`;
               })}
