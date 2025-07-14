@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "react-calendar/dist/Calendar.css";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
@@ -15,21 +15,32 @@ import { LectureHours } from "types/lectures";
 import { parseDateBr, phoneMask } from "@/services/services";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { getActualLectureDetails } from "@/axios/admin/lectures";
-import { Box, Typography, IconButton, Button, styled } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Button,
+  styled,
+  Card,
+  Stack,
+  Container,
+} from "@mui/material";
 import { Scheduler } from "@aldabil/react-scheduler";
 import LecturesTable from "@/components/table/lectures-table";
 
 // import React, {ReactNode, SyntheticEvent} from 'react';
 import ApiCalendar from "react-google-calendar-api";
+import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
+import { toast } from "react-toastify";
 
-const config = {
-  clientId: process.env.GOOGLE_CLIENT_ID!,
-  apiKey: process.env.GOOGLE_API_KEY!,
-  scope: "https://www.googleapis.com/auth/calendar",
-  discoveryDocs: [
-    "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-  ],
-};
+// const config = {
+//   clientId: process.env.GOOGLE_CLIENT_ID!,
+//   apiKey: process.env.GOOGLE_API_KEY!,
+//   scope: "https://www.googleapis.com/auth/calendar",
+//   discoveryDocs: [
+//     "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+//   ],
+// };
 
 interface PatientInfos {
   participant: string;
@@ -46,15 +57,6 @@ const defaultPatientValues = {
   cpf: "",
 };
 
-const tableData = [
-  {
-    hour: "11:00",
-    name: "Daniel Mota Benevides",
-    presence: "Sim",
-    register: "Não",
-  },
-];
-
 const LecturesAdmin = () => {
   const [dateSelected, setDateSelected] = useState(new Date());
   const [calendarVisible, setCalendarVisible] = useState(false);
@@ -64,10 +66,11 @@ const LecturesAdmin = () => {
   const [isScheduling, setIsScheduling] = useState<boolean>(false);
   const hasWeekend = dateSelected.getDay() === 0 || dateSelected.getDay() === 6;
   const [lectureData, setLectureData] = useState<LectureHours>(defaultLectures);
+  const [searchPatientValue, setSearchPatientValue] = useState("");
   const [patientValues, setPatientValues] =
     useState<PatientInfos>(defaultPatientValues);
 
-  const apiCalendar = new ApiCalendar(config);
+  // const apiCalendar = new ApiCalendar(config);
 
   const notScheduleForThisDay =
     lectureData["11:00"]?.length === 0 &&
@@ -136,42 +139,31 @@ const LecturesAdmin = () => {
 
   const handleGetAllLecturesOfDay = useCallback(async () => {
     if (!dateSelected) return;
-    let date = formatISO(dateSelected).substring(0, 10);
-    return await getActualLectureDetails(date).then(
-      (res) =>
-        setLectureData({
-          "11:00": res.data["11:00"],
-          "17:00": res.data["17:00"],
-        }),
-      (err) => console.log(err.response)
-    );
+    let date = dateSelected;
+
+    try {
+      const { data } = await getActualLectureDetails(date);
+      console.log({ data });
+    } catch (error) {
+      console.log({ error });
+      toast.error("Erro ao recuperar os agendamentos de Hoje!");
+    }
   }, [dateSelected]);
 
   useEffect(() => {
     handleGetAllLecturesOfDay();
   }, [handleGetAllLecturesOfDay]);
 
-  const EVENTS = [
-    {
-      event_id: 1,
-      title: "Event 1",
-      start: new Date(new Date(new Date().setHours(9)).setMinutes(0)),
-      end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
-      disabled: true,
-      admin_id: [1, 2, 3, 4],
-    },
-  ];
-
-  function handleItemClick(event: SyntheticEvent<any>, name: string): void {
-    if (name === "sign-in") {
-      apiCalendar.handleAuthClick();
-    } else if (name === "sign-out") {
-      apiCalendar.handleSignoutClick();
-    }
-  }
+  // function handleItemClick(event: SyntheticEvent<any>, name: string): void {
+  //   if (name === "sign-in") {
+  //     apiCalendar.handleAuthClick();
+  //   } else if (name === "sign-out") {
+  //     apiCalendar.handleSignoutClick();
+  //   }
+  // }
 
   return (
-    <Container>
+    <Stack>
       {/* MODALS */}
       {isScheduling && (
         <Box position="fixed" zIndex={9999} left={0} top={0}>
@@ -207,38 +199,49 @@ const LecturesAdmin = () => {
       </Modal>
       {/* END MODALS */}
 
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        width="100%"
-        mt={2}
-        sx={{ backgroundColor: "white" }}
-      >
-        <Typography variant="h5" fontSize="18px">
-          {parseDateBr(dateSelected.toLocaleDateString())}
-        </Typography>
-      </Box>
+      <Container maxWidth="xl">
+        <Stack direction="row" justifyContent="space-between" spacing={2}>
+          <Stack spacing={3} my={4}>
+            <Typography variant="h4">Pacientes</Typography>
+          </Stack>
+        </Stack>
+        <Stack spacing={3}>
+          <Card
+            elevation={10}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mx: 2,
+              p: 2,
+            }}
+          >
+            <Typography variant="h5" fontSize="18px">
+              {parseDateBr(dateSelected.toLocaleDateString())}
+            </Typography>
+            <Button
+              endIcon={<CalendarMonthIcon />}
+              onClick={() => setCalendarVisible(true)}
+              variant="contained"
+            >
+              Selecionar Data
+            </Button>
+          </Card>
+        </Stack>
 
-      <button onClick={(e) => handleItemClick(e, "sign-in")}>sign-in</button>
-      <button onClick={(e) => handleItemClick(e, "sign-out")}>sign-out</button>
-
-      {/* <Box p={4}>
+        {/* <Box p={4}>
         <LecturesTable
           tableData={tableData}
           tableHeads={["Horário", "Paciente", "Compareceu?", "Cadastrou?"]}
         />
       </Box> */}
-    </Container>
+      </Container>
+    </Stack>
   );
 };
 
 LecturesAdmin.getLayout = (page: any) => (
   <DashboardLayout>{page}</DashboardLayout>
 );
-
-const Container = styled(Box)`
-  background-color: white;
-`;
 
 export default LecturesAdmin;

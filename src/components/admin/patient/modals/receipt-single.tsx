@@ -243,7 +243,6 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
             {payShapes?.length! > 1 &&
               payShapes?.map((v: PaymentShapesInterface, i: number) => {
                 const hasSpace = i === payShapes?.length - 1 ? "" : " + ";
-                const valueAdditional = (v.price / 100) * v.creditAdditional!;
 
                 if (v.shape === "CREDIT_CARD") {
                   return `pagos ${parseToBrl(v.price)} no ${parseShape(
@@ -253,7 +252,9 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                     v?.creditAdditional > 0
                       ? ` (C/ ${
                           v.creditAdditional
-                        }% de acréscimo + ${parseToBrl(valueAdditional)})`
+                        }% de acréscimo + ${parseToBrl(
+                          v.creditAdditionalValue
+                        )})`
                       : ""
                   }${hasSpace}`;
                 } else if (v.shape === "WALLET_CREDIT") {
