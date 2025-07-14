@@ -8,7 +8,7 @@ interface FundCreditPaymentUsedInterface {
 }
 
 interface FundCreditsInterface {
-  payment: PaymentsInterface;
+  payment: StrapiRelationData<PaymentsInterface> | PaymentsInterface;
   payment_used: PaymentsInterface;
   status: FundCreditsStatus;
   patient?: patient;

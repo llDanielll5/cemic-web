@@ -1,5 +1,5 @@
 type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
-type PatientRole = "PRE-REGISTER" | "SELECTED" | "PATIENT";
+type PatientRole = "PRE-REGISTER" | "SELECTED" | "PATIENT" | "BUDGET";
 type SexType = "MASCULINO" | "FEMININO" | "NENHUM";
 
 interface PatientInterface {

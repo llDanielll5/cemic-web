@@ -81,12 +81,12 @@ export const DashboardLayout = (props: any) => {
     PersistLogin();
   }, []);
 
-  useEffect(() => {
-    if (infosCookie === undefined) {
-      setCookie("infos1", true);
-      setInformations(true);
-    }
-  }, [infosCookie]);
+  // useEffect(() => {
+  //   if (infosCookie === undefined) {
+  //     setCookie("infos1", true);
+  //     setInformations(true);
+  //   }
+  // }, [infosCookie]);
 
   return (
     <>
