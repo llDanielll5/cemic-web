@@ -3,7 +3,8 @@ type PatientTreatmentStatus =
   | "IN_PROGRESS"
   | "CANCELLED"
   | "FINISHED"
-  | "SURGERY_SCHEDULED";
+  | "SURGERY_SCHEDULED"
+  | "SCHEDULED";
 
 type OdontogramRegions =
   | "t18"

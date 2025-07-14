@@ -47,16 +47,17 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
 
   const patient: any = patientData?.attributes;
   const patientTreatments = patient?.treatments?.data;
-  const notConcludeds = useMemo(
-    () =>
-      patientTreatments?.filter(
-        (treat: any) =>
-          treat.attributes.finishedBy.data === null &&
-          treat.attributes.payment.data !== null &&
-          treat.attributes.finishedHistory.data === null
-      ),
-    [patientTreatments]
-  );
+  console.log({ patientTreatments });
+  // const notConcludeds = useMemo(
+  //   () =>
+  //     patientTreatments?.filter(
+  //       (treat: any) =>
+  //         treat.attributes.finishedBy.data === null &&
+  //         treat.attributes.payment.data !== null &&
+  //         treat.attributes.finishedHistory.data === null
+  //     ),
+  //   [patientTreatments]
+  // );
 
   const forwardedTreatmentsOfPatient = patient?.forwardedTreatments?.data;
   const [patientTreatmentsArr, setPatientTreatmentsArr] = useState<any[]>([]);
@@ -146,9 +147,9 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
     getFinishedTreatmentsOfPatient();
   }, []);
 
-  useEffect(() => {
-    if (forwardModalVisible) setPatientTreatmentsArr(notConcludeds);
-  }, [forwardModalVisible]);
+  // useEffect(() => {
+  //   if (forwardModalVisible) setPatientTreatmentsArr(notConcludeds);
+  // }, [forwardModalVisible]);
 
   return (
     <Box mt={2}>
