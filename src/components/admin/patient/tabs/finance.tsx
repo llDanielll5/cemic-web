@@ -189,7 +189,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     };
 
     const cashierInfoData: CreateCashierInfosInterface = {
-      date: new Date(),
+      date: creditDate,
       description: receiptCredits.description,
       type: "IN",
       cashier: hasOpenedCashier[0].id!,
