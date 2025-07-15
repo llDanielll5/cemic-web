@@ -1,43 +1,34 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
-import InfoIcon from "@mui/icons-material/Info";
-import styles from "../../../styles/Admin.module.css";
 import CalendarModal from "@/components/modal/calendar";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AddPatientLecture from "@/components/dynamicAdminBody/lectures/addPatient";
 import LectureDetails from "@/components/dynamicAdminBody/lectures/lectureDetails";
-import { defaultLectures } from "data";
 import { add, formatISO } from "date-fns";
-import { parseDateBr, phoneMask } from "@/services/services";
+import { parseDateBr } from "@/services/services";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { getActualLectureDetails } from "@/axios/admin/lectures";
 import {
   Box,
   Typography,
-  IconButton,
   Button,
   Card,
   Stack,
   Container,
+  OutlinedInput,
+  InputAdornment,
+  SvgIcon,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import "react-calendar/dist/Calendar.css";
-
-import { Scheduler } from "@aldabil/react-scheduler";
+import { useRecoilValue } from "recoil";
 import LecturesTable from "@/components/table/lectures-table";
-// import React, {ReactNode, SyntheticEvent} from 'react';
-import ApiCalendar from "react-google-calendar-api";
-import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
-
-// const config = {
-//   clientId: process.env.GOOGLE_CLIENT_ID!,
-//   apiKey: process.env.GOOGLE_API_KEY!,
-//   scope: "https://www.googleapis.com/auth/calendar",
-//   discoveryDocs: [
-//     "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-//   ],
-// };
+import UserData from "@/atoms/userData";
+import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
+import "react-calendar/dist/Calendar.css";
+import { CEMIC_FILIALS } from "@/utils";
 
 interface PatientInfos {
   participant: string;
@@ -55,6 +46,8 @@ const defaultPatientValues = {
 };
 
 const LecturesAdmin = () => {
+  const adminData = useRecoilValue(UserData);
+  const hasSuperAdmin = adminData?.userType === "SUPERADMIN";
   const [dateSelected, setDateSelected] = useState(new Date());
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [addPatientVisible, setAddPatientVisible] = useState(false);
@@ -65,11 +58,20 @@ const LecturesAdmin = () => {
   const [lectureData, setLectureData] = useState<
     StrapiData<LecturesInterface>[]
   >([]);
-  const [searchPatientValue, setSearchPatientValue] = useState("");
   const [patientValues, setPatientValues] =
     useState<PatientInfos>(defaultPatientValues);
+  const [searchPatientValue, setSearchPatientValue] = useState("");
+  const searchMemoFilial = useMemo(() => {
+    if (!adminData) return "";
 
-  // const apiCalendar = new ApiCalendar(config);
+    if (hasSuperAdmin) return "";
+    return `${adminData?.filial?.toUpperCase()}-${adminData?.location.toUpperCase()}`;
+  }, [adminData, hasSuperAdmin]);
+  const [searchFilial, setSearchFilial] = useState<string | undefined>(
+    searchMemoFilial
+  );
+
+  const tableHead = ["Horário", "Paciente", "Compareceu?", "Pegou Exame?"];
 
   const handleChangeDate = (e: any) => {
     setDateSelected(e);
@@ -100,64 +102,47 @@ const LecturesAdmin = () => {
     return alert("Sucesso ao agendar sua palestra");
   };
 
-  const handleSchedule = () => {
-    if (dateSelected.getDay() === 0 || dateSelected.getDay() === 6)
-      return alert("Não é possível agendar final de semana!");
-    return setAddPatientVisible(true);
-  };
-
-  const notHaveSchedule = () => (
-    <Box display="flex" alignItems="center" justifyContent="center" mt={2}>
-      <Typography variant="subtitle2">
-        Não há agendamentos para este horário!
-      </Typography>
-    </Box>
-  );
-
-  const scheduleRender = ({ item, index }: any) => (
-    <div key={index} className={styles["name-container"]}>
-      <p>{item?.patient?.name}</p>
-      <p>{phoneMask(item?.patient?.phone)}</p>
-      {item.missed ? (
-        <h5>Paciente faltou</h5>
-      ) : (
-        <IconButton
-          onClick={() => handleGetDetails(item)}
-          sx={{ margin: 0, color: "var(--dark-blue)" }}
-        >
-          <InfoIcon />
-        </IconButton>
-      )}
-    </div>
-  );
-
   const handleGetAllLecturesOfDay = useCallback(async () => {
     if (!dateSelected) return;
     let date = formatISO(dateSelected).substring(0, 10);
+    const adminFilial = `${adminData?.filial?.toUpperCase()}-${adminData?.location.toUpperCase()}`;
+
+    const filialFilter = () => {
+      if (hasSuperAdmin && searchFilial !== "") {
+        return searchFilial;
+      } else if (!hasSuperAdmin) {
+        return adminFilial;
+      } else if (hasSuperAdmin && !searchFilial) {
+        return ``;
+      }
+    };
 
     try {
-      const { data } = await getActualLectureDetails(date);
+      const { data } = await getActualLectureDetails(
+        date,
+        searchPatientValue,
+        filialFilter()
+      );
       setLectureData(data.data as StrapiData<LecturesInterface>[]);
     } catch (error) {
       console.log({ error });
       toast.error("Erro ao recuperar os agendamentos de Hoje!");
     }
-  }, [dateSelected]);
+  }, [
+    adminData?.filial,
+    adminData?.location,
+    dateSelected,
+    hasSuperAdmin,
+    searchFilial,
+    searchPatientValue,
+  ]);
 
   useEffect(() => {
     handleGetAllLecturesOfDay();
   }, [handleGetAllLecturesOfDay]);
 
-  // function handleItemClick(event: SyntheticEvent<any>, name: string): void {
-  //   if (name === "sign-in") {
-  //     apiCalendar.handleAuthClick();
-  //   } else if (name === "sign-out") {
-  //     apiCalendar.handleSignoutClick();
-  //   }
-  // }
-
   return (
-    <Stack>
+    <Stack my={8}>
       {/* MODALS */}
       {isScheduling && (
         <Box position="fixed" zIndex={9999} left={0} top={0}>
@@ -194,25 +179,44 @@ const LecturesAdmin = () => {
       {/* END MODALS */}
 
       <Container maxWidth="xl">
-        <Stack direction="row" justifyContent="space-between" spacing={2}>
-          <Stack spacing={3} my={4}>
-            <Typography variant="h4">Pacientes</Typography>
-          </Stack>
+        <Stack mb={4}>
+          <Typography variant="h4">Palestras</Typography>
         </Stack>
-        <Stack spacing={3}>
-          <Card
-            elevation={10}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mx: 2,
-              p: 2,
-            }}
+        <Card elevation={10} sx={{ p: 2 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            spacing={2}
+            alignItems={"center"}
           >
-            <Typography variant="h5" fontSize="18px">
-              {parseDateBr(dateSelected.toLocaleDateString())}
-            </Typography>
+            <Stack spacing={3} width={"50%"}>
+              <Typography variant="h4" fontSize="18px">
+                {parseDateBr(dateSelected.toLocaleDateString())}
+              </Typography>
+            </Stack>
+
+            <Stack width={"50%"} direction={"row"} gap={2} maxHeight={"60px"}>
+              <OutlinedInput
+                defaultValue=""
+                value={searchPatientValue}
+                onChange={({ target }) => setSearchPatientValue(target.value)}
+                // onKeyDown={props.onKeyDown}
+                fullWidth
+                placeholder="Buscar paciente por Nome"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <SvgIcon color="action" fontSize="small">
+                      <MagnifyingGlassIcon />
+                    </SvgIcon>
+                  </InputAdornment>
+                }
+              />
+              <Button variant="contained" onClick={() => console.log("")}>
+                Buscar
+              </Button>
+            </Stack>
+          </Stack>
+          <Stack spacing={3} mt={2}>
             <Button
               endIcon={<CalendarMonthIcon />}
               onClick={() => setCalendarVisible(true)}
@@ -220,13 +224,32 @@ const LecturesAdmin = () => {
             >
               Selecionar Data
             </Button>
+          </Stack>
+        </Card>
+
+        {hasSuperAdmin && (
+          <Card elevation={10} sx={{ my: 3, p: 1 }}>
+            <Autocomplete
+              fullWidth
+              value={searchFilial}
+              options={CEMIC_FILIALS.map((i) => i.toUpperCase())}
+              onChange={(e, v: any) => setSearchFilial(v!)}
+              renderInput={(props) => (
+                <TextField {...props} label="Alterar Filial" />
+              )}
+            />
           </Card>
-        </Stack>
+        )}
 
         <Box p={4}>
           <LecturesTable
             tableData={lectureData}
-            tableHeads={["Horário", "Paciente", "Compareceu?", "Cadastrou?"]}
+            tableHeads={
+              adminData?.userType === "SUPERADMIN"
+                ? [...tableHead, "Localização", "Converter"]
+                : [...tableHead, "Converter"]
+            }
+            onChangeTable={handleGetAllLecturesOfDay}
           />
         </Box>
       </Container>
