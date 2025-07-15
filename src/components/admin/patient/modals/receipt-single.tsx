@@ -28,8 +28,6 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
   const adminData = useRecoilValue(UserData);
   const fundCredit = receipt?.fund_credit;
 
-  console.log({ receipt });
-
   const getTotal = receipt?.total_value!.toLocaleString("pt-br", {
     style: "currency",
     currency: "BRL",

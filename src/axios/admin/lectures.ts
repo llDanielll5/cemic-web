@@ -1,9 +1,20 @@
 import axios from "axios";
 import axiosInstance, { serverUrl } from "..";
 
-export const getActualLectureDetails = async (date: string) => {
+export const getActualLectureDetails = async (
+  date: string,
+  searchContent?: string,
+  locationFilial?: string
+) => {
+  const hasSearchContent = searchContent
+    ? `&filters[wa_schedule][name][$containsi]=${searchContent}`
+    : "";
+  const hasSearchFilial = !!locationFilial
+    ? `&filters[wa_schedule][location][$eq]=${locationFilial}`
+    : "";
+
   return await axiosInstance.get(
-    `/lectures?filters[date][$eq]=${date}&populate[0]=wa_schedule&populate[1]=patient`
+    `/lectures?filters[date][$eq]=${date}&populate[0]=wa_schedule&populate[1]=patient${hasSearchContent}${hasSearchFilial}`
   );
 };
 

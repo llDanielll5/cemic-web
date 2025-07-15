@@ -32,11 +32,11 @@ const cashierName = {
   clinic: "Clínico",
   implant: "Implante",
 };
-const patientLocationColor = {
+export const patientLocationColor: Record<LOCATION_FILIAL, string> = {
   DF: "primary",
   MG: "secondary",
 };
-const patientLocationName = {
+export const patientLocationName: Record<LOCATION_FILIAL, string> = {
   DF: "Brasília",
   MG: "Minas Gerais",
 };
@@ -84,6 +84,8 @@ export const OverviewLatestOrders = (props: any) => {
                 new Date(attr?.date),
                 "dd/MM/yyyy HH:mm"
               );
+              const location =
+                order?.attributes?.patient?.data?.attributes?.location;
               return (
                 <TableRow
                   hover
@@ -104,18 +106,10 @@ export const OverviewLatestOrders = (props: any) => {
                     <TableCell>
                       <SeverityPill
                         color={
-                          patientLocationColor[
-                            order?.attributes?.patient?.data?.attributes
-                              ?.location as LOCATION_FILIAL
-                          ]
+                          patientLocationColor[location as LOCATION_FILIAL]
                         }
                       >
-                        {
-                          patientLocationName[
-                            order?.attributes?.patient?.data?.attributes
-                              ?.location as LOCATION_FILIAL
-                          ]
-                        }
+                        {patientLocationName[location as LOCATION_FILIAL]}
                       </SeverityPill>
                     </TableCell>
                   )}
