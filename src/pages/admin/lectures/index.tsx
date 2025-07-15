@@ -1,17 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import "react-calendar/dist/Calendar.css";
 import Modal from "@/components/modal";
 import Loading from "@/components/loading";
 import InfoIcon from "@mui/icons-material/Info";
 import styles from "../../../styles/Admin.module.css";
 import CalendarModal from "@/components/modal/calendar";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AddPatientLecture from "@/components/dynamicAdminBody/lectures/addPatient";
 import LectureDetails from "@/components/dynamicAdminBody/lectures/lectureDetails";
 import { defaultLectures } from "data";
 import { add, formatISO } from "date-fns";
-import { LectureHours } from "types/lectures";
 import { parseDateBr, phoneMask } from "@/services/services";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { getActualLectureDetails } from "@/axios/admin/lectures";
@@ -20,18 +17,18 @@ import {
   Typography,
   IconButton,
   Button,
-  styled,
   Card,
   Stack,
   Container,
 } from "@mui/material";
+import { toast } from "react-toastify";
+import "react-calendar/dist/Calendar.css";
+
 import { Scheduler } from "@aldabil/react-scheduler";
 import LecturesTable from "@/components/table/lectures-table";
-
 // import React, {ReactNode, SyntheticEvent} from 'react';
 import ApiCalendar from "react-google-calendar-api";
 import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
-import { toast } from "react-toastify";
 
 // const config = {
 //   clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -65,17 +62,14 @@ const LecturesAdmin = () => {
   const [lectureID, setLectureID] = useState<string | null>(null);
   const [isScheduling, setIsScheduling] = useState<boolean>(false);
   const hasWeekend = dateSelected.getDay() === 0 || dateSelected.getDay() === 6;
-  const [lectureData, setLectureData] = useState<LectureHours>(defaultLectures);
+  const [lectureData, setLectureData] = useState<
+    StrapiData<LecturesInterface>[]
+  >([]);
   const [searchPatientValue, setSearchPatientValue] = useState("");
   const [patientValues, setPatientValues] =
     useState<PatientInfos>(defaultPatientValues);
 
   // const apiCalendar = new ApiCalendar(config);
-
-  const notScheduleForThisDay =
-    lectureData["11:00"]?.length === 0 &&
-    lectureData["17:00"]?.length === 0 &&
-    !hasWeekend;
 
   const handleChangeDate = (e: any) => {
     setDateSelected(e);
@@ -139,11 +133,11 @@ const LecturesAdmin = () => {
 
   const handleGetAllLecturesOfDay = useCallback(async () => {
     if (!dateSelected) return;
-    let date = dateSelected;
+    let date = formatISO(dateSelected).substring(0, 10);
 
     try {
       const { data } = await getActualLectureDetails(date);
-      console.log({ data });
+      setLectureData(data.data as StrapiData<LecturesInterface>[]);
     } catch (error) {
       console.log({ error });
       toast.error("Erro ao recuperar os agendamentos de Hoje!");
@@ -229,12 +223,12 @@ const LecturesAdmin = () => {
           </Card>
         </Stack>
 
-        {/* <Box p={4}>
-        <LecturesTable
-          tableData={tableData}
-          tableHeads={["Horário", "Paciente", "Compareceu?", "Cadastrou?"]}
-        />
-      </Box> */}
+        <Box p={4}>
+          <LecturesTable
+            tableData={lectureData}
+            tableHeads={["Horário", "Paciente", "Compareceu?", "Cadastrou?"]}
+          />
+        </Box>
       </Container>
     </Stack>
   );
