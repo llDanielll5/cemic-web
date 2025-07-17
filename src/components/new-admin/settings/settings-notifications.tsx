@@ -11,8 +11,10 @@ import {
   Stack,
   Typography,
   Unstable_Grid2 as Grid,
+  Accordion,
+  AccordionDetails,
 } from "@mui/material";
-import SettingsPermissions from "./settings-permissions";
+import PermissionsAccordion from "./accordion-permissions";
 
 export const SettingsNotifications = () => {
   const handleSubmit = useCallback((event: any) => {
@@ -28,10 +30,7 @@ export const SettingsNotifications = () => {
         />
         <Divider />
         <CardContent>
-          <Grid container spacing={6} wrap="wrap">
-            <SettingsPermissions />
-            <SettingsPermissions />
-          </Grid>
+          <PermissionsAccordion />
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: "flex-end" }}>

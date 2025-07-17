@@ -1,5 +1,7 @@
 import { CreateCashierInfosInterface } from "types/cashier";
 import axiosInstance from "..";
+import { getCookie } from "cookies-next";
+import { GetServerSidePropsContext } from "next";
 
 export const handleGetCashierOpened = async (
   dateIso: string,
@@ -76,9 +78,33 @@ export const handleCloseCashierOfDay = async (cashierId: string, data: any) => {
   return await axiosInstance.put(`/cashiers/${cashierId}`, { data });
 };
 
-export const handleGetLastPayments = async () => {
-  return await axiosInstance.get(
-    `/cashier-infos/?populate=*&sort[0]=date:desc&pagination[pageSize]=10&filters[type]=IN`
+export const handleGetLastPayments = async (
+  context?: GetServerSidePropsContext,
+  options: {
+    page?: number;
+    pageSize?: number;
+    sort?: "asc" | "desc";
+    date?: string; // Ex: "2025-07-16"
+  } = {}
+) => {
+  const jwt = context
+    ? getCookie("jwt", { req: context.req, res: context.res })
+    : undefined;
+
+  const { page = 1, pageSize = 10, sort = "desc", date } = options;
+
+  let filters = [`filters[type]=IN`];
+  if (date) filters.push(`filters[date][$contains]=${date}`);
+
+  return axiosInstance.get(
+    `/cashier-infos/?populate=*&sort[0]=date:${sort}&pagination[page]=${page}&pagination[pageSize]=${pageSize}&${filters.join(
+      "&"
+    )}`,
+    {
+      headers: {
+        ...(jwt && { Authorization: `Bearer ${jwt}` }),
+      },
+    }
   );
 };
 

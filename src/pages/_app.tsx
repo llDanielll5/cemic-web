@@ -6,12 +6,10 @@ import { BaseContext, NextPageContext } from "next/dist/shared/lib/utils";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { CacheProvider, EmotionCache } from "@emotion/react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
-import { ThemeProvider } from "@mui/material/styles";
 import { useNProgress } from "@/hooks/useNProgress";
-import { createTheme } from "../services/theme";
 import { ToastContainer } from "react-toastify";
-import { RecoilRoot } from "recoil";
 import { AppProps } from "next/app";
+import DataRootLayout from "@/layouts/dataRoot";
 import "@/styles/globals.css";
 
 const clientSideEmotionCache = createEmotionCache();
@@ -33,7 +31,7 @@ interface CustomAppProps extends Omit<AppProps, "Component"> {
 export default function App(props: CustomAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   useNProgress();
-  const theme = createTheme();
+
   const getLayout = Component.getLayout ?? ((page: React.ReactElement) => page);
 
   return (
@@ -42,13 +40,11 @@ export default function App(props: CustomAppProps) {
         <Head>
           <meta name="viewport" content="initial-scale=1, width=device-width" />
         </Head>
-        <RecoilRoot>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            {getLayout(<Component {...pageProps} />)}
-            <ToastContainer />
-          </ThemeProvider>
-        </RecoilRoot>
+        <DataRootLayout>
+          <CssBaseline />
+          {getLayout(<Component {...pageProps} />)}
+          <ToastContainer />
+        </DataRootLayout>
       </CacheProvider>
     </LocalizationProvider>
   );
