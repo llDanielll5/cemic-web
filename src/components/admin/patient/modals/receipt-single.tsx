@@ -245,6 +245,11 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                     const formattedPayments: string[] = [];
 
                     for (const p of pUseds) {
+                      console.log({ p });
+                      const pValue = parseToBrl(
+                        (p?.attributes?.payment as any)?.data?.attributes
+                          ?.total_value
+                      );
                       const maxValue = parseToBrl(p.attributes.max_used_value);
                       const value = parseToBrl(p.attributes.used_value);
                       const payment = p.attributes
@@ -253,7 +258,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                       const paymentDate = payment?.data?.attributes?.date;
                       if (!paymentDate) continue;
 
-                      const formatted = `usados ${value} do crédito de ${maxValue} pagos pelo paciente no dia ${new Date(
+                      const formatted = `usados ${pValue} do crédito de ${pValue} pagos pelo paciente no dia ${new Date(
                         paymentDate
                       ).toLocaleDateString()}`;
 
