@@ -149,6 +149,8 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
               >;
               const strapiPayment = payment.data.attributes;
               const fundCredit = option.attributes;
+              // let hasCC = payment.data.attributes.payment_shapes();
+              // console.log({ hasCC });
               const totalValue =
                 fundCredit.max_used_value - fundCredit.used_value;
 
@@ -171,7 +173,7 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
 
               const paymentShapesValues =
                 strapiPayment.data.attributes.payment_shapes.map(
-                  (k) => k.price
+                  (k) => k.price + (k.creditAdditionalValue ?? 0)
                 );
               const reducedPaymentShapes = paymentShapesValues.reduce(
                 (prev, curr) => prev + curr,
