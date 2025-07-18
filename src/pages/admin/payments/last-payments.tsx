@@ -140,7 +140,7 @@ const LastPaymentsPage = () => {
               <TableRow
                 hover
                 key={payment.id}
-                onClick={() => console.log(payment)}
+                // onClick={() => console.log(payment)}
               >
                 <TableCell>
                   <SeverityPill color={cashierType[cashier]}>
