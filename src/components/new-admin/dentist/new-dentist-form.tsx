@@ -21,10 +21,11 @@ import { createNewDentist } from "@/axios/admin/dentists";
 import UserData from "@/atoms/userData";
 import * as Yup from "yup";
 import CustomTextField from "@/components/customTextField";
-import axiosInstance from "@/axios";
+import axiosInstance, { serverUrl } from "@/axios";
 import { UserPermissionsJsonInterface } from "types/admin";
 import { defaultDentistPermissions } from "@/_mock/users";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 interface AnamneseProps {
   onClose: () => void;
@@ -190,7 +191,7 @@ const NewDentistForm = (props: AnamneseProps) => {
       };
 
       const { data }: { data: { jwt: string; user: Partial<AdminType> } } =
-        await axiosInstance.post(`/auth/local/register`, userData);
+        await axios.post(`${serverUrl}/api/auth/local/register`, userData);
 
       const userId = data?.user?.id;
 
