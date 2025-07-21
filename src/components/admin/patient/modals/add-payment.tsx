@@ -64,29 +64,47 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
   );
 
   const totalValueReceipt = useMemo(() => {
-    const creditValues = paymentShapes.filter(
-      (item) => item.shape === "CREDIT_CARD"
-    );
+    const payShapesArr = paymentShapes?.map((pShape) => {
+      const creditValue = pShape.price + (pShape.creditAdditionalValue || 0);
+      if (pShape.shape === "CREDIT_CARD") return creditValue;
+      else if (pShape.shape === "WALLET_CREDIT") {
+        let fundCreditPaymentShapesSaved =
+          (
+            (pShape?.fundCredits as StrapiData<FundCreditsInterface>)
+              ?.attributes?.payment as StrapiRelationData<PaymentsInterface>
+          )?.data?.attributes?.payment_shapes || [];
+        if (fundCreditPaymentShapesSaved?.length === 0) return pShape.price;
+        let sum: number[] = [];
 
-    if (creditValues.length > 0) {
-      const mapAdditionalValues = creditValues.map(
-        (item) => item.creditAdditionalValue ?? 0
-      );
-      const creditAdditionalReduced = mapAdditionalValues.reduce(
-        (prev, curr) => prev + curr,
-        0
-      );
-      const total = totalValue + creditAdditionalReduced;
+        if (
+          !!pShape.fundCreditPaymentShapes &&
+          pShape.fundCreditPaymentShapes?.length > 0
+        ) {
+          for (const element of pShape.fundCreditPaymentShapes) {
+            if (element.shape === "CREDIT_CARD") {
+              let val = element.price + (element.creditAdditionalValue || 0);
+              sum.push(val);
+            } else sum.push(element.price);
+          }
+        } else {
+          for (const element of fundCreditPaymentShapesSaved) {
+            if (element.shape === "CREDIT_CARD") {
+              let val = element.price + (element.creditAdditionalValue || 0);
+              sum.push(val);
+            } else sum.push(element.price);
+          }
+        }
 
-      return total;
-    }
-    return paymentShapes.reduce((acc, curr) => acc + curr.price, 0);
+        return sum.reduce((p, c) => p + c, 0);
+      } else return pShape.price;
+    });
+
+    const value = payShapesArr?.reduce((prev, curr) => prev + curr, 0);
+    return {
+      string: parseToBrl(value),
+      number: value,
+    };
   }, [paymentShapes]);
-
-  const getTotal = totalValue.toLocaleString("pt-br", {
-    style: "currency",
-    currency: "BRL",
-  });
 
   const onClose = () => {
     setTreatmentsForPayment([]);
@@ -132,7 +150,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
     const {
       data,
     }: { data: StrapiListRelation<StrapiData<FundCreditsInterface>> } =
-      await getPatientFundCredits(patientData?.id as string);
+      await getPatientFundCredits(String(patientData?.id));
 
     setFundCredits(data.data);
   };
@@ -145,58 +163,6 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       let reduced = prices?.reduce((prev, curr) => prev + curr, 0);
 
       setTotalValue(reduced);
-
-      // if (creditValues.length > 0) {
-      //   if (paymentShapes.length > 1) {
-      //     let otherValues = paymentShapes.filter(
-      //       (item) => item.shape !== "CREDIT_CARD"
-      //     );
-      //     const mapOther = otherValues.map((v) => v.price);
-      //     const reduceOther = mapOther.reduce((prev, curr) => prev + curr, 0);
-
-      //     const mapValues = creditValues.map((v) => v.price);
-      //     const reduceCreditValues = mapValues.reduce(
-      //       (prev, curr) => prev + curr,
-      //       0
-      //     );
-
-      //     let rest = reduced - reduceOther;
-
-      //     const percentPrices = (rest * creditAddition) / 100;
-      //     let percentCredit = (reduceCreditValues * creditAddition) / 100;
-
-      //     if (percentCredit > percentPrices) {
-      //       percentCredit = percentPrices;
-      //     }
-
-      //     setTotalValue(reduced + percentCredit);
-      //     if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-      //       var valueDiscount = (reduced * parseInt(discount)) / 100;
-      //       setTotalValue(reduced - valueDiscount + percentCredit);
-      //     }
-      //   } else {
-      //     const mapValues = creditValues.map((v) => v.price);
-      //     const reduceCreditValues = mapValues.reduce(
-      //       (prev, curr) => prev + curr,
-      //       0
-      //     );
-      //     const percentPrices = (reduced * creditAddition) / 100;
-      //     let percentCredit = (reduceCreditValues * creditAddition) / 100;
-
-      //     if (percentCredit > percentPrices) {
-      //       percentCredit = percentPrices;
-      //     }
-
-      //     setTotalValue(reduced + percentCredit);
-      //     if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-      //       var valueDiscount = (reduced * parseInt(discount)) / 100;
-      //       setTotalValue(reduced - valueDiscount + percentCredit);
-      //     }
-      //   }
-      // } else if (parseInt(discount) > 0 || parseInt(discount) < 9) {
-      //   var valueDiscount = (reduced * parseInt(discount)) / 100;
-      //   setTotalValue(reduced - valueDiscount);
-      // } else setTotalValue(reduced);
     },
     [paymentShapes, discount, creditAddition]
   );
@@ -312,7 +278,7 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       paymentShapes,
       treatmentsForPayment,
       bankCheckInfos: parsedBankCheckInfos ?? [],
-      totalValue: totalValueReceipt,
+      totalValue: totalValueReceipt.number,
       discount: parseInt(discount),
       cashierType: cashierType === "Clinico" ? "clinic" : "implant",
       creditsUsed: wallets.length > 0 ? walletReduce : null,
@@ -431,8 +397,8 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
                   </TreatmentsChoiceds>
                 ))}
             </Box>
-            <h3>Total Tratamentos: {getTotal}</h3>
-            <h3>Total Recibo: {parseToBrl(totalValueReceipt)}</h3>
+            <h3>Total Tratamentos: {parseToBrl(totalValue)}</h3>
+            <h3>Total Recibo: {totalValueReceipt.string}</h3>
 
             <AddPaymentShape
               paymentShapes={paymentShapes}

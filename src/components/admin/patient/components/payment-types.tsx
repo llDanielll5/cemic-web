@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { maskValue } from "@/services/services";
 import { parcelado } from "data";
-import { PaymentShapeTypes } from "types/payments";
+import { PaymentShapeTypes, paymentShapeTypeString } from "types/payments";
 import {
   Box,
   styled,
@@ -18,13 +17,17 @@ import {
   Typography,
   Button,
   Autocomplete,
+  Stack,
+  Card,
 } from "@mui/material";
+import CurrencyInput, { formatCurrencyBRL } from "@/components/currencyInput";
+import BasicDialogModal from "@/components/modal/basic-dialog-modal";
 import RenderBankCheckInfos from "./renderBankCheckInfos";
 import PatientData from "@/atoms/patient";
 import { useRecoilValue } from "recoil";
-import { toast } from "react-toastify";
 import { parseToBrl } from "../modals/receipt-preview";
-import CurrencyInput, { formatCurrencyBRL } from "@/components/currencyInput";
+import { toast } from "react-toastify";
+import ChangeWalletValues from "./change-wallet-values";
 
 interface PaymentTypesProps {
   index: number;
@@ -44,6 +47,12 @@ const _mock = [
   { title: "Fundos de Crédito", shape: "WALLET_CREDIT" },
 ];
 
+interface ExtendedPaymentShapesInterface extends PaymentShapesInterface {
+  priceString: string;
+  creditAdditionalValueString: string;
+  fundCreditPayment: PaymentsInterface;
+}
+
 const PaymentTypesPatient = (props: PaymentTypesProps) => {
   const {
     onChangeShape,
@@ -55,19 +64,21 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
   const patientData = useRecoilValue(PatientData);
   const [paymentShapeString, setPaymentShapeString] = useState("");
   const [price, setPrice] = useState("0,00");
+  const [modal, setModal] = useState(false);
   const [priceFloat, setPriceFloat] = useState(0);
   const [splitTimes, setSplitTimes] = useState<string | null>(null);
   const [paymentShape, setPaymentShape] = useState<PaymentShapeTypes>("");
   const [creditAdditional, setCreditAdditional] = useState(0);
+  const [changeWalletValueModal, setChangeWalletValueModal] = useState(false);
+  const [selectedFundCredits, setSelectedFundCredits] =
+    useState<StrapiData<FundCreditsInterface> | null>(null);
+  const [fundCreditPaymentShapes, setFundCreditPaymentShapes] = useState<
+    ExtendedPaymentShapesInterface[]
+  >([]);
   const [creditAdditionalValue, setCreditAdditionalValue] = useState({
     string: "",
     number: 0,
   });
-  const [selectedFundCredits, setSelectedFundCredits] =
-    useState<StrapiData<FundCreditsInterface> | null>(null);
-  const [fundCreditUsed, setFundCreditUsed] = useState(0);
-  const [stringFundCreditUsed, setStringFundCreditUsed] = useState("");
-  const [modal, setModal] = useState(false);
   const handleCloseModal = () => setModal(false);
 
   const handleCreditValidation = (e: any) => {
@@ -108,6 +119,7 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
       creditAdditional,
       fundCredits: selectedFundCredits,
       creditAdditionalValue: creditAdditionalValue.number,
+      fundCreditPaymentShapes: fundCreditPaymentShapes,
     });
   }, [
     paymentShape,
@@ -115,12 +127,13 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
     splitTimes,
     creditAdditional,
     creditAdditionalValue,
+    fundCreditPaymentShapes,
   ]);
 
   return (
     <>
       <Container>
-        <FormControl fullWidth>
+        <FormControl sx={{ width: "30%" }}>
           <InputLabel id="select-payment-shape">Forma de Pagamento</InputLabel>
           <Select
             labelId="select-payment-shape"
@@ -137,10 +150,24 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
           </Select>
         </FormControl>
 
+        <BasicDialogModal
+          maxWidth="md"
+          open={changeWalletValueModal}
+          onClose={() => setChangeWalletValueModal(!changeWalletValueModal)}
+        >
+          <ChangeWalletValues
+            onChangeFundCredit={(shape) => {
+              setFundCreditPaymentShapes(shape);
+              setChangeWalletValueModal(!changeWalletValueModal);
+            }}
+            stateValue={fundCreditPaymentShapes}
+          />
+        </BasicDialogModal>
+
         {paymentShape === "WALLET_CREDIT" && (
           <Autocomplete
             options={fundCredits}
-            fullWidth
+            sx={{ width: "30%" }}
             isOptionEqualToValue={(option, value) => option?.id === value?.id}
             getOptionLabel={(option) => {
               const payment = option.attributes
@@ -149,8 +176,6 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
               >;
               const strapiPayment = payment.data.attributes;
               const fundCredit = option.attributes;
-              // let hasCC = payment.data.attributes.payment_shapes();
-              // console.log({ hasCC });
               const totalValue =
                 fundCredit.max_used_value - fundCredit.used_value;
 
@@ -166,6 +191,8 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
                 .payment as unknown as StrapiRelation<
                 StrapiData<PaymentsInterface>
               >;
+              const walletPaymentShapes =
+                strapiPayment.data.attributes.payment_shapes;
               const hasCreditCard =
                 strapiPayment.data.attributes.payment_shapes.filter(
                   (k) => k.shape === "CREDIT_CARD"
@@ -173,11 +200,24 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
 
               const paymentShapesValues =
                 strapiPayment.data.attributes.payment_shapes.map(
-                  (k) => k.price + (k.creditAdditionalValue ?? 0)
+                  (k) => k.price
                 );
               const reducedPaymentShapes = paymentShapesValues.reduce(
                 (prev, curr) => prev + curr,
                 0
+              );
+              const paymentDetails = strapiPayment.data.attributes;
+              setFundCreditPaymentShapes(
+                walletPaymentShapes.map((i) => {
+                  return {
+                    ...i,
+                    priceString: parseToBrl(i.price),
+                    creditAdditionalValueString: parseToBrl(
+                      i.creditAdditionalValue
+                    ),
+                    fundCreditPayment: paymentDetails,
+                  };
+                }) as ExtendedPaymentShapesInterface[]
               );
 
               const totalValue = hasCreditCard
@@ -199,16 +239,28 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
           />
         )}
 
-        <CurrencyInput
-          label="Preço"
-          value={price}
-          onChange={(formatted, numeric) => {
-            setPrice(formatted);
-            setPriceFloat(numeric);
-          }}
-          sx={{ width: "100%" }}
-          inputProps={{ maxLength: 10 }}
-        />
+        {paymentShape !== "WALLET_CREDIT" && (
+          <CurrencyInput
+            label="Preço"
+            value={price}
+            onChange={(formatted, numeric) => {
+              setPrice(formatted);
+              setPriceFloat(numeric);
+            }}
+            sx={{ width: "30%" }}
+            inputProps={{ maxLength: 10 }}
+          />
+        )}
+        {paymentShape === "WALLET_CREDIT" && (
+          <Button
+            variant="contained"
+            sx={{ width: "max-content" }}
+            onClick={() => setChangeWalletValueModal(true)}
+          >
+            Mudar Valores do Crédito
+          </Button>
+        )}
+
         {paymentShape === "CREDIT_CARD" && (
           <CurrencyInput
             label="Valor Acréscimo"
@@ -216,13 +268,13 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
             onChange={(formatted, numeric) => {
               setCreditAdditionalValue({ string: formatted, number: numeric });
             }}
-            sx={{ width: "100%" }}
+            sx={{ width: "30%" }}
             inputProps={{ maxLength: 10 }}
           />
         )}
 
         {paymentShape === "CREDIT_CARD" || paymentShape === "BANK_CHECK" ? (
-          <FormControl sx={{ width: "40%" }}>
+          <FormControl sx={{ width: "20%" }}>
             <InputLabel id="split_times">Parcelas</InputLabel>
             <Select
               title={"Em quantas vezes quer dividir?"}
@@ -248,7 +300,7 @@ const PaymentTypesPatient = (props: PaymentTypesProps) => {
             label="Acréscimo (%)"
             value={creditAdditional}
             onChange={handleCreditValidation}
-            sx={{ width: "30%" }}
+            sx={{ width: "15%" }}
           />
         )}
 

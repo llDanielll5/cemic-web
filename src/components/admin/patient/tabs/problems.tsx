@@ -59,12 +59,16 @@ const PatientProblems = (props: any) => {
 
   const handleDeleteDoc = async () => {
     setIsLoading(true);
-    const patientId = patientData!.id;
-    const listDeleteData = problems?.filter((e, i) => checkBoxList[i] === true);
+    const patientId = String(patientData!.id);
+    const listDeleteData = problems?.filter(
+      (e: any, i: number) => checkBoxList[i] === true
+    );
 
-    const listRestData = problems?.filter((e, i) => checkBoxList[i] === false);
+    const listRestData = problems?.filter(
+      (e: any, i: number) => checkBoxList[i] === false
+    );
 
-    const dataUpdate = listRestData?.map((e) => ({
+    const dataUpdate = listRestData?.map((e: any) => ({
       file: e.file.data.id,
       title: e.title,
       description: e.description,
@@ -132,7 +136,7 @@ const PatientProblems = (props: any) => {
         const patientId = patientData!.id;
         const clientExams =
           problems && problems?.length > 0
-            ? problems?.map((e) => {
+            ? problems?.map((e: any) => {
                 return {
                   file: e?.file?.data?.attributes?.id ?? e?.file?.data?.id,
                   title: e?.title,
@@ -154,7 +158,7 @@ const PatientProblems = (props: any) => {
           },
         ];
 
-        await handleUpdatePatient(patientId, updateData)
+        await handleUpdatePatient(String(patientId), updateData)
           .then((e) => {
             setPatientData((e: any) => ({
               ...e,

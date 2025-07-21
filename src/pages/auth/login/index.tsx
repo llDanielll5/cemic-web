@@ -82,6 +82,8 @@ const Page = () => {
 
       if (user.userType === "ADMIN" || user.userType === "SUPERADMIN")
         return router.push("/admin");
+      else if (user.userType === "DENTIST")
+        return router.push("/dentist/budget");
       else return router.push("/admin/patients");
     } catch (error: any) {
       setIsLoading(false);
@@ -112,13 +114,15 @@ const Page = () => {
     setPasswordVisible(!passwordVisible);
 
   if (!!userCookie) {
-    let { userType } = JSON.parse(userCookie!);
+    let { userType }: { userType: UserRole } = JSON.parse(userCookie!);
     if (userType === "ADMIN") {
       return router.push("/admin");
     } else if (userType === "SUPERADMIN") {
       return router.push("/admin");
     } else if (userType === "EMPLOYEE") {
       return router.push("/admin/patients");
+    } else if (userType === "DENTIST") {
+      return router.push("/dentist/budget");
     } else return router.push("/admin/patients");
   }
 

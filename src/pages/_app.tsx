@@ -11,6 +11,8 @@ import { ToastContainer } from "react-toastify";
 import { AppProps } from "next/app";
 import DataRootLayout from "@/layouts/dataRoot";
 import "@/styles/globals.css";
+import SEO from "@/components/SEO";
+import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -37,9 +39,7 @@ export default function App(props: CustomAppProps) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <CacheProvider value={emotionCache}>
-        <Head>
-          <meta name="viewport" content="initial-scale=1, width=device-width" />
-        </Head>
+        <SEO title={useDynamicTitle()} />
         <DataRootLayout>
           <CssBaseline />
           {getLayout(<Component {...pageProps} />)}

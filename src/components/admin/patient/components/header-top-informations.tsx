@@ -4,11 +4,14 @@ import useWindowSize from "@/hooks/useWindowSize";
 import { Box, Typography, styled } from "@mui/material";
 import { parseDateIso, phoneMask } from "@/services/services";
 import { addDays, formatDistance } from "date-fns";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 const HeaderTopPatientInformations = (props: { patient?: any }) => {
   const { patient } = props;
   const { width } = useWindowSize();
   let dateBornDate = new Date(patient?.dateBorn);
+  const adminData = useRecoilValue(UserData);
 
   return (
     <Container>
@@ -16,16 +19,18 @@ const HeaderTopPatientInformations = (props: { patient?: any }) => {
         <Typography variant="subtitle1">
           <b>Paciente:</b> {patient?.name}
         </Typography>
-        {width! >= 760 && (
+        {width! >= 760 && adminData?.userType === "SUPERADMIN" && (
           <Typography variant="subtitle1">
             <b>Telefone:</b> {phoneMask(patient?.phone)}
           </Typography>
         )}
       </Box>
       <Box>
-        <Typography variant="subtitle1">
-          <b>Email:</b> {patient?.email}
-        </Typography>
+        {adminData?.userType === "SUPERADMIN" && (
+          <Typography variant="subtitle1">
+            <b>Email:</b> {patient?.email}
+          </Typography>
+        )}
         {width! >= 760 && (
           <Typography variant="subtitle1">
             <b>Data Nasc:</b> {parseDateIso(patient?.dateBorn)} (

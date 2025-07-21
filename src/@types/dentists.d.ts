@@ -27,7 +27,7 @@ interface DentistInterface {
   patients?: any;
   forwarded_treatments?: any;
   payments?: any;
-  user?: AdminType;
+  user?: AdminType | StrapiRelation<StrapiData<AdminType>>;
   id?: string;
 }
 
@@ -43,3 +43,20 @@ interface DentistStrapiAttributes {
 }
 
 interface DentistUserInterface extends DentistInterface, AdminType {}
+
+interface CreatePatientBudgetDentist {
+  date: Date;
+  dentist: number;
+  patient: number;
+  isCompleted: boolean;
+}
+
+interface PatientToBudgetInterface {
+  date: string;
+  dentist: DentistInterface | StrapiRelationData<DentistInterface>;
+  patient: PatientInterface | StrapiRelationData<PatientInterface>;
+  isCompleted: boolean;
+  patient_treatments?:
+    | PatientTreatmentInterface
+    | StrapiListRelationData<PatientTreatmentInterface>;
+}

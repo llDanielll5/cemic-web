@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
+import React, { useMemo, useState } from "react";
 import PatientData from "@/atoms/patient";
 import CModal from "@/components/modal";
 import { BankInformationsTable } from "@/components/table/bank-informations";
@@ -27,11 +27,40 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
   const payShapes = receiptSingleValues?.attributes?.payment_shapes;
   const adminData = useRecoilValue(UserData);
   const fundCredit = receipt?.fund_credit;
+  const [paymentsWallets, setPaymentsWallets] = useState<
+    PaymentShapesInterface[]
+  >([]);
 
-  const getTotal = receipt?.total_value!.toLocaleString("pt-br", {
-    style: "currency",
-    currency: "BRL",
-  });
+  const getTotal = useMemo(() => {
+    const payShapesArr = payShapes?.map((pShape) => {
+      const creditValue = pShape.price + (pShape.creditAdditionalValue || 0);
+      if (pShape.shape === "CREDIT_CARD") return creditValue;
+      else if (pShape.shape === "WALLET_CREDIT") {
+        let fundCreditPaymentShapes =
+          (
+            (pShape?.fund_credit as StrapiRelationData<FundCreditsInterface>)
+              ?.data?.attributes
+              ?.payment as StrapiRelationData<PaymentsInterface>
+          )?.data?.attributes?.payment_shapes || [];
+        if (fundCreditPaymentShapes?.length === 0) return pShape.price;
+        let sum: number[] = [];
+
+        for (const element of fundCreditPaymentShapes) {
+          if (element.shape === "CREDIT_CARD") {
+            let val = element.price + (element.creditAdditionalValue || 0);
+            sum.push(val);
+          } else sum.push(element.price);
+        }
+
+        setPaymentsWallets(fundCreditPaymentShapes);
+
+        return sum.reduce((p, c) => p + c, 0);
+      } else return pShape.price;
+    });
+
+    const value = payShapesArr?.reduce((prev, curr) => prev + curr, 0);
+    return parseToBrl(value);
+  }, [payShapes]);
 
   const colorBlue = { sx: { color: "var(--dark-blue)" } };
 
@@ -160,9 +189,10 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
             <b>Forma de Pagamento:</b> Sendo{" "}
             {payShapes?.length === 1 &&
               payShapes?.map((v: PaymentShapesInterface) => {
-                const valueAdditional = (v.price / 100) * v.creditAdditional!;
+                const valueAdditional =
+                  v.price + (v.creditAdditionalValue || 0);
                 if (v.shape === "CREDIT_CARD") {
-                  return `pagos ${parseToBrl(v.price)} no ${parseShape(
+                  return `pagos ${parseToBrl(valueAdditional)} no ${parseShape(
                     v.shape
                   )} em ${v.split_times}x${
                     typeof v.creditAdditional === "number" &&
@@ -190,7 +220,6 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                     //   .payment as StrapiRelationData<PaymentsInterface>;
 
                     return pUseds.flatMap((p) => {
-                      console.log("teste");
                       const maxValue = parseToBrl(p.attributes.max_used_value);
                       const value = p.attributes.used_value;
                       const paymentt = p.attributes
@@ -245,7 +274,6 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
                     const formattedPayments: string[] = [];
 
                     for (const p of pUseds) {
-                      console.log({ p });
                       const pValue = parseToBrl(
                         (p?.attributes?.payment as any)?.data?.attributes
                           ?.total_value
@@ -260,7 +288,7 @@ const ReceiptSinglePatient = (props: ReceiptSingleProps) => {
 
                       const formatted = `usados ${pValue} do crédito de ${pValue} pagos pelo paciente no dia ${new Date(
                         paymentDate
-                      ).toLocaleDateString()}`;
+                      ).toLocaleDateString()})`;
 
                       if (seenFormats.has(formatted)) continue;
 

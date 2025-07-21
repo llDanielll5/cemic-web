@@ -36,6 +36,29 @@ export type PaymentShapeTypes =
   | "TRANSFER"
   | "WALLET_CREDIT"
   | "";
+type PaymentStringBr =
+  | "Pix"
+  | "Cartão de Crédito"
+  | "Cartão de Débito"
+  | "Dinheiro"
+  | "Cheque"
+  | "Transferência Bancária"
+  | "Fundos de Crédito"
+  | "";
+
+export const paymentShapeTypeString: Record<
+  PaymentShapeTypes,
+  PaymentStringBr
+> = {
+  BANK_CHECK: "Cheque",
+  CASH: "Dinheiro",
+  CREDIT_CARD: "Cartão de Crédito",
+  DEBIT_CARD: "Cartão de Débito",
+  PIX: "Pix",
+  TRANSFER: "Transferência Bancária",
+  WALLET_CREDIT: "Fundos de Crédito",
+  "": "",
+};
 
 export interface BankCheckInformationsInterface {
   name: string;
@@ -66,6 +89,7 @@ export interface PaymentShapesInterface {
   creditAdditional?: number;
   fundCredits?: StrapiData<FundCreditsInterface>;
   creditAdditionalValue?: number;
+  fundCreditPaymentShapes?: PaymentShapesInterface[];
 }
 
 export interface PaymentInterface {

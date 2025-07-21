@@ -25,6 +25,8 @@ import { toast } from "react-toastify";
 import { useRecoilValue } from "recoil";
 import { updateOdontogramDetails } from "@/axios/admin/odontogram";
 import { AdminHistoryOfDay, AdminInfosInterface } from "types/admin";
+import { useLoading } from "@/contexts/LoadingContext";
+import axiosInstance from "@/axios";
 
 interface OdontogramPatientDetailsInterface {
   patientOdontogram: any;
@@ -57,8 +59,9 @@ const toothRegions = [
 ];
 
 const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
-  const { patientOdontogram, onUpdatePatient } = props;
+  const { handleLoading } = useLoading();
   const { lb, lt, rb, rt } = dentalArch;
+  const { patientOdontogram, onUpdatePatient } = props;
   const adminData: any = useRecoilValue(UserData);
   const patientData = useRecoilValue(PatientData);
   const [toothDetails, setToothDetails] = useState<any>([]);
@@ -70,7 +73,6 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     null
   );
 
-  // Tooth Menu #
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -79,7 +81,6 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     setSelectedRegion(null);
     setAnchorEl(null);
   };
-  /* End Tooth Menu */
 
   const handleGetRegionDetails = async (region: string, e: any) => {
     handleClick(e);
@@ -98,20 +99,23 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
       rg = `t${region}`;
     }
     setSelectedRegion(region);
-    return await getRegionDetails(patientData?.id!, rg).then(
-      ({ data }: any) => {
-        if (data?.data.length === 0) {
-          setToothDetails([]);
-        } else {
-          let tRegion = data?.data;
-          let filterRegion = tRegion.filter(
-            (v: any) => v.attributes.region === rg
-          );
-          setToothDetails(filterRegion);
-        }
-      },
-      (err) => console.log(err)
-    );
+    handleLoading(true, "Recuperando informações do paciente");
+
+    try {
+      const { data } = await getRegionDetails(String(patientData?.id!), rg);
+      if (data?.data.length === 0) {
+        setToothDetails([]);
+      } else {
+        let tRegion = data?.data;
+        let filterRegion = tRegion.filter(
+          (v: any) => v.attributes.region === rg
+        );
+        setToothDetails(filterRegion);
+      }
+    } catch (error: any) {
+    } finally {
+      handleLoading(false);
+    }
   };
 
   const openAddTreatmentModal = async () => setAddTreatmentVisible(true);
@@ -150,16 +154,16 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
       return toast.error("Não é possível excluir trabalho pago!");
     }
 
-    return await handleDeletePatientTreatmentById(deleteTreatmentId).then(
-      (res) => {
-        setDeleteTreatmentId("");
-        setConfirmDeleteModal(false);
-        handleClose();
-        onUpdatePatient();
-        toast.success("Tratamento deletado com sucesso!");
-      },
-      (err) => console.log(err.response)
-    );
+    try {
+      await handleDeletePatientTreatmentById(deleteTreatmentId);
+      setDeleteTreatmentId("");
+      setConfirmDeleteModal(false);
+      handleClose();
+      onUpdatePatient();
+      toast.success("Tratamento deletado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao deletar tratamento!");
+    }
   };
 
   const handleDeleteTreatment = (id: string) => {
@@ -175,6 +179,7 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     },
     odontogramId: any
   ) => {
+    handleLoading(true, "Salvando novo tratamento do paciente!");
     const { treatments, newTreatment } = data;
 
     let newDate = formatISO(new Date()).substring(0, 10);
@@ -203,8 +208,28 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
     };
 
     try {
+      const updateAllPatientTreatments = async () => {
+        const { data: patientTreatmentData } = await updatePatientTreatments(
+          dataUpdate
+        );
+        const treatmentId = patientTreatmentData.data.id;
+        const currentBudget = patientData?.attributes
+          ?.patient_budget_dentists as StrapiListRelationData<PatientToBudgetInterface>;
+        const budget = currentBudget?.data?.[0];
+        const budgetId = budget?.id;
+        const patientTreatments = budget?.attributes
+          ?.patient_treatments as StrapiListRelationData<PatientTreatmentInterface>;
+        const oldBudgetTreatmentIds = patientTreatments?.data;
+        const data = {
+          patient_treatments: [...(oldBudgetTreatmentIds ?? []), treatmentId],
+        };
+
+        await axiosInstance.put(`/patient-budget-dentists/${budgetId}`, {
+          data,
+        });
+      };
       Promise.all([
-        await updatePatientTreatments(dataUpdate),
+        await updateAllPatientTreatments(),
         await updateOdontogramDetails(odontogramId, adminInfos),
       ]);
 
@@ -213,8 +238,9 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
       handleClose();
       return toast.success("Tratamento atualizado!");
     } catch (error: any) {
-      console.log({ error: error.response ?? error });
       return toast.error("Erro ao criar tratamento do paciente!");
+    } finally {
+      handleLoading(false);
     }
   };
 

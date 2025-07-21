@@ -35,4 +35,5 @@ interface PaymentShapesInterface {
   creditAdditional?: number;
   creditAdditionalValue?: number;
   fundCredits?: any;
+  fund_credit?: FundCreditsInterface | StrapiRelationData<FundCreditsInterface>;
 }

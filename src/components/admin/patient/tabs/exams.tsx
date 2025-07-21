@@ -1,6 +1,9 @@
 //@ts-nocheck
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { StyledButton } from "@/components/dynamicAdminBody/receipts";
+import PatientData, { Exam } from "@/atoms/patient";
 import {
   Box,
   Typography,
@@ -12,27 +15,24 @@ import {
   Checkbox,
 } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { StyledButton } from "@/components/dynamicAdminBody/receipts";
 import Modal from "@/components/modal";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import Loading from "@/components/loading";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useRecoilState, useRecoilValue } from "recoil";
 import UserData from "@/atoms/userData";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Link from "next/link";
+import Image from "next/image";
 import {
   deleteFile,
   handleUpdatePatient,
   uploadFile,
 } from "@/axios/admin/patients";
-import PatientData, { Exam } from "@/atoms/patient";
-import Image from "next/image";
 
 const PatientExams = () => {
+  const adminData = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
-
   const [checkBoxList, setCheckBoxList] = useState([]);
   const [addExamVisible, setAddExamVisible] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -205,9 +205,11 @@ const PatientExams = () => {
           onChange={changeAllItems}
         />
 
-        <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
-          <DeleteIcon color={isDisabled ? "disabled" : "error"} />
-        </IconButton>
+        {userData?.userType === "SUPERADMIN" && (
+          <IconButton disabled={isDisabled} onClick={handleDeleteModal}>
+            <DeleteIcon color={isDisabled ? "disabled" : "error"} />
+          </IconButton>
+        )}
 
         {checkBoxList.map((v, i) => (
           <Box
@@ -366,15 +368,17 @@ const PatientExams = () => {
         justifyContent="center"
         m={1}
       >
-        <Button
-          component="label"
-          variant="contained"
-          onClick={() => setAddExamVisible(true)}
-          startIcon={<CloudUploadIcon />}
-          sx={{ marginBottom: 2 }}
-        >
-          Adicionar exame
-        </Button>
+        {adminData?.userType === "SUPERADMIN" && (
+          <Button
+            component="label"
+            variant="contained"
+            onClick={() => setAddExamVisible(true)}
+            startIcon={<CloudUploadIcon />}
+            sx={{ marginBottom: 2 }}
+          >
+            Adicionar exame
+          </Button>
+        )}
       </Box>
       {/* )} */}
 

@@ -130,7 +130,9 @@ export const ReceiptsPatientTable = (props: ReceiptsProps) => {
         const fundCredit = val?.attributes
           ?.fund_credit as unknown as StrapiRelationData<FundCreditsInterface>;
         Promise.all([
-          await handleUpdatePatient(patientData?.id!, { data: { credits } }),
+          await handleUpdatePatient(String(patientData?.id!), {
+            data: { credits },
+          }),
           await deletePatientFundCredit(String(fundCredit?.data.id)),
         ]);
       }

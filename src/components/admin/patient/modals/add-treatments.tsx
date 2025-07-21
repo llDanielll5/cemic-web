@@ -111,22 +111,24 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
       payment: null,
     };
     let data = { ...patientOdontogram };
-    let { attributes } = data;
-    let treatments = attributes?.treatments.data;
-    const oldHistories: PatientTreatmentInterface = treatments.map((v: any) => {
-      const attr = v.attributes;
-      return {
-        name: attr.name,
-        obs: attr.obs,
-        hasAbsent: attr.hasAbsent,
-        hasFinished: attr.hasFinished,
-        hasPayed: attr.hasPayed,
-        price: attr.price,
-        region: attr.region,
-        finishedAt: attr.finishedAt,
-        finishedBy: attr.finishedBy,
-      };
-    });
+    let attr = data?.attributes ?? data;
+    let treatments = attr?.treatments.data;
+    const oldHistories: PatientTreatmentInterface = treatments?.map(
+      (v: any) => {
+        const attr = v.attributes;
+        return {
+          name: attr.name,
+          obs: attr.obs,
+          hasAbsent: attr.hasAbsent,
+          hasFinished: attr.hasFinished,
+          hasPayed: attr.hasPayed,
+          price: attr.price,
+          region: attr.region,
+          finishedAt: attr.finishedAt,
+          finishedBy: attr.finishedBy,
+        };
+      }
+    );
     let dataUpdate = { treatments: oldHistories, region: rg, newTreatment };
 
     return await onSaveTreatments(dataUpdate, patientOdontogram?.id).then((r) =>

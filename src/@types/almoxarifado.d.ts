@@ -133,6 +133,10 @@ type Item = {
   connectionType?: ConnectionType;
   angulation?: number;
   supplierId?: string;
+  // Campos específicos para implantes
+  isImplant?: boolean;
+  diameterMM?: number; // ex: 3.5
+  lengthMM?: number; // ex: 7, 10, 13
 };
 
 // Almoxarifado físico

@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosInstance from "..";
 
 export const handleGetAllDentists = async () => {
-  return await axiosInstance.post(`/lectures/?populate=*`);
+  return await axiosInstance.get(`/dentists/?populate=*`);
 };
 
 export const getListOfDentists = async () => {

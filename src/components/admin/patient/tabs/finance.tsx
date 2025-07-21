@@ -94,7 +94,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const handleGeneratePayment = async () => {
     setIsLoading(true);
     setLoadingMessage("Estamos Carregando Informações de Tratamentos!");
-    const res = await handleGetTreatmentsToPay(patientData?.id!);
+    const res = await handleGetTreatmentsToPay(String(patientData?.id!));
     const notPayeds = res.data.data.filter((v: any) => !v.attributes.hasPayed);
 
     setIsLoading(false);
@@ -215,7 +215,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         await generatePatientPaymentInCashier(cashierInfoData);
       setLoadingMessage("Estamos atualizando informações do paciente...");
 
-      const { data } = await handleGetPatientCredits(patientData?.id!);
+      const { data } = await handleGetPatientCredits(String(patientData?.id!));
       const oldCredits = data.data?.attributes?.credits;
       const cashierInfoId = cashierInfoAxiosData.data.id;
       const paymentId = paymentData?.data?.id;
@@ -224,14 +224,14 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         payment: paymentId,
       });
 
-      await handleUpdatePatient(patientData?.id!, {
+      await handleUpdatePatient(String(patientData?.id!), {
         data: { credits: oldCredits + receiptCredits!.totalValue },
       });
 
       await createPatientFundCredit({
         payment: paymentId,
         status: "CREATED",
-        patient: patientData?.id as string,
+        patient: String(patientData?.id) as string,
         used_value: 0,
         hasUsed: false,
         max_used_value: (
@@ -307,7 +307,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       (item) => item.fundCredits as StrapiData<FundCreditsInterface>
     );
 
-    setIsLoading(true);
+    // setIsLoading(true);
     setLoadingMessage("Criando Pagamento do Paciente...");
 
     const treatmentsIds = receiptValues?.treatmentsForPayment.map((v) => v.id)!;
@@ -322,7 +322,23 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           ? 0
           : receiptValues?.discount,
         treatments: treatmentsIds,
-        payment_shapes: receiptValues?.paymentShapes!,
+        payment_shapes: receiptValues?.paymentShapes.map((pShape) => {
+          const {
+            price,
+            shape,
+            creditAdditional,
+            creditAdditionalValue,
+            split_times,
+          } = pShape;
+          return {
+            price,
+            shape,
+            creditAdditional,
+            creditAdditionalValue,
+            split_times,
+            fund_credit: pShape.fundCredits?.id!,
+          };
+        }),
         bank_check_infos: receiptValues?.bankCheckInfos ?? [],
         location: adminData?.location as "DF" | "MG",
         filial: adminData?.filial,
@@ -422,7 +438,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         paymentId,
         fundCredits: walletsFundCredits,
         paymentShapes: walletCreditsArr,
-        patient: patientData?.id!,
+        patient: String(patientData?.id!),
       });
 
       setLoadingMessage("Atualizando o caixa do Dia!");
@@ -434,7 +450,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         outInfo: null,
         verifyBy: null,
         total_values: values,
-        patient: patientData?.id!,
+        patient: String(patientData?.id!),
         location: adminData?.location as LOCATION_FILIAL,
         filial: adminData?.filial,
         payment: paymentId,
@@ -442,7 +458,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
       await generatePatientPaymentInCashier(cashierInfoData);
       setLoadingMessage("Estamos atualizando informações do paciente...");
-      await handleUpdatePatient(patientData?.id!, {
+      await handleUpdatePatient(String(patientData?.id!), {
         role: "PATIENT",
         credits: patientData?.attributes?.credits! - usedVal,
       });

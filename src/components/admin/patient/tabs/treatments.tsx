@@ -32,7 +32,7 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   const client = patientData?.attributes;
   const adminData: any = useRecoilValue(UserData);
   const [isLoading, setIsLoading] = useState(false);
-  let patientOdontogram = client?.odontogram?.data;
+  let patientOdontogram = (client?.odontogram as any)?.data;
 
   const [data, setData] = useState<TreatmentsInterface>({
     treatments: null,
@@ -58,7 +58,7 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   };
 
   const getTreatments = useCallback(async () => {
-    return await handleGetPatientTreatments(patientData?.id!).then(
+    return await handleGetPatientTreatments(String(patientData?.id!)).then(
       (res) => getInformations(res.data.data),
       (err) => console.log(err.response)
     );

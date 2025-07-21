@@ -117,7 +117,9 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
   };
 
   const getFinishedTreatmentsOfPatient = async () => {
-    return await handleGetFinishedTreatmentsOfPatient(patientData?.id!).then(
+    return await handleGetFinishedTreatmentsOfPatient(
+      String(patientData?.id!)
+    ).then(
       (res) => setPatientFinishedTreatments(res.data.data),
       (err) => console.log(err.response)
     );
