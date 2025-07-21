@@ -109,40 +109,7 @@ interface DataTreatmentsPatient {
   data: TreatmentsPatientInterface[];
 }
 
-interface PatientStrapiSingle {
-  id: string;
-  attributes: {
-    address?: AddressType;
-    adminInfos: AdminInfosProps;
-    anamnese: AnamneseQuestions;
-    cardId: string;
-    cpf: string;
-    createdAt: Date | string;
-    dateBorn: string;
-    email: string;
-    firstLetter: string;
-    lectures: LecturesInterface;
-    name: string;
-    observations?: string;
-    odontogram: OdontogramInterface;
-    payments: any | null;
-    phone: string;
-    profileImage: string;
-    rg: string;
-    role: PatientRole;
-    sexo?: any;
-    actualProfessional: any;
-    credits?: number;
-
-    screening: any;
-    exams: Exam[];
-    problems: Problem[];
-    attachments: Attachment[];
-
-    treatments: TreatmentsPatientInterface[] | DataTreatmentsPatient;
-    forwardedTreatments?: any | null;
-  };
-}
+type PatientStrapiSingle = StrapiData<PatientInterface>;
 
 const PatientData = atom<PatientStrapiSingle | null>({
   key: "PatientData",

@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
-import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { DashboardLayout } from "src/layouts/dashboard/layout";
 import { CustomersSearch } from "@/components/new-admin/patient/customers-search";
-import CModal from "@/components/modal";
-import UserData from "@/atoms/userData";
-import NewPatientForm from "@/components/new-admin/patient/newPatient";
-import PatientsSort from "@/components/new-admin/patient/patients-sort";
 import { CustomersTable } from "@/components/new-admin/patient/customers-table";
 import { useRecoilValue } from "recoil";
 import { useRouter } from "next/router";
 import { PaginationProps } from "types";
 import { PatientRole } from "types/patient";
+import CModal from "@/components/modal";
+import UserData from "@/atoms/userData";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import NewPatientForm from "@/components/new-admin/patient/newPatient";
+import PatientsSort from "@/components/new-admin/patient/patients-sort";
 import {
   handleFilterPatientByNameOrCpf,
   handleGetPatients,
@@ -28,24 +28,35 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { getCookie } from "cookies-next";
+import { toast } from "react-toastify";
+import SEO from "@/components/SEO";
+import PatientBudgetModal from "@/components/modal/patient-to-budget-modal";
 
 export type SortType = "asc" | "desc";
 const pageSizeOptions = [5, 10, 20, 50, 100];
 export interface SortInterface {
   [q: string]: SortType;
 }
+interface StrapiPatientData {
+  data: {
+    data: StrapiData<PatientInterface>[];
+    meta: { pagination: PaginationProps };
+  };
+}
 
 const PatientsPage = () => {
   const router = useRouter();
-  const [data, setData] = useState([]);
   const adminData: any = useRecoilValue(UserData);
-  const [currPage, setCurrPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [sort, setSort] = useState<SortType>("asc");
+  const [data, setData] = useState<StrapiData<PatientInterface>[]>([]);
   const [statusFilter, setStatusFilter] = useState<PatientRole | null>(null);
   const [searchPatientValue, setSearchPatientValue] = useState("");
   const [newPatientVisible, setNewPatientVisible] = useState(false);
+  const [patientToBudgetVisible, setPatientToBudgetVisible] = useState(false);
+  const [selectedPatient, setSelectedPatient] =
+    useState<StrapiData<PatientInterface> | null>(null);
+  const [currPage, setCurrPage] = useState<number>(1);
+  const [sort, setSort] = useState<SortType>("asc");
+  const [pageSize, setPageSize] = useState(10);
   const [dbPagination, setDbPagination] = useState<PaginationProps>({
     page: 0,
     pageCount: 0,
@@ -58,16 +69,22 @@ const PatientsPage = () => {
       if (!adminData) return;
       const filial =
         adminData?.userType !== "SUPERADMIN" ? adminData.filial : undefined;
-      return await handleGetPatients(filial, currPage, pageSize, sort).then(
-        (res: any) => {
-          let pagination = res.data.meta.pagination;
-          setData(res.data.data);
-          setDbPagination(pagination);
-          setCurrPage(pagination.page);
-          return;
-        },
-        (error) => console.log(error.response)
-      );
+
+      try {
+        const { data }: StrapiPatientData = await handleGetPatients(
+          filial,
+          currPage,
+          pageSize,
+          sort
+        );
+        let pagination = data.meta.pagination;
+        setData(data.data);
+        setDbPagination(pagination);
+        setCurrPage(pagination.page);
+        return;
+      } catch (error) {
+        toast.error("Erro ao recuperar paciente!");
+      }
     },
     [adminData?.filial]
   );
@@ -85,18 +102,24 @@ const PatientsPage = () => {
   const getPatientFiltered = async () => {
     const filial =
       adminData?.userType !== "SUPERADMIN" ? adminData.filial : undefined;
-    return await handleFilterPatientByNameOrCpf(
-      searchPatientValue,
-      filial
-    ).then(
-      (res) => {
-        let pagination = res.data.meta.pagination;
-        setData(res.data.data);
-        setDbPagination(pagination);
-        setCurrPage(pagination.page);
-      },
-      (err) => console.log(err.response)
-    );
+
+    try {
+      const { data }: StrapiPatientData = await handleFilterPatientByNameOrCpf(
+        searchPatientValue,
+        filial
+      );
+      let pagination = data.meta.pagination;
+      setData(data.data);
+      setDbPagination(pagination);
+      setCurrPage(pagination.page);
+    } catch (error: any) {
+      toast.error("Erro ao recuperar paciente!");
+    }
+  };
+
+  const handleBudgetPatient = (patient: StrapiData<PatientInterface>) => {
+    setPatientToBudgetVisible(!patientToBudgetVisible);
+    setSelectedPatient(patient);
   };
 
   const handlePatientAdded = async () => {
@@ -108,8 +131,18 @@ const PatientsPage = () => {
     router.push("/admin/patients/" + cardId);
   };
 
-  const handleChangePatientVisible = () =>
-    setNewPatientVisible(!newPatientVisible);
+  const handleChangePatientVisible = () => {
+    if (!router.query.new_patient)
+      return setNewPatientVisible(!newPatientVisible);
+    setNewPatientVisible(false);
+    const { new_patient, ...rest } = router.query;
+
+    router.replace({ pathname: router.pathname, query: rest }, undefined, {
+      shallow: true,
+    });
+  };
+  const handleChangePatientToBudgetVisible = () =>
+    setPatientToBudgetVisible(!patientToBudgetVisible);
 
   useEffect(() => {
     if (searchPatientValue.length === 0) getPatients(currPage, pageSize, sort);
@@ -120,12 +153,14 @@ const PatientsPage = () => {
     getPatients(1, pageSize, sort);
   }, [pageSize, getPatients]);
 
+  useEffect(() => {
+    const shouldOpenModal = router.query.new_patient === "true";
+    setNewPatientVisible(shouldOpenModal);
+  }, [router.query.new_patient]);
+
   return (
     <>
-      <Head>
-        <title>Pacientes · CEMIC</title>
-      </Head>
-
+      <SEO title="CEMIC · Pacientes" />
       <CModal
         styles={{ width: "85vw", overflow: "auto", height: "95vh" }}
         visible={newPatientVisible}
@@ -133,6 +168,12 @@ const PatientsPage = () => {
       >
         <NewPatientForm onClose={handlePatientAdded} />
       </CModal>
+
+      <PatientBudgetModal
+        open={patientToBudgetVisible}
+        onClose={handleChangePatientToBudgetVisible}
+        patientId={selectedPatient?.id!}
+      />
 
       <Box component="main" sx={{ py: 8, overflow: "auto" }}>
         <Container maxWidth="xl">
@@ -176,7 +217,12 @@ const PatientsPage = () => {
               setFilterStatus={setStatusFilter}
             />
 
-            <CustomersTable items={data} onClick={handleClickPatient} />
+            <CustomersTable
+              items={data}
+              onClick={(cardId) => handleClickPatient(cardId)}
+              onEdit={() => console.log("")}
+              onBudgetForward={handleBudgetPatient}
+            />
 
             <Box
               display="flex"

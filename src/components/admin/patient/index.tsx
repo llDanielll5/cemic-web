@@ -96,7 +96,7 @@ const PatientDetails = (props: { cardId: string }) => {
         ...adminUpdate,
       },
     };
-    await handleUpdatePatient(patientData?.id!, data).then(
+    await handleUpdatePatient(String(patientData?.id!), data).then(
       (res) => handleGetPatient(),
       (err) => console.log(err.response)
     );

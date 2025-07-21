@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from "react";
+import { Box, Button, Fab, Modal, Typography } from "@mui/material";
+import { handlePersistLogin } from "@/axios/auth";
 import { usePathname } from "next/navigation";
 import { styled } from "@mui/material/styles";
+import { setCookie } from "cookies-next";
+import { useRecoilState } from "recoil";
+import { useRouter } from "next/router";
 import { SideNav } from "./side-nav";
 import { TopNav } from "./top-nav";
-import { useRecoilState } from "recoil";
 import UserData from "@/atoms/userData";
-import { getCookie, setCookie } from "cookies-next";
-import { useRouter } from "next/router";
-import { handlePersistLogin } from "@/axios/auth";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { Box, Button, Fab, Modal, Typography } from "@mui/material";
 
 const fixes = [
   "Adicionado a possibilidade de buscar paciente por NOME ou CPF",
@@ -38,13 +38,12 @@ const LayoutContainer = styled("div")({
 });
 
 export const DashboardLayout = (props: any) => {
+  const router = useRouter();
   const { children } = props;
   const pathname = usePathname();
   const [openNav, setOpenNav] = useState(false);
   const [userData, setUserData] = useRecoilState(UserData);
-  const infosCookie = getCookie("infos1");
   const [informations, setInformations] = useState(false);
-  const router = useRouter();
 
   const handleAddPatient = () => {
     if (router.pathname !== "/admin/patients")
@@ -80,13 +79,6 @@ export const DashboardLayout = (props: any) => {
   useEffect(() => {
     PersistLogin();
   }, []);
-
-  // useEffect(() => {
-  //   if (infosCookie === undefined) {
-  //     setCookie("infos1", true);
-  //     setInformations(true);
-  //   }
-  // }, [infosCookie]);
 
   return (
     <>
@@ -129,15 +121,17 @@ export const DashboardLayout = (props: any) => {
       </Modal>
       <TopNav onNavOpen={() => setOpenNav(true)} logout={handleLogout} />
       <SideNav onClose={() => setOpenNav(false)} open={openNav} />
-      <Fab
-        color="primary"
-        aria-label="add"
-        title="Adicionar Paciente"
-        onClick={handleAddPatient}
-        sx={{ position: "fixed", bottom: "1rem", right: "1rem" }}
-      >
-        <PersonAddIcon />
-      </Fab>
+      {userData?.userType !== "DENTIST" && (
+        <Fab
+          color="primary"
+          aria-label="add"
+          title="Adicionar Paciente"
+          onClick={handleAddPatient}
+          sx={{ position: "fixed", bottom: "1rem", right: "1rem" }}
+        >
+          <PersonAddIcon />
+        </Fab>
+      )}
       <LayoutRoot>
         <LayoutContainer>{children}</LayoutContainer>
       </LayoutRoot>

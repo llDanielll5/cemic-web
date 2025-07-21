@@ -20,18 +20,22 @@ import { useRecoilValue } from "recoil";
 import { MoreVert } from "@mui/icons-material";
 import { getInitials } from "@/services/get-initials";
 import { cpfMask, phoneMask } from "@/services/services";
-import { SeverityPill } from "../comps/severity-pill";
+import { SeverityPill } from "../new-admin/comps/severity-pill";
 import UserData from "@/atoms/userData";
 import PropTypes from "prop-types";
 
-interface CustomerTableProps {
-  items: any[];
-  onEdit: (patient: PatientInterface) => void;
-  onClick: (patientCardId: string) => void;
-  onBudgetForward: (patient: StrapiData<PatientInterface>) => void;
+interface ExtendedPatientToBudgetProps extends PatientInterface {
+  budgetToPatientId: number;
 }
 
-export const CustomersTable = ({
+interface CustomerTableProps {
+  items: StrapiRelationData<ExtendedPatientToBudgetProps>[];
+  onEdit: (patient: PatientInterface) => void;
+  onClick: (patientCardId: string) => void;
+  onBudgetForward: (patient: StrapiData<ExtendedPatientToBudgetProps>) => void;
+}
+
+export const PatientToBudgetTable = ({
   items = [],
   onClick,
   onEdit,
@@ -40,18 +44,18 @@ export const CustomersTable = ({
   const adminData = useRecoilValue(UserData);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPatient, setSelectedPatient] =
-    useState<StrapiData<PatientInterface> | null>(null);
+    useState<StrapiData<ExtendedPatientToBudgetProps> | null>(null);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null
   );
 
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLElement>,
-    patient: StrapiData<PatientInterface>
+    patient: StrapiRelationData<ExtendedPatientToBudgetProps>
   ) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-    setSelectedPatient(patient);
+    setSelectedPatient(patient.data);
   };
 
   const handleCloseMenu = () => {
@@ -71,7 +75,9 @@ export const CustomersTable = ({
   };
 
   const handleBudget = () => {
-    onBudgetForward(selectedPatient as StrapiData<PatientInterface>);
+    onBudgetForward(
+      selectedPatient as StrapiData<ExtendedPatientToBudgetProps>
+    );
     handleCloseMenu();
   };
 
@@ -116,27 +122,30 @@ export const CustomersTable = ({
               <TableRow>
                 <TableCell padding="checkbox"></TableCell>
                 <TableCell>Nome</TableCell>
-                <TableCell>CPF</TableCell>
-                <TableCell>Telefone</TableCell>
+                {adminData?.userType === "SUPERADMIN" && (
+                  <TableCell>CPF</TableCell>
+                )}
+                {adminData?.userType === "SUPERADMIN" && (
+                  <TableCell>Telefone</TableCell>
+                )}
                 <TableCell>Status</TableCell>
                 {adminData?.userType === "SUPERADMIN" && (
                   <TableCell>Cidade</TableCell>
                 )}
-                {adminData?.userType === "SUPERADMIN" && (
-                  <TableCell>Ações</TableCell>
-                )}
+
+                <TableCell>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items?.map((patient: any) => {
-                let attr = patient?.attributes;
+              {items?.map((patient) => {
+                let attr = patient?.data.attributes;
                 const location: any = attr?.location;
 
                 return (
                   <TableRow
                     hover
-                    key={patient?.id}
-                    onClick={() => onClick(patient?.attributes?.cardId)}
+                    key={patient?.data.id}
+                    onClick={() => onClick(attr?.cardId)}
                     sx={{ cursor: "pointer" }}
                   >
                     <TableCell padding="checkbox"></TableCell>
@@ -150,18 +159,24 @@ export const CustomersTable = ({
                         </Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>{cpfMask(attr?.cpf)}</TableCell>
-                    <TableCell>{phoneMask(attr?.phone)}</TableCell>
+                    {adminData?.userType === "SUPERADMIN" && (
+                      <TableCell>{cpfMask(attr?.cpf)}</TableCell>
+                    )}
+                    {adminData?.userType === "SUPERADMIN" && (
+                      <TableCell>{phoneMask(attr?.phone)}</TableCell>
+                    )}
                     <TableCell sx={getRoleColor(attr)}>
                       {getPatientRole(attr?.role)}
                     </TableCell>
-                    <TableCell>
-                      <SeverityPill
-                        color={patientLocationColor[location as "MG" | "DF"]}
-                      >
-                        {patientLocationName[location as "MG" | "DF"]}
-                      </SeverityPill>
-                    </TableCell>
+                    {adminData?.userType === "SUPERADMIN" && (
+                      <TableCell>
+                        <SeverityPill
+                          color={patientLocationColor[location as "MG" | "DF"]}
+                        >
+                          {patientLocationName[location as "MG" | "DF"]}
+                        </SeverityPill>
+                      </TableCell>
+                    )}
                     <TableCell>
                       <Tooltip title="Ações com Paciente">
                         <IconButton onClick={(e) => handleOpenMenu(e, patient)}>
@@ -188,26 +203,20 @@ export const CustomersTable = ({
             }}
           >
             <Stack minWidth={400} borderRadius={2}>
-              <MenuItem onClick={handleBudget}>
-                Encaminhar P/ Orçamento
-              </MenuItem>
-              <Divider sx={{ bgcolor: "black", borderColor: "#ccc" }} />
-              <MenuItem onClick={handleEdit}>Editar</MenuItem>
-              <Divider sx={{ bgcolor: "black", borderColor: "#ccc" }} />
-              <MenuItem onClick={handleDelete}>Excluir</MenuItem>
+              <MenuItem onClick={handleBudget}>Devolver para Recepção</MenuItem>
             </Stack>
           </Menu>
         </Box>
       ) : (
         <Box p={2} display="flex" justifyContent="center">
-          <Typography variant="h6">Não há pacientes cadastrados!</Typography>
+          <Typography variant="h6">Não há pacientes para avaliação!</Typography>
         </Box>
       )}
     </Card>
   );
 };
 
-CustomersTable.propTypes = {
+PatientToBudgetTable.propTypes = {
   items: PropTypes.array,
   onClick: PropTypes.func,
 };

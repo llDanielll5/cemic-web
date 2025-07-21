@@ -64,7 +64,9 @@ const FinishPatientTreatmentsModal = (props: FinishPatientTreatmentsModal) => {
   };
 
   const handleGetTreatmentsToFinish = async () => {
-    return await handleGetTreatmentsOfPatientToFinish(patientData?.id!).then(
+    return await handleGetTreatmentsOfPatientToFinish(
+      String(patientData?.id!)
+    ).then(
       (res) => {
         const allTreatments = res.data.data.flatMap(
           (treat: any) => treat.attributes.treatments.data

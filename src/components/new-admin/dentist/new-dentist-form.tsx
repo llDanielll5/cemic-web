@@ -183,7 +183,7 @@ const NewDentistForm = (props: AnamneseProps) => {
         userType,
         firstLetter: name.charAt(0).toUpperCase(),
         dateBorn,
-        username: name.replaceAll(" ", "-").toLowerCase(),
+        username: name.replaceAll(" ", "-").toLowerCase() + "-" + makeid(4),
         location: location as string,
         filial,
         permissions: defaultDentistPermissions,

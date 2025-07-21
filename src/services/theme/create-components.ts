@@ -256,16 +256,21 @@ export function createComponents(config: any) {
           fontSize: 14,
           fontWeight: 500,
           lineHeight: 1.71,
-          minWidth: "auto",
-          paddingLeft: 0,
-          paddingRight: 0,
+          paddingLeft: 12,
+          paddingRight: 12,
           textTransform: "none",
+          minWidth: 10, // ou outro valor que mantenha consistência
+
           "& + &": {
-            marginLeft: 24,
+            marginLeft: 10,
+          },
+          "&.Mui-selected": {
+            fontWeight: 600, // se quiser reforçar visual da tab ativa
           },
         },
       },
     },
+
     MuiTableCell: {
       styleOverrides: {
         root: {

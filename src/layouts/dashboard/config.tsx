@@ -10,9 +10,13 @@ import ContactsIcon from "@mui/icons-material/Contacts";
 import HealingIcon from "@mui/icons-material/Healing";
 import PunchClockIcon from "@mui/icons-material/PunchClock";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import { SvgIcon } from "@mui/material";
 
-export const SideNavLinks = (data: { userType: any; permissions: any }) => {
+export const SideNavLinks = (data: {
+  userType: UserRole;
+  permissions: any;
+}) => {
   const itens: any[] = [];
 
   if (data?.userType === "ADMIN" || data?.userType === "SUPERADMIN") {
@@ -118,8 +122,8 @@ export const SideNavLinks = (data: { userType: any; permissions: any }) => {
     //push
   }
 
-  itens.push(
-    {
+  if (data?.userType === "EMPLOYEE" || data?.userType === "SUPERADMIN") {
+    itens.push({
       title: "Folha de Ponto",
       path: "/admin/timesheet",
       icon: (
@@ -127,7 +131,22 @@ export const SideNavLinks = (data: { userType: any; permissions: any }) => {
           <PunchClockIcon />
         </SvgIcon>
       ),
-    },
+    });
+  }
+
+  if (data?.userType === "DENTIST" || data?.userType === "SUPERADMIN") {
+    itens.push({
+      title: "Orçamentos",
+      path: "/dentist/budget",
+      icon: (
+        <SvgIcon fontSize="small">
+          <RequestQuoteIcon />
+        </SvgIcon>
+      ),
+    });
+  }
+
+  itens.push(
     {
       title: "Conta",
       path: "/admin/account",

@@ -119,7 +119,7 @@ export const handleGetSinglePatient = async (cardId: string) => {
     )}&${populatePayments(4, "treatments")}&${populatePayments(
       5,
       "payment_shapes"
-    )}&populate[payments][populate][6]=fund_credit&populate[payments][populate][7]=fund_credit.payment&populate[payments][populate][8]=fund_credit.payment_used&populate[payments][populate][9]=fund_useds&populate[payments][populate][10]=fund_useds.payment&populate[payments][populate][11]=fund_useds.payment.payment_shapes&populate[payments][populate][12]=fund_credit_payment_useds&populate[payments][populate][13]=fund_credit_payment_useds.fund_credit&populate[payments][populate][14]=fund_useds.fund_credit_payment_useds`,
+    )}&populate[payments][populate][6]=fund_credit&populate[payments][populate][7]=fund_credit.payment&populate[payments][populate][8]=fund_credit.payment_used&populate[payments][populate][9]=fund_useds&populate[payments][populate][10]=fund_useds.payment&populate[payments][populate][11]=fund_useds.payment.payment_shapes&populate[payments][populate][12]=fund_credit_payment_useds&populate[payments][populate][13]=fund_credit_payment_useds.fund_credit&populate[payments][populate][14]=fund_useds.fund_credit_payment_useds&populate[payments][populate][15]=payment_shapes.fund_credit&populate[payments][populate][16]=payment_shapes.fund_credit.payment&populate[payments][populate][17]=payment_shapes.fund_credit.payment.payment_shapes`,
     treatments: "populate[treatments][populate]=*",
     forwardedTreatments: "populate[forwardedTreatments][populate]=*",
   };

@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
-import { useRouter } from "next/router";
+import { useLoading } from "@/contexts/LoadingContext";
 import { Box } from "@mui/material";
-import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 import Loading from "@/components/loading";
+import dynamic from "next/dynamic";
 
 const SingleUser = dynamic(import("@/components/admin/patient"), {
   ssr: false,
@@ -12,6 +13,7 @@ const SingleUser = dynamic(import("@/components/admin/patient"), {
 
 const PatientSingle = () => {
   const router = useRouter();
+  const { handleLoading } = useLoading();
   const card = router?.query?.cardId ?? "";
   const [patientCardId, setPatientCardId] = useState(card);
 

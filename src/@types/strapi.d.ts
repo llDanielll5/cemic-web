@@ -1,3 +1,12 @@
+interface StrapiPagination {
+  pagination: {
+    page: number;
+    pageCount: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
 interface StrapiRelation<T> {
   data: T;
 }
@@ -8,6 +17,7 @@ interface StrapiCreateData<T> {
 
 interface StrapiListRelation<T> {
   data: T[];
+  meta?: StrapiPagination;
 }
 
 interface StrapiData<T> {

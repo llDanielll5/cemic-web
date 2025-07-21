@@ -1,7 +1,8 @@
-import { LoadingProvider } from "@/contexts/LoadingContext";
+import { RecoilRoot } from "recoil";
 import { createTheme } from "@/services/theme";
 import { ThemeProvider } from "@mui/material/styles";
-import { RecoilRoot } from "recoil";
+import { LoadingProvider } from "@/contexts/LoadingContext";
+import { KeyPressProvider } from "@/contexts/KeyPressContext";
 
 export default function DataRootLayout({
   children,
@@ -12,7 +13,9 @@ export default function DataRootLayout({
   return (
     <ThemeProvider theme={theme}>
       <RecoilRoot>
-        <LoadingProvider>{children}</LoadingProvider>
+        <LoadingProvider>
+          <KeyPressProvider>{children}</KeyPressProvider>
+        </LoadingProvider>
       </RecoilRoot>
     </ThemeProvider>
   );

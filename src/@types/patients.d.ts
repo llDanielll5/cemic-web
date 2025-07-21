@@ -1,6 +1,17 @@
 type AnswerType = "SIM" | "NÃO" | "NÃO SEI" | "";
 type PatientRole = "PRE-REGISTER" | "SELECTED" | "PATIENT" | "BUDGET";
 type SexType = "MASCULINO" | "FEMININO" | "NENHUM";
+type PatientStatus =
+  | "NEW"
+  | "PRE_REGISTERED"
+  | "REGISTERED"
+  | "AWAITING_FIRST_APPOINTMENT"
+  | "AWAITING_APPOINTMENT"
+  | "IMPLANT_COMPLETED"
+  | "PROSTHESIS_COMPLETED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "DECEASED";
 
 interface PatientInterface {
   id: string;
@@ -24,7 +35,7 @@ interface PatientInterface {
   problems?: any;
   attachments?: any;
   payments?: any;
-  odontogram?: StrapiData<OdontogramInterface> | OdontogramInterface;
+  odontogram?: StrapiRelationData<OdontogramInterface> | OdontogramInterface;
   treatments: any;
   slug: string;
   forwardedTreatments: any;
@@ -34,4 +45,8 @@ interface PatientInterface {
   filial: string;
   dentists: any[];
   fund_credits: FundCreditsInterface[] | StrapiData<FundCreditsInterface>;
+  status: PatientStatus;
+  patient_budget_dentists?:
+    | PatientToBudgetInterface[]
+    | StrapiListRelationData<PatientToBudgetInterface>;
 }

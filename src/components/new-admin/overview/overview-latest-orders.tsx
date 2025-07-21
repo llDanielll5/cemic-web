@@ -87,11 +87,7 @@ export const OverviewLatestOrders = (props: any) => {
               const location =
                 order?.attributes?.patient?.data?.attributes?.location;
               return (
-                <TableRow
-                  hover
-                  key={order.id}
-                  onClick={() => console.log(order)}
-                >
+                <TableRow hover key={order.id}>
                   <TableCell>
                     <SeverityPill color={cashierType[cashier]}>
                       {cashierName[cashier]}

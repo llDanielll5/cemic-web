@@ -1,8 +1,12 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import PatientAnamneseDetails from "../components/anamnese-details";
+import PatientAnamneseDentistDetails from "./anamnese-details";
 
-const AnamneseTab = () => {
+const AnamneseTab = ({
+  patient,
+}: {
+  patient: StrapiData<PatientInterface>;
+}) => {
   return (
     <Box width="100%" pt={2}>
       <Typography
@@ -12,7 +16,7 @@ const AnamneseTab = () => {
       >
         Anamnese
       </Typography>
-      <PatientAnamneseDetails />
+      <PatientAnamneseDentistDetails patient={patient.attributes} />
     </Box>
   );
 };

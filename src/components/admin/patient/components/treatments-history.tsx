@@ -12,7 +12,8 @@ const PatientTreatmentsHistory = (props: any) => {
   const patientData = useRecoilValue(PatientData);
   const adminData = useRecoilValue(UserData);
   const patient = patientData?.attributes;
-  const actualProfessional = patientData?.attributes?.actualProfessional ?? "";
+  const actualProfessional =
+    (patientData?.attributes as any)?.actualProfessional ?? "";
   const adminInfos = patient?.adminInfos;
   const [treatmentsFinished, setTreatmentsFinished] = useState<
     ToothsInterface[]
@@ -24,7 +25,7 @@ const PatientTreatmentsHistory = (props: any) => {
   const hasFinisheds = treatmentsFinished?.length > 0;
 
   const getPatientTreatments = useCallback(async () => {
-    return await handleGetTreatmentsOfPatient(patientData?.id!).then(
+    return await handleGetTreatmentsOfPatient(String(patientData?.id!)).then(
       (res) => {
         let data = res.data.data;
         const finisheds = data?.filter(
@@ -44,15 +45,22 @@ const PatientTreatmentsHistory = (props: any) => {
 
   return (
     <Container>
-      <Header>
-        <Typography variant="subtitle2">
-          <b>Dentista Atual:</b> {actualProfessional?.name ?? "Sem Dentista"}
-        </Typography>
-        <Typography variant="caption">
-          Atualizado por: {adminInfos?.updated?.data?.attributes?.name} dia{" "}
-          {parseDateIso(adminInfos?.updateTimestamp?.substring?.(0, 10))}
-        </Typography>
-      </Header>
+      {adminData?.userType === "SUPERADMIN" && (
+        <Header>
+          <Typography variant="subtitle2">
+            <b>Dentista Atual:</b> {actualProfessional?.name ?? "Sem Dentista"}
+          </Typography>
+          <Typography variant="caption">
+            Atualizado por: {adminInfos?.updated?.data?.attributes?.name} dia{" "}
+            {parseDateIso(
+              (adminInfos?.updateTimestamp as unknown as string)?.substring?.(
+                0,
+                10
+              )
+            )}
+          </Typography>
+        </Header>
+      )}
 
       {hasTreatments && (
         <TreatmentsContainer elevation={9}>
@@ -92,7 +100,7 @@ const PatientTreatmentsHistory = (props: any) => {
         </TreatmentsContainer>
       )}
 
-      {hasFinisheds && (
+      {/* {hasFinisheds && (
         <FinishedsContainer elevation={9}>
           <Typography variant="subtitle1" fontWeight="bold">
             Tratamentos já realizados:
@@ -120,7 +128,7 @@ const PatientTreatmentsHistory = (props: any) => {
             </Typography>
           )}
         </FinishedsContainer>
-      )}
+      )} */}
 
       {/* <Box display="flex" flexDirection="column" alignItems="center" mt={1}>
         <Typography variant="subtitle1">

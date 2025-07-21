@@ -124,7 +124,7 @@ export const OverviewSales = (props: any) => {
       </CardContent>
       <Divider />
       <CardActions sx={{ justifyContent: "flex-end" }}>
-        <Button
+        {/* <Button
           color="inherit"
           endIcon={
             <SvgIcon fontSize="small">
@@ -134,7 +134,7 @@ export const OverviewSales = (props: any) => {
           size="small"
         >
           Detalhes
-        </Button>
+        </Button> */}
       </CardActions>
     </Card>
   );

@@ -30,7 +30,7 @@ export const createPatientFundCredit = async (data: CreateFundCreditValues) => {
 
 export const getPatientFundCredits = async (patientId: string) => {
   return await axiosInstance.get(
-    `/fund-credits?filters[patient][id][$eq]=${patientId}&filters[status][$eq]=CREATED&populate[payment][populate]=*`
+    `/fund-credits?filters[patient][id][$eq]=${patientId}&filters[$or][0][status][$eq]=PARTIAL_USED&filters[$or][1][status][$eq]=CREATED&populate[payment][populate]=*`
   );
 };
 
