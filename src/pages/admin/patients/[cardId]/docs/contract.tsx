@@ -11,15 +11,17 @@ const PDFViewerWithNoSSR = dynamic(
 
 const PDFExample = () => {
   const router = useRouter();
-  const cardId: any = router?.query?.cardId;
+  const cardId: string = router?.query?.cardId as string;
   const [patientData, setPatientData] = useState<null | any>(null);
 
   const handleGetPatient = useCallback(async () => {
     if (!cardId) return;
-    return await handleGetSinglePatient(cardId!).then(
-      (res) => setPatientData(res.data.data[0]),
-      (err) => console.log(err.response)
-    );
+    try {
+      const { data } = await handleGetSinglePatient(cardId!);
+      setPatientData(data.data[0]);
+    } catch (error) {
+      console.log({ error });
+    }
   }, [cardId]);
 
   useEffect(() => {

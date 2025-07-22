@@ -21,8 +21,8 @@ import { Scrollbar } from "src/components/new-admin/comps/scrollbar";
 import { SeverityPill } from "src/components/new-admin/comps/severity-pill";
 import { parseToBrl } from "@/components/admin/patient/modals/receipt-preview";
 import { useRecoilValue } from "recoil";
-import UserData from "@/atoms/userData";
 import { useRouter } from "next/router";
+import UserData from "@/atoms/userData";
 
 const cashierType = {
   clinic: "primary",
@@ -79,21 +79,36 @@ export const OverviewLatestOrders = (props: any) => {
             {orders.map((order: any) => {
               const attr = order.attributes;
               const cashier = attr?.cashier?.data?.attributes?.type;
-              const patient = attr?.patient?.data?.attributes?.name;
+              const patient =
+                attr?.patient as StrapiRelationData<PatientInterface>;
+              const payment = attr?.attributes
+                ?.payment as StrapiRelationData<PaymentsInterface>;
+              const paymentAttr = payment?.data?.attributes;
+              const patientAttr = patient?.data?.attributes;
               const datePayment = format(
                 new Date(attr?.date),
                 "dd/MM/yyyy HH:mm"
               );
               const location =
                 order?.attributes?.patient?.data?.attributes?.location;
+              console.log({ payment });
+
               return (
-                <TableRow hover key={order.id}>
+                <TableRow
+                  hover
+                  key={order.id}
+                  onClick={() =>
+                    push(
+                      `/admin/patients/${patientAttr?.cardId}/docs/receipt?payment_id=${payment?.data?.id}`
+                    )
+                  }
+                >
                   <TableCell>
                     <SeverityPill color={cashierType[cashier]}>
                       {cashierName[cashier]}
                     </SeverityPill>
                   </TableCell>
-                  <TableCell>{patient}</TableCell>
+                  <TableCell>{patientAttr?.name}</TableCell>
                   <TableCell>{datePayment}</TableCell>
                   <TableCell>
                     {parseToBrl(sumAllValues(attr?.total_values))}
