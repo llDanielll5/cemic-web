@@ -40,19 +40,10 @@ export const handleRegister = async (data: any) => {
 export const handleLogin = async (data: any) => {
   const { email, password } = data;
 
-  return axios.post(
-    `${serverUrl}/auth/local`,
-    {
-      identifier: email,
-      password,
-    },
-    {
-      timeout: 10000, // 10 segundos
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  return axios.post(`${serverUrl}/auth/local`, {
+    identifier: email,
+    password,
+  });
 };
 
 export const handlePersistLogin = async () => {

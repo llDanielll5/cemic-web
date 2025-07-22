@@ -24,7 +24,9 @@ interface PaymentsInterface {
   fund_useds?:
     | StrapiListRelation<StrapiData<FundCreditsInterface>>
     | FundCreditsInterface[];
-  treatments?: PatientTreatmentInterface;
+  treatments?:
+    | PatientTreatmentInterface
+    | StrapiListRelationData<PatientTreatmentInterface>;
 }
 
 interface PaymentShapesInterface {

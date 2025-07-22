@@ -94,10 +94,14 @@ export const handleFilterPatientByNameOrCpf = async (
   );
 };
 
-export const handleGetSinglePatient = async (cardId: string) => {
+export const handleGetSinglePatient = async (
+  cardId: string,
+  options?: { headers?: any } // permite injetar jwtHeader ou outros headers
+) => {
   const populatePayments = (level: number, model: string) => {
     return `populate[payments][populate][${level}]=${model}`;
   };
+
   const populates = {
     lecture: "populate[lectures][populate]=*",
     address: "populate[address]=*",
@@ -110,39 +114,48 @@ export const handleGetSinglePatient = async (cardId: string) => {
     exams: "populate[exams][populate]=*",
     problems: "populate[problems][populate]=*",
     attachments: "populate[attachments][populate]=*",
-    payments: `${populatePayments(0, "cashier_info")}&${populatePayments(
-      1,
-      "adminInfos"
-    )}&${populatePayments(2, "patient")}&${populatePayments(
-      3,
-      "bank_check_infos"
-    )}&${populatePayments(4, "treatments")}&${populatePayments(
-      5,
-      "payment_shapes"
-    )}&populate[payments][populate][6]=fund_credit&populate[payments][populate][7]=fund_credit.payment&populate[payments][populate][8]=fund_credit.payment_used&populate[payments][populate][9]=fund_useds&populate[payments][populate][10]=fund_useds.payment&populate[payments][populate][11]=fund_useds.payment.payment_shapes&populate[payments][populate][12]=fund_credit_payment_useds&populate[payments][populate][13]=fund_credit_payment_useds.fund_credit&populate[payments][populate][14]=fund_useds.fund_credit_payment_useds&populate[payments][populate][15]=payment_shapes.fund_credit&populate[payments][populate][16]=payment_shapes.fund_credit.payment&populate[payments][populate][17]=payment_shapes.fund_credit.payment.payment_shapes`,
+    payments: [
+      `${populatePayments(0, "cashier_info")}`,
+      `${populatePayments(1, "adminInfos")}`,
+      `${populatePayments(2, "patient")}`,
+      `${populatePayments(3, "bank_check_infos")}`,
+      `${populatePayments(4, "treatments")}`,
+      `${populatePayments(5, "payment_shapes")}`,
+      `populate[payments][populate][6]=fund_credit`,
+      `populate[payments][populate][7]=fund_credit.payment`,
+      `populate[payments][populate][8]=fund_credit.payment_used`,
+      `populate[payments][populate][9]=fund_useds`,
+      `populate[payments][populate][10]=fund_useds.payment`,
+      `populate[payments][populate][11]=fund_useds.payment.payment_shapes`,
+      `populate[payments][populate][12]=fund_credit_payment_useds`,
+      `populate[payments][populate][13]=fund_credit_payment_useds.fund_credit`,
+      `populate[payments][populate][14]=fund_useds.fund_credit_payment_useds`,
+      `populate[payments][populate][15]=payment_shapes.fund_credit`,
+      `populate[payments][populate][16]=payment_shapes.fund_credit.payment`,
+      `populate[payments][populate][17]=payment_shapes.fund_credit.payment.payment_shapes`,
+    ].join("&"),
     treatments: "populate[treatments][populate]=*",
     forwardedTreatments: "populate[forwardedTreatments][populate]=*",
   };
 
-  const {
-    lecture,
-    address,
-    adminInfos,
-    odontogramTreats,
-    actualProfessional,
-    screening,
-    odontogramAdmin,
-    exams,
-    problems,
-    attachments,
-    payments,
-    treatments,
-    forwardedTreatments,
-  } = populates;
+  const query = [
+    `filters[cardId][$eq]=${cardId}`,
+    populates.lecture,
+    populates.address,
+    populates.adminInfos,
+    populates.odontogramTreats,
+    populates.actualProfessional,
+    populates.screening,
+    populates.odontogramAdmin,
+    populates.exams,
+    populates.problems,
+    populates.attachments,
+    populates.payments,
+    populates.treatments,
+    populates.forwardedTreatments,
+  ].join("&");
 
-  return await axiosInstance.get(
-    `/patients/?filters[cardId][$eq]=${cardId}&${lecture}&${address}&${adminInfos}&${odontogramTreats}&${actualProfessional}&${screening}&${odontogramAdmin}&${exams}&${problems}&${attachments}&${payments}&${treatments}&${forwardedTreatments}`
-  );
+  return await axiosInstance.get(`/patients/?${query}`, options);
 };
 
 export const handleUpdatePatient = async (id: string, data: any) => {
