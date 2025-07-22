@@ -205,13 +205,13 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     try {
       const {
         data: paymentData,
-      }: { data: StrapiRelation<StrapiData<PaymentsInterface>> } =
+      }: { data: StrapiRelationData<PaymentsInterface> } =
         await createPatientPayment(dataUpdate);
       setLoadingMessage("Atualizando o caixa do Dia!");
 
       const {
         data: cashierInfoAxiosData,
-      }: { data: StrapiRelation<StrapiData<CashierInfosInterface>> } =
+      }: { data: StrapiRelationData<CashierInfosInterface> } =
         await generatePatientPaymentInCashier(cashierInfoData);
       setLoadingMessage("Estamos atualizando informações do paciente...");
 

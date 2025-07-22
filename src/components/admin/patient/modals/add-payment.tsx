@@ -162,6 +162,11 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
       arr?.map((v) => prices.push(v.attributes.price));
       let reduced = prices?.reduce((prev, curr) => prev + curr, 0);
 
+      if (Number(discount) > 0) {
+        const discountValue = (Number(discount) / 100) * reduced;
+        return setTotalValue(reduced - discountValue);
+      }
+
       setTotalValue(reduced);
     },
     [paymentShapes, discount, creditAddition]
