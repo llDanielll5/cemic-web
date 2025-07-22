@@ -191,7 +191,7 @@ const NewDentistForm = (props: AnamneseProps) => {
       };
 
       const { data }: { data: { jwt: string; user: Partial<AdminType> } } =
-        await axios.post(`${serverUrl}/api/auth/local/register`, userData);
+        await axiosInstance.post(`/auth/local/register`, userData);
 
       const userId = data?.user?.id;
 
