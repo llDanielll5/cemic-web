@@ -5,7 +5,7 @@ export const serverUrl = process.env.DEV_SERVER_URL;
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: serverUrl });
+const axiosInstance = axios.create({ baseURL: serverUrl, timeout: 7000 });
 axiosInstance.interceptors.response.use(
   (res) => res,
   (error) =>
