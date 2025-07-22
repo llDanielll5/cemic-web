@@ -216,17 +216,19 @@ const OdontogramPatientDetails = (props: OdontogramPatientDetailsInterface) => {
         const currentBudget = patientData?.attributes
           ?.patient_budget_dentists as StrapiListRelationData<PatientToBudgetInterface>;
         const budget = currentBudget?.data?.[0];
-        const budgetId = budget?.id;
-        const patientTreatments = budget?.attributes
-          ?.patient_treatments as StrapiListRelationData<PatientTreatmentInterface>;
-        const oldBudgetTreatmentIds = patientTreatments?.data;
-        const data = {
-          patient_treatments: [...(oldBudgetTreatmentIds ?? []), treatmentId],
-        };
 
-        await axiosInstance.put(`/patient-budget-dentists/${budgetId}`, {
-          data,
-        });
+        if (budget !== undefined) {
+          const budgetId = budget?.id;
+          const patientTreatments = budget?.attributes
+            ?.patient_treatments as StrapiListRelationData<PatientTreatmentInterface>;
+          const oldBudgetTreatmentIds = patientTreatments?.data;
+          const data = {
+            patient_treatments: [...(oldBudgetTreatmentIds ?? []), treatmentId],
+          };
+          await axiosInstance.put(`/patient-budget-dentists/${budgetId}`, {
+            data,
+          });
+        }
       };
       Promise.all([
         await updateAllPatientTreatments(),

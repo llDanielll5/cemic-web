@@ -86,11 +86,20 @@ const Page = () => {
         return router.push("/dentist/budget");
       else return router.push("/admin/patients");
     } catch (error: any) {
-      setIsLoading(false);
+      console.error("Login error:", error); // Adicione isso
+
+      if (error.code === "ECONNABORTED") {
+        toast.error("Tempo de resposta excedido.");
+        return;
+      }
+
       if (
-        error.response.data.error.message === "Invalid identifier or password"
-      )
+        error.response?.data?.error?.message ===
+        "Invalid identifier or password"
+      ) {
         return toast.error("Email ou Senha incorretos!");
+      }
+
       if (error.response) console.log(error.response.data.error.details);
     } finally {
       setIsLoading(false);
