@@ -220,6 +220,10 @@ const AddPaymentPatientModal = (props: AddPaymentPatientModal) => {
         "Os valores digitados não podem ser menor que o valor total!"
       );
 
+    if (Number(discount) > 10) {
+      return toast.error("Não é possível lançar com desconto acima de 10%");
+    }
+
     for (let i = 0; i < paymentShapes.length; i++) {
       const w = paymentShapes[i];
 
