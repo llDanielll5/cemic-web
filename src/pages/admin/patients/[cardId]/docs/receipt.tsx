@@ -29,7 +29,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     patient = data.data[0];
   }
 
-  if (userJson.userType === "DENTIST") {
+  if (userJson?.userType === "DENTIST") {
     const { data } = await axiosInstance.get(
       `payments/${payment_id}/?populate[payment_shapes]=*&populate[payment_shapes][populate][0][fund_credit]=*`,
       jwtHeader
