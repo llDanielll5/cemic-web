@@ -80,45 +80,24 @@ DentistBudgetPage.getLayout = (page: React.ReactElement) => (
 );
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const host = context.req.headers.host;
+  const protocol = context.req.headers["x-forwarded-proto"] || "http";
+  const baseUrl = `${protocol}://${host}`;
+
   try {
-    const { jwtHeader, userJson } = contextUserAdmin(context);
+    const res = await fetch(`${baseUrl}/api/budget/budget-patient-dentist`, {
+      headers: {
+        Cookie: context.req.headers.cookie || "",
+      },
+    });
 
-    if (userJson?.userType === "DENTIST") {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000); // 15s
+    if (!res.ok) throw new Error("Erro ao buscar budgets");
 
-      try {
-        const { data } = await axiosInstance.get(
-          `patient-budget-dentists?filters[isCompleted][$eq]=false&populate[patient]=*`,
-          {
-            ...jwtHeader,
-            signal: controller.signal,
-          }
-        );
-        clearTimeout(timeout);
-        return { props: { budgets: data } };
-      } catch (err: any) {
-        clearTimeout(timeout);
-        if (err.name === "AbortError") {
-          console.error("Requisição abortada por timeout");
-        } else {
-          console.error("Erro na requisição:", err);
-        }
-        return {
-          props: { budgets: null, error: "Erro na requisição de dados" },
-        };
-      }
-    }
-
-    return { props: { budgets: null } };
+    const data = await res.json();
+    return { props: { budgets: data } };
   } catch (error) {
     console.error("Erro no getServerSideProps:", error);
-    return {
-      props: {
-        budgets: null,
-        error: "Erro ao carregar dados do servidor",
-      },
-    };
+    return { props: { budgets: null, error: "Erro ao carregar dados" } };
   }
 }
 
