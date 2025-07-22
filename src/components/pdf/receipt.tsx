@@ -1,242 +1,391 @@
 /* eslint-disable jsx-a11y/alt-text */
-//@ts-nocheck
+// components/pdf/CemicReceiptPDF.tsx
 import React from "react";
 import {
   Document,
-  Image,
   Page,
   Text,
+  View,
   StyleSheet,
+  Image,
   Font,
   PDFViewer,
-  View,
 } from "@react-pdf/renderer";
-import { GetServerSidePropsContext } from "next";
-import { contextUserAdmin } from "@/services/server-props";
-import axiosInstance from "@/axios";
+import { parseToBrl } from "../admin/patient/modals/receipt-preview";
+import { parseToothRegion } from "@/services/services";
+import { format } from "date-fns";
+import { useRecoilValue } from "recoil";
+import UserData from "@/atoms/userData";
 
 Font.register({
-  family: "Montserrat",
-  src: "http://fonts.gstatic.com/s/montserrat/v7/Kqy6-utIpx_30Xzecmeo8_esZW2xOQ-xsNqO47m55DA.ttf",
+  family: "Poppins",
+  fonts: [
+    {
+      src: "https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfedw.ttf", // Regular (400)
+      fontWeight: "normal",
+    },
+    {
+      src: "https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z11lEA.ttf", // SemiBold (600)
+      fontWeight: 600,
+    },
+    {
+      src: "https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLDz8Z11lEA.ttf", // Bold (700)
+      fontWeight: "bold",
+    },
+    {
+      src: "https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLGT9Z11lEA.ttf", // ExtraBold (800)
+      fontWeight: 800,
+    },
+  ],
 });
-Font.register({
-  family: "Times-Roman",
-  src: "https://www.grmw.org/static/fonts/Times%20New%20Roman.ttf",
-});
+
+interface ReceiptPDFProps {
+  receipt: StrapiRelationData<PaymentsInterface>;
+  patient: StrapiData<PatientInterface>;
+  total: string;
+}
 
 const styles = StyleSheet.create({
-  body: {
-    paddingTop: 35,
-    paddingBottom: 65,
-    paddingHorizontal: 35,
-  },
-  title: {
-    fontSize: 24,
-    textAlign: "center",
-    fontFamily: "Montserrat",
-  },
-  author: {
+  page: {
+    padding: 40,
     fontSize: 12,
+    fontFamily: "Poppins",
+  },
+  header: {
+    alignItems: "center",
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 18,
-    margin: 12,
-    fontFamily: "Montserrat",
-  },
-  text: {
-    margin: 12,
-    fontSize: 14,
-    textAlign: "justify",
-    fontFamily: "Times-Roman",
-  },
-  textMin: {
-    margin: 10,
-    fontSize: 12,
-    textAlign: "justify",
-    fontFamily: "Times-Roman",
-  },
-  image: {
+  logo: {
     marginVertical: 10,
     marginHorizontal: "30%",
   },
-  header: {
-    fontSize: 12,
-    marginBottom: 20,
-    textAlign: "center",
-    color: "grey",
+  title: {
+    fontSize: 16,
+    marginBottom: 4,
+    fontFamily: "Poppins",
+    fontWeight: "normal",
   },
-  pageNumber: {
-    position: "absolute",
+  text: {
+    marginVertical: 4,
+    lineHeight: 1.5,
+  },
+  bold: {
+    fontWeight: 800,
+    fontFamily: "Poppins",
+    fontSize: 13,
+  },
+  signatureBlock: {
+    marginTop: 40,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    rowGap: 50,
+    paddingHorizontal: 30,
+  },
+  signature: {
+    alignSelf: "flex-end",
+    textAlign: "right",
     fontSize: 12,
-    bottom: 30,
-    left: 0,
-    right: 0,
-    textAlign: "center",
-    color: "grey",
+  },
+  line: {
+    borderTopWidth: 1,
+    borderColor: "#000",
+    marginBottom: 4,
+    width: 180,
+    alignSelf: "center",
   },
   viewer: {
-    width: "100%", //the pdf viewer will take up all of the width and height
+    width: "100%",
     height: "100vh",
   },
-  tableContainer: {
-    alignItems: "center",
-    justifyContent: "space-between",
+  row: {
+    flexDirection: "row",
     width: "100%",
-    border: "1px solid black",
-    marginVertical: 8,
-  },
-  tableRow: {
-    display: "flex",
-    flexDirection: "row",
-    borderBottom: "1px solid black",
-  },
-  table: (w: string): any => ({ width: w, borderRight: "1px solid black" }),
-  textTable: {
-    fontSize: "1.8vw",
-    margin: "4px",
-  },
-  tableAnamnese: {
-    borderBottom: "1px solid black",
-    padding: 2,
-    display: "flex",
-    alignItems: "center",
     justifyContent: "space-between",
-    flexDirection: "row",
-  },
-  tableBudget: {
-    display: "flex",
-    flexDirection: "row",
-    border: "1px solid black",
-  },
-  tableBudgetTitle: {
-    fontSize: "2vw",
-    fontFamily: "Montserrat",
-    textAlign: "center",
-    padding: 3,
-  },
-  center: {
-    display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    marginVertical: 2,
+  },
+  regionText: {
+    fontSize: 10,
+    paddingLeft: 16,
+    marginLeft: 12,
+    marginVertical: 2,
+    maxWidth: "60%", // Simula truncamento
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    fontFamily: "Poppins",
+  },
+  lineIcon: {
+    fontSize: 10,
+    paddingHorizontal: 4,
+  },
+  priceText: {
+    fontSize: 10,
+    fontFamily: "Poppins",
+  },
+  section: {
+    marginVertical: 8,
+    paddingHorizontal: 12,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: 600,
+    marginBottom: 4,
+  },
+  detail: {
+    fontSize: 12,
+    marginBottom: 2,
+    fontWeight: 400,
+    lineHeight: 1.4,
   },
 });
 
-const ReceiptPdfRender = ({
-  receipt,
-  patient,
-}: {
-  receipt: PaymentsInterface;
-  patient: PatientInterface;
-}) => {
-  console.log({ receipt });
-  const attr = { name: "", cpf: "", rg: "" };
+const CemicReceiptPDF = ({ receipt, patient, total }: ReceiptPDFProps) => {
+  const pat = patient?.attributes;
+  const rcpt = receipt?.data?.attributes;
+  const treats = (
+    rcpt?.treatments as StrapiListRelationData<PatientTreatmentInterface>
+  )?.data;
+  const payShapes = rcpt?.payment_shapes;
+  const filial = pat?.filial;
 
+  const parseShape = (shape: PaymentShapeTypes) => {
+    if (shape === "BANK_CHECK") return "Cheque";
+    if (shape === "CASH") return "Dinheiro";
+    if (shape === "CREDIT_CARD") return "Cartão de Crédito";
+    if (shape === "DEBIT_CARD") return "Cartão de Débito";
+    if (shape === "PIX") return "Transferência Pix";
+    if (shape === "TRANSFER") return "Transferência Bancária TED/DOC";
+    if (shape === "WALLET_CREDIT") return "Carteira de Crédito";
+  };
   return (
     <PDFViewer style={styles.viewer}>
       <Document>
-        <Page style={styles.body}>
-          <Image style={styles.image} src="/images/cemicLogo.png" break />
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: "Montserrat",
-              alignSelf: "center",
-            }}
-          >
-            TERMO DE CONSENTIMENTO PARA CIRURGIAS DE IMPLANTES
-          </Text>
-
-          <Text style={styles.textMin}>
-            Eu {attr?.name}, de CPF nº {attr?.cpf} e RG nº {attr?.rg}, Por meio
-            desse termo, declaro que optei por submeter-me ao procedimento
-            cirúrgico de colocação de implante ósseo integrado, para recuperação
-            de dentes perdidos que fui orientado de outra alternativa de
-            tratamento com suas vantagens e desvantagens. Fui informado ainda
-            que tal procedimento apresenta taxa de sucesso de cerca de 92%,
-            podendo esta ser reduzida frente a situação, tais como, pacientes
-            com diabetes não controlada, hipertensos (pressão alta), cardiopatas
-            (problema de coração), alérgicos, portadores de hábitos anormais,
-            como bruxismo (ranger os dentes), e pacientes que fazem o uso de
-            medicamentos controlados. Além disso, estou ciente que há redução
-            dessa porcentagem em pacientes que apresentam estrutura óssea
-            (tamanho do osso) reduzida tanto em largura tanto em comprimento ou
-            osso extremamente compacto (osso tipo I) ou ainda, extremamente mole
-            (osso tipo IV), assim como, em pacientes fumantes e ex-fumantes
-            (nesse caso reduzindo-se a 77% de sucesso). Estou consciente também
-            que implantes colocados na região posterior apresentam índice de
-            perda maior em relação a região anterior, devido a maior carga
-            (força) mastigatória, reduzindo-se este índice também, quanto a
-            colocação dos implantes de pequenos comprimentos (7 e 8,5) frente a
-            implantes maiores (=10 mm), assim como, há em menor grau de sucessos
-            em implantes com coroas individualizadas em comparação com coroas
-            unidas. Fui esclarecido que o risco de perda de implante é
-            considerado até o segundo ano da sua colocação reduzindo-se
-            drasticamente para os anos subsequentes, e que há, durante o
-            primeiro ano, uma pequena perda óssea horizontal de 1 a 2 mm,
-            considerando normal e que se estabiliza nos anos subsequentes. Foram
-            destacados também, algumas situações comuns relacionadas ao
-            procedimento cirúrgico de colocação de implantes, tais como,
-            desconforto pós-operatório, hematomas, edemas, formigamento e trauma
-            no canto do lábio com consequente equimose (mancha escura) e
-            restrição de abertura de boca. Ficou claro que essas situações podem
-            necessitar de alguns dias para recuperação. Estou ciente da
-            importância de minha efetiva participação no tratamento, seguindo as
-            recomendações e medicações prescritas pelo cirurgião dentista
-            enquanto estiver sob seus cuidados, e entendo que sem minha
-            cooperação poderá haver diminuição da possibilidade de se obter
-            melhores resultados, assim como, sei que deverei realizar controles
-            periódicos similares aos dentes naturais com radiografias anuais e
-            manter eficiente escovação sobre implante. Entendo que os implantes
-            ósseos integrados oferecem resultados funcionais estéticos
-            excelentes, porém ele é uma prótese e como tal, possui limitações.
-            Tive a oportunidade de discutir minha história médica, não omitindo
-            nenhuma informação que possa resultar em prejuízo ao meu tratamento.
-            Por último, tive a oportunidade de ler e entender os termos e
-            palavras contidas no texto acima e me foram dadas explicações
-            pertinentes a ele.
-          </Text>
-
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              margin: 10,
-            }}
-          >
-            <View>
-              <Text style={{ marginTop: 12, fontSize: 12 }}>
-                _________________________________________
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  textAlign: "justify",
-                  fontFamily: "Times-Roman",
-                }}
-              >
-                Assinatura do Paciente
-              </Text>
-            </View>
-            <Text style={styles.textMin}>
-              Data: {new Date().toLocaleDateString()}
-            </Text>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.header}>
+            <Image style={styles.logo} src="/images/cemicLogo.png" />
+            <Text style={{ ...styles.title, fontSize: 19 }}>Recibo</Text>
           </View>
 
-          {/* <Text
-            style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `${pageNumber} / ${totalPages}`
-            }
-            fixed
-          /> */}
+          <Text style={styles.text}>
+            <Text style={styles.bold}>
+              Recebi de {pat?.name} a quantia de {total} referente a:
+            </Text>
+          </Text>
+
+          <Text style={styles.text}>
+            {treats?.length > 0 &&
+              treats?.map((item, i: number) => (
+                <View style={styles.row} key={i}>
+                  <Text style={styles.regionText}>
+                    {`♦ Região ${parseToothRegion(item.attributes.region)} => ${
+                      item.attributes.name
+                    }`}
+                  </Text>
+
+                  <Text style={styles.lineIcon}>→</Text>
+
+                  <Text style={styles.priceText}>
+                    {parseToBrl(item.attributes.price)}
+                  </Text>
+                </View>
+              ))}
+
+            {rcpt?.description !== "" && rcpt?.description !== null && (
+              <Text style={styles.priceText}>OBS: {rcpt?.description}</Text>
+            )}
+          </Text>
+
+          <Text style={[styles.text, styles.bold, { marginVertical: 10 }]}>
+            TOTAL: {total}
+          </Text>
+
+          <Text style={styles.text}>
+            <View style={styles.section}>
+              <Text style={styles.label}>Forma de Pagamento: </Text>
+
+              {payShapes?.length === 1 &&
+                payShapes.map((v: any) => {
+                  const valueAdditional =
+                    v.price + (v.creditAdditionalValue || 0);
+
+                  if (v.shape === "CREDIT_CARD") {
+                    return (
+                      <Text key={v.shape} style={styles.detail}>
+                        Pagos {parseToBrl(valueAdditional)} no{" "}
+                        {parseShape(v.shape)} em {v.split_times}x
+                        {v?.creditAdditional > 0
+                          ? ` (${parseToBrl(v.price)} + ${parseToBrl(
+                              v.creditAdditionalValue
+                            )} — ${v.creditAdditional}% de acréscimo)`
+                          : ""}
+                      </Text>
+                    );
+                  }
+
+                  if (v.shape === "WALLET_CREDIT") {
+                    const fundUsed =
+                      (
+                        rcpt?.fund_useds as StrapiListRelationData<FundCreditsInterface>
+                      )?.data ?? [];
+                    return fundUsed.map((p: any, i: number) => {
+                      const payment = p.attributes.payment;
+                      const paymentDate = new Date(
+                        payment?.data?.attributes?.date
+                      ).toLocaleDateString();
+
+                      return (
+                        <Text key={`wallet-${i}`} style={styles.detail}>
+                          Usados {parseToBrl(p.attributes.used_value)} do
+                          crédito de {parseToBrl(p.attributes.max_used_value)},
+                          pagos no dia {paymentDate}
+                        </Text>
+                      );
+                    });
+                  }
+
+                  if (v.shape === "BANK_CHECK") {
+                    return (
+                      <Text key={v.shape} style={styles.detail}>
+                        Pagos no {parseShape(v.shape)} em {v.split_times}x,
+                        cheques informados abaixo.
+                      </Text>
+                    );
+                  }
+
+                  return (
+                    <Text key={v.shape} style={styles.detail}>
+                      Pagos no(a) {parseShape(v.shape)}.
+                    </Text>
+                  );
+                })}
+
+              {payShapes?.length > 1 &&
+                payShapes
+                  .filter((v, i, arr) =>
+                    v.shape === "WALLET_CREDIT"
+                      ? arr.findIndex((x) => x.shape === "WALLET_CREDIT") === i
+                      : true
+                  )
+                  .map((v: any, i: number) => {
+                    const hasSpace = i === payShapes.length - 1 ? "" : " + ";
+                    if (v.shape === "CREDIT_CARD") {
+                      return (
+                        <Text key={v.shape + i} style={styles.detail}>
+                          Pagos{" "}
+                          {parseToBrl(v.price + (v.creditAdditionalValue || 0))}{" "}
+                          no {parseShape(v.shape)} em {v.split_times}x
+                          {v?.creditAdditional > 0
+                            ? ` (${parseToBrl(v.price)} + ${parseToBrl(
+                                v.creditAdditionalValue
+                              )} — ${v.creditAdditional}% de acréscimo)`
+                            : ""}
+                          {hasSpace}
+                        </Text>
+                      );
+                    }
+
+                    if (v.shape === "WALLET_CREDIT") {
+                      const paymentsUseds =
+                        (
+                          rcpt?.fund_useds as StrapiListRelationData<FundCreditsInterface>
+                        )?.data ?? [];
+                      const seenFormats = new Set<string>();
+                      const formattedPayments: string[] = [];
+
+                      for (const p of paymentsUseds) {
+                        const paymentDate = (
+                          p.attributes
+                            ?.payment as StrapiRelationData<PaymentsInterface>
+                        )?.data?.attributes?.date;
+                        if (!paymentDate) continue;
+
+                        const formatted = `Usados ${parseToBrl(
+                          p.attributes.used_value
+                        )} do crédito de ${parseToBrl(
+                          p.attributes.max_used_value
+                        )}, pagos no dia ${format(
+                          new Date(paymentDate),
+                          "dd/MM/yyyy"
+                        )}`;
+
+                        if (!seenFormats.has(formatted)) {
+                          seenFormats.add(formatted);
+                          formattedPayments.push(formatted);
+                        }
+                      }
+
+                      return formattedPayments.map((line, idx) => (
+                        <Text key={`wallet-${i}-${idx}`} style={styles.detail}>
+                          {line}
+                          {idx === formattedPayments.length - 1 && hasSpace}
+                        </Text>
+                      ));
+                    }
+
+                    if (v.shape === "BANK_CHECK") {
+                      return (
+                        <Text key={v.shape + i} style={styles.detail}>
+                          Pagos {parseToBrl(v.price)} no {parseShape(v.shape)}{" "}
+                          em {v.split_times}x, cheques informados abaixo.
+                        </Text>
+                      );
+                    }
+
+                    return (
+                      <Text key={v.shape + i} style={styles.detail}>
+                        Pagos {parseToBrl(v.price)} no(a) {parseShape(v.shape)}
+                        {hasSpace}.
+                      </Text>
+                    );
+                  })}
+            </View>
+          </Text>
+
+          <Text style={{ ...styles.text, ...{ marginVertical: 10 } }}>
+            Estou ciente que em caso de desistência, será descontado 10% do
+            valor do tratamento negociado
+          </Text>
+
+          <Text style={styles.text}>
+            Qualquer divergência em relação ao valor do material e procedimento,
+            é necessário retornar com o recibo na CEMIC. Paciente precisa trazer
+            o recibo sempre que retornar na CEMIC para resolver qualquer
+            assunto.
+          </Text>
+
+          <Text
+            style={{
+              ...styles.text,
+              marginTop: 30,
+              textAlign: "right",
+            }}
+          >
+            {/* {filial} {date} */}
+          </Text>
+
+          <View style={styles.signatureBlock}>
+            <View>
+              <Text>
+                {filial}{" "}
+                {new Date(rcpt?.date as unknown as string).toLocaleDateString()}
+              </Text>
+            </View>
+            <View>
+              <View style={styles.line} />
+              <Text style={styles.signature}>Paciente</Text>
+            </View>
+            <View>
+              <View style={styles.line} />
+              <Text style={styles.signature}>CEMIC</Text>
+            </View>
+          </View>
         </Page>
       </Document>
     </PDFViewer>
   );
 };
 
-export default ReceiptPdfRender;
+export default CemicReceiptPDF;

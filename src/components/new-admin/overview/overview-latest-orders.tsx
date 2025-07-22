@@ -81,8 +81,8 @@ export const OverviewLatestOrders = (props: any) => {
               const cashier = attr?.cashier?.data?.attributes?.type;
               const patient =
                 attr?.patient as StrapiRelationData<PatientInterface>;
-              const payment = attr?.attributes
-                ?.payment as StrapiRelationData<PaymentsInterface>;
+              const payment =
+                attr?.payment as StrapiRelationData<PaymentsInterface>;
               const paymentAttr = payment?.data?.attributes;
               const patientAttr = patient?.data?.attributes;
               const datePayment = format(
@@ -91,17 +91,16 @@ export const OverviewLatestOrders = (props: any) => {
               );
               const location =
                 order?.attributes?.patient?.data?.attributes?.location;
-              console.log({ payment });
 
               return (
                 <TableRow
                   hover
                   key={order.id}
-                  onClick={() =>
-                    push(
-                      `/admin/patients/${patientAttr?.cardId}/docs/receipt?payment_id=${payment?.data?.id}`
-                    )
-                  }
+                  component={"a"}
+                  sx={{ cursor: "pointer" }}
+                  target="_blank"
+                  href={`/admin/patients/${patientAttr?.cardId}/docs/receipt?payment_id=${payment?.data?.id}`}
+                  rel="noopener noreferrer"
                 >
                   <TableCell>
                     <SeverityPill color={cashierType[cashier]}>
