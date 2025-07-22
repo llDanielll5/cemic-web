@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
+// TODO REFACTOR THIS PAGE
 
 import React, { useCallback, useEffect, useState } from "react";
 import { PatientAttributes } from "types/patient";
