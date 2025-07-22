@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/dashboard/layout";
 import { Box, Button, Stack, Typography, styled } from "@mui/material";
-import {
-  getAllDentists,
-  getDentistSingle,
-  getListOfDentists,
-} from "@/axios/admin/dentists";
+import { getAllDentists } from "@/axios/admin/dentists";
 import { CompaniesSearch } from "@/components/new-admin/companies/companies-search";
-import CardDentist from "@/components/admin/dentist/_components/card-dentist";
-import PaymentsDentistModal from "@/components/admin/dentist/modals/payments";
 import AddIcon from "@mui/icons-material/Add";
 import CModal from "@/components/modal";
 import NewDentistForm from "@/components/new-admin/dentist/new-dentist-form";
