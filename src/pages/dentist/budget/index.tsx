@@ -83,21 +83,31 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   try {
     const { jwtHeader, userJson } = contextUserAdmin(context);
 
-    // Apenas para dentista
     if (userJson?.userType === "DENTIST") {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000); // timeout de 15s
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15s
 
-      const { data } = await axiosInstance.get(
-        `patient-budget-dentists?filters[isCompleted][$eq]=false&populate[patient]=*`,
-        {
-          ...jwtHeader,
-          signal: controller.signal,
+      try {
+        const { data } = await axiosInstance.get(
+          `patient-budget-dentists?filters[isCompleted][$eq]=false&populate[patient]=*`,
+          {
+            ...jwtHeader,
+            signal: controller.signal,
+          }
+        );
+        clearTimeout(timeout);
+        return { props: { budgets: data } };
+      } catch (err: any) {
+        clearTimeout(timeout);
+        if (err.name === "AbortError") {
+          console.error("Requisição abortada por timeout");
+        } else {
+          console.error("Erro na requisição:", err);
         }
-      );
-
-      clearTimeout(timeout);
-      return { props: { budgets: data } };
+        return {
+          props: { budgets: null, error: "Erro na requisição de dados" },
+        };
+      }
     }
 
     return { props: { budgets: null } };

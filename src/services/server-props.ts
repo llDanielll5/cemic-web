@@ -2,25 +2,20 @@ import { getCookie } from "cookies-next";
 import { GetServerSidePropsContext } from "next";
 
 export const contextUserAdmin = (context: GetServerSidePropsContext) => {
-  const jwt = getCookie("jwt", { req: context.req, res: context.res }) as
-    | string
-    | undefined;
-  const user = getCookie("user", { req: context.req, res: context.res }) as
-    | string
-    | undefined;
+  const jwt = getCookie("jwt", { req: context.req, res: context.res });
+  const userCookie = getCookie("user", { req: context.req, res: context.res });
 
   let userJson: AdminType | null = null;
+
   try {
-    if (user) {
-      userJson = JSON.parse(user);
-    }
-  } catch (err) {
-    console.warn("Erro ao fazer parse do user cookie:", err);
+    userJson = userCookie ? JSON.parse(userCookie as string) : null;
+  } catch (error) {
+    console.warn("Erro ao parsear user do cookie:", error);
   }
 
   const jwtHeader = {
     headers: {
-      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+      ...(jwt && { Authorization: `Bearer ${jwt}` }),
     },
   };
 
