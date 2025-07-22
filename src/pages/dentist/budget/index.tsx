@@ -80,16 +80,36 @@ DentistBudgetPage.getLayout = (page: React.ReactElement) => (
 );
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { jwtHeader, userJson } = contextUserAdmin(context);
-  if (userJson.userType === "DENTIST") {
-    const { data } = await axiosInstance.get(
-      `patient-budget-dentists?filters[isCompleted][$eq]=false&populate[patient]=*`,
-      jwtHeader
-    );
-    return { props: { budgets: data } };
-  }
+  try {
+    const { jwtHeader, userJson } = contextUserAdmin(context);
 
-  return { props: { budgets: null } };
+    // Apenas para dentista
+    if (userJson?.userType === "DENTIST") {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000); // timeout de 15s
+
+      const { data } = await axiosInstance.get(
+        `patient-budget-dentists?filters[isCompleted][$eq]=false&populate[patient]=*`,
+        {
+          ...jwtHeader,
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeout);
+      return { props: { budgets: data } };
+    }
+
+    return { props: { budgets: null } };
+  } catch (error) {
+    console.error("Erro no getServerSideProps:", error);
+    return {
+      props: {
+        budgets: null,
+        error: "Erro ao carregar dados do servidor",
+      },
+    };
+  }
 }
 
 export default DentistBudgetPage;
