@@ -36,7 +36,8 @@ const PatientTreatmentDentistBudgetTab = ({
   const attr = patient?.attributes;
   let patientOdontogram = (
     attr?.odontogram as StrapiRelationData<OdontogramInterface>
-  )?.data?.attributes;
+  )?.data;
+  const odontogramAttr = patientOdontogram?.attributes;
 
   const updatePage = () => {
     return replace(asPath);
@@ -79,7 +80,7 @@ const PatientTreatmentDentistBudgetTab = ({
             id: (
               patient?.attributes
                 ?.odontogram as StrapiRelationData<OdontogramInterface>
-            )?.data.id,
+            )?.data?.id,
           }}
           onUpdatePatient={updatePage}
         />
