@@ -47,7 +47,6 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
 
   const patient: any = patientData?.attributes;
   const patientTreatments = patient?.treatments?.data;
-  console.log({ patientTreatments });
   // const notConcludeds = useMemo(
   //   () =>
   //     patientTreatments?.filter(

@@ -34,7 +34,6 @@ const PatientBudgetDetails = ({
   const adminData = useRecoilValue(UserData);
   const [tabIndex, setTabIndex] = useState(0);
   const setPatientData = useSetRecoilState(PatientData);
-  console.log({ patient });
 
   const handleChangeTab = (
     e: React.SyntheticEvent<Element, Event>,
