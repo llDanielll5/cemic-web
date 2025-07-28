@@ -6,12 +6,19 @@ import { Box } from "@mui/material";
 import { useRouter } from "next/router";
 import Loading from "@/components/loading";
 import dynamic from "next/dynamic";
+import { getCookie } from "cookies-next";
+import { GetServerSidePropsContext } from "next";
+import { handleGetSinglePatient } from "@/axios/admin/patients";
 
 const SingleUser = dynamic(import("@/components/admin/patient"), {
   ssr: false,
 });
 
-const PatientSingle = () => {
+const PatientSingle = ({
+  patient,
+}: {
+  patient: StrapiData<PatientInterface>;
+}) => {
   const router = useRouter();
   const { handleLoading } = useLoading();
   const card = router?.query?.cardId ?? "";
@@ -40,5 +47,31 @@ const PatientSingle = () => {
 PatientSingle.getLayout = (page: any) => (
   <DashboardLayout>{page}</DashboardLayout>
 );
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { cardId } = context.query as { cardId: string };
+  const jwt = context
+    ? getCookie("jwt", { req: context.req, res: context.res })
+    : undefined;
+
+  const user = context
+    ? getCookie("user", { req: context.req, res: context.res })
+    : undefined;
+
+  const userJson: AdminType = JSON.parse(user as string);
+  const jwtHeader = {
+    headers: {
+      ...(jwt && { Authorization: `Bearer ${jwt}` }),
+    },
+  };
+
+  const { data } = await handleGetSinglePatient(cardId, jwtHeader);
+
+  if (data) {
+    return { props: { patient: data.data[0] } };
+  }
+
+  return { props: { patient: null } };
+}
 
 export default PatientSingle;

@@ -4,7 +4,9 @@ type PatientTreatmentStatus =
   | "CANCELLED"
   | "FINISHED"
   | "SURGERY_SCHEDULED"
-  | "SCHEDULED";
+  | "SCHEDULED"
+  | "TO_PAY"
+  | "CHANGED";
 
 type OdontogramRegions =
   | "t18"

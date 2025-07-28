@@ -39,9 +39,7 @@ const PatientTreatmentDentistBudgetTab = ({
   )?.data;
   const odontogramAttr = patientOdontogram?.attributes;
 
-  const updatePage = () => {
-    return replace(asPath);
-  };
+  const updatePage = () => replace(asPath);
 
   const openAddTreatment = async () => {
     if (patientOdontogram === null) {
