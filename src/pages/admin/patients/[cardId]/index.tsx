@@ -14,11 +14,7 @@ const SingleUser = dynamic(import("@/components/admin/patient"), {
   ssr: false,
 });
 
-const PatientSingle = ({
-  patient,
-}: {
-  patient: StrapiData<PatientInterface>;
-}) => {
+const PatientSingle = () => {
   const router = useRouter();
   const { handleLoading } = useLoading();
   const card = router?.query?.cardId ?? "";
@@ -48,30 +44,30 @@ PatientSingle.getLayout = (page: any) => (
   <DashboardLayout>{page}</DashboardLayout>
 );
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { cardId } = context.query as { cardId: string };
-  const jwt = context
-    ? getCookie("jwt", { req: context.req, res: context.res })
-    : undefined;
+// export async function getServerSideProps(context: GetServerSidePropsContext) {
+//   const { cardId } = context.query as { cardId: string };
+//   const jwt = context
+//     ? getCookie("jwt", { req: context.req, res: context.res })
+//     : undefined;
 
-  const user = context
-    ? getCookie("user", { req: context.req, res: context.res })
-    : undefined;
+//   const user = context
+//     ? getCookie("user", { req: context.req, res: context.res })
+//     : undefined;
 
-  const userJson: AdminType = JSON.parse(user as string);
-  const jwtHeader = {
-    headers: {
-      ...(jwt && { Authorization: `Bearer ${jwt}` }),
-    },
-  };
+//   const userJson: AdminType = JSON.parse(user as string);
+//   const jwtHeader = {
+//     headers: {
+//       ...(jwt && { Authorization: `Bearer ${jwt}` }),
+//     },
+//   };
 
-  const { data } = await handleGetSinglePatient(cardId, jwtHeader);
+//   const { data } = await handleGetSinglePatient(cardId, jwtHeader);
 
-  if (data) {
-    return { props: { patient: data.data[0] } };
-  }
+//   if (data) {
+//     return { props: { patient: data.data[0] } };
+//   }
 
-  return { props: { patient: null } };
-}
+//   return { props: { patient: null } };
+// }
 
 export default PatientSingle;
