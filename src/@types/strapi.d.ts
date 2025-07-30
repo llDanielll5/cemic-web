@@ -25,5 +25,7 @@ interface StrapiData<T> {
   attributes: T;
 }
 
+type StrapiListData<T> = StrapiData<T>[];
+
 type StrapiRelationData<T> = StrapiRelation<StrapiData<T>>;
 type StrapiListRelationData<T> = StrapiListRelation<StrapiData<T>>;

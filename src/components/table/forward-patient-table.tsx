@@ -1,13 +1,5 @@
 import React from "react";
-import { parseToBrl } from "../admin/patient/modals/receipt-preview";
 import { parseDateIso } from "@/services/services";
-import { useRecoilValue } from "recoil";
-import UserData from "@/atoms/userData";
-import CreateIcon from "@mui/icons-material/Create";
-import AddIcon from "@mui/icons-material/Add";
-import { AdminInfosInterface } from "types/admin";
-import { PaymentShapesInterface } from "types/payments";
-import { ToothsInterface } from "types/odontogram";
 import {
   Box,
   Button,
@@ -20,11 +12,10 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { handleGetTreatments } from "@/axios/admin/treatments";
 import { formatISO } from "date-fns";
 
 interface ReceiptsProps {
-  items: any[];
+  items: StrapiListData<ForwardedTreatmentsInterface>;
   onGetDetails: (idForward: string) => void;
 }
 
@@ -40,65 +31,67 @@ export const ForwardPatientTable = (props: ReceiptsProps) => {
               <TableCell>Data Encaminhada</TableCell>
               <TableCell>Horário Encaminhado</TableCell>
               <TableCell>Dentista</TableCell>
-              <TableCell>Tratamentos</TableCell>
+              <TableCell>Tratamento</TableCell>
               <TableCell>Detalhes</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((val: any, index: number) => {
-              const schedule = val?.attributes;
-              let equalsNames: any = {};
-              const treatments = schedule.treatments.data;
-              const date = new Date(schedule.date);
+            {items.map(
+              (
+                val: StrapiData<ForwardedTreatmentsInterface>,
+                index: number
+              ) => {
+                const forward = val?.attributes;
+                let equalsNames: any = {};
+                const dentist = val?.attributes
+                  ?.dentist as StrapiRelationData<DentistInterface>;
+                const dentistUser = dentist?.data?.attributes
+                  ?.user as StrapiRelationData<AdminType>;
+                const dentistName = dentistUser?.data?.attributes?.name;
+                const treatment = (
+                  forward.treatment as StrapiRelationData<PatientTreatmentInterface>
+                )?.data?.attributes;
 
-              treatments.map((item: any) => {
-                equalsNames[item.attributes.name] = [
-                  ...(equalsNames[item.attributes.name] ?? []),
-                  item.attributes.name,
-                ];
-              });
+                let keys = Object.keys(equalsNames);
+                if (index < 6)
+                  return (
+                    <TableRow key={index}>
+                      <StyledTable>
+                        <Typography textAlign="center" variant="body2">
+                          {new Date(forward.date).toLocaleDateString()}
+                        </Typography>
+                      </StyledTable>
+                      <StyledTable>
+                        <Typography textAlign="center" variant="body2">
+                          {new Date(forward.date)
+                            .toLocaleTimeString()
+                            .substring(0, 5)}
+                        </Typography>
+                      </StyledTable>
+                      <StyledTable>
+                        <Typography textAlign="center" variant="body2">
+                          {dentistName}
+                        </Typography>
+                      </StyledTable>
 
-              let keys = Object.keys(equalsNames);
-              if (index < 6)
-                return (
-                  <TableRow key={index}>
-                    <StyledTable>
-                      <Typography textAlign="center" variant="body2">
-                        {parseDateIso(formatISO(date).substring(0, 10))}
-                      </Typography>
-                    </StyledTable>
-                    <StyledTable>
-                      <Typography textAlign="center" variant="body2">
-                        {formatISO(date).substring(11, 16)}
-                      </Typography>
-                    </StyledTable>
-                    <StyledTable>
-                      <Typography textAlign="center" variant="body2">
-                        {schedule.dentist.data.attributes.name}
-                      </Typography>
-                    </StyledTable>
+                      <StyledTable>
+                        <Typography textAlign="center" variant="body2">
+                          {treatment?.name}
+                        </Typography>
+                      </StyledTable>
 
-                    <StyledTable>
-                      <Typography textAlign="center" variant="body2">
-                        {keys.map((key, index) => {
-                          return `${equalsNames[key].length} ${key}${
-                            equalsNames[key].length > 1 ? "s" : ""
-                          }${index === equalsNames[key].length ? " " : ", "}`;
-                        })}
-                      </Typography>
-                    </StyledTable>
-
-                    <StyledTable>
-                      <Button
-                        variant="contained"
-                        onClick={() => onGetDetails(val.id)}
-                      >
-                        Ver
-                      </Button>
-                    </StyledTable>
-                  </TableRow>
-                );
-            })}
+                      <StyledTable>
+                        <Button
+                          variant="contained"
+                          onClick={() => onGetDetails(String(val.id))}
+                        >
+                          Ver
+                        </Button>
+                      </StyledTable>
+                    </TableRow>
+                  );
+              }
+            )}
           </TableBody>
         </Table>
       </Box>

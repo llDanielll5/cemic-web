@@ -135,7 +135,10 @@ export const handleGetSinglePatient = async (
       `populate[payments][populate][17]=payment_shapes.fund_credit.payment.payment_shapes`,
     ].join("&"),
     treatments: "populate[treatments][populate]=*",
-    forwardedTreatments: "populate[forwardedTreatments][populate]=*",
+    forwardedTreatments: [
+      "populate[forwardedTreatments][populate][treatment]=*",
+      "populate[forwardedTreatments][populate][dentist][populate][user]=*",
+    ].join("&"),
   };
 
   const query = [
