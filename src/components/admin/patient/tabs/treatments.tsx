@@ -10,6 +10,7 @@ import PatientTreatmentsHistory from "../components/treatments-history";
 import PatientData from "@/atoms/patient";
 import UserData from "@/atoms/userData";
 import { toast } from "react-toastify";
+import { useLoading } from "@/contexts/LoadingContext";
 
 interface ClientTreatmentsInterface {
   onUpdatePatient: any;
@@ -28,10 +29,10 @@ export interface PaymentShapesArray {
 
 const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   const { onUpdatePatient } = props;
+  const { handleLoading } = useLoading();
   const patientData = useRecoilValue(PatientData);
   const client = patientData?.attributes;
   const adminData: any = useRecoilValue(UserData);
-  const [isLoading, setIsLoading] = useState(false);
   let patientOdontogram = (client?.odontogram as any)?.data;
 
   const [data, setData] = useState<TreatmentsInterface>({
@@ -58,10 +59,18 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
   };
 
   const getTreatments = useCallback(async () => {
-    return await handleGetPatientTreatments(String(patientData?.id!)).then(
-      (res) => getInformations(res.data.data),
-      (err) => console.log(err.response)
-    );
+    if (!patientData) return;
+    handleLoading(true, "Carregando tratamentos do paciente");
+    try {
+      const { data } = await handleGetPatientTreatments(
+        String(patientData?.id!)
+      );
+      getInformations(data.data);
+    } catch (error: any) {
+      console.log(error.response);
+    } finally {
+      handleLoading(false);
+    }
   }, [patientData]);
 
   useEffect(() => {
