@@ -2,17 +2,23 @@ type FORWARDED_TREATMENTS_STATUS =
   | "WAITING"
   | "FINISHED"
   | "RETURNED"
-  | "SCHEDULED";
+  | "SCHEDULED"
+  | "REMAKE"
+  | "CANCELLED"
+  | "WAITING_MATERIAL"
+  | "WAITING_COMPONENTS"
+  | "WAITING_IMPLANTS";
 
 interface ForwardedTreatmentsInterface {
   date: string | Date;
-  treatment:
-    | PatientTreatmentInterface
-    | StrapiRelationData<PatientTreatmentInterface>;
   obs: string;
-  patient: PatientInterface | StrapiRelationData<PatientInterface>;
+  patient: PatientInterface | StrapiRelationData<PatientInterface> | number;
   adminInfos?: AdminInfosInterface;
   inProgress: boolean;
-  dentist: DentistInterface | StrapiRelationData<DentistInterface>;
+  dentist: DentistInterface | StrapiRelationData<DentistInterface> | number;
   status: FORWARDED_TREATMENTS_STATUS;
+  treatment:
+    | PatientTreatmentInterface
+    | StrapiRelationData<PatientTreatmentInterface>
+    | number;
 }

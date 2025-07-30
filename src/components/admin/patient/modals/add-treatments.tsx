@@ -95,20 +95,23 @@ const AddPatientTreatmentModal = (props: AddPatientTreatmentModalInterface) => {
         ),
       };
     }
-    let newTreatment: TreatmentsPatientInterface = {
+    let newTreatment: PatientTreatmentInterface = {
       name: submitValues.name,
       price: submitValues.price,
+      hasPayed: false,
+      hasFinished: false,
+      hasAbsent: false,
       obs: "",
       finishedAt: null,
-      finishedBy: null,
-      hasAbsent: false,
-      hasFinished: false,
-      hasPayed: false,
+      patient: patientData?.id,
       region: rg as OdontogramRegions,
       odontogram: patientOdontogram?.id,
-      patient: patientData?.id,
-      paymentsProfessional: null,
       payment: null,
+
+      status: "TO_PAY",
+      hasChange: false,
+      hasCancelled: false,
+      forwardeds: null,
     };
     let data = { ...patientOdontogram };
     let attr = data?.attributes ?? data;

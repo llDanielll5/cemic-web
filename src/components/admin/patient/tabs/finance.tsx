@@ -47,6 +47,7 @@ import {
 import { someArrValues } from "@/utils";
 import { formatISO } from "date-fns";
 import { ToothsInterface } from "types/odontogram";
+import { useLoading } from "@/contexts/LoadingContext";
 
 interface PatientFinaceTabProps {
   onUpdatePatient: any;
@@ -72,13 +73,11 @@ interface CreatePayment {
 
 const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   const { onUpdatePatient } = props;
+  const { handleLoading } = useLoading();
   const patientData = useRecoilValue(PatientData);
   const adminData = useRecoilValue(UserData);
   const patient = patientData?.attributes;
   const paymentsPatient = patient?.payments?.data;
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
   const [addCreditModal, setAddCreditModal] = useState(false);
   const [treatmentsToPay, setTreatmentsToPay] = useState<any>([]);
   const [receiptPreviewVisible, setReceiptPreviewVisible] = useState(false);
@@ -92,12 +91,11 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
 
   const handleCloseAddPayment = () => setTreatmentsToPay([]);
   const handleGeneratePayment = async () => {
-    setIsLoading(true);
-    setLoadingMessage("Estamos Carregando Informações de Tratamentos!");
+    handleLoading(true, "Estamos Carregando Informações de Tratamentos!");
     const res = await handleGetTreatmentsToPay(String(patientData?.id!));
     const notPayeds = res.data.data.filter((v: any) => !v.attributes.hasPayed);
 
-    setIsLoading(false);
+    handleLoading(false);
     if (notPayeds.length === 0)
       return toast.error("Não há tratamentos sem pagamento deste paciente!");
     setTreatmentsToPay(notPayeds);
@@ -112,8 +110,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
   };
 
   const handleSubmitCredits = async () => {
-    setIsLoading(true);
-    setLoadingMessage("Adicionando Fundos de Crédito para o paciente!");
+    handleLoading(true, "Adicionando Fundos de Crédito para o paciente!");
     const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
     const creditDate: Date = receiptCredits.dateSelected;
     const dataUpdate: { data: PaymentsInterface } = {
@@ -138,7 +135,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       setReceiptCredits(null);
       setAddCreditModal(false);
       onUpdatePatient();
-      setIsLoading(false);
+      handleLoading(false);
     };
     const cashierType: "clinic" | "implant" = receiptCredits?.cashierType!;
     const isoDate = formatISO(new Date(creditDate)).substring(0, 10);
@@ -148,11 +145,11 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       cashierType,
       adminData?.filial!
     );
-    setLoadingMessage("Estamos verificando o Caixa do Dia!");
+    handleLoading(true, "Estamos verificando o Caixa do Dia!");
     const { data: hasOpenedCashier } = resData;
 
     if (hasOpenedCashier.length === 0) {
-      setIsLoading(false);
+      handleLoading(false);
       toast.error("Não há caixa aberto ou já possui caixa fechado de hoje!");
       return;
     }
@@ -207,13 +204,13 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         data: paymentData,
       }: { data: StrapiRelationData<PaymentsInterface> } =
         await createPatientPayment(dataUpdate);
-      setLoadingMessage("Atualizando o caixa do Dia!");
+      handleLoading(true, "Atualizando o caixa do Dia!");
 
       const {
         data: cashierInfoAxiosData,
       }: { data: StrapiRelationData<CashierInfosInterface> } =
         await generatePatientPaymentInCashier(cashierInfoData);
-      setLoadingMessage("Estamos atualizando informações do paciente...");
+      handleLoading(true, "Estamos atualizando informações do paciente...");
 
       const { data } = await handleGetPatientCredits(String(patientData?.id!));
       const oldCredits = data.data?.attributes?.credits;
@@ -249,7 +246,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
           "Erro ao criar Fundo de Crédito para o paciente!"
       );
     } finally {
-      setIsLoading(false);
+      handleLoading(false);
     }
   };
 
@@ -307,8 +304,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       (item) => item.fundCredits as StrapiData<FundCreditsInterface>
     );
 
-    // setIsLoading(true);
-    setLoadingMessage("Criando Pagamento do Paciente...");
+    handleLoading(true, "Estamos gerando o recibo do paciente...");
 
     const treatmentsIds = receiptValues?.treatmentsForPayment.map((v) => v.id)!;
     const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
@@ -353,7 +349,6 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       handleCloseAddPayment();
       setReceiptValues(null);
       onUpdatePatient();
-      setIsLoading(false);
       toast.success("Sucesso ao gerar pagamento do paciente");
     };
 
@@ -364,11 +359,11 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       cashierType,
       adminData?.filial!
     );
-    setLoadingMessage("Estamos verificando o Caixa do Dia!");
+    handleLoading(true, "Estamos verificando o Caixa do Dia!");
     const { data: hasOpenedCashier } = resData;
 
     if (hasOpenedCashier.length === 0) {
-      setIsLoading(false);
+      handleLoading(false);
       toast.error("Não há caixa aberto ou já possui caixa fechado de hoje!");
       return;
     }
@@ -429,6 +424,8 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     let usedVal = 0;
     if (creditWallet) usedVal = creditWallet?.price!;
 
+    console.log({ dataUpdate });
+
     try {
       const { data: paymentData } = await createPatientPayment(dataUpdate);
 
@@ -441,7 +438,7 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
         patient: String(patientData?.id!),
       });
 
-      setLoadingMessage("Atualizando o caixa do Dia!");
+      handleLoading(true, "Atualizando o caixa do Dia!");
       const cashierInfoData: CreateCashierInfosInterface = {
         date: receiptValues?.dateSelected!,
         description,
@@ -457,20 +454,20 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
       };
 
       await generatePatientPaymentInCashier(cashierInfoData);
-      setLoadingMessage("Estamos atualizando informações do paciente...");
-      await handleUpdatePatient(String(patientData?.id!), {
-        role: "PATIENT",
-        credits: patientData?.attributes?.credits! - usedVal,
-      });
+      handleLoading(true, "Estamos atualizando informações do paciente...");
+      // await handleUpdatePatient(String(patientData?.id!), {
+      //   role: "PATIENT",
+      //   credits: patientData?.attributes?.credits! - usedVal,
+      // });
 
-      if (creditWallet) await handleUpdateHasPayedTreatments(treatmentsIds);
+      await handleUpdateHasPayedTreatments(treatmentsIds);
 
       handleConclusion();
     } catch (error: any) {
       console.log(error.response ?? error);
       toast.error("Erro ao gerar recibo do paciente!");
     } finally {
-      setIsLoading(false);
+      handleLoading(false);
     }
   };
 
@@ -500,101 +497,94 @@ const PatientFinanceTab = (props: PatientFinaceTabProps) => {
     const val = getPatientCredits();
   }, [getPatientCredits]);
 
-  if (isLoading)
-    return (
-      <Box position="fixed" top={0} left={0} zIndex={999999}>
-        <Loading message={loadingMessage} />
-      </Box>
-    );
-  else
-    return (
-      <Container>
-        <AddPaymentPatientModal
-          visible={treatmentsToPay.length > 0}
-          closeModal={handleCloseAddPayment}
-          treatmentsToPay={treatmentsToPay}
-          onPassReceiptValues={handleGetReceiptValues}
+  return (
+    <Container>
+      <AddPaymentPatientModal
+        visible={treatmentsToPay.length > 0}
+        closeModal={handleCloseAddPayment}
+        treatmentsToPay={treatmentsToPay}
+        onPassReceiptValues={handleGetReceiptValues}
+      />
+      <AddCreditToPatientModal
+        visible={addCreditModal}
+        closeModal={() => setAddCreditModal(!addCreditModal)}
+        onPassReceiptValues={handleGetReceiptCredits}
+      />
+      {receiptValues !== null && (
+        <ReceiptPreview
+          visible={receiptPreviewVisible}
+          closeModal={handleCloseReceiptValues}
+          onSubmit={handleSubmitReceipt}
+          receiptValues={receiptValues}
         />
-        <AddCreditToPatientModal
-          visible={addCreditModal}
-          closeModal={() => setAddCreditModal(!addCreditModal)}
-          onPassReceiptValues={handleGetReceiptCredits}
+      )}
+      {receiptCredits !== null && (
+        <ReceiptCreditsPreview
+          visible={receiptCreditsPreview}
+          closeModal={handleCloseReceiptCredits}
+          onSubmit={handleSubmitCredits}
+          receiptCredits={receiptCredits}
         />
-        {receiptValues !== null && (
-          <ReceiptPreview
-            visible={receiptPreviewVisible}
-            closeModal={handleCloseReceiptValues}
-            onSubmit={handleSubmitReceipt}
-            receiptValues={receiptValues}
-          />
-        )}
-        {receiptCredits !== null && (
-          <ReceiptCreditsPreview
-            visible={receiptCreditsPreview}
-            closeModal={handleCloseReceiptCredits}
-            onSubmit={handleSubmitCredits}
-            receiptCredits={receiptCredits}
-          />
-        )}
+      )}
 
-        {receiptSingle !== null && (
-          <ReceiptSinglePatient
-            visible={receiptSingle !== null}
-            closeModal={handleCloseReceiptSingle}
-            receiptSingleValues={receiptSingle}
-          />
-        )}
+      {receiptSingle !== null && (
+        <ReceiptSinglePatient
+          visible={receiptSingle !== null}
+          closeModal={handleCloseReceiptSingle}
+          receiptSingleValues={receiptSingle}
+        />
+      )}
 
-        {patient?.credits === null || getPatientCredits() === 0 ? null : (
-          <Alert
-            severity="warning"
-            sx={{ width: "100%", mb: 2, bgcolor: "rgba(255, 200, 10, 0.2)" }}
+      {patient?.credits === null || getPatientCredits() === 0 ? null : (
+        <Alert
+          severity="warning"
+          sx={{ width: "100%", mb: 2, bgcolor: "rgba(255, 200, 10, 0.2)" }}
+        >
+          <Typography variant="subtitle2">
+            O paciente possui um crédito de:{" "}
+            {getPatientCredits() > 0
+              ? parseToBrl(getPatientCredits())
+              : parseToBrl(patient?.credits)}
+          </Typography>
+        </Alert>
+      )}
+
+      <HeaderContainer elevation={10}>
+        <Typography variant="h5">Histórico Financeiro</Typography>
+        <Stack
+          direction={{ md: "row", xs: "column" }}
+          alignItems="center"
+          gap={2}
+        >
+          <Button
+            title={"Adicionar Pagamento"}
+            variant="contained"
+            onClick={handleGeneratePayment}
+            startIcon={<AttachMoneyIcon />}
           >
-            <Typography variant="subtitle2">
-              O paciente possui um crédito de:{" "}
-              {getPatientCredits() > 0
-                ? parseToBrl(getPatientCredits())
-                : parseToBrl(patient?.credits)}
-            </Typography>
-          </Alert>
-        )}
+            Pagamento Total
+          </Button>
 
-        <HeaderContainer elevation={10}>
-          <Typography variant="h5">Histórico Financeiro</Typography>
-          <Stack
-            direction={{ md: "row", xs: "column" }}
-            alignItems="center"
-            gap={2}
+          <Button
+            title={"Adicionar Créditos"}
+            variant="contained"
+            onClick={handleAddCredits}
+            startIcon={<PaymentsSharpIcon />}
           >
-            <Button
-              title={"Adicionar Pagamento"}
-              variant="contained"
-              onClick={handleGeneratePayment}
-              startIcon={<AttachMoneyIcon />}
-            >
-              Pagamento Total
-            </Button>
+            Pagamento Parcial
+          </Button>
+        </Stack>
+      </HeaderContainer>
 
-            <Button
-              title={"Adicionar Créditos"}
-              variant="contained"
-              onClick={handleAddCredits}
-              startIcon={<PaymentsSharpIcon />}
-            >
-              Pagamento Parcial
-            </Button>
-          </Stack>
-        </HeaderContainer>
-
-        {paymentsPatient?.length > 0 && (
-          <ReceiptsPatientTable
-            onGetValues={onGetReceiptSingle}
-            items={paymentsPatient}
-            onDeleteValues={onUpdatePatient}
-          />
-        )}
-      </Container>
-    );
+      {paymentsPatient?.length > 0 && (
+        <ReceiptsPatientTable
+          onGetValues={onGetReceiptSingle}
+          items={paymentsPatient}
+          onDeleteValues={onUpdatePatient}
+        />
+      )}
+    </Container>
+  );
 };
 
 const Container = styled(Box)`

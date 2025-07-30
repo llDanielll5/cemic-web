@@ -2,19 +2,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Modal from "@/components/modal";
 import UserData from "@/atoms/userData";
+import { toast } from "react-toastify";
 import { useRecoilValue } from "recoil";
 import { parseToothRegion } from "@/services/services";
+import { useLoading } from "@/contexts/LoadingContext";
 import { ForwardPatientTable } from "@/components/table/forward-patient-table";
 import { FinishedsTreatmentsPatientTable } from "@/components/table/finisheds-treatments-patient-table";
-import RunCircleOutlinedIcon from "@mui/icons-material/RunCircleOutlined";
 import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
-import FinishPatientTreatmentsModal from "../modals/finish-treatments";
+import RunCircleOutlinedIcon from "@mui/icons-material/RunCircleOutlined";
 import CheckIcon from "@mui/icons-material/Check";
+import axiosInstance from "@/axios";
 import PatientData from "@/atoms/patient";
-import {
-  getListOfDentists,
-  handleCreateForwardPatientTreatments,
-} from "@/axios/admin/dentists";
+import { handleGetAllDentists } from "@/axios/admin/dentists";
 import {
   handleFinishTreatmentsOfPatient,
   handleGetFinishedTreatmentsOfPatient,
@@ -31,6 +30,7 @@ import {
 } from "@mui/material";
 
 const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
+  const { handleLoading } = useLoading();
   const [isLoading, setIsLoading] = useState(false);
   const [dentists, setDentists] = useState<any[]>([]);
   const adminData: any = useRecoilValue(UserData);
@@ -40,26 +40,22 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
   >([]);
   const [finishTreatmentsModal, setFinishTreatmentsModal] = useState(false);
   const [forwardModalVisible, setForwardModalVisible] = useState(false);
-  const [treatmentsToForward, setTreatmentsToForward] = useState<any[]>([]);
+  const [treatmentsToForward, setTreatmentsToForward] = useState<
+    StrapiListData<PatientTreatmentInterface>
+  >([]);
   const [selectedProfessional, setSelectedProfessional] = useState<any | null>(
     null
   );
 
   const patient: any = patientData?.attributes;
-  const patientTreatments = patient?.treatments?.data;
-  // const notConcludeds = useMemo(
-  //   () =>
-  //     patientTreatments?.filter(
-  //       (treat: any) =>
-  //         treat.attributes.finishedBy.data === null &&
-  //         treat.attributes.payment.data !== null &&
-  //         treat.attributes.finishedHistory.data === null
-  //     ),
-  //   [patientTreatments]
-  // );
+  const patientTreatments = (
+    patient?.treatments as StrapiListRelationData<PatientTreatmentInterface>
+  )?.data;
 
   const forwardedTreatmentsOfPatient = patient?.forwardedTreatments?.data;
   const [patientTreatmentsArr, setPatientTreatmentsArr] = useState<any[]>([]);
+
+  console.log({ forwardedTreatmentsOfPatient });
 
   const handleCloseForwardModal = () => {
     setForwardModalVisible(false);
@@ -69,19 +65,30 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
     return;
   };
 
-  const handleGetAllDentists = async () => {
-    return await getListOfDentists().then(
-      (res) => {
-        const dentists = res.data;
-        const map = dentists.map((v: any) => {
-          return { name: v.name, id: v.id };
-        });
-
-        setDentists(map);
-      },
-      (err) => console.log(err.response)
-    );
+  const getAllDentist = async () => {
+    handleLoading(true, "Carregando Todos os Dentistas");
+    try {
+      const { data } = await handleGetAllDentists();
+      const dentists = data.data;
+      const map = dentists.map((v: StrapiData<DentistInterface>) => {
+        const name = (v.attributes.user as StrapiRelationData<AdminType>)?.data
+          ?.attributes?.name;
+        return { name, id: v.id };
+      });
+      setDentists(map);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      handleLoading(false);
+    }
   };
+
+  const payedTreatments = useMemo(() => {
+    const payeds = patientTreatments?.filter(
+      (t) => !!t.attributes?.hasPayed && t.attributes.status === "WAITING"
+    );
+    return payeds;
+  }, [patientTreatments, patientData]);
 
   const handleAddForwardTreatments = (item: any) => {
     const filter = patientTreatmentsArr.filter((treat) => treat !== item);
@@ -96,23 +103,37 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
 
   const handleSendPatient = async () => {
     const treatmentsToSend = treatmentsToForward.map((v) => v.id);
-    const adminInfos = { created: adminData?.id, createTimestamp: new Date() };
-    const data = {
-      treatments: treatmentsToSend,
-      dentist: selectedProfessional.id,
-      patient: patientData?.id,
-      date: new Date(),
-      adminInfos,
-      obs: "",
+    const adminInfos: AdminInfosInterface = {
+      created: adminData?.id,
+      createTimestamp: new Date(),
     };
 
-    return await handleCreateForwardPatientTreatments(data).then(
-      (res) => {
-        handleCloseForwardModal();
-        props.onUpdatePatient();
-      },
-      (err) => console.log(err.response)
+    const data: ForwardedTreatmentsInterface[] = treatmentsToForward?.map(
+      (ts) => ({
+        obs: "",
+        adminInfos,
+        date: new Date(),
+        inProgress: true,
+        status: "WAITING",
+        treatment: ts.id,
+        dentist: selectedProfessional.id,
+        patient: patientData?.id as number,
+      })
     );
+
+    try {
+      await axiosInstance.post("/forwarded-treatments/bulk-create", {
+        entries: data,
+      });
+      handleCloseForwardModal();
+      props.onUpdatePatient();
+      toast.success("Tratamentos encaminhados com sucesso!");
+    } catch (error) {
+      console.log({ error });
+      toast.error(
+        "Não foi possível encaminhar os tratamentos, verifique a rede."
+      );
+    }
   };
 
   const getFinishedTreatmentsOfPatient = async () => {
@@ -144,7 +165,7 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
   };
 
   useEffect(() => {
-    handleGetAllDentists();
+    getAllDentist();
     getFinishedTreatmentsOfPatient();
   }, []);
 
@@ -159,7 +180,7 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
         closeModal={handleCloseForwardModal}
         styles={{ width: "90vw", height: "90vh", overflow: "auto" }}
       >
-        <Typography variant="subtitle1" mb={1}>
+        <Typography variant="subtitle1" mb={1} fontWeight={600}>
           Escolha o dentista:
         </Typography>
         <Autocomplete
@@ -178,32 +199,35 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
             />
           )}
         />
-        <Typography variant="subtitle1" mt={1}>
+        <Typography variant="subtitle1" mt={1} fontWeight={600}>
           Escolha os tratamentos:
         </Typography>
 
         <Stack alignItems={"center"} justifyContent="center" mt={2}>
-          {patientTreatmentsArr?.length === 0 && (
+          {payedTreatments?.length === 0 && (
             <Typography variant="h6" textAlign="center" sx={{ width: "100%" }}>
               Não há mais tratamentos para se escolher
             </Typography>
           )}
         </Stack>
         <GridContainer elevation={9}>
-          {patientTreatmentsArr?.map((v: any, i: number) => (
-            <Button
-              key={i}
-              onClick={() => handleAddForwardTreatments(v)}
-              variant="contained"
-              fullWidth
-              color={"success"}
-            >
-              {parseToothRegion(v?.attributes?.region)} - {v?.attributes?.name}
-            </Button>
-          ))}
+          {payedTreatments
+            ?.filter((v) => !treatmentsToForward.some((t) => t.id === v.id))
+            ?.map((v: StrapiData<PatientTreatmentInterface>, i: number) => (
+              <Button
+                key={i}
+                onClick={() => handleAddForwardTreatments(v)}
+                variant="contained"
+                fullWidth
+                color={"success"}
+              >
+                {parseToothRegion(v?.attributes?.region)} -{" "}
+                {v?.attributes?.name}
+              </Button>
+            ))}
         </GridContainer>
 
-        <Typography variant="subtitle1" my={1}>
+        <Typography variant="subtitle1" my={1} fontWeight={600}>
           Tratamentos escolhidos:
         </Typography>
 
@@ -215,9 +239,9 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
           )}
         </Stack>
 
-        <GridContainer elevation={9}>
-          {treatmentsToForward?.length > 0 &&
-            treatmentsToForward.map((v: any, i: number) => (
+        {treatmentsToForward?.length > 0 && (
+          <GridContainer elevation={9}>
+            {treatmentsToForward.map((v: any, i: number) => (
               <Button
                 key={i}
                 onClick={() => handleDeleteForward(v)}
@@ -229,7 +253,8 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
                 {v?.attributes?.name}
               </Button>
             ))}
-        </GridContainer>
+          </GridContainer>
+        )}
 
         {selectedProfessional !== null && treatmentsToForward?.length > 0 ? (
           <Stack mt={4} alignItems="center" justifyContent="center">
@@ -245,12 +270,12 @@ const SchedulesPatient = (props: { onUpdatePatient: () => void }) => {
         ) : null}
       </Modal>
 
-      <FinishPatientTreatmentsModal
+      {/* <FinishPatientTreatmentsModal
         closeModal={() => setFinishTreatmentsModal(false)}
         visible={finishTreatmentsModal}
         dentists={dentists}
         onSubmitEffect={(submitValues) => handleFinishTreatments(submitValues)}
-      />
+      /> */}
 
       {forwardedTreatmentsOfPatient !== null && (
         <Box>

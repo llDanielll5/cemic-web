@@ -6,7 +6,9 @@ type PatientTreatmentStatus =
   | "SURGERY_SCHEDULED"
   | "SCHEDULED"
   | "TO_PAY"
-  | "CHANGED";
+  | "CHANGED"
+  | "REMAKE"
+  | "FORWARDED";
 
 type OdontogramRegions =
   | "t18"
@@ -60,11 +62,13 @@ interface PatientTreatmentInterface {
   odontogram?: any | null;
   patient?: any | null;
   payment?: any | null;
-  paymentsProfessional?: any | null;
-  forwardeds?: any | null;
   price: number;
   region: OdontogramRegions;
   status: PatientTreatmentStatus;
+  hasChange?: boolean;
+  hasCancelled?: boolean;
+
+  forwardeds?: any | null;
 }
 
 interface OdontogramInterface {

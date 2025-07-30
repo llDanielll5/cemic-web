@@ -31,8 +31,10 @@ import PatientExams from "./tabs/exams";
 import PatientProblems from "./tabs/problems";
 import PatientAttachments from "./tabs/attachments";
 import { AdminInfosInterface } from "types/admin";
+import { useLoading } from "@/contexts/LoadingContext";
 
 const PatientDetails = (props: { cardId: string }) => {
+  const { handleLoading } = useLoading();
   const adminData = useRecoilValue(UserData);
   const [patientData, setPatientData] = useRecoilState(PatientData);
   const [clientData, setClientData] =
@@ -63,12 +65,20 @@ const PatientDetails = (props: { cardId: string }) => {
     nVal: string
   ) => setTabIndex(parseInt(nVal));
 
-  const handleGetPatient = async () => {
-    return await handleGetSinglePatient(props.cardId).then(
-      (res) => setPatientData(res.data.data[0]),
-      (err) => console.log(err.response)
-    );
-  };
+  const handleGetPatient = useCallback(async () => {
+    handleLoading(true, "Carregando detalhes do paciente...");
+    try {
+      const { data } = await handleGetSinglePatient(props.cardId);
+      setPatientData(data.data[0]);
+      console.log({
+        patientData: patientData?.attributes?.forwardedTreatments,
+      });
+    } catch (error: any) {
+      console.log(error.response);
+    } finally {
+      handleLoading(false);
+    }
+  }, [patientData]);
 
   const handleSubmit = async () => {
     const { name, email, dateBorn, phone, rg } = clientData;
