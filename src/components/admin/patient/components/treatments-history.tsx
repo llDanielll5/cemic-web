@@ -31,7 +31,11 @@ const treatmentStatusLabels: Record<PatientTreatmentStatus, string> = {
   FORWARDED: "Encaminhado",
 };
 
-const PatientTreatmentsHistory = (props: any) => {
+interface Props {
+  updateTreatments: () => void;
+}
+
+const PatientTreatmentsHistory = ({ updateTreatments }: Props) => {
   const { handleLoading } = useLoading();
   const patientData = useRecoilValue(PatientData);
   const adminData = useRecoilValue(UserData);
@@ -54,13 +58,14 @@ const PatientTreatmentsHistory = (props: any) => {
     [id: string]: PatientTreatmentStatus;
   }>({});
 
-  const getPatientTreatments = useCallback(async () => {
+  const fetchData = async () => {
+    if (!patientData?.id) return;
     handleLoading(true, "Carregando dados do paciente...");
     try {
       const { data: d } = await handleGetTreatmentsOfPatient(
-        String(patientData?.id!)
+        String(patientData.id)
       );
-      let data = d.data;
+      const data = d.data;
 
       const finisheds = data?.filter(
         (v: any) => v?.attributes?.finishedBy?.data !== null
@@ -68,7 +73,6 @@ const PatientTreatmentsHistory = (props: any) => {
       setPatientTreatments(data);
       setTreatmentsFinished(finisheds);
 
-      // Preenche o estado inicial
       const statusMap: Record<string, PatientTreatmentStatus> = {};
       data.forEach((item: any) => {
         statusMap[item.id] = item.attributes.status;
@@ -76,15 +80,15 @@ const PatientTreatmentsHistory = (props: any) => {
       setInitialStatusMap(statusMap);
       setTreatmentStatusMap(statusMap);
     } catch (error: any) {
-      console.log(error.response);
+      console.error("Erro ao carregar tratamentos:", error.response ?? error);
     } finally {
       handleLoading(false);
     }
-  }, [patientData?.id]);
+  };
 
   useEffect(() => {
-    getPatientTreatments();
-  }, [getPatientTreatments, props.updateTreatments]);
+    fetchData();
+  }, [patientData?.id]);
 
   const hasUnsavedChanges = Object.keys(treatmentStatusMap).some(
     (id) => treatmentStatusMap[id] !== initialStatusMap[id]
@@ -111,9 +115,7 @@ const PatientTreatmentsHistory = (props: any) => {
 
   const handleSaveStatusUpdates = async () => {
     if (Object.keys(statusUpdates).length === 0) return;
-
     handleLoading(true, "Salvando alterações...");
-
     try {
       const updates = Object.entries(statusUpdates).map(([id, status]) => ({
         id,
@@ -124,8 +126,9 @@ const PatientTreatmentsHistory = (props: any) => {
         updates,
       });
 
-      await getPatientTreatments(); // Recarrega os dados
+      await fetchData(); // Recarrega os dados
       setStatusUpdates({});
+      updateTreatments();
     } catch (err) {
       console.error("Erro ao salvar status:", err);
     } finally {

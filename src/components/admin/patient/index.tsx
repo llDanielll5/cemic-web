@@ -65,7 +65,7 @@ const PatientDetails = (props: { cardId: string }) => {
     nVal: string
   ) => setTabIndex(parseInt(nVal));
 
-  const handleGetPatient = useCallback(async () => {
+  const handleGetPatient = async () => {
     handleLoading(true, "Carregando detalhes do paciente...");
     try {
       const { data } = await handleGetSinglePatient(props.cardId);
@@ -78,7 +78,7 @@ const PatientDetails = (props: { cardId: string }) => {
     } finally {
       handleLoading(false);
     }
-  }, [patientData]);
+  };
 
   const handleSubmit = async () => {
     const { name, email, dateBorn, phone, rg } = clientData;
