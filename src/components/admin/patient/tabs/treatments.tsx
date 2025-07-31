@@ -71,7 +71,7 @@ const PatientTreatmentsTab = (props: ClientTreatmentsInterface) => {
     } finally {
       handleLoading(false);
     }
-  }, [patientData]);
+  }, []);
 
   useEffect(() => {
     getTreatments();
